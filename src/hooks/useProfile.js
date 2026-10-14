@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns rendered on the public portfolio page. Never include user_id or full_address here.
+const PUBLIC_PROFILE_COLUMNS =
+  'full_name, tagline, bio, location, email, phone_number, github_url, linkedin_url, instagram_url, resume_url, resume_link, hobbies, avatar_url, is_available'
+
+// The admin form also needs the row id (to update instead of insert) and full_address.
+const ADMIN_PROFILE_COLUMNS = `id, ${PUBLIC_PROFILE_COLUMNS}, full_address`
+
 /**
  * Custom Hook: useProfile
  * Provides read access for public.profiles table.
  * Fetches the primary portfolio profile record.
  *
+ * @param {{ includePrivateFields?: boolean }} [options]
+ *   Set includePrivateFields to true only in the admin CMS.
  * @returns {{
  *   profile: Object | null,
  *   isLoading: boolean,
@@ -13,7 +22,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useProfile() {
+export function useProfile({ includePrivateFields = false } = {}) {
   const [profile, setProfile] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -32,7 +41,7 @@ export function useProfile() {
       try {
         const { data, error: queryError } = await supabase
           .from('profiles')
-          .select('*')
+          .select(includePrivateFields ? ADMIN_PROFILE_COLUMNS : PUBLIC_PROFILE_COLUMNS)
           .limit(1)
           .maybeSingle()
 
@@ -64,7 +73,7 @@ export function useProfile() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includePrivateFields])
 
   return {
     profile,

@@ -1,68 +1,56 @@
 -- ==============================================================================
 -- MIGRATION: GUESTBOOK (Buku Tamu Publik)
 -- Timestamp: 2026-10-08T21:05:00Z
+-- Requires: private.is_admin() (already used by the other migrations)
 -- ==============================================================================
 
-CREATE TABLE IF NOT EXISTS guestbooks (
+CREATE TABLE IF NOT EXISTS public.guestbooks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   message TEXT NOT NULL,
   avatar_color VARCHAR(30) DEFAULT '#38bdf8',
-  is_pinned BOOLEAN DEFAULT false,
+  is_pinned BOOLEAN NOT NULL DEFAULT false,
   admin_reply TEXT,
   admin_reply_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT guestbooks_name_length CHECK (char_length(name) <= 100),
+  CONSTRAINT guestbooks_message_length CHECK (char_length(message) <= 240)
 );
 
 -- Enable Row Level Security (RLS)
-ALTER TABLE guestbooks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.guestbooks ENABLE ROW LEVEL SECURITY;
 
 -- 1. Public can read all guestbook entries
-DROP POLICY IF EXISTS "Allow public read access on guestbooks" ON guestbooks;
+DROP POLICY IF EXISTS "Allow public read access on guestbooks" ON public.guestbooks;
 CREATE POLICY "Allow public read access on guestbooks"
-  ON guestbooks FOR SELECT
+  ON public.guestbooks FOR SELECT
+  TO anon, authenticated
   USING (true);
 
--- 2. Public can insert new guestbook entry (leave a note)
-DROP POLICY IF EXISTS "Allow public insert on guestbooks" ON guestbooks;
+-- 2. Public can insert a new entry, but cannot set admin-only fields
+DROP POLICY IF EXISTS "Allow public insert on guestbooks" ON public.guestbooks;
 CREATE POLICY "Allow public insert on guestbooks"
-  ON guestbooks FOR INSERT
-  WITH CHECK (true);
+  ON public.guestbooks FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (
+    admin_reply IS NULL
+    AND admin_reply_at IS NULL
+    AND is_pinned = false
+  );
 
--- 3. Only authenticated admin can update entries (reply or pin message)
-DROP POLICY IF EXISTS "Allow authenticated update on guestbooks" ON guestbooks;
-CREATE POLICY "Allow authenticated update on guestbooks"
-  ON guestbooks FOR UPDATE
+-- 3. Only the admin can update entries (reply or pin)
+DROP POLICY IF EXISTS "Allow authenticated update on guestbooks" ON public.guestbooks;
+DROP POLICY IF EXISTS "Admin can update guestbooks" ON public.guestbooks;
+CREATE POLICY "Admin can update guestbooks"
+  ON public.guestbooks FOR UPDATE
   TO authenticated
-  USING (true)
-  WITH CHECK (true);
+  USING ((select private.is_admin()))
+  WITH CHECK ((select private.is_admin()));
 
--- 4. Only authenticated admin can delete entries
-DROP POLICY IF EXISTS "Allow authenticated delete on guestbooks" ON guestbooks;
-CREATE POLICY "Allow authenticated delete on guestbooks"
-  ON guestbooks FOR DELETE
+-- 4. Only the admin can delete entries
+DROP POLICY IF EXISTS "Allow authenticated delete on guestbooks" ON public.guestbooks;
+DROP POLICY IF EXISTS "Admin can delete guestbooks" ON public.guestbooks;
+CREATE POLICY "Admin can delete guestbooks"
+  ON public.guestbooks FOR DELETE
   TO authenticated
-  USING (true);
-
--- Initial seed sample entries to warm up the guestbook
-INSERT INTO guestbooks (name, message, avatar_color, is_pinned, admin_reply, admin_reply_at, created_at)
-VALUES 
-  (
-    'Duta Fithra Qolby',
-    'Keren banget websitenya bang! Desain dan animasinya sangat modern dan rapi 🔥',
-    '#38bdf8',
-    true,
-    'Makasih banyak sudah mampir dan ninggalin jejak bang! 🙌 Sukses selalu.',
-    now() - interval '1 hour',
-    now() - interval '2 days'
-  ),
-  (
-    'Priscilla Leza',
-    'Suka banget sama visual card dan detail portofolionya, keliatan niat banget dibuatnya!',
-    '#34d399',
-    false,
-    'Terima kasih banyak ya! Senang bisa bermanfaat ✨',
-    now() - interval '30 minutes',
-    now() - interval '1 day'
-  )
-ON CONFLICT DO NOTHING;
+  USING ((select private.is_admin()));

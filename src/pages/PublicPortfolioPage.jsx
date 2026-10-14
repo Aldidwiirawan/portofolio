@@ -45,7 +45,12 @@ function PublicPortfolioPage() {
   const { achievements: dbAchievements } = useAchievements()
   const { languages: dbLanguages } = useLanguages()
   const { organizations: dbOrganizations } = useOrganizations()
-  const { entries: guestbookEntries, totalCount: guestbookCount, addEntry: addGuestbookEntry } = useGuestbook()
+  const {
+    entries: guestbookEntries,
+    totalCount: guestbookCount,
+    error: guestbookError,
+    addEntry: addGuestbookEntry,
+  } = useGuestbook()
 
   const profile = dbProfile
     ? {
@@ -143,6 +148,7 @@ function PublicPortfolioPage() {
         entries={guestbookEntries}
         onAddEntry={addGuestbookEntry}
         totalCount={guestbookCount}
+        loadError={guestbookError}
       />
 
       {/* 5. Floating Bottom-Right Guestbook Trigger Pill (Styfen Style) */}

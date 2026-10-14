@@ -25,10 +25,15 @@ function formatDate(dateStr) {
  * Manages public guestbook comments and replies
  */
 function AdminGuestbookPage() {
-  const { entries, totalCount, replyEntry, deleteEntry } = useGuestbook()
+  const { entries, totalCount, error: loadError, replyEntry, deleteEntry } = useGuestbook()
   const [replyTexts, setReplyTexts] = useState({})
   const [savingId, setSavingId] = useState(null)
-  const [toastMsg, setToastMsg] = useState('')
+  const [toast, setToast] = useState(null)
+
+  const showToast = (type, msg) => {
+    setToast({ type, msg })
+    setTimeout(() => setToast(null), type === 'error' ? 6000 : 3000)
+  }
 
   const handleReplyChange = (id, val) => {
     setReplyTexts((prev) => ({ ...prev, [id]: val }))
@@ -41,20 +46,21 @@ function AdminGuestbookPage() {
     setSavingId(id)
     try {
       await replyEntry(id, text.trim())
-      setToastMsg('Balasan resmi [DEV ALDI] berhasil disimpan!')
-      setTimeout(() => setToastMsg(''), 3000)
-    } catch {
-      setToastMsg('Gagal menyimpan balasan.')
+      showToast('success', 'Balasan resmi [DEV ALDI] berhasil disimpan!')
+    } catch (err) {
+      showToast('error', err.message || 'Gagal menyimpan balasan.')
     } finally {
       setSavingId(null)
     }
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Yakin ingin menghapus catatan tamu ini?')) {
+    if (!window.confirm('Yakin ingin menghapus catatan tamu ini?')) return
+    try {
       await deleteEntry(id)
-      setToastMsg('Catatan tamu berhasil dihapus.')
-      setTimeout(() => setToastMsg(''), 3000)
+      showToast('success', 'Catatan tamu berhasil dihapus.')
+    } catch (err) {
+      showToast('error', err.message || 'Gagal menghapus catatan.')
     }
   }
 
@@ -92,9 +98,18 @@ function AdminGuestbookPage() {
             </div>
           </div>
 
-          {toastMsg && (
-            <div className="admin-alert-banner alert-banner-success" style={{ marginBottom: '1.5rem' }}>
-              {toastMsg}
+          {loadError && (
+            <div className="admin-guestbook-alert admin-guestbook-alert-error" role="alert">
+              {loadError}
+            </div>
+          )}
+
+          {toast && (
+            <div
+              className={`admin-guestbook-alert admin-guestbook-alert-${toast.type}`}
+              role={toast.type === 'error' ? 'alert' : 'status'}
+            >
+              {toast.msg}
             </div>
           )}
 

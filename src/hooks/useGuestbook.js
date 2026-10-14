@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
-const INITIAL_GUESTBOOK_MOCKS = [
+// Sample entries shown only in development when the guestbook table is unavailable
+const DEV_GUESTBOOK_MOCKS = [
   {
     id: 'mock-gb-1',
     name: 'Duta Fithra Qolby',
@@ -34,11 +35,17 @@ const AVATAR_COLORS = [
   '#2dd4bf', // Teal
 ]
 
+// Must match the CHECK constraints in the guestbook migration
+const MAX_NAME_LENGTH = 100
+const MAX_MESSAGE_LENGTH = 240
+
 /**
- * Hook for managing public guestbook entries
+ * Hook for managing public guestbook entries.
+ * addEntry, replyEntry and deleteEntry only touch local state after Supabase succeeds,
+ * and throw an Error with a user-facing message when it fails.
  */
 export function useGuestbook() {
-  const [entries, setEntries] = useState(INITIAL_GUESTBOOK_MOCKS)
+  const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -63,18 +70,19 @@ export function useGuestbook() {
         if (!isMounted) return
 
         if (fetchErr) {
-          // Table might not exist yet before migration is run
-          console.warn('Guestbook table not available yet, using fallback data:', fetchErr.message)
-          return
+          throw new Error(fetchErr.message)
         }
 
-        if (data && data.length > 0) {
-          setEntries(data)
-        }
+        setEntries(data ?? [])
       } catch (err) {
         if (!isMounted) return
-        console.warn('Guestbook fetch error:', err.message)
-        setError(err.message)
+        if (import.meta.env.DEV) {
+          console.warn('Guestbook unavailable, using dev mock data:', err.message)
+          setEntries(DEV_GUESTBOOK_MOCKS)
+        } else {
+          setEntries([])
+        }
+        setError('Gagal memuat buku tamu.')
       } finally {
         if (isMounted) setLoading(false)
       }
@@ -97,108 +105,74 @@ export function useGuestbook() {
     if (!trimmedName || !trimmedMessage) {
       throw new Error('Nama dan pesan wajib diisi.')
     }
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      throw new Error(`Nama maksimal ${MAX_NAME_LENGTH} karakter.`)
+    }
+    if (trimmedMessage.length > MAX_MESSAGE_LENGTH) {
+      throw new Error(`Pesan maksimal ${MAX_MESSAGE_LENGTH} karakter.`)
+    }
 
     const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]
 
-    const newRecord = {
-      name: trimmedName,
-      message: trimmedMessage,
-      avatar_color: randomColor,
-      is_pinned: false,
-      admin_reply: null,
-      admin_reply_at: null,
-      created_at: new Date().toISOString(),
+    // admin_reply, is_pinned and created_at are left to database defaults (enforced by RLS)
+    const { data, error: insertErr } = await supabase
+      .from('guestbooks')
+      .insert([{ name: trimmedName, message: trimmedMessage, avatar_color: randomColor }])
+      .select()
+      .single()
+
+    if (insertErr) {
+      console.error('Guestbook insert failed:', insertErr.message)
+      throw new Error('Gagal mengirim pesan. Silakan coba lagi nanti.')
     }
 
-    try {
-      const { data, error: insertErr } = await supabase
-        .from('guestbooks')
-        .insert([newRecord])
-        .select()
-        .single()
-
-      if (insertErr) {
-        console.warn('Supabase insert failed, storing optimistically in local state:', insertErr.message)
-        const mockSaved = {
-          ...newRecord,
-          id: `local-gb-${Date.now()}`,
-        }
-        setEntries((prev) => [mockSaved, ...prev])
-        return mockSaved
-      }
-
-      setEntries((prev) => [data, ...prev])
-      return data
-    } catch {
-      const mockSaved = {
-        ...newRecord,
-        id: `local-gb-${Date.now()}`,
-      }
-      setEntries((prev) => [mockSaved, ...prev])
-      return mockSaved
-    }
+    setEntries((prev) => [data, ...prev])
+    return data
   }
 
   /**
    * Admin reply to an entry
    */
   const replyEntry = async (id, replyText) => {
-    try {
-      const { data, error: updateErr } = await supabase
-        .from('guestbooks')
-        .update({
-          admin_reply: replyText,
-          admin_reply_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .select()
-        .single()
+    const { data, error: updateErr } = await supabase
+      .from('guestbooks')
+      .update({
+        admin_reply: replyText,
+        admin_reply_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single()
 
-      if (updateErr) {
-        setEntries((prev) =>
-          prev.map((e) =>
-            e.id === id
-              ? {
-                  ...e,
-                  admin_reply: replyText,
-                  admin_reply_at: new Date().toISOString(),
-                }
-              : e
-          )
-        )
-        return
-      }
-
-      setEntries((prev) => prev.map((e) => (e.id === id ? data : e)))
-      return data
-    } catch {
-      setEntries((prev) =>
-        prev.map((e) =>
-          e.id === id
-            ? {
-                ...e,
-                admin_reply: replyText,
-                admin_reply_at: new Date().toISOString(),
-              }
-            : e
-        )
-      )
+    if (updateErr) {
+      console.error('Guestbook reply failed:', updateErr.message)
+      throw new Error(`Gagal menyimpan balasan: ${updateErr.message}`)
     }
+
+    setEntries((prev) => prev.map((e) => (e.id === id ? data : e)))
+    return data
   }
 
   /**
    * Admin delete an entry
    */
   const deleteEntry = async (id) => {
-    try {
-      const { error: delErr } = await supabase.from('guestbooks').delete().eq('id', id)
-      if (delErr) {
-        console.warn('Supabase delete error:', delErr.message)
-      }
-      setEntries((prev) => prev.filter((e) => e.id !== id))
-    } catch {
-      setEntries((prev) => prev.filter((e) => e.id !== id))
+    // select() returns the deleted rows, so an RLS-blocked delete (0 rows) is detected too
+    const { data, error: delErr } = await supabase
+      .from('guestbooks')
+      .delete()
+      .eq('id', id)
+      .select('id')
+
+    if (delErr) {
+      console.error('Guestbook delete failed:', delErr.message)
+      throw new Error(`Gagal menghapus catatan: ${delErr.message}`)
     }
+    if (!data || data.length === 0) {
+      throw new Error('Gagal menghapus catatan: data tidak ditemukan atau akses ditolak.')
+    }
+
+    setEntries((prev) => prev.filter((e) => e.id !== id))
   }
 
   return {

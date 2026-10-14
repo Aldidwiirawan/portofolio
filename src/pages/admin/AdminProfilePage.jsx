@@ -484,7 +484,7 @@ function ProfileEditor({ profile, onSaveSuccess }) {
  * Provides comprehensive portfolio personal profile settings
  */
 function AdminProfilePage() {
-  const { profile, isLoading, error, refetch } = useProfile()
+  const { profile, isLoading, error, refetch } = useProfile({ includePrivateFields: true })
   const [successMessage, setSuccessMessage] = useState(null)
 
   const handleSaveSuccess = () => {

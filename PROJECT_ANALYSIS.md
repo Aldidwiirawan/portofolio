@@ -267,3 +267,47 @@ yang perlu dikembalikan.
     - 11 hook data punya pola fetch/loading/error/refetch yang hampir sama; bisa diringkas jadi satu
       hook generik.
     - Belum ada test otomatis.
+
+## 11. Perbaikan yang sudah dilakukan
+
+Branch `fix/security-guestbook` (dari `main`, 15 Oktober 2026). Menindaklanjuti temuan §10 nomor 1–5
+dan 10. **Migrasi belum dijalankan ke database**; harus dijalankan manual di SQL Editor Supabase.
+
+| Temuan | Perbaikan | File |
+|---|---|---|
+| §10.1 UPDATE/DELETE guestbook untuk semua `authenticated` | Policy diganti menjadi khusus admin: UPDATE `USING`/`WITH CHECK ((select private.is_admin()))`, DELETE `USING ((select private.is_admin()))` (Postgres tidak mendukung `WITH CHECK` pada DELETE) | `supabase/migrations/20261008010000_guestbook_schema.sql` |
+| §10.2 Pengunjung bisa memalsukan balasan admin | INSERT publik hanya jika `admin_reply IS NULL AND admin_reply_at IS NULL AND is_pinned = false`; `is_pinned` dan `created_at` menjadi `NOT NULL`; CHECK `char_length(name) <= 100` dan `char_length(message) <= 240`; 2 baris seed contoh dihapus | sama |
+| §10.3 Tabel guestbook belum ada | File migrasi siap dijalankan (lihat di bawah) | sama |
+| §10.4 Kegagalan disembunyikan | `addEntry`/`replyEntry`/`deleteEntry` hanya mengubah state setelah Supabase sukses dan melempar `Error` berisi pesan untuk pengguna bila gagal. `deleteEntry` juga mendeteksi hapus yang diblokir RLS (0 baris). Insert tidak lagi mengirim `admin_reply`, `is_pinned`, `created_at`. Data mock hanya dipakai saat `import.meta.env.DEV` (terverifikasi tidak ada di bundle produksi) | `src/hooks/useGuestbook.js` |
+| §10.4 (UI) | Drawer publik dan halaman admin menampilkan pesan gagal (kirim, balas, hapus, dan gagal memuat) dengan style error baru | `GuestbookDrawer.jsx/.css`, `AdminGuestbookPage.jsx/.css`, `PublicPortfolioPage.jsx` |
+| §10.5 `profiles` diambil dengan `select('*')` | Halaman publik mengambil 14 kolom eksplisit (tanpa `id`, `user_id`, `full_address`, `created_at`, `updated_at`). Admin memakai `useProfile({ includePrivateFields: true })` yang menambah `id` dan `full_address`. Tanpa `id` form admin akan meng-insert profil baru, bukan meng-update | `src/hooks/useProfile.js`, `src/pages/admin/AdminProfilePage.jsx` |
+| §10.10 Tombol "Login Admin" di navbar | Dihapus beserta CSS-nya. `/admin/login` tetap bisa dibuka lewat URL | `src/components/Navbar.jsx/.css` |
+
+**Verifikasi:** `npm run lint` 0 diagnostik (56 file); `npm run build` sukses (162 modul, bundle utama
+540 kB). Di `http://localhost:5173/` (Chrome headless): semua section tampil, tombol "Login Admin" sudah
+tidak ada, request `profiles` hanya memuat kolom publik, dan mengirim guestbook memunculkan "Gagal
+mengirim pesan. Silakan coba lagi nanti." (wajar karena tabel belum ada). Entri tidak bertambah palsu,
+dan body insert hanya berisi `name`, `message`, `avatar_color`. Tidak ada scroll horizontal di lebar 390 px.
+
+**Masih terbuka / temuan baru selama perbaikan**
+
+1. **Signup publik masih aktif** di Supabase Auth. Policy guestbook sudah aman, tapi tetap sebaiknya
+   dimatikan di dashboard (Authentication → Sign In / Providers → Email → nonaktifkan "Allow new users
+   to sign up").
+2. **Membatasi kolom di client belum mengamankan data.** Siapa pun masih bisa memanggil REST API
+   `profiles?select=*` dan mendapat `user_id` serta `full_address`. Perlindungan yang sebenarnya:
+   `REVOKE SELECT (user_id, full_address) ON public.profiles FROM anon` (column privilege) atau view
+   publik khusus.
+3. **Alamat lengkap tetap tampil di halaman publik.** `PublicPortfolioPage` memakai cadangan
+   `profileData.address` dari `src/data/portfolioData.js` saat `full_address` kosong, dan alamat itu
+   memang sudah ikut di bundle JS publik. Kalau alamat tidak boleh publik, hapus dari file statis dan
+   ubah `AboutSection` agar hanya menampilkan `location`.
+4. **Link admin kedua di footer.** `Footer.jsx` punya ikon gembok kecil ke `/admin/login` (sengaja,
+   "subtle discovery entry point"). Tidak diubah karena di luar permintaan.
+5. **Class alert admin tidak punya style.** `admin-alert`, `admin-alert-success`, `admin-alert-error`,
+   `admin-alert-banner`, `alert-banner-*` dipakai di 4 file halaman admin tapi tidak didefinisikan di CSS
+   mana pun, jadi pesan sukses/gagal di sana tampil sebagai teks polos. Guestbook sudah memakai class
+   baru; halaman admin lain belum.
+6. **Insert guestbook masih bisa mengisi `avatar_color` dan `created_at` sendiri** lewat API langsung
+   (misalnya `created_at` di masa depan agar selalu di urutan atas). Bisa ditambah ke `WITH CHECK`:
+   `created_at <= now() + interval '1 minute'` dan validasi format warna.

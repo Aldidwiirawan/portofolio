@@ -24,8 +24,9 @@ function formatRelativeDate(dateStr) {
  * @param {Array} props.entries
  * @param {Function} props.onAddEntry
  * @param {number} props.totalCount
+ * @param {string|null} [props.loadError]
  */
-function GuestbookDrawer({ isOpen, onClose, entries = [], onAddEntry, totalCount = 0 }) {
+function GuestbookDrawer({ isOpen, onClose, entries = [], onAddEntry, totalCount = 0, loadError = null }) {
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -139,7 +140,7 @@ function GuestbookDrawer({ isOpen, onClose, entries = [], onAddEntry, totalCount
             )}
 
             {formError && (
-              <div className="admin-alert-banner alert-banner-danger" style={{ padding: '8px 12px', fontSize: '0.8rem' }}>
+              <div className="guestbook-alert-error" role="alert">
                 {formError}
               </div>
             )}
@@ -185,7 +186,11 @@ function GuestbookDrawer({ isOpen, onClose, entries = [], onAddEntry, totalCount
 
           {/* List of Signatures */}
           <div className="guestbook-entries-list">
-            {entries.length === 0 ? (
+            {entries.length === 0 && loadError ? (
+              <div className="guestbook-alert-error" role="alert">
+                {loadError} Silakan muat ulang halaman.
+              </div>
+            ) : entries.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
                 Belum ada catatan. Jadilah yang pertama mengisi buku tamu!
               </p>

@@ -272,6 +272,16 @@
   font-weight: 600;
 }
 
+.guestbook-alert-error {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 /* Message List */
 .guestbook-entries-list {
   display: flex;

@@ -199,37 +199,6 @@
   color: #080b12;
 }
 
-.nav-admin-item {
-  margin-top: var(--space-2);
-  display: flex;
-}
-
-.btn-admin-quick-login {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.85rem;
-  font-size: 0.775rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px dashed rgba(255, 255, 255, 0.18);
-  border-radius: var(--radius-full);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.btn-admin-quick-login:hover {
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.5);
-  background: rgba(56, 189, 248, 0.12);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-  transform: translateY(-1px);
-}
-
 /* Desktop styles: Strict single horizontal row for brand and navigation links */
 @media (min-width: 880px) {
   .nav-toggle-btn {
@@ -278,16 +247,6 @@
   .btn-guestbook-nav {
     width: auto;
     padding: 0.35rem 0.8rem;
-  }
-
-  .nav-admin-item {
-    margin-top: 0;
-    margin-left: var(--space-2);
-  }
-
-  .btn-admin-quick-login {
-    width: auto;
-    padding: 0.35rem 0.7rem;
   }
 }
 
