@@ -1,0 +1,271 @@
+# Design System "Blueprint" — Master
+
+> **LOGIKA:** Saat membangun sebuah halaman, cek dulu `design-system/aldi-portfolio/pages/[nama-halaman].md`.
+> Jika file itu ada, aturannya **menimpa** file Master ini. Jika tidak ada, ikuti aturan di bawah.
+
+---
+
+**Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
+**Versi:** v1 · 15 Oktober 2026
+**Status penerapan:** token & font sudah ada di kode; dipakai oleh `/admin/login` (tahap 1).
+Panel admin (tahap 2) dan halaman publik (tahap 3) masih memakai token lama.
+**Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
+
+### Asal-usul & kurasi
+
+File ini dibuat dengan `ui-ux-pro-max --design-system --persist` (kueri: "personal developer portfolio
+admin CMS"), lalu **dikurasi manual**. Rekomendasi mentah generator ditolak karena tidak cocok:
+- gaya Brutalism + "Scroll-Triggered Storytelling": tidak cocok untuk CMS;
+- font Caveat + Quicksand (tulisan tangan): bertolak belakang dengan identitas "tech" situs;
+- palet monokrom: menghapus identitas biru/sky/emerald.
+
+Masukan yang dipakai dari pencarian lanjutan:
+- kueri admin: Fira Sans/Code ("dashboard, technical, precise");
+- kueri publik: aksen `#3B82F6` di latar gelap;
+- domain typography: Inter + JetBrains Mono ("developer, precision");
+- domain ux: accessible authentication, password toggle, error announcement, focus states.
+
+Dua arah ditawarkan: A "Blueprint" dan B "Studio" (teal + Space Grotesk/DM Sans). User memilih **A**.
+
+---
+
+## 1. Prinsip
+
+1. **Satu identitas, dua tema.** Halaman publik tetap gelap dan berkarakter (navy, gradien sky→emerald,
+   judul besar, aksen monospace). Login dan admin memakai tema **terang** untuk kerja yang tenang. Keduanya
+   memakai token yang sama.
+2. **Token dulu.** Komponen hanya memakai token semantic `--ds-*`. Hex mentah dan `--palette-*` tidak dipakai
+   langsung di komponen. Pengecualian yang terdokumentasi: warna latar `<html>` di halaman login.
+3. **Presisi, bukan dekorasi.** Grid titik/garis "blueprint" dan glow hanya di latar. Konten tetap bersih:
+   hierarki jelas, satu aksi utama per layar.
+4. **Aksesibel secara default.** Minimal WCAG 2.2 AA: kontras, fokus terlihat, keyboard penuh, label terlihat,
+   pesan error diumumkan.
+5. **Motion bermakna.** Gerak hanya untuk umpan balik dan kontinuitas, dan selalu menghormati
+   `prefers-reduced-motion`.
+
+## 2. Arsitektur token
+
+```
+Primitive  --palette-*     nilai mentah (hex)                → hanya dirujuk oleh token semantic
+Semantic   --ds-*          peran: canvas, text, accent, ...   → dipakai komponen; berubah per tema
+Component  --login-* dsb.  khusus komponen/halaman            → didefinisikan di CSS halaman itu
+```
+
+- **Tema** ditentukan oleh atribut `data-theme` pada elemen pembungkus:
+  - `:root` dan `[data-theme="dark"]` → nilai gelap (default dokumen, sesuai halaman publik);
+  - `[data-theme="light"]` → nilai terang.
+- **Tema boleh bersarang.** Contoh: panel brand gelap (`data-theme="dark"`) di dalam halaman login terang.
+  Token semantic dideklarasikan ulang pada elemen ber-`data-theme`, jadi nilainya benar di setiap sub-pohon.
+- `color-scheme` hanya di-set pada `[data-theme]`, bukan di `:root`. Tujuannya agar scrollbar/kontrol
+  native halaman publik tidak berubah sebelum tahap 3.
+- **Token lama tetap hidup.** `--color-*`, `--shadow-*`, `--transition-*`, `--font-*` masih dipakai publik
+  dan admin. **Jangan hapus atau ganti namanya** sampai halaman yang memakainya dimigrasikan (lihat §9).
+
+## 3. Warna
+
+### Token semantic
+
+Rasio kontras dihitung terhadap latar tempat token itu dipakai (WCAG 2.x). Teks minimal 4.5:1; elemen UI
+(border kontrol, ikon bermakna, focus ring) minimal 3:1.
+
+| Token | Terang | Gelap | Kegunaan | Kontras (terang / gelap) |
+|---|---|---|---|---|
+| `--ds-canvas` | `#F6F8FB` | `#0A0D14` | latar halaman | — |
+| `--ds-surface` | `#FFFFFF` | `#111625` | kartu, input | — |
+| `--ds-surface-raised` | `#FFFFFF` | `#171F33` | elemen terangkat (menu, popover) | — |
+| `--ds-inset` | `#F1F5F9` | `#0A0D14` | area tenggelam, hover tombol ikon | — |
+| `--ds-border` | `#E2E8F0` | `#1F293D` | garis pemisah, border kartu (dekoratif) | — |
+| `--ds-border-control` | `#808C9F` | `#5B6B85` | border input/kontrol | 3.40 di putih, 3.20 di canvas / 3.34 di surface |
+| `--ds-text-strong` | `#0F172A` | `#F8FAFC` | judul, label, isi input | 17.85 / 18.57 |
+| `--ds-text` | `#334155` | `#CBD5E1` | teks isi | 10.35 / 12.14 |
+| `--ds-text-muted` | `#475569` | `#94A3B8` | teks sekunder, subtitle | 7.58 / 7.58 |
+| `--ds-text-subtle` | `#5B6B80` | `#7C8BA1` | placeholder, hint | 5.44 / 5.20 |
+| `--ds-accent` | `#2563EB` | `#2563EB` | latar tombol utama | teks putih 5.17 |
+| `--ds-accent-hover` | `#1D4ED8` | `#1D4ED8` | hover/aktif tombol utama | teks putih 6.70 |
+| `--ds-accent-subtle` | `#EFF6FF` | `#172554` | latar badge/sorotan | — |
+| `--ds-on-accent` | `#FFFFFF` | `#FFFFFF` | teks di atas aksen | — |
+| `--ds-accent-text` | `#1D4ED8` | `#60A5FA` | teks/tautan beraksen | 6.16 di subtle / 7.64 |
+| `--ds-focus-ring` | `#2563EB` | `#60A5FA` | outline fokus | 5.17 / 7.09 |
+| `--ds-danger-text` | `#B91C1C` | `#FCA5A5` | teks error | 5.91 di danger-bg / 9.10 |
+| `--ds-danger-bg` | `#FEF2F2` | `#2B1418` | latar pesan error | — |
+| `--ds-danger-border` | `#DC2626` | `#F87171` | border pesan/field error | 4.83 / 6.51 |
+| `--ds-success-text` | `#047857` | `#6EE7B7` | teks sukses | 5.21 / 10.02 |
+| `--ds-success-bg` | `#ECFDF5` | `#0F2A22` | latar pesan sukses | — |
+| `--ds-brand-from` → `--ds-brand-to` | `#38BDF8` → `#34D399` | sama | gradien identitas (dekoratif) | — |
+
+**Aturan warna**
+- Gradien brand hanya untuk aksen dekoratif (monogram, garis tipis, glow), **bukan** untuk teks isi atau tombol.
+- Status (error/sukses) tidak boleh hanya mengandalkan warna. Wajib ada ikon dan/atau teks.
+- Tombol utama di tema gelap juga memakai `#2563EB`, bukan `#3B82F6` lama, karena teks putih di `#3B82F6`
+  hanya 3.68:1.
+
+### Primitive yang tersedia
+
+`--palette-white`; `--palette-slate-50/75/100/200/300/400/600/700/900`; `--palette-steel-300/400/500`
+(abu kustom yang lolos kontras); `--palette-navy-500/800/850/900/950`; `--palette-blue-50/300/400/600/700/950`;
+`--palette-sky-400`; `--palette-emerald-50/300/400/700/950`; `--palette-red-50/300/400/600/700/950`.
+
+## 4. Tipografi
+
+| Peran | Font | Token |
+|---|---|---|
+| UI, isi, judul | **Inter** (variable, 100–900) | `--ds-font-sans` |
+| Label teknis, badge, kode | **JetBrains Mono** (variable) | `--ds-font-mono` |
+
+- **Dimuat lewat Fontsource:** `@fontsource-variable/inter` dan `@fontsource-variable/jetbrains-mono`
+  (self-hosted, tanpa request ke Google), di-import di `src/main.jsx`.
+- Nama family `'Inter Variable'` / `'JetBrains Mono Variable'` sengaja berbeda dari deklarasi lama
+  `'Inter'`. Akibatnya halaman yang masih memakai `--font-sans` lama tidak berubah sampai dimigrasikan.
+  File woff2 hanya diunduh di halaman yang benar-benar memakai font tersebut.
+
+| Token | Ukuran | Pemakaian umum |
+|---|---|---|
+| `--ds-fs-xs` | 12px | badge, caption (minimum mutlak) |
+| `--ds-fs-sm` | 14px | label, teks pendukung, pesan |
+| `--ds-fs-md` | 16px | isi, **input (wajib ≥16px agar iOS tidak zoom)**, tombol |
+| `--ds-fs-lg` | 18px | lead paragraph |
+| `--ds-fs-xl` | 20px | judul kecil |
+| `--ds-fs-2xl` | 24px | judul section admin |
+| `--ds-fs-3xl` | 30px | judul halaman |
+| `--ds-fs-4xl` | 36px | judul besar admin; hero publik memakai `clamp()` sendiri |
+
+- Line-height: `--ds-lh-tight` 1.2 (judul), `--ds-lh-snug` 1.35 (label), `--ds-lh-normal` 1.5 (UI),
+  `--ds-lh-relaxed` 1.65 (paragraf).
+- Weight: 400 isi, 500 tautan/teks penegas, 600 label & tombol, 700 judul, 800 hanya untuk display.
+- Tracking: `--ds-tracking-tight` (-0.02em) untuk judul; `--ds-tracking-wide` (0.08em) **hanya** untuk label
+  uppercase kecil (badge). Jangan ubah tracking teks isi.
+- Panjang baris paragraf 60–75 karakter. Judul pendek memakai `text-wrap: balance`.
+
+## 5. Spacing, radius, shadow, ukuran
+
+- **Spacing:** pakai skala lama `--space-1..24` (kelipatan 4px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96).
+  Ritme vertikal: 8 (dalam grup) → 16–24 (antar field/blok) → 32–48 (antar section).
+- **Radius:** `--radius-sm` 6px (tombol ikon), `--radius-md` 10px (input, tombol, alert),
+  `--radius-lg` 16px (kartu), `--radius-xl` 24px (panel besar), `--radius-full` (badge, pill).
+- **Shadow (per tema):** `--ds-shadow-sm` (tombol, kartu di mobile), `--ds-shadow-md` (kartu ≥768px),
+  `--ds-shadow-lg` (dialog, popover). Token `--shadow-*` lama hanya cocok untuk tema gelap.
+- **Ukuran kontrol:** `--ds-control-height` 48px (input, tombol utama); `--ds-target-min` 44px (semua
+  target sentuh, termasuk tombol ikon dan tautan penting).
+- **Breakpoint:** desain mobile-first. Uji wajib di 375, 768, 1024, 1440; layout berganti di 768 dan 1024.
+
+## 6. Motion
+
+| Token | Nilai | Untuk |
+|---|---|---|
+| `--ds-duration-fast` | 120ms | hover, warna, tekan |
+| `--ds-duration-base` | 200ms | buka/tutup elemen kecil |
+| `--ds-duration-slow` | 320ms | elemen masuk (kartu, panel) |
+| `--ds-ease-out` | `cubic-bezier(0.16, 1, 0.3, 1)` | elemen masuk / umpan balik |
+| `--ds-ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` | perpindahan posisi |
+
+- Animasikan hanya `transform` dan `opacity`. Jangan animasikan `width`, `height`, `top`, atau `left`.
+- Maksimal 1–2 elemen bergerak per layar. Animasi keluar lebih cepat dari animasi masuk.
+- Saat `prefers-reduced-motion: reduce`, durasi `--ds-*` otomatis menjadi 0. Animasi tak hingga (spinner)
+  wajib dimatikan eksplisit di CSS komponen, dengan teks status tetap tampil.
+
+## 7. Komponen dasar (spesifikasi state)
+
+Implementasi acuan ada di `src/pages/admin/AdminLoginPage.css`. Di tahap 2, komponen ini diekstrak ke
+stylesheet bersama untuk dipakai halaman admin.
+
+| Komponen | Default | Hover | Fokus (keyboard) | Aktif / Busy | Nonaktif |
+|---|---|---|---|---|---|
+| Tombol utama | bg `accent`, teks `on-accent`, 48px, radius md, `shadow-sm` | bg `accent-hover` | outline 2px `focus-ring`, offset 2px | `translateY(1px)`; busy: spinner + teks proses, `aria-disabled="true"`, `cursor: progress` | `disabled` + opacity 0.5, `cursor: not-allowed` |
+| Input teks | bg `surface`, border `border-control`, teks `text-strong`, 48px, 16px | border `text-muted` | border `accent` + outline 2px `focus-ring` offset 1px | — | bg `inset`, teks `text-subtle` |
+| Tombol ikon (mis. toggle password) | transparan, ikon `text-muted`, target 44×44 | bg `inset`, ikon `text-strong` | outline 2px, offset -2px | — | — |
+| Alert error | bg `danger-bg`, border `danger-border`, teks `danger-text`, ikon + teks | — | (bisa difokuskan bila perlu) | — | — |
+| Badge | mono 12px uppercase, bg `accent-subtle`, teks `accent-text`, pill | — | — | — | — |
+| Tautan sekunder | teks `text-muted` 14px/500, min-height 44px | teks `text-strong` + underline | outline 2px | — | — |
+| Spinner | border `currentColor` dengan satu sisi transparan, 0.8s linear | — | — | — | reduced motion: diam (opacity 0.6) |
+
+**Aturan form**
+- Label selalu terlihat (`<label for>`). Placeholder hanya contoh format, bukan pengganti label.
+- Gunakan `type`, `name`, `autocomplete`, dan `inputmode` yang benar. Jangan pernah memblokir paste atau
+  password manager (WCAG 2.2 *Accessible Authentication*).
+- Field password wajib punya tombol show/hide: `type="button"`, label tetap, `aria-pressed`, `aria-controls`.
+- Pesan error memakai region `role="alert"` yang **selalu ada di DOM**, dengan kotak yang baru muncul saat ada
+  pesan. Field terkait diberi `aria-describedby` ke region itu. Error autentikasi tidak menunjuk field
+  tertentu, supaya tidak membocorkan field mana yang salah.
+- Saat submit berjalan, pakai `aria-disabled` + guard (bukan `disabled`) agar fokus keyboard tidak hilang.
+  Fokus tetap di tempatnya setelah submit gagal.
+- Pesan mentah dari Supabase (bahasa Inggris) dipetakan ke kalimat Indonesia yang menjelaskan sebab dan
+  langkah berikutnya.
+
+## 8. Aksesibilitas (wajib)
+
+- [ ] Kontras teks ≥4.5:1, elemen UI dan focus ring ≥3:1 (cek kedua tema bila keduanya dipakai).
+- [ ] Setiap kontrol interaktif punya outline `:focus-visible` (outline asli, bukan hanya box-shadow, supaya
+      terlihat di Windows High Contrast / forced-colors).
+- [ ] Urutan Tab mengikuti urutan visual, dan semua fungsi bisa dipakai dengan keyboard (Enter submit, Space
+      toggle).
+- [ ] Target sentuh ≥44×44px.
+- [ ] Ikon dekoratif `aria-hidden="true"`; tombol ikon punya nama aksesibel.
+- [ ] Landmark jelas (`header`, `main`) dan hierarki heading berurutan (satu `h1` per halaman).
+- [ ] Status dinamis diumumkan (`role="alert"` untuk error, `role="status"` untuk proses).
+- [ ] `prefers-reduced-motion` dihormati; tidak ada scroll horizontal di 375px.
+- [ ] `<html lang="id">` (sudah di-set di `index.html`).
+
+## 9. Pemetaan token lama → baru (untuk tahap 2–3)
+
+| Token lama | Pengganti | Catatan |
+|---|---|---|
+| `--color-bg-primary` | `--ds-canvas` | |
+| `--color-bg-surface` | `--ds-surface` | |
+| `--color-bg-surface-hover` / `--color-bg-subtle` | `--ds-surface-raised` / `--ds-inset` | sesuaikan per konteks |
+| `--color-bg-card` | `--ds-surface` (+ transparansi lokal bila perlu efek kaca) | |
+| `--color-border` | `--ds-border` | kontrol form → `--ds-border-control` |
+| `--color-border-hover` | `--ds-border-control` | |
+| `--color-text-primary` | `--ds-text-strong` | |
+| `--color-text-secondary` | `--ds-text-muted` | |
+| `--color-text-muted` | `--ds-text-subtle` | **memperbaiki kontras** (4.08 → 5.61:1 di gelap) |
+| `--color-primary` | `--ds-accent` (latar) / `--ds-accent-text` (teks) | latar tombol `#3B82F6` → `#2563EB` (3.68 → 5.17:1) |
+| `--color-primary-hover` | `--ds-accent-hover` | |
+| `--color-primary-light` | `--ds-accent-subtle` | |
+| `--color-accent` (cyan) | `--ds-brand-from` / `--ds-brand-to` | hanya dekoratif |
+| `--color-success` / `--color-danger` | `--ds-success-*` / `--ds-danger-*` | |
+| `--font-sans` / `--font-mono` | `--ds-font-sans` / `--ds-font-mono` | migrasi ini mengubah font publik secara visual |
+| `--shadow-sm/md/lg` | `--ds-shadow-sm/md/lg` | |
+| `--transition-fast/normal/slow` | `--ds-duration-*` + `--ds-ease-*` | |
+| `--color-bg-base`, `--color-bg-elevated` | `--ds-canvas`, `--ds-surface-raised` | **saat ini tidak terdefinisi** (lihat §10) |
+
+Setelah sebuah halaman selesai dimigrasi, token lama yang tidak lagi dipakai boleh dijadikan alias
+(`--color-x: var(--ds-y)` di dalam `:root, [data-theme]`), lalu dihapus di akhir tahap 3.
+
+## 10. Temuan audit (15 Oktober 2026)
+
+1. Font Inter/JetBrains Mono dideklarasikan tetapi **tidak pernah dimuat**, jadi halaman lama tampil dengan
+   font sistem. `.btn` tidak mewarisi `font-family`, sehingga teks tombol tampil dengan font default browser.
+2. Kontras gagal di tema lama: teks putih di `.btn-primary` (`#3B82F6`) = 3.68:1; `--color-text-muted`
+   `#64748B` di `#0A0D14` = 4.08:1 (dipakai 51×).
+3. Tidak ada `prefers-reduced-motion` di mana pun sebelum tahap 1. `:focus-visible` hanya ada di `.btn`
+   dan Navbar.
+4. Variabel dipakai tapi tidak didefinisikan: `--color-bg-base` (AdminGuestbookPage.css ×2),
+   `--color-bg-elevated` (AdminProjectsPage.css).
+5. Class alert admin (`admin-alert*`, `alert-banner-*`) tidak punya CSS sama sekali.
+6. `.admin-back-link` dipakai 4 halaman admin tetapi hanya didefinisikan di `AdminLoginPage.css`. Style-nya
+   hanya ada jika halaman login pernah dimuat dalam sesi itu.
+7. Banyak warna hex mentah di CSS komponen publik (`#38BDF8` 13×, `#FFFFFF` 26×, dst.), dan emoji dipakai
+   sebagai ikon (kapsul hero, tombol guestbook).
+
+## 11. Anti-pattern (jangan dilakukan)
+
+- ❌ Emoji sebagai ikon struktural. Pakai SVG inline dengan satu gaya (stroke 1.8, ujung bulat), tanpa
+  menambah library ikon tanpa persetujuan.
+- ❌ Hex mentah atau `--palette-*` langsung di CSS komponen. Pakai `--ds-*`.
+- ❌ Menghapus outline fokus tanpa pengganti, atau fokus yang hanya berupa box-shadow.
+- ❌ Placeholder sebagai pengganti label, atau memblokir paste di field password.
+- ❌ `disabled` pada tombol submit yang sedang fokus (fokus keyboard hilang). Pakai `aria-disabled` + guard.
+- ❌ Gradien brand untuk teks isi atau latar tombol.
+- ❌ Hover yang menggeser layout, atau animasi `width/height/top/left`.
+- ❌ Migrasi ke Tailwind atau menambah framework UI tanpa persetujuan pemilik project.
+
+## 12. Pre-delivery checklist
+
+- [ ] Hanya token `--ds-*` di CSS komponen baru.
+- [ ] `npm run lint` 0 diagnostik, `npm run build` sukses.
+- [ ] Dicek di 375 / 768 / 1024 / 1440: tanpa scroll horizontal, tidak ada konten tertutup.
+- [ ] Keyboard: urutan Tab benar, fokus terlihat, Enter/Space bekerja.
+- [ ] Kontras dihitung dari computed style (bukan ditebak).
+- [ ] Reduced motion diuji (emulasi `prefers-reduced-motion: reduce`).
+- [ ] Halaman lain tidak berubah (bandingkan computed style/tinggi section dengan baseline).
+- [ ] Screenshot sebelum/sesudah disimpan di `screenshots/<halaman>/`.

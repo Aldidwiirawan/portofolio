@@ -70,6 +70,164 @@
 }
 
 /* ==========================================================================
+   DESIGN SYSTEM "BLUEPRINT" v1 — token bersama
+   Dokumentasi: design-system/aldi-portfolio/MASTER.md
+   Tiga lapis: primitive (--palette-*) -> semantic (--ds-*) -> component (di CSS
+   masing-masing halaman). Token lama di atas (--color-*, --shadow-*, dst.) masih
+   dipakai halaman publik & admin sampai dimigrasikan; jangan hapus/ganti namanya.
+   ========================================================================== */
+
+:root {
+  /* Primitive: nilai mentah. Komponen memakai token --ds-*, bukan ini. */
+  --palette-white: #ffffff;
+  --palette-slate-50: #f8fafc;
+  --palette-slate-75: #f6f8fb;
+  --palette-slate-100: #f1f5f9;
+  --palette-slate-200: #e2e8f0;
+  --palette-slate-300: #cbd5e1;
+  --palette-slate-400: #94a3b8;
+  --palette-slate-600: #475569;
+  --palette-slate-700: #334155;
+  --palette-slate-900: #0f172a;
+  --palette-steel-300: #7c8ba1; /* teks subtle gelap */
+  --palette-steel-400: #808c9f; /* border kontrol terang, >=3:1 di putih/canvas */
+  --palette-steel-500: #5b6b80; /* teks subtle terang */
+  --palette-navy-500: #5b6b85; /* border kontrol gelap */
+  --palette-navy-800: #1f293d;
+  --palette-navy-850: #171f33;
+  --palette-navy-900: #111625;
+  --palette-navy-950: #0a0d14;
+  --palette-blue-50: #eff6ff;
+  --palette-blue-300: #93c5fd;
+  --palette-blue-400: #60a5fa;
+  --palette-blue-600: #2563eb;
+  --palette-blue-700: #1d4ed8;
+  --palette-blue-950: #172554;
+  --palette-sky-400: #38bdf8;
+  --palette-emerald-50: #ecfdf5;
+  --palette-emerald-300: #6ee7b7;
+  --palette-emerald-400: #34d399;
+  --palette-emerald-700: #047857;
+  --palette-emerald-950: #0f2a22;
+  --palette-red-50: #fef2f2;
+  --palette-red-300: #fca5a5;
+  --palette-red-400: #f87171;
+  --palette-red-600: #dc2626;
+  --palette-red-700: #b91c1c;
+  --palette-red-950: #2b1418;
+
+  /* Tipografi */
+  --ds-font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ds-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --ds-fs-xs: 0.75rem;   /* 12px */
+  --ds-fs-sm: 0.875rem;  /* 14px */
+  --ds-fs-md: 1rem;      /* 16px */
+  --ds-fs-lg: 1.125rem;  /* 18px */
+  --ds-fs-xl: 1.25rem;   /* 20px */
+  --ds-fs-2xl: 1.5rem;   /* 24px */
+  --ds-fs-3xl: 1.875rem; /* 30px */
+  --ds-fs-4xl: 2.25rem;  /* 36px */
+  --ds-lh-tight: 1.2;
+  --ds-lh-snug: 1.35;
+  --ds-lh-normal: 1.5;
+  --ds-lh-relaxed: 1.65;
+  --ds-fw-regular: 400;
+  --ds-fw-medium: 500;
+  --ds-fw-semibold: 600;
+  --ds-fw-bold: 700;
+  --ds-fw-heavy: 800;
+  --ds-tracking-tight: -0.02em;
+  --ds-tracking-wide: 0.08em;
+
+  /* Motion */
+  --ds-duration-fast: 120ms;
+  --ds-duration-base: 200ms;
+  --ds-duration-slow: 320ms;
+  --ds-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ds-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Interaksi & ukuran kontrol (spacing & radius memakai --space-* dan --radius-* di atas) */
+  --ds-focus-ring-width: 2px;
+  --ds-focus-ring-offset: 2px;
+  --ds-control-height: 3rem; /* 48px */
+  --ds-target-min: 2.75rem;  /* 44px */
+}
+
+/* Semantic — tema gelap (default dokumen, dipakai halaman publik) */
+:root,
+[data-theme='dark'] {
+  --ds-canvas: var(--palette-navy-950);
+  --ds-surface: var(--palette-navy-900);
+  --ds-surface-raised: var(--palette-navy-850);
+  --ds-inset: var(--palette-navy-950);
+  --ds-border: var(--palette-navy-800);
+  --ds-border-control: var(--palette-navy-500);
+  --ds-text-strong: var(--palette-slate-50);
+  --ds-text: var(--palette-slate-300);
+  --ds-text-muted: var(--palette-slate-400);
+  --ds-text-subtle: var(--palette-steel-300);
+  --ds-accent: var(--palette-blue-600);
+  --ds-accent-hover: var(--palette-blue-700);
+  --ds-accent-subtle: var(--palette-blue-950);
+  --ds-on-accent: var(--palette-white);
+  --ds-accent-text: var(--palette-blue-400);
+  --ds-focus-ring: var(--palette-blue-400);
+  --ds-danger-text: var(--palette-red-300);
+  --ds-danger-bg: var(--palette-red-950);
+  --ds-danger-border: var(--palette-red-400);
+  --ds-success-text: var(--palette-emerald-300);
+  --ds-success-bg: var(--palette-emerald-950);
+  --ds-brand-from: var(--palette-sky-400);
+  --ds-brand-to: var(--palette-emerald-400);
+  --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --ds-shadow-md: 0 4px 12px rgb(0 0 0 / 0.45);
+  --ds-shadow-lg: 0 16px 40px rgb(0 0 0 / 0.55);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Semantic — tema terang (login & admin) */
+[data-theme='light'] {
+  color-scheme: light;
+  --ds-canvas: var(--palette-slate-75);
+  --ds-surface: var(--palette-white);
+  --ds-surface-raised: var(--palette-white);
+  --ds-inset: var(--palette-slate-100);
+  --ds-border: var(--palette-slate-200);
+  --ds-border-control: var(--palette-steel-400);
+  --ds-text-strong: var(--palette-slate-900);
+  --ds-text: var(--palette-slate-700);
+  --ds-text-muted: var(--palette-slate-600);
+  --ds-text-subtle: var(--palette-steel-500);
+  --ds-accent: var(--palette-blue-600);
+  --ds-accent-hover: var(--palette-blue-700);
+  --ds-accent-subtle: var(--palette-blue-50);
+  --ds-on-accent: var(--palette-white);
+  --ds-accent-text: var(--palette-blue-700);
+  --ds-focus-ring: var(--palette-blue-600);
+  --ds-danger-text: var(--palette-red-700);
+  --ds-danger-bg: var(--palette-red-50);
+  --ds-danger-border: var(--palette-red-600);
+  --ds-success-text: var(--palette-emerald-700);
+  --ds-success-bg: var(--palette-emerald-50);
+  --ds-brand-from: var(--palette-sky-400);
+  --ds-brand-to: var(--palette-emerald-400);
+  --ds-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08);
+  --ds-shadow-md: 0 4px 12px rgb(15 23 42 / 0.08);
+  --ds-shadow-lg: 0 16px 40px rgb(15 23 42 / 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ds-duration-fast: 0ms;
+    --ds-duration-base: 0ms;
+    --ds-duration-slow: 0ms;
+  }
+}
+
+/* ==========================================================================
    CSS RESET & BASE STYLES
    ========================================================================== */
 
