@@ -1,0 +1,224 @@
+/* Background blueprint — dekoratif. Letakkan sebagai anak pertama container yang punya
+   position + isolation; lapisan ini berada di z-index -1 dan tidak menangkap klik. */
+
+.bp-bg {
+  --bp-line: color-mix(in srgb, var(--ds-text-strong) 6%, transparent);
+  --bp-line-major: color-mix(in srgb, var(--ds-text-strong) 10%, transparent);
+  --bp-ink: color-mix(in srgb, var(--ds-accent-text) 55%, transparent);
+  --bp-label: var(--ds-text-subtle);
+  --bp-cycle: 12s;
+
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --- Grid ---------------------------------------------------------------- */
+
+.bp-grid-mask {
+  position: absolute;
+  inset: 0;
+  mask-image: radial-gradient(ellipse at 50% 45%, #000 30%, transparent 80%);
+}
+
+/* Lebih besar 128 px di tiap sisi supaya pergeseran satu periode (128 px) tetap menutup area */
+.bp-grid {
+  position: absolute;
+  inset: -128px;
+  background-image:
+    linear-gradient(var(--bp-line-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line-major) 1px, transparent 1px),
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size:
+    128px 128px,
+    128px 128px,
+    32px 32px,
+    32px 32px;
+}
+
+.bp-bg--busy .bp-grid {
+  animation: bp-drift 64s linear infinite;
+  will-change: transform;
+}
+
+@keyframes bp-drift {
+  to {
+    transform: translate3d(128px, 128px, 0);
+  }
+}
+
+/* --- Garis ukur (busy) --------------------------------------------------- */
+
+.bp-measure {
+  position: absolute;
+  color: var(--bp-ink);
+}
+
+.bp-measure svg {
+  display: block;
+}
+
+.bp-measure-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: bp-draw var(--bp-cycle) var(--ds-ease-in-out) var(--bp-delay, 0s) infinite;
+}
+
+.bp-measure-label {
+  position: absolute;
+  color: var(--bp-label);
+  font-family: var(--ds-font-mono);
+  font-size: 10px;
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  opacity: 0;
+  animation: bp-label var(--bp-cycle) linear var(--bp-delay, 0s) infinite;
+}
+
+.bp-measure--x .bp-measure-label {
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bp-measure--y .bp-measure-label {
+  top: 50%;
+  left: 28px;
+  transform: translateY(-50%);
+}
+
+@keyframes bp-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  18%,
+  70% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  82%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes bp-label {
+  0%,
+  14% {
+    opacity: 0;
+  }
+  22%,
+  70% {
+    opacity: 1;
+  }
+  82%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- Tanda crosshair kecil (busy) ---------------------------------------- */
+
+.bp-mark {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  color: var(--bp-ink);
+  background:
+    linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
+  opacity: 0.35;
+  animation: bp-pulse 5s ease-in-out infinite alternate;
+}
+
+.bp-mark:nth-of-type(2) { animation-delay: -1.2s; }
+.bp-mark:nth-of-type(3) { animation-delay: -2.4s; }
+.bp-mark:nth-of-type(4) { animation-delay: -3.6s; }
+.bp-mark:nth-of-type(5) { animation-delay: -4.8s; }
+
+@keyframes bp-pulse {
+  to {
+    opacity: 0.8;
+  }
+}
+
+/* --- Garis pindai (calm) ------------------------------------------------- */
+
+.bp-scan {
+  position: absolute;
+  inset: 0;
+  animation: bp-scan 10s linear infinite;
+  will-change: transform;
+}
+
+.bp-scan::before,
+.bp-scan::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+
+.bp-scan::before {
+  top: -48px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--ds-accent-text) 7%, transparent));
+}
+
+.bp-scan::after {
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bp-ink) 20%, var(--bp-ink) 80%, transparent);
+}
+
+@keyframes bp-scan {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(100% + 48px));
+  }
+}
+
+/* --- Jeda (tab tersembunyi / di luar layar) & aksesibilitas --------------- */
+
+.bp-bg[data-paused='true'],
+.bp-bg[data-paused='true'] * {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bp-bg *,
+  .bp-bg *::before,
+  .bp-bg *::after {
+    animation: none !important;
+  }
+
+  .bp-measure-line {
+    stroke-dashoffset: 0;
+  }
+
+  .bp-measure-label {
+    opacity: 1;
+  }
+
+  .bp-scan {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .bp-bg {
+    display: none;
+  }
+}
