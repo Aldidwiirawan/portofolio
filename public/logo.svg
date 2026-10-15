@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">Logo Aldi Dwi Irawan</title>
+  <g id="logo" fill="currentColor">
+    <path id="logo-i-cap" d="M24 24H172L121.5 96H24Z"/>
+    <path id="logo-i" d="M40 128H104V416H120V488H24V416H40Z"/>
+    <path id="logo-a-left" d="M204 24H274L190 144H232V128H250L286 200H152L120 245.5V144Z"/>
+    <path id="logo-a-right" d="M283 34L392 252V280H328V252L245.5 87.5Z"/>
+    <path id="logo-l" d="M157 216H200V416H392V488H136V245.5Z"/>
+    <path id="logo-d-cap" d="M294 24H488V112A80 80 0 0 0 440 96H330Z"/>
+    <path id="logo-d" d="M346 128H440A48 48 0 0 1 488 176V328A56 56 0 0 1 432 384H232V216H296V312H424V200H382Z"/>
+    <path id="logo-d-foot" d="M424 415.5A88 88 0 0 0 488 396V488H424Z"/>
+  </g>
+</svg>
