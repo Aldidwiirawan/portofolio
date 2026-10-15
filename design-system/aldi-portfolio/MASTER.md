@@ -310,6 +310,9 @@ Util UI: `src/lib/useMediaQuery.js` berisi `useMediaQuery(query)`, `usePrefersRe
 - **Ukuran tajam:** pakai kelipatan 64 px (semua garis grid jatuh di piksel). Di kelipatan ganjil 32 px
   (32, 96) viewBox otomatis digeser 8 unit supaya tepi tegak tetap di piksel. Di bawah 24 px pakai
   `public/favicon.svg` (versi sederhana grid 16 px).
+- `trim`: memangkas margin 24 unit (viewBox `24 24 464 464`) supaya logo yang terlihat mengisi kotaknya,
+  misalnya di samping teks. Ukuran tajam dengan `trim`: kelipatan 58 px (semua garis grid di piksel bulat);
+  29 px menjaga semua tepi tegak tajam. Pastikan posisi logo juga di piksel bulat.
 - Favicon dan ikon: `favicon.svg` (terang/gelap lewat `prefers-color-scheme` di dalam SVG),
   `apple-touch-icon.png` 180, `icon-512.png` (di `site.webmanifest`). Rincian di
   `screenshots/logo-check/metrics.md`.

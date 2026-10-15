@@ -22,17 +22,23 @@ dijelaskan di Master §13.
 
 | Lebar | Susunan |
 |---|---|
-| < 768px | Bar brand gelap ringkas dengan lockup horizontal kecil (logo 32 px dalam bingkai 40 px). Area form dengan padding atas 16 px: robot 88 px di **docking pod** yang menempel di tepi atas kartu (tidak menutupi form), lalu kartu selebar layar dengan gutter 16 px, padding 24 px. Di 375×812 tombol "Masuk" terlihat tanpa scroll (bawah tombol 678 px; 766 px saat ada pesan error) |
+| < 768px | Bar brand gelap ringkas dengan lockup horizontal kecil (logo 29 px tanpa bingkai, bar 60 px). Area form dengan padding atas 16 px: robot 88 px di **docking pod** yang menempel di tepi atas kartu (tidak menutupi form), lalu kartu selebar layar dengan gutter 16 px, padding 24 px. Di 375×812 tombol "Masuk" terlihat tanpa scroll (bawah tombol 673 px; 761 px saat ada pesan error) |
 | 768–1023px | Sama, kartu maks 440 px di tengah, padding 40 px |
 | ≥ 1024px | Grid 2 kolom `5fr / 7fr`. Kiri: panel brand gelap (grid teknis 64/16 px, glow sky/emerald, bracket di 4 sudut, lockup horizontal di atas, lalu panggung robot dengan HUD di tengah sisa tinggi). Batas kolom: **Technical Divider Rail**. Kanan: kartu di tengah vertikal |
 
 - Robot dirender di satu tempat saja sesuai `useMediaQuery('(min-width: 1024px)')`.
 - Area form memakai latar `--ds-inset` (sedikit lebih gelap dari kartu) dengan
   `<BlueprintBackground variant="busy" />`. `<html>` ikut `--palette-slate-100` saat halaman ini tampil.
-- **Lockup brand:** [logo dalam bingkai tipis dengan tanda sudut] | garis vertikal tipis | dua baris yang
-  sejajar tengah dengan logo: "Aldi Dwi Irawan" (Inter 800, -0.02em) dan "PORTOFOLIO // 2026" (mono kecil,
-  `aria-hidden`). Logo 64 px (bingkai 80) di ≥1024 px, 32 px (bingkai 40, viewBox digeser) di layar kecil,
-  selalu di posisi piksel bulat.
+- **Lockup brand:** logo | garis vertikal tipis | dua baris yang sejajar tengah dengan logo: "Aldi Dwi
+  Irawan" (Inter 800, -0.02em) dan "PORTOFOLIO // 2026" (mono kecil, `aria-hidden`).
+  - Logo **tanpa bingkai** (tanpa latar, border, atau padding), transparan langsung di atas latar. Warnanya
+    `--ds-text-strong` dari tema tempatnya berada: terang di panel/bar gelap, otomatis gelap bila suatu saat
+    diletakkan di latar terang. Kontras terukur terhadap piksel latar paling terang di sekitarnya: 10.5–12.9:1.
+  - Logo memakai `trim` (viewBox `24 24 464 464`), jadi bagian yang terlihat persis sebesar kotaknya dan jarak
+    logo–garis sama dengan garis–teks: 16 px di ≥1024 px, 12 px di layar kecil.
+  - Ukuran tajam: 58 px di ≥1024 px (semua garis grid di piksel bulat; blok teks 54 px) dan 29 px di layar
+    kecil (semua tepi tegak tajam; blok teks 35 px). Tinggi baris teks dibuat bilangan bulat (20 + 2 + 13 px),
+    sehingga logo yang dipusatkan selalu jatuh di piksel bulat.
 - **Technical Divider Rail (≥1024 px):** elemen 48 px yang diposisikan absolut di batas kolom 5/12 (tidak
   menambah lebar). Isinya garis sambungan, tanda skala tiap 16 px (besar tiap 64 px, sejajar grid panel),
   pita cahaya tipis di sisi gelap dan bayangan lembut di sisi terang, serta node bersudut di tengah dengan
@@ -130,8 +136,9 @@ dijelaskan di Master §13.
 
 **105/105 lolos**, termasuk 20 pemeriksaan baru:
 - Kursor: tanpa koordinat, reticle 19 px + titik 3 px; saat mengunci hanya titik yang tersisa.
-- Lockup di 1024/1440: bingkai | garis | dua baris sejajar tengah (selisih < 1.5 px), logo 64 px di piksel
-  bulat, meta `aria-hidden` dan monospace.
+- Lockup di 1024/1440: logo | garis | dua baris sejajar tengah, logo di piksel bulat, meta `aria-hidden` dan
+  monospace. (Diperbarui setelah bingkai logo dihapus: logo 58/29 px tanpa bingkai, selisih pusat 0 px, jarak
+  ke garis sama di kiri dan kanan; 107/107 lolos.)
 - Rail tepat di batas panel (selisih 0 px), `aria-hidden`, tidak menangkap klik, node di tengah tinggi layar,
   tanpa scroll horizontal; LED mengikuti mood.
 - HUD: satu SVG `aria-hidden`, 3 cincin 90/75/60 dtk berlawanan arah, 3 chip tanpa teks, 2 titik data.

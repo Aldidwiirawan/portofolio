@@ -8,19 +8,27 @@ const ASSEMBLE_STAGGER_MS = 25
 // viewBox by 8 units puts every vertical edge on a whole pixel (the logo moves 1/64 of its size).
 const SNAPPED_VIEWBOX = '8 8 512 512'
 
+// `trim` crops the 24-unit margin so the visible mark fills the box (useful when it sits next to
+// text). Sharp sizes then: multiples of 58 px (every grid line on a whole pixel); 29 px keeps all
+// vertical edges sharp.
+const TRIMMED_VIEWBOX = '24 24 464 464'
+
 /**
  * ALDI monogram as inline SVG. It uses `currentColor`, so it follows the surrounding text color.
  *
  * - `title`: accessible name. Without it the logo is decorative and hidden from assistive tech.
  * - `assemble`: on mount, every piece slides in from its own direction (about 0.75 s in total).
  *   Skipped when the visitor prefers reduced motion. Remount (change `key`) to replay.
+ * - `trim`: crop the built-in margin (see TRIMMED_VIEWBOX for sharp sizes).
  * - Other props go to the <svg>, so the logo can also be nested inside another SVG (x, y).
  */
-function Logo({ size = 48, title, assemble = false, className = '', ...rest }) {
+function Logo({ size = 48, title, assemble = false, trim = false, className = '', ...rest }) {
   const titleId = useId()
   const classes = ['brand-logo', assemble && 'brand-logo--assemble', className].filter(Boolean).join(' ')
   const a11y = title ? { role: 'img', 'aria-labelledby': titleId } : { 'aria-hidden': true }
-  const viewBox = size % 64 === 32 ? SNAPPED_VIEWBOX : LOGO_VIEWBOX
+  let viewBox = LOGO_VIEWBOX
+  if (trim) viewBox = TRIMMED_VIEWBOX
+  else if (size % 64 === 32) viewBox = SNAPPED_VIEWBOX
 
   return (
     <svg
