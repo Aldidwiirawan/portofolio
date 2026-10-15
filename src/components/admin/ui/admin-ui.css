@@ -842,6 +842,23 @@ html:has(.adm) body {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-brand-to) 22%, transparent);
 }
 
+/* Judul kartu yang sebenarnya (h2) di dalam bar: gaya bar yang sama, ukuran sedikit lebih besar */
+.adm-card-bar-title {
+  margin: 0;
+  color: var(--ds-text-strong);
+  font: inherit;
+  font-size: 0.75rem;
+  letter-spacing: inherit;
+}
+
+.adm-card-bar-aside {
+  margin-left: auto;
+}
+
+.adm-card-bar:has(.adm-card-bar-title) {
+  min-height: 2.5rem;
+}
+
 .adm-card-body {
   padding: var(--adm-card-pad);
 }
@@ -926,6 +943,12 @@ html:has(.adm) body {
 
 .adm-stat--highlight {
   box-shadow: inset 3px 0 0 var(--ds-accent), var(--ds-shadow-sm);
+}
+
+.adm-stat--highlight:hover {
+  box-shadow:
+    inset 3px 0 0 var(--ds-accent),
+    4px 4px 0 var(--adm-offset);
 }
 
 .adm-stat-head {

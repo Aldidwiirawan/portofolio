@@ -46,8 +46,15 @@ export function useLeaveGuard() {
 
 // ---- Admin shell ----------------------------------------------------------
 
-/** Provided by AdminLayout. `refreshUnread()` reloads the unread badge on the "Pesan" menu item. */
+/**
+ * Provided by AdminRoot: signed-in email, logout, and `inbox` (the useMessages() result behind the
+ * unread badge). `refreshUnread()` reloads it after a page marks or deletes messages.
+ */
 export const AdminShellContext = createContext({
+  email: null,
+  isLoggingOut: false,
+  logout: () => {},
+  inbox: null,
   refreshUnread: () => {},
 })
 

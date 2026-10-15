@@ -600,8 +600,13 @@ html:has(.adm) {
 }
 
 .adm-page-heading {
-  flex: 1 1 18rem;
+  flex: 1 1 14rem;
   min-width: 0;
+}
+
+.adm-page-leading {
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 .adm-page-title {
@@ -655,4 +660,29 @@ html:has(.adm) {
   .adm-nav-count {
     forced-color-adjust: none;
   }
+}
+
+/* --------------------------------------------------------------------------
+   Judul bagian di dalam halaman (h2): label monospace dengan garis tipis
+   -------------------------------------------------------------------------- */
+
+.adm-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  letter-spacing: 0.14em;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+}
+
+.adm-section-title::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background-color: var(--adm-line);
 }

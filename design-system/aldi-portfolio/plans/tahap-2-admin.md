@@ -164,7 +164,7 @@ kasus.
 - [x] 1. Fondasi: token admin, layar loading terang, teks loading `AdminRoute`
 - [x] 2. Komponen bersama
 - [x] 3. Layout dan sidebar
-- [ ] 4. Beranda
+- [x] 4. Beranda
 - [ ] 5. Proyek
 - [ ] 6. Keahlian, Pengalaman, Pendidikan
 - [ ] 7. Sertifikat, Prestasi, Bahasa, Organisasi

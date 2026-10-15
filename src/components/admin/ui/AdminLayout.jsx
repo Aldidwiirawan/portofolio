@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getCurrentUser, onAuthStateChange, signOut } from '../../../lib/authService'
 import { useMessages } from '../../../hooks/useMessages'
 import BlueprintBackground from '../../effects/BlueprintBackground'
 import ViewfinderCursor from '../../effects/ViewfinderCursor'
-import { AdminShellContext, useLeaveGuard } from './adminContexts'
+import { AdminShellContext, useAdminShell, useLeaveGuard } from './adminContexts'
 import { AdminSidebar } from './AdminSidebar'
 import { PageHeader } from './PageHeader'
 import { ToastProvider } from './Toast'
@@ -19,34 +19,32 @@ import './admin-layout.css'
 let lastShownPath = null
 
 /**
- * Frame for every admin page: dark sidebar (drawer below 1024 px), light work area with the calm
- * blueprint backdrop and the viewfinder cursor, page header with the page's only h1, toasts and
- * the unsaved-changes guard.
+ * Root of every admin page (wraps the page's own component, so its handlers can use toasts and
+ * the unsaved-changes guard): light theme, toasts, unsaved-changes guard, session watch, logout and
+ * the messages list behind the unread badge (also readable by pages through useAdminShell).
  *
- * - title / description / actions / breadcrumb: see PageHeader
- * - docTitle: browser tab title (defaults to `title`)
+ *   function AdminProjectsPage() {
+ *     return <AdminRoot><ProjectsScreen /></AdminRoot>
+ *   }
  */
-export function AdminLayout(props) {
+export function AdminRoot({ children }) {
   return (
     <div className="adm" data-theme="light">
       <ToastProvider>
         <UnsavedChangesProvider>
-          <AdminShell {...props} />
+          <AdminSession>{children}</AdminSession>
         </UnsavedChangesProvider>
       </ToastProvider>
     </div>
   )
 }
 
-function AdminShell({ title, description, actions, breadcrumb, docTitle, children }) {
+function AdminSession({ children }) {
   const [currentUser, setCurrentUser] = useState(null)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const navigate = useNavigate()
-  const { pathname } = useLocation()
   const { confirmLeave } = useLeaveGuard()
-  const { unreadCount, refetch: refreshUnread } = useMessages()
-  const headingRef = useRef(null)
-  const lastTitle = useRef(title)
+  const inbox = useMessages()
 
   // Session watch and logout, moved unchanged from the old dashboard page
   useEffect(() => {
@@ -79,7 +77,7 @@ function AdminShell({ title, description, actions, breadcrumb, docTitle, childre
     }
   }, [navigate])
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     if (isLoggingOut) return
     if (!(await confirmLeave())) return
     setIsLoggingOut(true)
@@ -90,7 +88,35 @@ function AdminShell({ title, description, actions, breadcrumb, docTitle, childre
     } catch {
       setIsLoggingOut(false)
     }
-  }
+  }, [isLoggingOut, confirmLeave, navigate])
+
+  const shell = useMemo(
+    () => ({
+      email: currentUser?.email ?? null,
+      isLoggingOut,
+      logout: handleLogout,
+      inbox,
+      refreshUnread: inbox.refetch,
+    }),
+    [currentUser, isLoggingOut, handleLogout, inbox]
+  )
+
+  return <AdminShellContext.Provider value={shell}>{children}</AdminShellContext.Provider>
+}
+
+/**
+ * Visible frame of an admin page (render inside AdminRoot): dark sidebar (drawer below 1024 px),
+ * light work area with the calm blueprint backdrop and the viewfinder cursor, skip link, and the
+ * page header with the page's only h1.
+ *
+ * - title / description / actions / breadcrumb / leading: see PageHeader
+ * - docTitle: browser tab title (defaults to `title`)
+ */
+export function AdminLayout({ title, description, actions, breadcrumb, leading, docTitle, children }) {
+  const { email, isLoggingOut, logout, inbox } = useAdminShell()
+  const { pathname } = useLocation()
+  const headingRef = useRef(null)
+  const lastTitle = useRef(title)
 
   const pageTitle = docTitle || title
   useEffect(() => {
@@ -118,21 +144,14 @@ function AdminShell({ title, description, actions, breadcrumb, docTitle, childre
     headingRef.current?.focus({ preventScroll: true })
   }, [title])
 
-  const shell = useMemo(() => ({ refreshUnread }), [refreshUnread])
-
   return (
-    <AdminShellContext.Provider value={shell}>
+    <>
       <a href="#adm-main" className="adm-skip">
         Lewati ke konten
       </a>
       <ViewfinderCursor />
       <div className="adm-shell">
-        <AdminSidebar
-          email={currentUser?.email}
-          unreadCount={unreadCount}
-          onLogout={handleLogout}
-          isLoggingOut={isLoggingOut}
-        />
+        <AdminSidebar email={email} unreadCount={inbox?.unreadCount ?? 0} onLogout={logout} isLoggingOut={isLoggingOut} />
         <div className="adm-work">
           <BlueprintBackground variant="calm" />
           <main id="adm-main" className="adm-main" tabIndex={-1}>
@@ -141,12 +160,13 @@ function AdminShell({ title, description, actions, breadcrumb, docTitle, childre
               description={description}
               actions={actions}
               breadcrumb={breadcrumb}
+              leading={leading}
               headingRef={headingRef}
             />
             {children}
           </main>
         </div>
       </div>
-    </AdminShellContext.Provider>
+    </>
   )
 }

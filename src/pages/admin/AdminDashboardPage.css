@@ -1,185 +1,158 @@
-.admin-dashboard-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
+/* ==========================================================================
+   BERANDA ADMIN — tata letak halaman saja
+   Komponen (StatCard, Card, Badge, Skeleton) dan kerangka ada di src/components/admin/ui/.
+   ========================================================================== */
+
+.adm-home-robot {
+  display: block;
 }
 
-.admin-navbar {
-  background-color: var(--color-bg-surface);
-  border-bottom: 1px solid var(--color-border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+.adm-home-alert {
+  margin-bottom: var(--space-6);
 }
 
-.admin-navbar-inner {
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+.adm-home-section + .adm-home-section {
+  margin-top: var(--space-8);
 }
 
-.admin-nav-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
+/* --- Kartu ringkasan ------------------------------------------------------ */
 
-.admin-brand-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--color-text-primary);
-}
-
-.admin-badge-active {
-  font-size: 0.725rem;
-  font-weight: 600;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
-  background-color: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #34d399;
-}
-
-.admin-nav-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.admin-user-info {
-  display: none;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.admin-user-email {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.admin-main-content {
-  flex: 1;
-  padding-block: var(--space-8);
-}
-
-.admin-welcome-banner {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  margin-bottom: var(--space-8);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.admin-welcome-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.admin-welcome-desc {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.admin-modules-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0 0 var(--space-4) 0;
-  color: var(--color-text-primary);
-}
-
-.admin-modules-grid {
+.adm-home-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-5);
-}
-
-.admin-module-card {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
-  transition: border-color var(--transition-fast);
 }
 
-.admin-module-card:hover {
-  border-color: var(--color-border-hover);
-}
-
-.admin-module-card.clickable {
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  border-color: var(--color-border-glow);
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.admin-module-card.clickable:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2);
-}
-
-.admin-module-card.clickable .admin-module-status {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
-  border-color: var(--color-border-glow);
-}
-
-.admin-module-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.admin-module-name {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.admin-module-status {
-  font-size: 0.725rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-bg-subtle);
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
-}
-
-.admin-module-desc {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-@media (min-width: 640px) {
-  .admin-modules-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (min-width: 768px) {
+  .adm-home-grid {
+    gap: var(--space-4);
   }
 
-  .admin-user-info {
-    display: block;
+  .adm-home-grid--content {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+/* HP: kartu terakhir yang sendirian di barisnya dibuat selebar penuh */
+@media (max-width: 767.98px) {
+  .adm-home-grid--content > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+.adm-home-skel-value {
+  display: inline-block;
+  width: 3rem;
+  height: 1.25rem;
+  vertical-align: middle;
+}
+
+/* --- Pesan dan buku tamu terbaru ----------------------------------------- */
+
+.adm-home-latest {
+  display: grid;
+  gap: var(--space-4);
 }
 
 @media (min-width: 1024px) {
-  .admin-modules-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .adm-home-latest {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
   }
+}
+
+.adm-home-panel .adm-skeleton {
+  padding: var(--space-4);
+}
+
+.adm-home-empty {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+}
+
+.adm-home-panel-foot {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--ds-border);
+}
+
+.adm-feed {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-feed-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+
+.adm-feed-item + .adm-feed-item {
+  border-top: 1px solid var(--ds-border);
+}
+
+/* Pesan belum dibaca: rel kiri aksen (warna bukan satu-satunya penanda; ada badge "Baru") */
+.adm-feed-item.is-unread::before {
+  content: '';
+  position: absolute;
+  top: var(--space-3);
+  bottom: var(--space-3);
+  left: 0;
+  width: 2px;
+  background-color: var(--ds-accent);
+}
+
+.adm-feed-main {
+  min-width: 0;
+}
+
+.adm-feed-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.4;
+}
+
+.adm-feed-name {
+  overflow-wrap: anywhere;
+}
+
+.adm-feed-subject {
+  margin: 0.125rem 0 0;
+  overflow: hidden;
+  color: var(--ds-text);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-feed-text {
+  display: -webkit-box;
+  margin: 0.125rem 0 0;
+  overflow: hidden;
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+  line-height: var(--ds-lh-normal);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.adm-feed-time {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  line-height: 1.25rem;
+  white-space: nowrap;
 }

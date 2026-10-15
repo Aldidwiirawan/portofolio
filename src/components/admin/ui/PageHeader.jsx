@@ -2,9 +2,10 @@
  * Page header: optional breadcrumb, the page's only h1, a short description and the page actions.
  * - breadcrumb: [{ label, onClick }] for the levels above this page (e.g. "Proyek" while the
  *   "Tambah proyek" form is open). The current title is appended as the last, current crumb.
+ * - leading: optional decoration before the title block (e.g. the small robot on Beranda).
  * - headingRef: the h1 (tabIndex -1) so the layout can move focus to it after navigation.
  */
-export function PageHeader({ title, description, actions, breadcrumb, headingRef }) {
+export function PageHeader({ title, description, actions, breadcrumb, leading, headingRef }) {
   return (
     <header className="adm-page-header">
       {breadcrumb?.length > 0 && (
@@ -25,6 +26,7 @@ export function PageHeader({ title, description, actions, breadcrumb, headingRef
         </nav>
       )}
       <div className="adm-page-header-row">
+        {leading && <div className="adm-page-leading">{leading}</div>}
         <div className="adm-page-heading">
           <h1 ref={headingRef} className="adm-page-title" tabIndex={-1}>
             {title}
