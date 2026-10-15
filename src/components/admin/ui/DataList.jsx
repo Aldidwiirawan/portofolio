@@ -3,9 +3,9 @@
  * (media · details · actions); on phones the same item stacks as a card. Uses list semantics
  * so screen readers announce the number of items.
  */
-export function DataList({ label, children, className = '' }) {
+export function DataList({ label, children, className = '', ...rest }) {
   return (
-    <ul className={`adm-list ${className}`.trim()} aria-label={label}>
+    <ul className={`adm-list ${className}`.trim()} aria-label={label} {...rest}>
       {children}
     </ul>
   )

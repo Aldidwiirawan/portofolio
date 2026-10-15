@@ -111,11 +111,13 @@ function AdminSession({ children }) {
  *
  * - title / description / actions / breadcrumb / leading: see PageHeader
  * - docTitle: browser tab title (defaults to `title`)
+ * - headingRef: optional ref to the h1, for pages that move focus to it (e.g. after a delete)
  */
-export function AdminLayout({ title, description, actions, breadcrumb, leading, docTitle, children }) {
+export function AdminLayout({ title, description, actions, breadcrumb, leading, docTitle, headingRef: outerHeadingRef, children }) {
   const { email, isLoggingOut, logout, inbox } = useAdminShell()
   const { pathname } = useLocation()
-  const headingRef = useRef(null)
+  const ownHeadingRef = useRef(null)
+  const headingRef = outerHeadingRef || ownHeadingRef
   const lastTitle = useRef(title)
 
   const pageTitle = docTitle || title
@@ -134,7 +136,7 @@ export function AdminLayout({ title, description, actions, breadcrumb, leading, 
       headingRef.current?.focus({ preventScroll: true })
     }
     lastShownPath = pathname
-  }, [pathname])
+  }, [pathname, headingRef])
 
   // Same page, new view (list ↔ form): focus the new h1 so screen readers announce it
   useEffect(() => {
@@ -142,7 +144,7 @@ export function AdminLayout({ title, description, actions, breadcrumb, leading, 
     lastTitle.current = title
     window.scrollTo(0, 0)
     headingRef.current?.focus({ preventScroll: true })
-  }, [title])
+  }, [title, headingRef])
 
   return (
     <>

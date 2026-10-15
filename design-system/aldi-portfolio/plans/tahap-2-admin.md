@@ -165,7 +165,7 @@ kasus.
 - [x] 2. Komponen bersama
 - [x] 3. Layout dan sidebar
 - [x] 4. Beranda
-- [ ] 5. Proyek
+- [x] 5. Proyek
 - [ ] 6. Keahlian, Pengalaman, Pendidikan
 - [ ] 7. Sertifikat, Prestasi, Bahasa, Organisasi
 - [ ] 8. Pesan dan Buku tamu

@@ -9,12 +9,12 @@ import { useFocusTrap } from './useFocusTrap'
  * Modal dialog: rendered in a light-themed portal, focus trapped inside, Escape and the backdrop
  * close it (unless `busy`), page scroll locked, focus returns to the opener afterwards.
  */
-export function Dialog({ open, onClose, title, description, icon, tone, size = 'sm', busy = false, initialFocusRef, footer, children }) {
+export function Dialog({ open, onClose, title, description, icon, tone, size = 'sm', busy = false, initialFocusRef, returnFocusRef, footer, children }) {
   const panelRef = useRef(null)
   const titleId = useId()
   const descId = useId()
 
-  useFocusTrap(panelRef, open, { onEscape: () => !busy && onClose?.(), initialFocusRef })
+  useFocusTrap(panelRef, open, { onEscape: () => !busy && onClose?.(), initialFocusRef, returnFocusRef })
 
   useEffect(() => {
     if (!open) return undefined
@@ -80,6 +80,7 @@ export function ConfirmDialog({
   busyLabel = 'Menghapus...',
   error,
   tone = 'danger',
+  returnFocusRef,
   onConfirm,
   onCancel,
 }) {
@@ -93,6 +94,7 @@ export function ConfirmDialog({
       tone={tone}
       busy={busy}
       initialFocusRef={cancelRef}
+      returnFocusRef={returnFocusRef}
       footer={
         <>
           <Button ref={cancelRef} variant="secondary" onClick={onCancel} disabled={busy}>

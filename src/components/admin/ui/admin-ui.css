@@ -207,6 +207,16 @@ html:has(.adm) body {
   color: var(--ds-text-strong);
 }
 
+/* Tombol polos untuk aksi hapus di daftar: teks merah, tidak seberat tombol bahaya penuh */
+.adm-btn--ghost.adm-btn--danger-text,
+.adm-btn--ghost.adm-btn--danger-text:hover {
+  color: var(--ds-danger-text);
+}
+
+.adm-btn--ghost.adm-btn--danger-text:hover {
+  background-color: var(--ds-danger-bg);
+}
+
 .adm-btn:active {
   transform: translateY(1px);
   box-shadow: none;
@@ -649,6 +659,11 @@ html:has(.adm) body {
   font-size: 0.8125rem;
 }
 
+/* Galat simpan dari server, di atas form (digulir ke tengah layar saat muncul) */
+.adm-form-alert {
+  margin-bottom: var(--space-5);
+}
+
 /* Bar aksi form: menempel di bawah layar pada form panjang */
 .adm-form-actions {
   position: sticky;
@@ -734,6 +749,13 @@ html:has(.adm) body {
   margin: 0;
   color: var(--ds-text-muted);
   font-size: var(--ds-fs-sm);
+}
+
+/* Layar sentuh tidak bisa menyeret file: cukup tombol "Pilih gambar" */
+@media (pointer: coarse) {
+  .adm-upload-text {
+    display: none;
+  }
 }
 
 .adm-upload.has-image {
@@ -1090,11 +1112,77 @@ html:has(.adm) body {
 }
 
 .adm-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
   margin: var(--space-1) 0 0;
   color: var(--ds-text-subtle);
   font-family: var(--ds-font-mono);
   font-size: var(--ds-fs-xs);
   letter-spacing: 0.02em;
+}
+
+/* Beberapa detail dalam satu baris meta dipisah titik tengah (inline-block: tidak ikut bergaris
+   bawah bila detailnya tautan) */
+.adm-list-meta > * + *::before {
+  content: '·';
+  display: inline-block;
+  margin-right: var(--space-2);
+  color: var(--ds-text-subtle);
+}
+
+.adm-list-meta a {
+  color: var(--ds-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.adm-list-meta a:hover {
+  color: var(--ds-text-strong);
+}
+
+/* Ringkasan jumlah di atas daftar, mis. "6 proyek · 2 unggulan" */
+.adm-list-summary {
+  margin: 0 0 var(--space-3);
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Tag kecil (mis. teknologi proyek) */
+.adm-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-tag {
+  padding: 0.0625rem 0.4375rem;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--adm-radius-tag);
+  background-color: var(--ds-inset);
+  color: var(--ds-text);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+/* Potongan teks teknis di dalam kalimat, mis. alamat halaman */
+.adm-code {
+  padding: 0 0.25em;
+  border-radius: var(--adm-radius-tag);
+  background-color: var(--ds-inset);
+  color: var(--ds-text-strong);
+  font-family: var(--ds-font-mono);
+  font-size: 0.875em;
+  overflow-wrap: anywhere;
 }
 
 .adm-list-actions {

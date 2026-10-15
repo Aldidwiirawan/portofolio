@@ -1,7 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { extractStoragePath } from '../../lib/storageUtils'
-import './ProjectForm.css'
+import { useUnsavedChanges } from './ui/adminContexts'
+import { Alert } from './ui/Alert'
+import { Button } from './ui/Button'
+import { Card } from './ui/Card'
+import { Checkbox, Field, FormSection, Input, Textarea } from './ui/Field'
+import { ImageUpload } from './ui/ImageUpload'
+import { toFriendlyError } from './ui/friendlyError'
+import { useFormFeedback } from './ui/useFormFeedback'
 
 /**
  * Helper: Converts text into a clean URL-friendly slug
@@ -47,6 +54,8 @@ function formatFileSize(bytes) {
  * ProjectForm Component
  * Handles input validation, storage image upload, and explicit INSERT or UPDATE into public.projects table.
  * Supports both CREATE and UPDATE modes seamlessly.
+ * Screen: admin form panel (sections, visible labels, errors under each field, unsaved-changes
+ * guard, "Menyimpan..." and a short success state on the save button).
  *
  * @param {Object} props
  * @param {Object|null} [props.project] - Existing project data if editing, or null if creating
@@ -80,6 +89,28 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
+
+  // Screen only: values when the form opened (to detect unsaved changes), feedback helpers
+  const [initial] = useState(() => ({ title, slug, description, content, demoUrl, githubUrl, techStackInput, isFeatured, sortOrder }))
+  const formRef = useRef(null)
+  const alertRef = useRef(null)
+  const { noteSubmit, saved, finish } = useFormFeedback(formRef, { generalError, alertRef })
+  const isDirty =
+    Boolean(thumbnailFile) ||
+    title !== initial.title ||
+    slug !== initial.slug ||
+    description !== initial.description ||
+    content !== initial.content ||
+    demoUrl !== initial.demoUrl ||
+    githubUrl !== initial.githubUrl ||
+    techStackInput !== initial.techStackInput ||
+    isFeatured !== initial.isFeatured ||
+    sortOrder !== initial.sortOrder
+  const confirmLeave = useUnsavedChanges(isDirty && !saved)
+
+  const handleCancel = async () => {
+    if (await confirmLeave()) onCancel()
+  }
 
   // Revoke preview object URL when component unmounts or preview changes to prevent memory leak
   useEffect(() => {
@@ -121,7 +152,7 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
     if (!file.type.startsWith('image/')) {
       setFieldErrors((prev) => ({
         ...prev,
-        thumbnail: 'File harus berupa gambar.',
+        thumbnail: 'File ini bukan gambar. Pilih file PNG, JPG, atau WebP.',
       }))
       return
     }
@@ -130,7 +161,7 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
     if (file.size > 2097152) {
       setFieldErrors((prev) => ({
         ...prev,
-        thumbnail: 'Ukuran gambar maksimal 2 MB.',
+        thumbnail: 'Gambar ini lebih dari 2 MB. Pilih gambar yang lebih kecil.',
       }))
       return
     }
@@ -166,16 +197,16 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
 
     // Title validation
     if (!title.trim()) {
-      errors.title = 'Judul project wajib diisi.'
+      errors.title = 'Judul proyek wajib diisi.'
     }
 
     // Slug validation
     const trimmedSlug = slug.trim()
     const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
     if (!trimmedSlug) {
-      errors.slug = 'Slug project wajib diisi.'
+      errors.slug = 'Alamat singkat wajib diisi.'
     } else if (!slugRegex.test(trimmedSlug)) {
-      errors.slug = 'Slug hanya boleh memuat huruf kecil, angka, dan tanda hubung (-), tanpa spasi.'
+      errors.slug = 'Alamat singkat hanya boleh berisi huruf kecil, angka, dan tanda hubung (-), tanpa spasi.'
     }
 
     // Description validation
@@ -185,21 +216,21 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
 
     // URL validations
     if (demoUrl.trim() && !isValidUrl(demoUrl)) {
-      errors.demoUrl = 'Format Demo URL tidak valid (harus diawali http:// atau https://).'
+      errors.demoUrl = 'Tautan demo harus diawali http:// atau https://.'
     }
     if (githubUrl.trim() && !isValidUrl(githubUrl)) {
-      errors.githubUrl = 'Format GitHub URL tidak valid (harus diawali http:// atau https://).'
+      errors.githubUrl = 'Tautan kode harus diawali http:// atau https://.'
     }
 
     // Thumbnail size re-check if selected
     if (thumbnailFile && thumbnailFile.size > 2097152) {
-      errors.thumbnail = 'Ukuran gambar maksimal 2 MB.'
+      errors.thumbnail = 'Gambar ini lebih dari 2 MB. Pilih gambar yang lebih kecil.'
     }
 
     // Sort order validation
     const parsedSortOrder = parseInt(sortOrder, 10)
     if (isNaN(parsedSortOrder) || parsedSortOrder < 0) {
-      errors.sortOrder = 'Urutan tampilan harus berupa angka 0 atau lebih besar.'
+      errors.sortOrder = 'Urutan tampil harus berupa angka 0 atau lebih.'
     }
 
     setFieldErrors(errors)
@@ -321,11 +352,11 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
           dbError.message?.toLowerCase().includes('duplicate')
         ) {
           setGeneralError(
-            `Slug sudah digunakan. Silakan gunakan slug yang berbeda.${cleanupWarning}`
+            `Alamat singkat ini sudah dipakai proyek lain. Ganti dengan alamat lain.${cleanupWarning}`
           )
           setFieldErrors((prev) => ({
             ...prev,
-            slug: 'Slug ini sudah terdaftar di database.',
+            slug: 'Alamat singkat ini sudah dipakai proyek lain.',
           }))
         } else {
           setGeneralError(
@@ -362,7 +393,7 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
 
       // Success
       setIsSubmitting(false)
-      onSuccess(data)
+      finish(() => onSuccess(data))
     } catch (err) {
       // Orphan file cleanup on unexpected exceptions
       let cleanupWarning = ''
@@ -399,87 +430,68 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
     }
   }
 
+  const saveError = generalError
+    ? toFriendlyError(
+        generalError,
+        isEditMode
+          ? 'Perubahan belum tersimpan. Periksa koneksi internet, lalu coba lagi.'
+          : 'Proyek belum tersimpan. Periksa koneksi internet, lalu coba lagi.'
+      )
+    : ''
+  const busy = isSubmitting || saved
+
   return (
-    <div className="admin-project-form-card">
-      <div className="project-form-header">
-        <div>
-          <h3 className="project-form-title">
-            {isEditMode ? 'Edit Project' : 'Tambah Project Baru'}
-          </h3>
-          <p className="project-form-subtitle">
-            {isEditMode
-              ? 'Perbarui informasi portofolio untuk disimpan ke tabel public.projects.'
-              : 'Masukkan informasi detail portofolio untuk disimpan ke tabel public.projects.'}
-          </p>
-        </div>
-      </div>
+    <Card as="div" label={isEditMode ? 'Ubah proyek' : 'Proyek baru'} corners className="adm-form-card">
+      <form
+        ref={formRef}
+        noValidate
+        onSubmit={(e) => {
+          // Already saved: the form is about to close, never submit twice
+          if (saved) {
+            e.preventDefault()
+            return
+          }
+          noteSubmit()
+          handleSubmit(e)
+        }}
+      >
+        {saveError && (
+          <div ref={alertRef} className="adm-form-alert">
+            <Alert tone="danger">{saveError}</Alert>
+          </div>
+        )}
+        <p className="adm-required-note">
+          Kolom bertanda <span aria-hidden="true">*</span>
+          <span className="adm-sr-only">bintang</span> wajib diisi.
+        </p>
 
-      {generalError && (
-        <div className="project-form-alert project-form-alert-error" role="alert">
-          {generalError}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="project-form-grid">
-          {/* Title */}
-          <div className="form-group-full">
-            <label htmlFor="project-title" className="form-label">
-              Judul Project <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="project-title"
+        <FormSection title="Informasi utama">
+          <Field id="project-title" label="Judul proyek" required error={fieldErrors.title}>
+            <Input
               type="text"
-              className={`form-control-input ${fieldErrors.title ? 'has-error' : ''}`}
-              placeholder="Contoh: Warehouse Management System"
+              placeholder="Contoh: Aplikasi Kasir UMKM"
               value={title}
               onChange={handleTitleChange}
-              disabled={isSubmitting}
-              required
+              disabled={busy}
             />
-            {fieldErrors.title && <p className="form-field-error">{fieldErrors.title}</p>}
-          </div>
-
-          {/* Slug */}
-          <div className="form-group-full">
-            <label htmlFor="project-slug" className="form-label">
-              Slug URL <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="project-slug"
-              type="text"
-              className={`form-control-input ${fieldErrors.slug ? 'has-error' : ''}`}
-              placeholder="warehouse-management-system"
-              value={slug}
-              onChange={handleSlugChange}
-              disabled={isSubmitting}
-              required
-            />
-            <div className="slug-preview-box">
-              <span>Preview URL: /projects/</span>
-              <strong>{slug || 'slug-url'}</strong>
-            </div>
-            {fieldErrors.slug ? (
-              <p className="form-field-error">{fieldErrors.slug}</p>
-            ) : (
-              <p className="form-field-helper">
-                {isEditMode
-                  ? 'Slug digunakan sebagai identifier unik project pada URL.'
-                  : 'Otomatis dibuat dari judul. Hanya huruf kecil, angka, dan tanda hubung (-).'}
-              </p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="form-group-full">
-            <label htmlFor="project-desc" className="form-label">
-              Deskripsi Singkat <span className="required-indicator">*</span>
-            </label>
-            <textarea
-              id="project-desc"
-              rows="3"
-              className={`form-control-textarea ${fieldErrors.description ? 'has-error' : ''}`}
-              placeholder="Ringkasan singkat mengenai tujuan, masalah yang diselesaikan, atau fitur utama proyek..."
+          </Field>
+          <Field
+            id="project-slug"
+            label="Alamat singkat"
+            required
+            error={fieldErrors.slug}
+            hint={
+              <>
+                Dipakai di alamat halaman proyek: <span className="adm-code">/projects/{slug || 'alamat-singkat'}</span>.
+                {isEditMode ? ' Hanya huruf kecil, angka, dan tanda hubung.' : ' Dibuat otomatis dari judul; boleh diubah.'}
+              </>
+            }
+          >
+            <Input type="text" autoComplete="off" spellCheck={false} value={slug} onChange={handleSlugChange} disabled={busy} />
+          </Field>
+          <Field id="project-desc" label="Deskripsi singkat" required error={fieldErrors.description} hint="Satu atau dua kalimat yang tampil di kartu proyek.">
+            <Textarea
+              rows={3}
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value)
@@ -487,43 +499,29 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
                   setFieldErrors((prev) => ({ ...prev, description: null }))
                 }
               }}
-              disabled={isSubmitting}
-              required
+              disabled={busy}
             />
-            {fieldErrors.description && (
-              <p className="form-field-error">{fieldErrors.description}</p>
-            )}
-          </div>
+          </Field>
+          <Field id="project-content" label="Penjelasan lengkap" optional hint="Latar belakang, fitur, atau cara kerja proyek.">
+            <Textarea rows={6} value={content} onChange={(e) => setContent(e.target.value)} disabled={busy} />
+          </Field>
+        </FormSection>
 
-          {/* Tech Stack */}
-          <div className="form-group-full">
-            <label htmlFor="project-tech" className="form-label">
-              Tech Stack (Pisahkan dengan koma)
-            </label>
-            <input
-              id="project-tech"
-              type="text"
-              className="form-control-input"
-              placeholder="Contoh: React, JavaScript, Supabase, PostgreSQL, CSS3"
-              value={techStackInput}
-              onChange={(e) => setTechStackInput(e.target.value)}
-              disabled={isSubmitting}
-            />
-            <p className="form-field-helper">
-              Masukkan nama teknologi yang dipisahkan tanda koma. Akan disimpan sebagai array string (TEXT[]).
-            </p>
-          </div>
-
-          {/* Demo URL */}
-          <div>
-            <label htmlFor="project-demo" className="form-label">
-              Demo URL (Opsional)
-            </label>
-            <input
-              id="project-demo"
+        <FormSection title="Teknologi dan tautan" columns={2}>
+          <Field
+            id="project-tech"
+            label="Teknologi yang dipakai"
+            optional
+            className="adm-span-2"
+            hint="Pisahkan dengan koma, misalnya: React, Supabase, CSS."
+          >
+            <Input type="text" value={techStackInput} onChange={(e) => setTechStackInput(e.target.value)} disabled={busy} />
+          </Field>
+          <Field id="project-demo" label="Tautan demo" optional error={fieldErrors.demoUrl}>
+            <Input
               type="url"
-              className={`form-control-input ${fieldErrors.demoUrl ? 'has-error' : ''}`}
-              placeholder="https://demo-aplikasi.com"
+              inputMode="url"
+              placeholder="https://"
               value={demoUrl}
               onChange={(e) => {
                 setDemoUrl(e.target.value)
@@ -531,21 +529,14 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
                   setFieldErrors((prev) => ({ ...prev, demoUrl: null }))
                 }
               }}
-              disabled={isSubmitting}
+              disabled={busy}
             />
-            {fieldErrors.demoUrl && <p className="form-field-error">{fieldErrors.demoUrl}</p>}
-          </div>
-
-          {/* GitHub URL */}
-          <div>
-            <label htmlFor="project-github" className="form-label">
-              GitHub Repository URL (Opsional)
-            </label>
-            <input
-              id="project-github"
+          </Field>
+          <Field id="project-github" label="Tautan kode" optional error={fieldErrors.githubUrl} hint="Misalnya halaman GitHub proyek.">
+            <Input
               type="url"
-              className={`form-control-input ${fieldErrors.githubUrl ? 'has-error' : ''}`}
-              placeholder="https://github.com/username/project-repo"
+              inputMode="url"
+              placeholder="https://github.com/"
               value={githubUrl}
               onChange={(e) => {
                 setGithubUrl(e.target.value)
@@ -553,134 +544,39 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
                   setFieldErrors((prev) => ({ ...prev, githubUrl: null }))
                 }
               }}
-              disabled={isSubmitting}
+              disabled={busy}
             />
-            {fieldErrors.githubUrl && <p className="form-field-error">{fieldErrors.githubUrl}</p>}
-          </div>
+          </Field>
+        </FormSection>
 
-          {/* Upload Thumbnail Image */}
-          <div className="form-group-full">
-            <label htmlFor="project-thumb-upload" className="form-label">
-              Upload Thumbnail Image (Opsional)
-            </label>
-            <input
-              ref={fileInputRef}
-              id="project-thumb-upload"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleThumbnailChange}
-              disabled={isSubmitting}
-            />
-            <div className="thumbnail-upload-container">
-              {thumbnailPreview ? (
-                // Skenario 1: User telah memilih file gambar baru
-                <div className="thumbnail-preview-card">
-                  <img
-                    src={thumbnailPreview}
-                    alt="Preview thumbnail baru"
-                    className="thumbnail-preview-image"
-                  />
-                  <div className="thumbnail-preview-meta">
-                    <div className="thumbnail-preview-header">
-                      <span className="thumbnail-preview-name" title={thumbnailFile?.name}>
-                        {thumbnailFile?.name}
-                      </span>
-                      {isEditMode && (
-                        <span className="thumbnail-badge thumbnail-badge-new">
-                          Baru (Belum Disimpan)
-                        </span>
-                      )}
-                    </div>
-                    <span className="thumbnail-preview-size">
-                      {thumbnailFile ? formatFileSize(thumbnailFile.size) : ''}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="thumbnail-remove-btn"
-                    onClick={handleRemoveThumbnail}
-                    disabled={isSubmitting}
-                    title={isEditMode && existingThumbnailUrl ? 'Batal memilih file baru' : 'Hapus pilihan gambar'}
-                  >
-                    {isEditMode && existingThumbnailUrl ? 'Batal' : 'Hapus'}
-                  </button>
-                </div>
-              ) : isEditMode && existingThumbnailUrl ? (
-                // Skenario 2: Mode edit dengan thumbnail lama yang sudah tersimpan
-                <div className="thumbnail-preview-card">
-                  <img
-                    src={existingThumbnailUrl}
-                    alt="Thumbnail tersimpan saat ini"
-                    className="thumbnail-preview-image"
-                  />
-                  <div className="thumbnail-preview-meta">
-                    <div className="thumbnail-preview-header">
-                      <span className="thumbnail-preview-name">Thumbnail Saat Ini</span>
-                      <span className="thumbnail-badge thumbnail-badge-saved">Tersimpan</span>
-                    </div>
-                    <span className="thumbnail-preview-size">
-                      Thumbnail lama tetap digunakan kecuali Anda memilih file baru.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm thumbnail-change-btn"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isSubmitting}
-                  >
-                    Ganti Gambar
-                  </button>
-                </div>
-              ) : (
-                // Skenario 3: Belum ada file dipilih dan belum ada thumbnail tersimpan
-                <div
-                  role="button"
-                  tabIndex={0}
-                  className={`thumbnail-file-dropzone ${fieldErrors.thumbnail ? 'has-error' : ''} ${
-                    isSubmitting ? 'disabled' : ''
-                  }`}
-                  onClick={() => fileInputRef.current?.click()}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      fileInputRef.current?.click()
-                    }
-                  }}
-                >
-                  <span className="thumbnail-dropzone-icon" aria-hidden="true">
-                    📷
-                  </span>
-                  <span className="thumbnail-dropzone-text">
-                    Pilih file gambar thumbnail dari perangkat
-                  </span>
-                  <span className="thumbnail-dropzone-subtext">
-                    Format yang didukung: PNG, JPG, WebP, SVG (Maks. 2 MB)
-                  </span>
-                </div>
-              )}
-            </div>
-            {fieldErrors.thumbnail ? (
-              <p className="form-field-error">{fieldErrors.thumbnail}</p>
-            ) : (
-              <p className="form-field-helper">
-                {isEditMode
-                  ? 'Jika memilih gambar baru, thumbnail lama akan diganti setelah perubahan disimpan.'
-                  : 'File akan otomatis diunggah ke folder projects/ pada Supabase Storage dan public URL-nya disimpan ke database.'}
-              </p>
-            )}
-          </div>
+        <FormSection title="Gambar sampul">
+          <ImageUpload
+            id="project-thumb-upload"
+            label="Gambar sampul"
+            optional
+            hint={
+              isEditMode && existingThumbnailUrl
+                ? 'Gambar baru menggantikan gambar saat ini setelah Anda menyimpan. PNG, JPG, atau WebP, maksimal 2 MB.'
+                : 'PNG, JPG, atau WebP. Maksimal 2 MB.'
+            }
+            error={fieldErrors.thumbnail}
+            previewUrl={thumbnailPreview}
+            currentUrl={isEditMode ? existingThumbnailUrl : null}
+            fileName={thumbnailFile?.name}
+            fileSize={thumbnailFile ? formatFileSize(thumbnailFile.size) : null}
+            inputRef={fileInputRef}
+            onChange={handleThumbnailChange}
+            onRemove={handleRemoveThumbnail}
+            disabled={busy}
+          />
+        </FormSection>
 
-          {/* Sort Order */}
-          <div>
-            <label htmlFor="project-sort" className="form-label">
-              Urutan Tampilan (Sort Order)
-            </label>
-            <input
-              id="project-sort"
+        <FormSection title="Tampilan" columns={2}>
+          <Field id="project-sort" label="Urutan tampil" error={fieldErrors.sortOrder} hint="Angka kecil tampil lebih dulu. 0 paling awal.">
+            <Input
               type="number"
               min="0"
-              className={`form-control-input ${fieldErrors.sortOrder ? 'has-error' : ''}`}
+              inputMode="numeric"
               value={sortOrder}
               onChange={(e) => {
                 setSortOrder(e.target.value)
@@ -688,77 +584,37 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
                   setFieldErrors((prev) => ({ ...prev, sortOrder: null }))
                 }
               }}
-              disabled={isSubmitting}
+              disabled={busy}
             />
-            {fieldErrors.sortOrder ? (
-              <p className="form-field-error">{fieldErrors.sortOrder}</p>
-            ) : (
-              <p className="form-field-helper">Angka prioritas urutan (0 adalah urutan pertama).</p>
-            )}
-          </div>
+          </Field>
+          <Checkbox
+            id="project-featured"
+            label="Jadikan proyek unggulan"
+            description="Proyek unggulan tampil paling atas di halaman publik."
+            checked={isFeatured}
+            onChange={(e) => setIsFeatured(e.target.checked)}
+            disabled={busy}
+          />
+        </FormSection>
 
-          {/* Content (Detailed description) */}
-          <div className="form-group-full">
-            <label htmlFor="project-content" className="form-label">
-              Konten / Penjelasan Detail (Opsional)
-            </label>
-            <textarea
-              id="project-content"
-              rows="5"
-              className="form-control-textarea"
-              placeholder="Tuliskan latar belakang pengembangan, arsitektur sistem, atau panduan implementasi lebih lanjut jika diperlukan..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Is Featured Checkbox */}
-          <div className="form-group-full">
-            <label className="checkbox-label-wrapper">
-              <input
-                type="checkbox"
-                className="form-checkbox-custom"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                disabled={isSubmitting}
-              />
-              <div className="checkbox-text-group">
-                <span className="checkbox-title">Jadikan Proyek Unggulan (Featured)</span>
-                <span className="checkbox-desc">
-                  Proyek featured akan selalu diprioritaskan di baris teratas tampilan.
-                </span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="project-form-actions">
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
+        <div className="adm-form-actions">
+          {isDirty && !saved && <p className="adm-form-actions-note">Ada perubahan yang belum disimpan</p>}
+          <Button variant="secondary" onClick={handleCancel} disabled={busy}>
             Batal
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
+            loading={isSubmitting}
+            loadingText="Menyimpan..."
+            status={saved ? 'success' : undefined}
+            successText="Tersimpan"
+            aria-disabled={busy || undefined}
           >
-            {isSubmitting
-              ? isEditMode
-                ? 'Menyimpan Perubahan...'
-                : 'Menyimpan...'
-              : isEditMode
-              ? 'Simpan Perubahan'
-              : 'Simpan Project'}
-          </button>
+            {isEditMode ? 'Simpan perubahan' : 'Simpan proyek'}
+          </Button>
         </div>
       </form>
-    </div>
+    </Card>
   )
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -7,20 +7,28 @@ const FOCUSABLE =
 // mobile menu drawer owns Tab and Escape until it closes.
 const stack = []
 
+// Element of the ref held in `holder`, read at call time: the trap's cleanup deliberately wants the
+// return target set by the last render, not the one from when the trap opened.
+const returnTarget = (holder) => holder.current?.current
+
 /**
  * Keeps keyboard focus inside `containerRef` while `active` (dialogs, the mobile menu drawer).
  * - Focus moves to `initialFocusRef` (or the first focusable element) when activated.
  * - Tab / Shift+Tab cycle inside the container; Escape calls the latest `onEscape`.
- * - When deactivated, focus returns to the element that had it before.
+ * - When deactivated, focus returns to the element that had it before, or to `returnFocusRef` when
+ *   given at that moment (e.g. the page heading after the opener was deleted).
  * - Traps stack: only the most recently activated one handles keys.
  */
-export function useFocusTrap(containerRef, active, { onEscape, initialFocusRef } = {}) {
+export function useFocusTrap(containerRef, active, { onEscape, initialFocusRef, returnFocusRef } = {}) {
   const escapeRef = useRef(onEscape)
   const initialRef = useRef(initialFocusRef)
+  const returnRef = useRef(returnFocusRef)
 
-  useEffect(() => {
+  // Layout effect: the refs are current before the trap's cleanup runs in the same commit
+  useLayoutEffect(() => {
     escapeRef.current = onEscape
     initialRef.current = initialFocusRef
+    returnRef.current = returnFocusRef
   })
 
   useEffect(() => {
@@ -72,7 +80,8 @@ export function useFocusTrap(containerRef, active, { onEscape, initialFocusRef }
     return () => {
       stack.splice(stack.indexOf(token), 1)
       document.removeEventListener('keydown', onKeyDown, true)
-      if (previous instanceof HTMLElement && previous.isConnected) previous.focus({ preventScroll: true })
+      const target = returnTarget(returnRef) || previous
+      if (target instanceof HTMLElement && target.isConnected) target.focus({ preventScroll: true })
     }
   }, [active, containerRef])
 }
