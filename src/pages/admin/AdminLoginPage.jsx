@@ -121,6 +121,28 @@ function ArrowLeftIcon() {
   )
 }
 
+function ArrowRightIcon() {
+  return (
+    <svg {...ICON_PROPS} width={18} height={18} className="admin-login-submit-arrow">
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </svg>
+  )
+}
+
+/** "Blueprint module" card: decorative header bar (indicator + label) above the content. */
+function LoginCard({ className = '', children }) {
+  return (
+    <div className={`admin-login-card ${className}`.trim()}>
+      <div className="admin-login-card-bar" aria-hidden="true">
+        <span className="admin-login-card-led" />
+        <span className="admin-login-card-tag">Area pribadi</span>
+      </div>
+      <div className="admin-login-card-body">{children}</div>
+    </div>
+  )
+}
+
 let measureContext = null
 
 /** Width in px of `text` rendered with the font of `input` (used to aim the robot's gaze). */
@@ -234,8 +256,8 @@ function AdminLoginShell({ children, robot }) {
         <BlueprintBackground variant="busy" />
         <div className="admin-login-stack">
           {!isWide && (
-            <div className="admin-login-robot admin-login-robot--inline">
-              <RobotMascot {...robot} size={104} />
+            <div className="admin-login-robot admin-login-pod">
+              <RobotMascot {...robot} size={96} />
             </div>
           )}
           {children}
@@ -452,17 +474,19 @@ function AdminLoginPage() {
   if (isCheckingAuth) {
     return (
       <AdminLoginShell robot={robot}>
-        <div className="admin-login-checking" role="status">
-          <span className="admin-login-spinner admin-login-spinner-lg" aria-hidden="true" />
-          <p>Memeriksa status masuk...</p>
-        </div>
+        <LoginCard>
+          <div className="admin-login-checking" role="status">
+            <span className="admin-login-spinner admin-login-spinner-lg" aria-hidden="true" />
+            <p>Memeriksa status masuk...</p>
+          </div>
+        </LoginCard>
       </AdminLoginShell>
     )
   }
 
   return (
     <AdminLoginShell robot={robot}>
-      <div className={`admin-login-card${isShaking ? ' admin-login-card--shake' : ''}`}>
+      <LoginCard className={isShaking ? 'admin-login-card--shake' : ''}>
         <div className="admin-login-header">
           <span className="admin-login-badge">Kelola isi portofolio</span>
           <h1 className="admin-login-title">Masuk</h1>
@@ -505,24 +529,26 @@ function AdminLoginPage() {
               <label htmlFor="admin-email" className="admin-login-label">
                 Email
               </label>
-              <input
-                ref={emailRef}
-                id="admin-email"
-                name="email"
-                type="email"
-                className="admin-login-input"
-                placeholder="nama@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocusArea('email')}
-                onBlur={() => setFocusArea(null)}
-                required
-                autoComplete="email"
-                inputMode="email"
-                autoCapitalize="none"
-                spellCheck={false}
-                aria-describedby={displayError ? errorId : undefined}
-              />
+              <div className="admin-login-control">
+                <input
+                  ref={emailRef}
+                  id="admin-email"
+                  name="email"
+                  type="email"
+                  className="admin-login-input"
+                  placeholder="nama@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocusArea('email')}
+                  onBlur={() => setFocusArea(null)}
+                  required
+                  autoComplete="email"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  aria-describedby={displayError ? errorId : undefined}
+                />
+              </div>
             </div>
 
             <div className="admin-login-field">
@@ -530,7 +556,7 @@ function AdminLoginPage() {
                 Kata sandi
               </label>
               <div
-                className="admin-login-password"
+                className="admin-login-control admin-login-password"
                 onFocus={() => setFocusArea('password')}
                 onBlur={handlePasswordAreaBlur}
               >
@@ -573,6 +599,7 @@ function AdminLoginPage() {
             >
               {isSubmitting && <span className="admin-login-spinner" aria-hidden="true" />}
               {isSubmitting ? 'Sedang masuk...' : 'Masuk'}
+              {!isSubmitting && <ArrowRightIcon />}
             </button>
           </form>
         )}
@@ -583,7 +610,7 @@ function AdminLoginPage() {
             <span>Kembali ke beranda</span>
           </Link>
         </div>
-      </div>
+      </LoginCard>
     </AdminLoginShell>
   )
 }
