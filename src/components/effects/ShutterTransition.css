@@ -1,0 +1,196 @@
+/* Transisi jepret — overlay tema gelap. Linimasa (ms):
+   0–280 bracket menyempit · 100–875 logo merakit · 340–600 tirai menutup ·
+   600 navigasi + kilatan 120 · tirai membuka 280 setelah halaman tujuan siap. */
+
+.shutter-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.shutter {
+  --shutter-edge: var(--ds-brand-from);
+  --shutter-grid: color-mix(in srgb, var(--ds-text-strong) 5%, transparent);
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--ds-z-shutter);
+  overflow: hidden;
+}
+
+.shutter-scrim {
+  position: absolute;
+  inset: 0;
+  background-color: var(--ds-canvas);
+  opacity: 0.6;
+}
+
+.shutter-curtain {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: calc(50% + 1px);
+  background-color: var(--ds-canvas);
+  background-image:
+    linear-gradient(var(--shutter-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--shutter-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.shutter-curtain--top {
+  top: 0;
+  box-shadow: inset 0 -1px 0 var(--shutter-edge);
+}
+
+.shutter-curtain--bottom {
+  bottom: 0;
+  box-shadow: inset 0 1px 0 var(--shutter-edge);
+}
+
+.shutter-focus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 168px;
+  height: 168px;
+  margin: -84px 0 0 -84px;
+  color: var(--ds-text-strong);
+}
+
+.shutter-bracket {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 0 solid var(--shutter-edge);
+}
+
+.shutter-bracket--tl { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; }
+.shutter-bracket--tr { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; }
+.shutter-bracket--bl { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; }
+.shutter-bracket--br { right: 0; bottom: 0; border-right-width: 3px; border-bottom-width: 3px; }
+
+/* Logo mulai merakit sedikit setelah bracket bergerak */
+.shutter .shutter-logo .brand-logo-piece {
+  animation-delay: calc(var(--delay, 0ms) + 100ms);
+}
+
+.shutter-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-color: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Menutup -------------------------------------------------------------- */
+
+.shutter--closing .shutter-scrim {
+  animation: shutter-fade-in 240ms var(--ds-ease-out) both;
+}
+
+.shutter--closing .shutter-bracket--tl { animation: shutter-bracket-tl 280ms var(--ds-ease-out) both; }
+.shutter--closing .shutter-bracket--tr { animation: shutter-bracket-tr 280ms var(--ds-ease-out) both; }
+.shutter--closing .shutter-bracket--bl { animation: shutter-bracket-bl 280ms var(--ds-ease-out) both; }
+.shutter--closing .shutter-bracket--br { animation: shutter-bracket-br 280ms var(--ds-ease-out) both; }
+
+.shutter--closing .shutter-curtain--top {
+  animation: shutter-close-top 260ms cubic-bezier(0.7, 0, 0.84, 0) 340ms both;
+}
+
+.shutter--closing .shutter-curtain--bottom {
+  animation: shutter-close-bottom 260ms cubic-bezier(0.7, 0, 0.84, 0) 340ms both;
+}
+
+/* --- Tertutup: kilatan halus ---------------------------------------------- */
+
+.shutter--covered .shutter-flash {
+  animation: shutter-flash 120ms ease-out both;
+}
+
+/* --- Membuka ------------------------------------------------------------- */
+
+.shutter--opening .shutter-scrim {
+  animation: shutter-fade-out 280ms var(--ds-ease-out) both;
+}
+
+.shutter--opening .shutter-curtain--top {
+  animation: shutter-open-top 280ms var(--ds-ease-out) both;
+}
+
+.shutter--opening .shutter-curtain--bottom {
+  animation: shutter-open-bottom 280ms var(--ds-ease-out) both;
+}
+
+.shutter--opening .shutter-focus {
+  animation: shutter-focus-out 180ms ease-in both;
+}
+
+@keyframes shutter-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes shutter-fade-out {
+  to { opacity: 0; }
+}
+
+/* Bracket berangkat dari sudut layar (inset 24 px) menuju kotak 168 px di tengah */
+@keyframes shutter-bracket-tl {
+  from { transform: translate(calc(-50vw + 108px), calc(-50vh + 108px)); }
+}
+
+@keyframes shutter-bracket-tr {
+  from { transform: translate(calc(50vw - 108px), calc(-50vh + 108px)); }
+}
+
+@keyframes shutter-bracket-bl {
+  from { transform: translate(calc(-50vw + 108px), calc(50vh - 108px)); }
+}
+
+@keyframes shutter-bracket-br {
+  from { transform: translate(calc(50vw - 108px), calc(50vh - 108px)); }
+}
+
+@keyframes shutter-close-top {
+  from { transform: translateY(-100%); }
+}
+
+@keyframes shutter-close-bottom {
+  from { transform: translateY(100%); }
+}
+
+@keyframes shutter-open-top {
+  to { transform: translateY(-100%); }
+}
+
+@keyframes shutter-open-bottom {
+  to { transform: translateY(100%); }
+}
+
+@keyframes shutter-flash {
+  30% { opacity: 0.32; }
+  to { opacity: 0; }
+}
+
+@keyframes shutter-focus-out {
+  to {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+/* Cadangan: JS sudah melewati overlay bila reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .shutter {
+    display: none;
+  }
+}

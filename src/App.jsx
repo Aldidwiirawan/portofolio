@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import PublicPortfolioPage from './pages/PublicPortfolioPage'
 import AdminRoute from './components/admin/AdminRoute'
+import ShutterProvider from './components/effects/ShutterTransition'
 import './App.css'
 
 // Lazy load admin pages for clean code splitting and smaller initial bundle size
@@ -34,6 +35,8 @@ function PageFallback() {
 function App() {
   return (
     <BrowserRouter>
+      {/* Outside Suspense so the shutter overlay survives while lazy pages load */}
+      <ShutterProvider>
       <Suspense fallback={<PageFallback />}>
         <Routes>
           {/* Public Portfolio Route */}
@@ -166,6 +169,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+      </ShutterProvider>
     </BrowserRouter>
   )
 }
