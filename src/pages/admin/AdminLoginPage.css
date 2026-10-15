@@ -3,6 +3,8 @@
    Spesifikasi: design-system/aldi-portfolio/pages/login.md
    Root halaman memakai data-theme="light"; panel brand memakai data-theme="dark".
    Hanya token --ds-* yang dipakai di sini (kecuali warna latar <html> di bawah).
+   Komponen brand/efek (Logo, RobotMascot, BlueprintBackground, ViewfinderCursor) membawa
+   stylesheet sendiri; file ini hanya mengatur tata letaknya di halaman login.
    ========================================================================== */
 
 /* Latar dokumen ikut terang selama halaman login tampil (overscroll, scrollbar). */
@@ -18,7 +20,7 @@ html:has(.admin-login-page) body {
 .admin-login-page {
   /* Component tokens */
   --login-card-padding: var(--space-6);
-  --login-grid-line: rgb(15 23 42 / 0.05);
+  --login-card-max: 27.5rem;
 
   min-height: 100vh;
   min-height: 100dvh;
@@ -55,25 +57,19 @@ html:has(.admin-login-page) body {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+}
+
+.admin-login-lockup {
+  display: flex;
+  align-items: center;
   gap: var(--space-3);
 }
 
-.admin-login-monogram {
-  display: inline-grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1.5px solid transparent;
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(var(--ds-surface), var(--ds-surface)) padding-box,
-    linear-gradient(135deg, var(--ds-brand-from), var(--ds-brand-to)) border-box;
+.admin-login-logo {
+  width: 2rem;
+  height: 2rem;
   color: var(--ds-text-strong);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-sm);
-  font-weight: var(--ds-fw-bold);
-  letter-spacing: 0.02em;
 }
 
 .admin-login-brand-name {
@@ -85,12 +81,13 @@ html:has(.admin-login-page) body {
   line-height: var(--ds-lh-snug);
 }
 
-.admin-login-brand-rule {
-  display: none;
+.admin-login-robot {
+  display: flex;
+  justify-content: center;
 }
 
 /* --------------------------------------------------------------------------
-   Area form (tema terang) dengan grid "blueprint" yang memudar
+   Area form (tema terang) di atas BlueprintBackground variant="busy"
    -------------------------------------------------------------------------- */
 
 .admin-login-main {
@@ -103,22 +100,22 @@ html:has(.admin-login-page) body {
   padding: var(--space-8) var(--space-4) var(--space-12);
 }
 
-.admin-login-main::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    linear-gradient(var(--login-grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--login-grid-line) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse at 50% 40%, #000 25%, transparent 75%);
-  pointer-events: none;
+/* Robot (di bawah 1024 px) dan kartu ditumpuk di tengah kolom */
+.admin-login-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: var(--login-card-max);
+}
+
+.admin-login-robot--inline {
+  margin-bottom: var(--space-2);
 }
 
 .admin-login-card {
   width: 100%;
-  max-width: 27.5rem;
+  max-width: var(--login-card-max);
   padding: var(--login-card-padding);
   background-color: var(--ds-surface);
   border: 1px solid var(--ds-border);
@@ -269,6 +266,19 @@ html:has(.admin-login-page) body {
 
 .admin-login-password .admin-login-input {
   padding-right: calc(var(--ds-target-min) + var(--space-2));
+}
+
+/* Petunjuk Caps Lock: region live selalu ada; saat kosong tidak memakan jarak */
+.admin-login-hint {
+  margin: 0;
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  line-height: var(--ds-lh-snug);
+}
+
+.admin-login-hint:empty {
+  margin-top: calc(var(--space-2) * -1);
 }
 
 .admin-login-toggle {
@@ -468,7 +478,7 @@ html:has(.admin-login-page) body {
   }
 
   .admin-login-brand {
-    align-items: flex-end;
+    align-items: stretch;
     padding: var(--space-12);
     border-bottom: 0;
     border-right: 1px solid var(--ds-border);
@@ -477,16 +487,20 @@ html:has(.admin-login-page) body {
 
   .admin-login-brand-inner {
     flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-8);
+  }
+
+  .admin-login-lockup {
+    flex-direction: column;
     align-items: flex-start;
     gap: var(--space-5);
   }
 
-  .admin-login-monogram {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-width: 2px;
-    border-radius: var(--radius-lg);
-    font-size: var(--ds-fs-lg);
+  /* 64 px: setiap garis grid logo (kelipatan 8 unit) jatuh tepat di piksel */
+  .admin-login-logo {
+    width: 4rem;
+    height: 4rem;
   }
 
   .admin-login-brand-name {
@@ -495,12 +509,9 @@ html:has(.admin-login-page) body {
     line-height: var(--ds-lh-tight);
   }
 
-  .admin-login-brand-rule {
-    display: block;
-    width: 3rem;
-    height: 3px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(90deg, var(--ds-brand-from), var(--ds-brand-to));
+  .admin-login-robot--panel {
+    flex: 1;
+    align-items: center;
   }
 
   .admin-login-main {
@@ -519,6 +530,21 @@ html:has(.admin-login-page) body {
   }
 }
 
+/* Getar singkat saat login gagal. "admin-login-enter" tetap di daftar supaya animasi masuk
+   tidak diputar ulang ketika kelas getar dilepas. */
+.admin-login-card--shake {
+  animation:
+    admin-login-enter var(--ds-duration-slow) var(--ds-ease-out) both,
+    admin-login-shake 400ms ease-in-out;
+}
+
+@keyframes admin-login-shake {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
 @keyframes admin-login-spin {
   to {
     transform: rotate(360deg);
@@ -526,7 +552,8 @@ html:has(.admin-login-page) body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .admin-login-card {
+  .admin-login-card,
+  .admin-login-card--shake {
     animation: none;
   }
 

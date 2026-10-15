@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   getCurrentUser,
@@ -7,27 +7,49 @@ import {
   signOut,
   verifyIsAdmin,
 } from '../../lib/authService'
+import Logo from '../../components/brand/Logo'
+import RobotMascot from '../../components/brand/RobotMascot'
+import BlueprintBackground from '../../components/effects/BlueprintBackground'
+import ViewfinderCursor from '../../components/effects/ViewfinderCursor'
+import { useShutter } from '../../components/effects/shutterContext'
+import { prefersReducedMotion, useMediaQuery } from '../../lib/useMediaQuery'
 import './AdminLoginPage.css'
 
-// Supabase Auth returns raw English messages. Map the common ones to clear Indonesian copy
-// at render time; any other message (including our own Indonesian ones) is shown as-is.
+const PAGE_TITLE = 'Masuk · Aldi Dwi Irawan'
+const SUCCESS_HOLD_MS = 450 // robot celebrates before the shutter starts
+const ERROR_MOOD_MS = 2000
+const SHAKE_MS = 400
+
+// Supabase Auth returns raw English messages and the auth logic uses technical Indonesian.
+// Both are mapped to plain Indonesian at render time; any other message is shown as-is.
 const FRIENDLY_AUTH_ERRORS = [
   {
     pattern: /invalid login credentials/i,
-    message: 'Email atau password salah. Periksa kembali, lalu coba lagi.',
+    message: 'Email atau kata sandi salah. Periksa lagi, lalu coba sekali lagi.',
   },
   {
     pattern: /email not confirmed/i,
-    message:
-      'Email ini belum dikonfirmasi. Buka tautan konfirmasi di kotak masuk email Anda terlebih dahulu.',
+    message: 'Email ini belum dikonfirmasi. Buka tautan konfirmasi di email Anda dulu.',
   },
   {
     pattern: /failed to fetch|networkerror|network request failed|load failed/i,
-    message: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi.',
+    message: 'Tidak bisa terhubung ke server. Periksa koneksi internet, lalu coba lagi.',
   },
   {
     pattern: /rate limit|too many requests|for security purposes/i,
     message: 'Terlalu banyak percobaan masuk. Tunggu beberapa menit, lalu coba lagi.',
+  },
+  {
+    pattern: /tidak terdaftar sebagai administrator/i,
+    message: 'Akun ini tidak punya akses untuk mengelola situs.',
+  },
+  {
+    pattern: /^gagal masuk/i,
+    message: 'Gagal masuk. Periksa email dan kata sandi, lalu coba lagi.',
+  },
+  {
+    pattern: /kesalahan sistem/i,
+    message: 'Terjadi kesalahan. Coba lagi sebentar lagi.',
   },
 ]
 
@@ -89,23 +111,103 @@ function ArrowLeftIcon() {
   )
 }
 
+let measureContext = null
+
+/** Width in px of `text` rendered with the font of `input` (used to aim the robot's gaze). */
+function measureTextWidth(text, input) {
+  if (!text || !input) return 0
+  measureContext ??= document.createElement('canvas').getContext('2d')
+  if (!measureContext) return 0
+  const style = getComputedStyle(input)
+  measureContext.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+  return measureContext.measureText(text).width
+}
+
 /**
- * Light-themed page shell shared by the session check and the form,
- * so the layout does not jump when the check finishes.
+ * Drop-in replacement for navigate() on this page. The first call starts the exit sequence
+ * (robot success → shutter → navigate behind the closed curtains); later calls are ignored,
+ * because the session check, the auth listener and the form can all navigate on success.
  */
-function AdminLoginShell({ children }) {
+function useLoginExitNavigate(onExitStart) {
+  const routerNavigate = useNavigate()
+  const { runShutter } = useShutter()
+  const latest = useRef({ routerNavigate, runShutter, onExitStart })
+  const pendingRef = useRef(false)
+  const holdTimerRef = useRef(0)
+
+  useEffect(() => {
+    latest.current = { routerNavigate, runShutter, onExitStart }
+  })
+
+  useEffect(() => () => clearTimeout(holdTimerRef.current), [])
+
+  return useCallback((to, options) => {
+    if (pendingRef.current) return
+    pendingRef.current = true
+    latest.current.onExitStart?.()
+
+    const targetPath = typeof to === 'string' ? to : to?.pathname
+    const startShutter = () => {
+      const { runShutter: run, routerNavigate: navigateNow } = latest.current
+      run({
+        onCovered: () => navigateNow(to, options),
+        // Destination rendered: route active, its heading present, no loading screen left
+        isReady: () => {
+          const heading = document.querySelector('h1')
+          return (
+            window.location.pathname === targetPath &&
+            Boolean(heading) &&
+            !heading.closest('.admin-login-page') &&
+            !document.querySelector('.admin-auth-loading')
+          )
+        },
+        message:
+          targetPath === '/admin'
+            ? 'Berhasil masuk. Membuka beranda…'
+            : 'Berhasil masuk. Membuka halaman tujuan…',
+      })
+    }
+
+    if (prefersReducedMotion()) startShutter()
+    else holdTimerRef.current = setTimeout(startShutter, SUCCESS_HOLD_MS)
+  }, [])
+}
+
+/**
+ * Light page shell shared by the session check and the form, so the layout does not jump
+ * when the check finishes. The robot sits in the dark brand panel on wide screens and above
+ * the card on smaller ones.
+ */
+function AdminLoginShell({ children, robot }) {
+  const isWide = useMediaQuery('(min-width: 1024px)')
+
   return (
     <div className="admin-login-page" data-theme="light">
+      <ViewfinderCursor />
       <header className="admin-login-brand" data-theme="dark">
         <div className="admin-login-brand-inner">
-          <span className="admin-login-monogram" aria-hidden="true">
-            AD
-          </span>
-          <p className="admin-login-brand-name">Aldi Dwi Irawan</p>
-          <span className="admin-login-brand-rule" aria-hidden="true" />
+          <div className="admin-login-lockup">
+            <Logo size={32} assemble className="admin-login-logo" />
+            <p className="admin-login-brand-name">Aldi Dwi Irawan</p>
+          </div>
+          {isWide && (
+            <div className="admin-login-robot admin-login-robot--panel">
+              <RobotMascot {...robot} size={240} />
+            </div>
+          )}
         </div>
       </header>
-      <main className="admin-login-main">{children}</main>
+      <main className="admin-login-main">
+        <BlueprintBackground variant="busy" />
+        <div className="admin-login-stack">
+          {!isWide && (
+            <div className="admin-login-robot admin-login-robot--inline">
+              <RobotMascot {...robot} size={104} />
+            </div>
+          )}
+          {children}
+        </div>
+      </main>
     </div>
   )
 }
@@ -117,7 +219,8 @@ function AdminLoginShell({ children }) {
  */
 function AdminLoginPage() {
   const location = useLocation()
-  const navigate = useNavigate()
+  const [isExiting, setIsExiting] = useState(false)
+  const navigate = useLoginExitNavigate(() => setIsExiting(true))
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -223,6 +326,81 @@ function AdminLoginPage() {
     setErrorMsg('')
   }
 
+  // ---- Presentation state (robot, shake, hints); never changes the auth flow above ----
+
+  const emailRef = useRef(null)
+  const passwordRef = useRef(null)
+  const wasSubmittingRef = useRef(false)
+  const [focusArea, setFocusArea] = useState(null) // 'email' | 'password' | null
+  const [gaze, setGaze] = useState(0)
+  const [errorCue, setErrorCue] = useState(0)
+  const [isErrorMood, setIsErrorMood] = useState(false)
+  const [isShaking, setIsShaking] = useState(false)
+  const [capsLockOn, setCapsLockOn] = useState(false)
+
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = PAGE_TITLE
+    return () => {
+      document.title = previousTitle
+    }
+  }, [])
+
+  // Eyes follow the end of the typed email: -1 at the start of the field, 1 at its end
+  useEffect(() => {
+    const input = emailRef.current
+    if (focusArea !== 'email' || !input) return
+    const style = getComputedStyle(input)
+    const usable = input.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+    const progress = usable > 0 ? Math.min(1, measureTextWidth(email, input) / usable) : 0
+    setGaze(progress * 2 - 1)
+  }, [email, focusArea])
+
+  // A failed attempt (submit finished with a message): robot reacts, card shakes,
+  // and focus returns to the password field
+  useEffect(() => {
+    const wasSubmitting = wasSubmittingRef.current
+    wasSubmittingRef.current = isSubmitting
+    if (wasSubmitting && !isSubmitting && errorMsg) {
+      setErrorCue((cue) => cue + 1)
+      setIsErrorMood(true)
+      setIsShaking(true)
+      passwordRef.current?.focus()
+    }
+  }, [isSubmitting, errorMsg])
+
+  useEffect(() => {
+    if (!isErrorMood) return undefined
+    const timer = setTimeout(() => setIsErrorMood(false), ERROR_MOOD_MS)
+    return () => clearTimeout(timer)
+  }, [isErrorMood, errorCue])
+
+  useEffect(() => {
+    if (!isShaking) return undefined
+    const timer = setTimeout(() => setIsShaking(false), SHAKE_MS)
+    return () => clearTimeout(timer)
+  }, [isShaking, errorCue])
+
+  let mood = 'idle'
+  if (isExiting) mood = 'success'
+  else if (isErrorMood) mood = 'error'
+  else if (focusArea === 'password') mood = showPassword ? 'peeking' : 'hiding'
+  else if (focusArea === 'email') mood = 'watching'
+
+  const robot = {
+    mood,
+    lookAt: mood === 'watching' ? gaze : 0,
+    cue: isExiting ? 1 : errorCue,
+  }
+
+  const handlePasswordAreaBlur = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setFocusArea(null)
+  }
+
+  const updateCapsLock = (e) => {
+    if (typeof e.getModifierState === 'function') setCapsLockOn(e.getModifierState('CapsLock'))
+  }
+
   // The submit button uses aria-disabled (not disabled) so keyboard focus is kept while
   // the request runs; this guard blocks a second submit in the meantime.
   const handleFormSubmit = (e) => {
@@ -235,26 +413,28 @@ function AdminLoginPage() {
 
   const displayError = toFriendlyAuthError(errorMsg)
   const errorId = 'admin-login-error'
+  const capsHintId = 'admin-password-hint'
+  const showCapsHint = capsLockOn && focusArea === 'password'
 
   if (isCheckingAuth) {
     return (
-      <AdminLoginShell>
+      <AdminLoginShell robot={robot}>
         <div className="admin-login-checking" role="status">
           <span className="admin-login-spinner admin-login-spinner-lg" aria-hidden="true" />
-          <p>Memeriksa status login...</p>
+          <p>Memeriksa status masuk...</p>
         </div>
       </AdminLoginShell>
     )
   }
 
   return (
-    <AdminLoginShell>
-      <div className="admin-login-card">
+    <AdminLoginShell robot={robot}>
+      <div className={`admin-login-card${isShaking ? ' admin-login-card--shake' : ''}`}>
         <div className="admin-login-header">
-          <span className="admin-login-badge">Portal CMS Portfolio</span>
-          <h1 className="admin-login-title">Admin Login</h1>
+          <span className="admin-login-badge">Kelola isi portofolio</span>
+          <h1 className="admin-login-title">Masuk</h1>
           <p className="admin-login-subtitle">
-            Masuk dengan akun pemilik portfolio untuk mengelola konten dan pesan masuk.
+            Masuk dengan akun pemilik untuk mengelola isi portofolio dan pesan masuk.
           </p>
         </div>
 
@@ -271,15 +451,15 @@ function AdminLoginPage() {
         {nonAdminUser ? (
           <div className="admin-login-session">
             <p>
-              Sedang login sebagai: <strong>{nonAdminUser.email}</strong> (Non-Admin). Silakan
-              keluar untuk masuk dengan akun administrator.
+              Anda masuk sebagai <strong>{nonAdminUser.email}</strong>. Keluar dulu, lalu masuk
+              dengan akun pemilik.
             </p>
             <button
               type="button"
               className="admin-login-submit"
               onClick={handleNonAdminSignOut}
             >
-              Keluar dari Akun Ini
+              Keluar dari akun ini
             </button>
           </div>
         ) : (
@@ -290,16 +470,19 @@ function AdminLoginPage() {
           >
             <div className="admin-login-field">
               <label htmlFor="admin-email" className="admin-login-label">
-                Email Admin
+                Email
               </label>
               <input
+                ref={emailRef}
                 id="admin-email"
                 name="email"
                 type="email"
                 className="admin-login-input"
-                placeholder="admin@example.com"
+                placeholder="nama@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setFocusArea('email')}
+                onBlur={() => setFocusArea(null)}
                 required
                 autoComplete="email"
                 inputMode="email"
@@ -311,22 +494,28 @@ function AdminLoginPage() {
 
             <div className="admin-login-field">
               <label htmlFor="admin-password" className="admin-login-label">
-                Password
+                Kata sandi
               </label>
-              <div className="admin-login-password">
+              <div
+                className="admin-login-password"
+                onFocus={() => setFocusArea('password')}
+                onBlur={handlePasswordAreaBlur}
+              >
                 <input
+                  ref={passwordRef}
                   id="admin-password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   className="admin-login-input"
-                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={updateCapsLock}
+                  onKeyUp={updateCapsLock}
                   required
                   autoComplete="current-password"
                   autoCapitalize="none"
                   spellCheck={false}
-                  aria-describedby={displayError ? errorId : undefined}
+                  aria-describedby={[displayError && errorId, capsHintId].filter(Boolean).join(' ')}
                 />
                 <button
                   type="button"
@@ -334,11 +523,14 @@ function AdminLoginPage() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-controls="admin-password"
                   aria-pressed={showPassword}
-                  aria-label="Tampilkan password"
+                  aria-label="Tampilkan kata sandi"
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
+              <p id={capsHintId} className="admin-login-hint" aria-live="polite">
+                {showCapsHint ? 'Caps Lock aktif' : ''}
+              </p>
             </div>
 
             <button
@@ -347,7 +539,7 @@ function AdminLoginPage() {
               aria-disabled={isSubmitting || undefined}
             >
               {isSubmitting && <span className="admin-login-spinner" aria-hidden="true" />}
-              {isSubmitting ? 'Memverifikasi...' : 'Masuk ke Dashboard'}
+              {isSubmitting ? 'Sedang masuk...' : 'Masuk'}
             </button>
           </form>
         )}
@@ -355,7 +547,7 @@ function AdminLoginPage() {
         <div className="admin-login-footer">
           <Link to="/" className="admin-login-back">
             <ArrowLeftIcon />
-            <span>Kembali ke Halaman Utama</span>
+            <span>Kembali ke beranda</span>
           </Link>
         </div>
       </div>
