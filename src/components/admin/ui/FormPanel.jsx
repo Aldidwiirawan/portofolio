@@ -6,8 +6,20 @@ import { Card } from './Card'
  * Frame of an admin form: module card with corner brackets, server error on top (scrolled into
  * view), required-fields note, the fields, and the sticky Batal / Simpan bar with "Menyimpan..."
  * and the success state. `screen` comes from useFormScreen; `onSubmit` is the form's own handler.
+ * - cancelLabel / cancelOnlyWhenDirty: a single form without a list (Profil) offers e.g.
+ *   "Batalkan perubahan", shown only once something has changed
  */
-export function FormPanel({ label, screen, error, onSubmit, isSubmitting, submitLabel, children }) {
+export function FormPanel({
+  label,
+  screen,
+  error,
+  onSubmit,
+  isSubmitting,
+  submitLabel,
+  cancelLabel = 'Batal',
+  cancelOnlyWhenDirty = false,
+  children,
+}) {
   const { formRef, alertRef, noteSubmit, saved, isDirty, cancel } = screen
   const busy = isSubmitting || saved
 
@@ -38,9 +50,11 @@ export function FormPanel({ label, screen, error, onSubmit, isSubmitting, submit
         {children}
         <div className="adm-form-actions">
           {isDirty && !saved && <p className="adm-form-actions-note">Ada perubahan yang belum disimpan</p>}
-          <Button variant="secondary" onClick={cancel} disabled={busy}>
-            Batal
-          </Button>
+          {(!cancelOnlyWhenDirty || (isDirty && !saved)) && (
+            <Button variant="secondary" onClick={cancel} disabled={busy}>
+              {cancelLabel}
+            </Button>
+          )}
           <Button
             type="submit"
             loading={isSubmitting}

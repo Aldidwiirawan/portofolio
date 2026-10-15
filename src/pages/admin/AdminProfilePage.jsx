@@ -1,15 +1,27 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useProfile } from '../../hooks/useProfile'
-import './AdminProjectsPage.css'
+import { prefersReducedMotion } from '../../lib/useMediaQuery'
+import { AdminLayout, AdminRoot } from '../../components/admin/ui/AdminLayout'
+import { useLeaveGuard, useToast } from '../../components/admin/ui/adminContexts'
+import { Alert } from '../../components/admin/ui/Alert'
+import { Button } from '../../components/admin/ui/Button'
+import { Badge, Card } from '../../components/admin/ui/Card'
+import { Skeleton } from '../../components/admin/ui/Feedback'
+import { Field, FormSection, Input, Textarea } from '../../components/admin/ui/Field'
+import { FormPanel } from '../../components/admin/ui/FormPanel'
+import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { IconRefresh } from '../../components/admin/ui/icons'
+import { useFormScreen } from '../../components/admin/ui/useFormFeedback'
 import './AdminProfilePage.css'
 
 /**
  * ProfileEditor Component
  * Internal form and preview manager keyed to profile data
+ * Screen: one admin form in sections with a live preview; unsaved changes are guarded and
+ * "Batalkan perubahan" (onReset) goes back to the stored values.
  */
-function ProfileEditor({ profile, onSaveSuccess }) {
+function ProfileEditor({ profile, onSaveSuccess, onReset }) {
   const [formData, setFormData] = useState(() => ({
     full_name: profile?.full_name || '',
     tagline: profile?.tagline || '',
@@ -30,6 +42,10 @@ function ProfileEditor({ profile, onSaveSuccess }) {
 
   const [isSaving, setIsSaving] = useState(false)
   const [generalError, setGeneralError] = useState(null)
+
+  // Screen only: feedback, unsaved-changes guard, "Batalkan perubahan"
+  const screen = useFormScreen({ data: formData, generalError, onCancel: onReset })
+  const { finish } = screen
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -106,7 +122,7 @@ function ProfileEditor({ profile, onSaveSuccess }) {
         }
       }
 
-      onSaveSuccess()
+      finish(() => onSaveSuccess())
     } catch (err) {
       setGeneralError(
         err instanceof Error
@@ -128,469 +144,235 @@ function ProfileEditor({ profile, onSaveSuccess }) {
         .toUpperCase()
     : 'AD'
 
+  const busy = isSaving || screen.saved
+  // "Nama lengkap wajib diisi." belongs under its field; other messages go on top of the form
+  const nameError = generalError === 'Nama lengkap wajib diisi.' ? generalError : null
+  const topError =
+    generalError && !nameError
+      ? toFriendlyError(generalError, 'Profil belum tersimpan. Periksa koneksi internet, lalu coba lagi.')
+      : ''
+  const field = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
+
   return (
-    <div className="admin-profile-layout">
-      {/* Form Column */}
-      <form onSubmit={handleSubmit} className="admin-profile-form-column" noValidate>
-        {generalError && (
-          <div className="admin-modal-error-alert" style={{ marginBottom: 'var(--space-2)' }}>
-            <span>{generalError}</span>
-          </div>
-        )}
+    <div className="adm-profile">
+      <FormPanel
+        label="Profil"
+        screen={screen}
+        error={topError}
+        onSubmit={handleSubmit}
+        isSubmitting={isSaving}
+        submitLabel="Simpan profil"
+        cancelLabel="Batalkan perubahan"
+        cancelOnlyWhenDirty
+      >
+        <FormSection title="Data utama" columns={2}>
+          <Field id="profile-full-name" label="Nama lengkap" required error={nameError}>
+            <Input type="text" autoComplete="name" {...field('full_name')} />
+          </Field>
+          <Field id="profile-tagline" label="Profesi atau tagline" optional hint="Tampil di bawah nama, misalnya Web Developer.">
+            <Input type="text" {...field('tagline')} />
+          </Field>
+          <Field id="profile-location" label="Kota" optional hint="Misalnya Kediri, Jawa Timur.">
+            <Input type="text" {...field('location')} />
+          </Field>
+          <Field id="profile-email" label="Email kontak" optional>
+            <Input type="email" inputMode="email" autoComplete="email" {...field('email')} />
+          </Field>
+          <Field id="profile-phone" label="Nomor telepon atau WhatsApp" optional>
+            <Input type="tel" inputMode="tel" autoComplete="tel" {...field('phone_number')} />
+          </Field>
+          <Field id="profile-address" label="Alamat lengkap" optional hint="Hanya tersimpan di sini, tidak tampil di halaman publik.">
+            <Input type="text" autoComplete="street-address" {...field('full_address')} />
+          </Field>
+          <Field id="profile-bio" label="Tentang saya" optional className="adm-span-2" hint="Tampil di bagian perkenalan halaman publik.">
+            <Textarea rows={5} {...field('bio')} />
+          </Field>
+          <Field
+            id="profile-hobbies"
+            label="Hobi dan minat"
+            optional
+            className="adm-span-2"
+            hint="Pisahkan dengan koma, misalnya: Fotografi, Membaca, Badminton."
+          >
+            <Input type="text" {...field('hobbies')} />
+          </Field>
+        </FormSection>
 
-        {/* Section 1: Informasi Utama */}
-        <div className="admin-profile-section-card">
-          <h3 className="admin-profile-section-title">Informasi Dasar</h3>
-          <p className="admin-profile-section-desc">
-            Data utama yang muncul pada bagian Hero dan About di halaman beranda portofolio.
-          </p>
-
-          <div className="admin-profile-grid-2">
-            <div className="form-group">
-              <label htmlFor="profile-full-name" className="form-label">
-                <span>Nama Lengkap</span>
-                <span className="required-indicator">*</span>
-              </label>
-              <input
-                id="profile-full-name"
-                name="full_name"
-                type="text"
-                className="form-control-input"
-                value={formData.full_name}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="Aldi Dwi Irawan"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-tagline" className="form-label">
-                <span>Tagline / Profesi</span>
-              </label>
-              <input
-                id="profile-tagline"
-                name="tagline"
-                type="text"
-                className="form-control-input"
-                value={formData.tagline}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="Web Developer & IT Graduate"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-location" className="form-label">
-                <span>Domisili / Lokasi</span>
-              </label>
-              <input
-                id="profile-location"
-                name="location"
-                type="text"
-                className="form-control-input"
-                value={formData.location}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="Indonesia / Semarang, Jawa Tengah"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-email" className="form-label">
-                <span>Email Kontak</span>
-              </label>
-              <input
-                id="profile-email"
-                name="email"
-                type="email"
-                className="form-control-input"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="kontak@example.com"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-phone" className="form-label">
-                <span>Nomor Telepon / WhatsApp</span>
-              </label>
-              <input
-                id="profile-phone"
-                name="phone_number"
-                type="tel"
-                className="form-control-input"
-                value={formData.phone_number}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="082331318598"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-address" className="form-label">
-                <span>Alamat Lengkap</span>
-              </label>
-              <input
-                id="profile-address"
-                name="full_address"
-                type="text"
-                className="form-control-input"
-                value={formData.full_address}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="Bandar Lor Gg. IX No. 69, Kota Kediri"
-              />
-            </div>
-          </div>
-
-          <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-            <label htmlFor="profile-bio" className="form-label">
-              <span>Biografi Singkat (Bio)</span>
-            </label>
-            <textarea
-              id="profile-bio"
-              name="bio"
-              rows="4"
-              className="form-control-textarea"
-              value={formData.bio}
-              onChange={handleChange}
-              disabled={isSaving}
-              placeholder="Ceritakan latar belakang, fokus teknologi, dan visi profesional Anda..."
-            />
-          </div>
-
-          <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-            <label htmlFor="profile-hobbies" className="form-label">
-              <span>Hobi & Minat (Pisahkan dengan tanda koma)</span>
-            </label>
-            <input
-              id="profile-hobbies"
-              name="hobbies"
-              type="text"
-              className="form-control-input"
-              value={formData.hobbies}
-              onChange={handleChange}
-              disabled={isSaving}
-              placeholder="Contoh: Coding, Jaringan Komputer, Badminton, Membaca Buku"
-            />
-            <p className="form-field-helper">
-              Daftar hobi/minat yang akan disimpan sebagai array data di database.
-            </p>
-          </div>
-        </div>
-
-        {/* Section 2: Ketersediaan Karir */}
-        <div className="admin-profile-section-card">
-          <h3 className="admin-profile-section-title">Status Ketersediaan</h3>
-          <p className="admin-profile-section-desc">
-            Menentukan badge status kesiapan kerja yang ditampilkan pada Hero banner publik.
-          </p>
-
-          <div className="admin-toggle-wrapper">
-            <div className="admin-toggle-text">
-              <span className="admin-toggle-title">
+        <FormSection title="Status ketersediaan">
+          <div className="adm-switch-row">
+            <div className="adm-switch-text">
+              <p id="profile-available-label" className="adm-switch-title">
+                Terbuka untuk tawaran kerja dan proyek
+              </p>
+              <p id="profile-available-desc" className="adm-switch-desc">
                 {formData.is_available
-                  ? 'Terbuka untuk Peluang Kerja & Proyek'
-                  : 'Sedang Tidak Tersedia untuk Proyek Baru'}
-              </span>
-              <span className="admin-toggle-sub">
-                {formData.is_available
-                  ? 'Pengunjung situs akan melihat badge status aktif berwarna hijau.'
-                  : 'Badge akan dinonaktifkan sementara.'}
-              </span>
+                  ? 'Halaman publik menampilkan "Terbuka untuk Peluang Kerja & Kolaborasi Proyek".'
+                  : 'Halaman publik menampilkan "Sedang Tidak Tersedia untuk Proyek Baru".'}
+              </p>
             </div>
-
             <button
               type="button"
               role="switch"
               aria-checked={formData.is_available}
-              className={`admin-switch-btn ${formData.is_available ? 'is-active' : ''}`}
+              aria-labelledby="profile-available-label"
+              aria-describedby="profile-available-desc"
+              className="adm-switch"
               onClick={handleToggleAvailable}
-              disabled={isSaving}
+              disabled={busy}
             >
-              <span className="admin-switch-thumb" />
+              <span className="adm-switch-track" aria-hidden="true">
+                <span className="adm-switch-thumb" />
+              </span>
+              <span className="adm-switch-state" aria-hidden="true">
+                {formData.is_available ? 'Ya' : 'Tidak'}
+              </span>
             </button>
           </div>
-        </div>
+        </FormSection>
 
-        {/* Section 3: Media Sosial & Resume */}
-        <div className="admin-profile-section-card">
-          <h3 className="admin-profile-section-title">Tautan Media Sosial & CV</h3>
-          <p className="admin-profile-section-desc">
-            Tautan profil profesional yang disematkan pada panel kontak dan footer.
-          </p>
+        <FormSection title="Tautan" columns={2}>
+          <Field id="profile-github" label="GitHub" optional>
+            <Input type="url" inputMode="url" placeholder="https://github.com/" {...field('github_url')} />
+          </Field>
+          <Field id="profile-linkedin" label="LinkedIn" optional>
+            <Input type="url" inputMode="url" placeholder="https://linkedin.com/in/" {...field('linkedin_url')} />
+          </Field>
+          <Field id="profile-instagram" label="Instagram" optional>
+            <Input type="url" inputMode="url" placeholder="https://instagram.com/" {...field('instagram_url')} />
+          </Field>
+          <Field id="profile-resume" label="CV" optional hint="Tautan file CV, misalnya dari Google Drive.">
+            <Input type="url" inputMode="url" placeholder="https://" {...field('resume_url')} />
+          </Field>
+        </FormSection>
+      </FormPanel>
 
-          <div className="admin-profile-grid-2">
-            <div className="form-group">
-              <label htmlFor="profile-github" className="form-label">
-                <span>URL GitHub</span>
-              </label>
-              <input
-                id="profile-github"
-                name="github_url"
-                type="url"
-                className="form-control-input"
-                value={formData.github_url}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="https://github.com/username"
-              />
+      <aside className="adm-profile-preview" aria-labelledby="profile-preview-title">
+        <Card as="div" heading="Pratinjau" headingId="profile-preview-title">
+          <div className="adm-preview">
+            <div className="adm-preview-avatar">
+              {formData.avatar_url ? <img src={formData.avatar_url} alt="" /> : <span aria-hidden="true">{initials}</span>}
             </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-linkedin" className="form-label">
-                <span>URL LinkedIn</span>
-              </label>
-              <input
-                id="profile-linkedin"
-                name="linkedin_url"
-                type="url"
-                className="form-control-input"
-                value={formData.linkedin_url}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="https://linkedin.com/in/username"
-              />
+            <Badge tone={formData.is_available ? 'success' : 'neutral'} dot>
+              {formData.is_available ? 'Terbuka untuk peluang kerja' : 'Sedang tidak tersedia'}
+            </Badge>
+            <div>
+              <p className={`adm-preview-name${formData.full_name ? '' : ' is-placeholder'}`}>{formData.full_name || 'Nama lengkap'}</p>
+              <p className={`adm-preview-tagline${formData.tagline ? '' : ' is-placeholder'}`}>{formData.tagline || 'Profesi atau tagline'}</p>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-instagram" className="form-label">
-                <span>URL Instagram</span>
-              </label>
-              <input
-                id="profile-instagram"
-                name="instagram_url"
-                type="url"
-                className="form-control-input"
-                value={formData.instagram_url}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="https://instagram.com/username"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="profile-resume" className="form-label">
-                <span>URL Resume / CV</span>
-              </label>
-              <input
-                id="profile-resume"
-                name="resume_url"
-                type="url"
-                className="form-control-input"
-                value={formData.resume_url}
-                onChange={handleChange}
-                disabled={isSaving}
-                placeholder="https://drive.google.com/..."
-              />
-            </div>
+            <p className={`adm-preview-bio${formData.bio ? '' : ' is-placeholder'}`}>
+              {formData.bio || 'Tulisan "Tentang saya" tampil di sini.'}
+            </p>
+            {(formData.location || formData.email || formData.github_url || formData.linkedin_url) && (
+              <dl className="adm-preview-facts">
+                {formData.location && (
+                  <div>
+                    <dt>Kota</dt>
+                    <dd>{formData.location}</dd>
+                  </div>
+                )}
+                {formData.email && (
+                  <div>
+                    <dt>Email</dt>
+                    <dd>{formData.email}</dd>
+                  </div>
+                )}
+                {formData.github_url && (
+                  <div>
+                    <dt>GitHub</dt>
+                    <dd>Terhubung</dd>
+                  </div>
+                )}
+                {formData.linkedin_url && (
+                  <div>
+                    <dt>LinkedIn</dt>
+                    <dd>Terhubung</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+            <p className="adm-preview-note">Pratinjau ringkas. Tampilan aslinya mengikuti desain halaman publik.</p>
           </div>
-        </div>
-
-        {/* Submit Button Bar */}
-        <div>
-          <button
-            type="submit"
-            className="btn btn-primary btn-lg"
-            disabled={isSaving}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            {isSaving ? 'Menyimpan Profil...' : 'Simpan Perubahan Profil'}
-          </button>
-        </div>
-      </form>
-
-      {/* Live Preview Column */}
-      <aside className="admin-profile-preview-card" aria-label="Pratinjau Live Profil">
-        <div className="admin-preview-header">
-          <span className="admin-preview-badge-label">&bull; Pratinjau Tampilan Publik</span>
-          <span className="badge badge-primary">Hero Preview</span>
-        </div>
-
-        <div className="admin-preview-avatar-box">
-          {formData.avatar_url ? (
-            <img
-              src={formData.avatar_url}
-              alt={formData.full_name || 'Avatar'}
-              className="admin-preview-avatar-img"
-            />
-          ) : (
-            <span>{initials}</span>
-          )}
-        </div>
-
-        <div
-          className={`admin-preview-status-pill ${
-            formData.is_available ? 'is-open' : 'is-closed'
-          }`}
-        >
-          <span className="hero-badge-pulse" aria-hidden="true" />
-          <span>
-            {formData.is_available
-              ? 'Terbuka untuk Peluang Kerja'
-              : 'Sedang Tidak Tersedia'}
-          </span>
-        </div>
-
-        <div>
-          <h3 className="admin-preview-name">
-            {formData.full_name || 'Nama Lengkap'}
-          </h3>
-          <p className="admin-preview-tagline">
-            {formData.tagline || 'Tagline / Keahlian'}
-          </p>
-        </div>
-
-        <p className="admin-preview-bio">
-          {formData.bio ||
-            'Biografi singkat Anda akan ditampilkan di sini sebagai penjelasan profil profesional.'}
-        </p>
-
-        <div className="admin-preview-links">
-          {formData.location && (
-            <div className="admin-preview-link-row">
-              <span>📍</span>
-              <span>{formData.location}</span>
-            </div>
-          )}
-          {formData.email && (
-            <div className="admin-preview-link-row">
-              <span>✉️</span>
-              <span>{formData.email}</span>
-            </div>
-          )}
-          {formData.github_url && (
-            <div className="admin-preview-link-row">
-              <span>🐙</span>
-              <span>GitHub terhubung</span>
-            </div>
-          )}
-          {formData.linkedin_url && (
-            <div className="admin-preview-link-row">
-              <span>💼</span>
-              <span>LinkedIn terhubung</span>
-            </div>
-          )}
-        </div>
+        </Card>
       </aside>
     </div>
   )
 }
-
 /**
  * AdminProfilePage Component (READ & UPDATE)
  * Provides comprehensive portfolio personal profile settings
  */
 function AdminProfilePage() {
+  return (
+    <AdminRoot>
+      <ProfileScreen />
+    </AdminRoot>
+  )
+}
+
+function ProfileScreen() {
   const { profile, isLoading, error, refetch } = useProfile({ includePrivateFields: true })
-  const [successMessage, setSuccessMessage] = useState(null)
+
+  // Screen only: toasts, guarded "Muat ulang", focus after saving, reset key for "Batalkan perubahan"
+  const toast = useToast()
+  const { confirmLeave } = useLeaveGuard()
+  const headingRef = useRef(null)
+  const savedRef = useRef(false)
+  const [resetKey, setResetKey] = useState(0)
 
   const handleSaveSuccess = () => {
-    setSuccessMessage('Data profil berhasil diperbarui!')
+    toast.success('Profil disimpan. Perubahan langsung tampil di halaman publik.')
+    savedRef.current = true
     refetch()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+  }
+
+  // After saving, the form reloads with the stored data: put focus back on the heading
+  useEffect(() => {
+    if (isLoading || !savedRef.current) return
+    savedRef.current = false
+    headingRef.current?.focus({ preventScroll: true })
+  }, [isLoading])
+
+  const reload = async () => {
+    if (await confirmLeave()) refetch()
   }
 
   return (
-    <div className="admin-profile-page">
-      {/* Top Navbar */}
-      <header className="admin-navbar">
-        <div className="container admin-navbar-inner">
-          <div className="admin-nav-brand">
-            <h1 className="admin-brand-title">Admin Portfolio CMS</h1>
-            <span className="admin-badge-active">&bull; Profile Settings</span>
-          </div>
+    <AdminLayout
+      title="Profil"
+      description="Data diri yang tampil di halaman publik: nama, perkenalan, status, dan tautan."
+      headingRef={headingRef}
+      actions={
+        <Button variant="secondary" icon={<IconRefresh size={18} />} onClick={reload} loading={isLoading} loadingText="Memuat...">
+          Muat ulang
+        </Button>
+      }
+    >
+      {isLoading && <Skeleton variant="form" rows={4} label="Memuat profil..." />}
 
-          <div className="admin-nav-actions">
-            <Link to="/admin" className="btn btn-outline btn-sm">
-              &larr; Dashboard
-            </Link>
-            <Link to="/" className="btn btn-outline btn-sm" title="Lihat website portfolio">
-              Situs Publik
-            </Link>
-          </div>
-        </div>
-      </header>
+      {!isLoading && error && (
+        <Alert
+          tone="danger"
+          title="Profil belum bisa dimuat."
+          action={
+            <Button size="sm" variant="secondary" icon={<IconRefresh size={16} />} onClick={refetch}>
+              Coba lagi
+            </Button>
+          }
+        >
+          {toFriendlyError(error, 'Periksa koneksi internet, lalu coba lagi.')}
+        </Alert>
+      )}
 
-      {/* Main Content Area */}
-      <main className="admin-main-content">
-        <div className="container">
-          {/* Header Action Bar */}
-          <div className="admin-profile-header-actions">
-            <Link to="/admin" className="admin-back-btn">
-              <span>&larr;</span> Kembali ke Dashboard
-            </Link>
-
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              onClick={refetch}
-              disabled={isLoading}
-              title="Segarkan data profil dari database"
-            >
-              {isLoading ? 'Memuat...' : 'Segarkan Data'}
-            </button>
-          </div>
-
-          {/* Success Banner Notification */}
-          {successMessage && (
-            <div className="admin-projects-success-banner" role="status">
-              <span>{successMessage}</span>
-              <button
-                type="button"
-                className="admin-banner-close-btn"
-                onClick={() => setSuccessMessage(null)}
-                aria-label="Tutup notifikasi"
-              >
-                &times;
-              </button>
-            </div>
-          )}
-
-          {/* Title Box */}
-          <div className="admin-profile-title-box">
-            <h2 className="admin-profile-heading">Pengaturan Profil & Bio (Profile CMS)</h2>
-            <p className="admin-profile-subheading">
-              Kelola informasi personal, tagline, biografi, status ketersediaan kerja, dan tautan sosial di tabel{' '}
-              <code>public.profiles</code>.
-            </p>
-          </div>
-
-          {/* Loading State */}
-          {isLoading && (
-            <div className="admin-projects-skeleton-list" aria-busy="true" aria-label="Memuat profil">
-              <div className="admin-project-skeleton-card">
-                <div className="skeleton-shimmer skeleton-title-bar" />
-                <div className="skeleton-shimmer skeleton-desc-line" />
-                <div className="skeleton-shimmer skeleton-desc-line-short" />
-              </div>
-            </div>
-          )}
-
-          {/* Error State */}
-          {!isLoading && error && (
-            <div className="admin-projects-error-box" role="alert">
-              <h3 className="admin-projects-error-title">Gagal Mengambil Data Profil</h3>
-              <p className="admin-projects-error-desc">{error}</p>
-              <button type="button" className="btn btn-primary btn-sm" onClick={refetch}>
-                Coba Lagi
-              </button>
-            </div>
-          )}
-
-          {/* Editor Content */}
-          {!isLoading && !error && (
-            <ProfileEditor
-              key={profile?.id || 'new-profile'}
-              profile={profile}
-              onSaveSuccess={handleSaveSuccess}
-            />
-          )}
-        </div>
-      </main>
-    </div>
+      {!isLoading && !error && (
+        <ProfileEditor
+          key={`${profile?.id || 'new-profile'}-${resetKey}`}
+          profile={profile}
+          onSaveSuccess={handleSaveSuccess}
+          onReset={() => setResetKey((n) => n + 1)}
+        />
+      )}
+    </AdminLayout>
   )
 }
 

@@ -169,7 +169,7 @@ kasus.
 - [x] 6. Keahlian, Pengalaman, Pendidikan
 - [x] 7. Sertifikat, Prestasi, Bahasa, Organisasi
 - [x] 8. Pesan dan Buku tamu
-- [ ] 9. Profil
+- [x] 9. Profil
 - [ ] 10. Pembersihan CSS lama
 - [ ] 11. Dokumentasi (MASTER.md, `pages/admin.md`) dan bagian "Uji manual" di file ini
 
