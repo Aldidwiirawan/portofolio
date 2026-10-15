@@ -171,7 +171,7 @@ kasus.
 - [x] 8. Pesan dan Buku tamu
 - [x] 9. Profil
 - [x] 10. Pembersihan CSS lama
-- [ ] 11. Dokumentasi (MASTER.md, `pages/admin.md`) dan bagian "Uji manual" di file ini
+- [x] 11. Dokumentasi (MASTER.md, `pages/admin.md`) dan bagian "Uji manual" di file ini
 
 ## 8. Keputusan yang diambil
 
@@ -188,6 +188,69 @@ kasus.
 - **Lockup di sidebar:** memakai komponen `BrandLockup` baru. Kode login tidak disentuh agar tidak berisiko
   berubah; kalau nanti ingin disatukan, login bisa ikut memakai komponen ini.
 
+Keputusan tambahan selama pengerjaan:
+
+- **`AdminRoot` membungkus setiap halaman** (tema, toast, penjaga perubahan, sesi, Keluar), supaya handler
+  di halaman bisa memakai toast dan penjaga perubahan. `AdminLayout` hanya kerangka yang terlihat.
+- **Kaki sidebar menempel di desktop** dan menu digulir di atasnya, supaya "Keluar" selalu terlihat di layar
+  laptop pendek (diuji di 1366×650). Di laci HP seluruh isi digulir bersama.
+- **Daftar pesan dibagi** antara badge sidebar dan Beranda, jadi Beranda tidak meminta pesan dua kali.
+- **"Muat ulang" dan "Keluar" ikut dijaga** oleh dialog "Tinggalkan perubahan?" bila ada perubahan.
+- **Teks validasi di form diubah ke bahasa sederhana** (mis. "Slug" → "Alamat singkat"). Alur, payload, dan
+  query tidak berubah; pesan mentah dari Supabase dipetakan saat ditampilkan.
+- **16 stylesheet lama dihapus** di butir 10 setelah tidak ada halaman yang memakainya.
+
 ## 9. Uji manual
 
-_Diisi di akhir pekerjaan (butir 11): langkah yang perlu dilakukan pemilik sendiri dengan akun dan data asli._
+Pengujian otomatis memakai Supabase tiruan. Langkah di bawah dilakukan pemilik sendiri dengan akun dan data
+asli. Pakai data uji yang mudah dikenali, misalnya judul berawalan **"UJI – "**, lalu hapus lagi di akhir.
+Bila ada yang tidak sesuai, catat halaman, langkah, dan teks pesan yang muncul (tangkapan layar membantu).
+
+**Persiapan**
+1. Jalankan `npm run dev`, buka `/admin/login`, masuk dengan akun pemilik.
+2. Pastikan transisi jepret berakhir di Beranda dengan judul "Selamat datang, Aldi".
+3. Buka halaman publik di tab lain lewat "Lihat situs" untuk mengecek hasil setiap perubahan.
+
+**Beranda**
+4. Angka di kartu ringkasan sama dengan isi tiap bagian; klik beberapa kartu dan pastikan halamannya benar.
+5. "Pesan terbaru" dan "Buku tamu terbaru" sesuai data terakhir.
+
+**Setiap bagian isi** (Proyek, Keahlian, Pengalaman, Pendidikan, Sertifikat, Prestasi, Bahasa, Organisasi)
+6. Tambah satu data "UJI – …", simpan. Muncul pesan sukses, data ada di daftar, dan tampil di halaman publik
+   setelah dimuat ulang.
+7. Ubah data itu (mis. deskripsinya), simpan, lalu cek lagi di daftar dan di halaman publik.
+8. Hapus data itu lewat dialog. Data hilang dari daftar dan dari halaman publik.
+9. Coba simpan form kosong: pesan muncul di bawah kolom yang wajib diisi.
+
+**Gambar proyek**
+10. Saat menambah proyek uji, pilih gambar di bawah 2 MB. Pratinjau muncul, dan gambar tampil di halaman publik
+    setelah disimpan.
+11. Coba gambar di atas 2 MB: muncul pesan "Gambar ini lebih dari 2 MB…" dan gambar tidak dipakai.
+12. Ubah proyek uji dan ganti gambarnya, simpan. Gambar baru tampil di publik.
+13. Hapus proyek uji. Di dashboard Supabase (Storage → `portfolio-assets` → `projects/`), file gambarnya
+    ikut hilang.
+
+**Profil**
+14. Ubah profesi/tagline, simpan, cek di halaman publik, lalu kembalikan seperti semula.
+15. Matikan sakelar ketersediaan, simpan, dan pastikan halaman publik menampilkan "Sedang Tidak Tersedia untuk
+    Proyek Baru". Nyalakan lagi dan simpan.
+
+**Pesan**
+16. Dari halaman publik, kirim pesan uji lewat formulir kontak. Pesan muncul di halaman Pesan dan angka badge di
+    menu bertambah.
+17. Buka pesan itu: badge berkurang. Coba "Tandai belum dibaca" lalu "Tandai sudah dibaca".
+18. "Balas lewat email" membuka aplikasi email dengan alamat dan subjek terisi.
+19. Hapus pesan uji.
+
+**Buku tamu**
+20. Dari halaman publik, tulis satu entri uji di buku tamu.
+21. Di admin, tulis balasan untuk entri itu dan simpan. Balasan tampil di halaman publik.
+22. Hapus entri uji lewat dialog.
+
+**Penjaga perubahan, layar kecil, keluar**
+23. Ketik sesuatu di form, lalu klik menu lain: muncul "Tinggalkan perubahan?". Coba juga memuat ulang tab:
+    browser memberi peringatan.
+24. Buka admin di ponsel (atau lebar 375 px): buka menu ☰, pindah halaman, dan pastikan tidak ada geser ke
+    samping.
+25. Klik "Keluar". Kembali ke halaman login. Masuk lagi dan pastikan semuanya normal.
+

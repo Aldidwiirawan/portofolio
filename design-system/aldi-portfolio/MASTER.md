@@ -7,9 +7,10 @@
 ---
 
 **Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
-**Versi:** v1 · 15 Oktober 2026
-**Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode; dipakai oleh
-`/admin/login` (tahap 1). Panel admin (tahap 2) dan halaman publik (tahap 3) masih memakai token lama.
+**Versi:** v1.1 · 16 Oktober 2026
+**Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode. Dipakai oleh
+`/admin/login` (tahap 1) dan seluruh panel admin `/admin/*` (tahap 2, lihat §14 dan `pages/admin.md`).
+Halaman publik (tahap 3) masih memakai token lama.
 **Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
 
 ### Asal-usul & kurasi
@@ -49,7 +50,7 @@ Dua arah ditawarkan: A "Blueprint" dan B "Studio" (teal + Space Grotesk/DM Sans)
 ```
 Primitive  --palette-*     nilai mentah (hex)                → hanya dirujuk oleh token semantic
 Semantic   --ds-*          peran: canvas, text, accent, ...   → dipakai komponen; berubah per tema
-Component  --login-* dsb.  khusus komponen/halaman            → didefinisikan di CSS halaman itu
+Component  --login-*, --adm-*  khusus komponen/halaman        → didefinisikan di CSS halaman/komponen itu
 ```
 
 - **Tema** ditentukan oleh atribut `data-theme` pada elemen pembungkus:
@@ -173,8 +174,9 @@ Rasio kontras dihitung terhadap latar tempat token itu dipakai (WCAG 2.x). Teks 
 
 ## 7. Komponen dasar (spesifikasi state)
 
-Implementasi acuan ada di `src/pages/admin/AdminLoginPage.css`. Di tahap 2, komponen ini diekstrak ke
-stylesheet bersama untuk dipakai halaman admin.
+Implementasi acuan: login di `src/pages/admin/AdminLoginPage.css`; untuk panel admin, versi bersamanya ada di
+`src/components/admin/ui/admin-ui.css` (tombol tajam 4 px, input 44 px dengan rel fokus, dsb.; lihat
+`pages/admin.md` §3). Tabel di bawah berlaku untuk keduanya; admin memakai radius kontrol 4 px.
 
 | Komponen | Default | Hover | Fokus (keyboard) | Aktif / Busy | Nonaktif |
 |---|---|---|---|---|---|
@@ -248,10 +250,12 @@ Setelah sebuah halaman selesai dimigrasi, token lama yang tidak lagi dipakai bol
 3. Tidak ada `prefers-reduced-motion` di mana pun sebelum tahap 1. `:focus-visible` hanya ada di `.btn`
    dan Navbar.
 4. Variabel dipakai tapi tidak didefinisikan: `--color-bg-base` (AdminGuestbookPage.css ×2),
-   `--color-bg-elevated` (AdminProjectsPage.css).
-5. Class alert admin (`admin-alert*`, `alert-banner-*`) tidak punya CSS sama sekali.
+   `--color-bg-elevated` (AdminProjectsPage.css). **Selesai di tahap 2:** stylesheet lama itu dihapus.
+5. Class alert admin (`admin-alert*`, `alert-banner-*`) tidak punya CSS sama sekali. **Selesai di tahap 2:**
+   diganti `Toast` dan `Alert`.
 6. `.admin-back-link` dipakai 4 halaman admin tetapi hanya didefinisikan di `AdminLoginPage.css`. Style-nya
-   hanya ada jika halaman login pernah dimuat dalam sesi itu.
+   hanya ada jika halaman login pernah dimuat dalam sesi itu. **Selesai di tahap 2:** navigasi pindah ke
+   sidebar; aturan itu dihapus dari CSS login (login tidak memakainya, tampilannya tetap sama).
 7. Banyak warna hex mentah di CSS komponen publik (`#38BDF8` 13×, `#FFFFFF` 26×, dst.), dan emoji dipakai
    sebagai ikon (kapsul hero, tombol guestbook).
 
@@ -390,3 +394,21 @@ napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
 - Setelah selesai, fokus pindah ke `focusSelector` (bawaan `h1`) dengan `tabindex="-1"` sementara. Region
   `role="status"` mengumumkan `message`. Overlay `aria-hidden` dan tidak mengambil fokus.
 - Reduced motion: tanpa overlay; navigasi langsung, fokus tetap dipindah ke `h1` tujuan.
+
+## 14. Panel admin (tahap 2)
+
+Detail lengkap: `pages/admin.md`. Ringkasnya:
+
+- **Kerangka:** `AdminRoot` (tema, toast, penjaga perubahan, sesi, Keluar) + `AdminLayout` (sidebar gelap,
+  laci di < 1024 px, area kerja terang dengan `BlueprintBackground variant="calm"` dan kursor viewfinder,
+  satu `h1` per halaman). Routing dan logika auth tidak berubah.
+- **Komponen bersama** di `src/components/admin/ui/`, satu stylesheet `admin-ui.css` + `admin-layout.css`,
+  token komponen `--adm-*`. Semua aturan diawali `.adm` / `.adm-portal` / `html:has(.adm)`, jadi tidak bocor
+  ke login atau halaman publik walau stylesheet admin sudah termuat di tab yang sama.
+- **Pola yang wajib diikuti halaman admin baru:** `SectionScreen` untuk daftar ↔ form, `FormPanel` +
+  `useFormScreen` untuk form, `ConfirmDialog` untuk hapus, `useToast` untuk hasil, `toFriendlyError` untuk
+  pesan galat, `EmptyState`/`Skeleton` untuk keadaan kosong/memuat.
+- **Fokus:** dialog dan laci memakai `useFocusTrap` (bertumpuk; hanya yang teratas menangani Tab/Esc). Setelah
+  pindah halaman, ganti tampilan, atau hapus baris, fokus ke `h1`.
+- **Data:** hooks dan query Supabase tidak diubah. Setiap halaman yang dimigrasi dicek dengan membandingkan
+  semua rantai `supabase.…` terhadap `main`.
