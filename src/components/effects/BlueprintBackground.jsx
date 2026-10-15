@@ -1,43 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import './BlueprintBackground.css'
 
-// Measure lines (busy): position in % of the area, length in px (multiples of the 16 px sub-grid)
-const MEASURES = [
-  { id: 'm1', axis: 'x', top: '6%', left: '4%', length: 96 },
-  { id: 'm2', axis: 'y', top: '34%', right: '6%', length: 160 },
-  { id: 'm3', axis: 'x', bottom: '11%', left: '18%', length: 192 },
-]
-
-function Measure({ axis, length, style }) {
-  const horizontal = axis === 'x'
-  const w = horizontal ? length : 28
-  const h = horizontal ? 28 : length
-  // Dimension line with end ticks, drawn by stroke-dashoffset (pathLength = 1)
-  const d = horizontal
-    ? `M0 10V22M0 16H${length}M${length} 10V22`
-    : `M10 0H22M16 0V${length}M10 ${length}H22`
-  return (
-    <div className={`bp-measure bp-measure--${axis}`} style={style}>
-      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} overflow="visible">
-        <path className="bp-measure-line" d={d} pathLength="1" />
-      </svg>
-      <span className="bp-measure-label">{length}</span>
-    </div>
-  )
-}
-
 /**
  * Decorative blueprint backdrop. Place it as the first child of a positioned container.
  *
  * Two grid layers drawn with CSS gradients (main grid every 64 px, fine sub-grid every 16 px) plus
- * registration marks on some main intersections, drawn by one repeating SVG mask. No per-cell DOM.
+ * crosshair marks on some main intersections, drawn by one repeating SVG mask. No per-cell DOM.
  *
- * - `busy`: the grid drifts slowly and measure lines draw themselves one after another.
- *   Used on the login and public pages.
- * - `calm`: still grid with one slow scan line. Used in the admin panel.
+ * - `busy` (login, public): the grid drifts slowly; thin orthogonal circuit traces run along the
+ *   sub-grid with soft light flowing through them, and grid intersections glow in turn. Everything
+ *   is drawn with repeating 512 px tiles, so it suits areas of any size.
+ * - `calm` (admin): still grid with one slow scan line.
  *
- * Animations pause while the tab is hidden or the backdrop is scrolled out of view, and stop
- * completely for reduced motion (measure lines are then shown fully drawn).
+ * Animations are transform/opacity only, pause while the tab is hidden or the backdrop is scrolled
+ * out of view, and stop completely for reduced motion.
  */
 function BlueprintBackground({ variant = 'busy', className = '' }) {
   const rootRef = useRef(null)
@@ -70,21 +46,24 @@ function BlueprintBackground({ variant = 'busy', className = '' }) {
       aria-hidden="true"
     >
       <div className="bp-grid-mask">
-        <div className="bp-grid" />
+        <div className="bp-grid">
+          {isBusy && (
+            <>
+              <span className="bp-traces" />
+              <span className="bp-flow bp-flow--x">
+                <i />
+              </span>
+              <span className="bp-flow bp-flow--y">
+                <i />
+              </span>
+              <span className="bp-nodes bp-nodes--a" />
+              <span className="bp-nodes bp-nodes--b" />
+            </>
+          )}
+        </div>
       </div>
 
-      {isBusy ? (
-        MEASURES.map(({ id, axis, length, ...pos }, index) => (
-          <Measure
-            key={id}
-            axis={axis}
-            length={length}
-            style={{ ...pos, '--bp-delay': `${index * 4}s` }}
-          />
-        ))
-      ) : (
-        <div className="bp-scan" />
-      )}
+      {!isBusy && <div className="bp-scan" />}
     </div>
   )
 }

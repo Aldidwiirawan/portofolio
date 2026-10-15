@@ -1,13 +1,15 @@
 /* Background blueprint — dekoratif. Letakkan sebagai anak pertama container yang punya
-   position + isolation; lapisan ini berada di z-index -1 dan tidak menangkap klik. */
+   position + isolation; lapisan ini berada di z-index -1 dan tidak menangkap klik.
+   Semua animasi hanya transform/opacity. */
 
 .bp-bg {
   --bp-line: color-mix(in srgb, var(--ds-text-strong) 5%, transparent);
   --bp-line-major: color-mix(in srgb, var(--ds-text-strong) 11%, transparent);
   --bp-mark: color-mix(in srgb, var(--ds-accent-text) 50%, transparent);
   --bp-ink: color-mix(in srgb, var(--ds-accent-text) 55%, transparent);
-  --bp-label: var(--ds-text-subtle);
-  --bp-cycle: 12s;
+  --bp-trace: color-mix(in srgb, var(--ds-accent-text) 16%, transparent);
+  --bp-pulse: color-mix(in srgb, var(--ds-accent-text) 70%, transparent);
+  --bp-node: color-mix(in srgb, var(--ds-accent-text) 60%, transparent);
 
   position: absolute;
   inset: 0;
@@ -64,79 +66,89 @@
   }
 }
 
-/* --- Garis ukur (busy) --------------------------------------------------- */
+/* --- Jalur sirkuit (busy) -------------------------------------------------
+   Ubin 512 px berisi jalur siku di garis sub-grid 16 px, diulang ke seluruh area. Cahaya
+   mengalir lewat lapisan bergradien yang hanya digeser (transform) di balik mask segmen
+   mendatar (--x) atau tegak (--y). Periode cahaya (384/448 px) sengaja berbeda dari ubin,
+   jadi tiap jalur mendapat cahaya pada saat yang berbeda. */
 
-.bp-measure {
+.bp-traces,
+.bp-flow,
+.bp-nodes {
   position: absolute;
-  color: var(--bp-ink);
+  inset: 0;
 }
 
-.bp-measure svg {
-  display: block;
+.bp-traces,
+.bp-flow {
+  mask-size: 512px 512px;
+  mask-repeat: repeat;
 }
 
-.bp-measure-line {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.25;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: bp-draw var(--bp-cycle) var(--ds-ease-in-out) var(--bp-delay, 0s) infinite;
+.bp-traces {
+  background-color: var(--bp-trace);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' fill='none' stroke='black' stroke-width='1.5'%3E%3Cpath d='M32.5 80.5H144.5V176.5H240.5M304.5 48.5V128.5H432.5V208.5M80.5 304.5H176.5V432.5H272.5M368.5 288.5V368.5H480.5M224.5 336.5V400.5'/%3E%3Cg fill='black' stroke='none'%3E%3Ccircle cx='32.5' cy='80.5' r='2.5'/%3E%3Ccircle cx='240.5' cy='176.5' r='2.5'/%3E%3Ccircle cx='304.5' cy='48.5' r='2.5'/%3E%3Ccircle cx='432.5' cy='208.5' r='2.5'/%3E%3Ccircle cx='80.5' cy='304.5' r='2.5'/%3E%3Ccircle cx='272.5' cy='432.5' r='2.5'/%3E%3Ccircle cx='368.5' cy='288.5' r='2.5'/%3E%3Ccircle cx='480.5' cy='368.5' r='2.5'/%3E%3Ccircle cx='224.5' cy='336.5' r='2.5'/%3E%3Ccircle cx='224.5' cy='400.5' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-.bp-measure-label {
+.bp-flow {
+  overflow: hidden;
+}
+
+.bp-flow--x {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' fill='none' stroke='black' stroke-width='3'%3E%3Cpath d='M32.5 80.5H144.5M144.5 176.5H240.5M304.5 128.5H432.5M80.5 304.5H176.5M176.5 432.5H272.5M368.5 368.5H480.5'/%3E%3C/svg%3E");
+}
+
+.bp-flow--y {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' fill='none' stroke='black' stroke-width='3'%3E%3Cpath d='M144.5 80.5V176.5M304.5 48.5V128.5M432.5 128.5V208.5M176.5 304.5V432.5M368.5 288.5V368.5M224.5 336.5V400.5'/%3E%3C/svg%3E");
+}
+
+.bp-flow i {
   position: absolute;
-  color: var(--bp-label);
-  font-family: var(--ds-font-mono);
-  font-size: 10px;
-  font-weight: var(--ds-fw-medium);
-  letter-spacing: 0.06em;
-  line-height: 1;
-  opacity: 0;
-  animation: bp-label var(--bp-cycle) linear var(--bp-delay, 0s) infinite;
+  inset: 0;
+  will-change: transform;
 }
 
-.bp-measure--x .bp-measure-label {
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%);
+/* Cahaya berekor: kepala terang di depan, ekor memudar ke belakang */
+.bp-flow--x i {
+  left: -384px;
+  background: repeating-linear-gradient(90deg, transparent 0 296px, var(--bp-pulse) 352px, transparent 384px);
+  animation: bp-flow-x 9s linear infinite;
 }
 
-.bp-measure--y .bp-measure-label {
-  top: 50%;
-  left: 28px;
-  transform: translateY(-50%);
+.bp-flow--y i {
+  top: -448px;
+  background: repeating-linear-gradient(180deg, transparent 0 360px, var(--bp-pulse) 416px, transparent 448px);
+  animation: bp-flow-y 11s linear infinite;
 }
 
-@keyframes bp-draw {
-  0% {
-    stroke-dashoffset: 1;
-    opacity: 1;
-  }
-  18%,
-  70% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  82%,
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
+@keyframes bp-flow-x {
+  to {
+    transform: translate3d(384px, 0, 0);
   }
 }
 
-@keyframes bp-label {
-  0%,
-  14% {
-    opacity: 0;
+@keyframes bp-flow-y {
+  to {
+    transform: translate3d(0, 448px, 0);
   }
-  22%,
-  70% {
-    opacity: 1;
-  }
-  82%,
-  100% {
-    opacity: 0;
+}
+
+/* Titik persimpangan utama yang berpendar bergantian (dua set, fase berlawanan) */
+.bp-nodes {
+  background-image: radial-gradient(circle, var(--bp-node) 0 1.75px, transparent 2.75px);
+  background-size: 256px 256px;
+  opacity: 0.15;
+  animation: bp-node-glow 3.2s ease-in-out infinite alternate;
+}
+
+.bp-nodes--b {
+  background-position: 128px 0;
+  animation-delay: -3.2s;
+}
+
+@keyframes bp-node-glow {
+  to {
+    opacity: 0.75;
   }
 }
 
@@ -192,16 +204,14 @@
     animation: none !important;
   }
 
-  .bp-measure-line {
-    stroke-dashoffset: 0;
-  }
-
-  .bp-measure-label {
-    opacity: 1;
-  }
-
+  /* Diam dan rapi: jalur tetap, cahaya mengalir dan garis pindai tidak tampil */
+  .bp-flow,
   .bp-scan {
     display: none;
+  }
+
+  .bp-nodes {
+    opacity: 0.4;
   }
 }
 
