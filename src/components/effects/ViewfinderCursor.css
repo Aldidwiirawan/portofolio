@@ -1,0 +1,109 @@
+/* Kursor viewfinder — dirender lewat portal di <body>; semua elemen tidak menangkap klik. */
+
+/* Kursor bawaan disembunyikan hanya selama komponen aktif; kolom teks tetap memakai kursor teks */
+html.vf-cursor-active,
+html.vf-cursor-active * {
+  cursor: none !important;
+}
+
+html.vf-cursor-active
+  :is(
+    input:not([type='button'], [type='submit'], [type='reset'], [type='checkbox'], [type='radio'], [type='range'], [type='color'], [type='file'], [type='image']),
+    textarea,
+    [contenteditable=''],
+    [contenteditable='true']
+  ) {
+  cursor: text !important;
+}
+
+/* Crosshair + koordinat. mix-blend-mode difference: gelap di latar terang, terang di latar gelap. */
+.vf-cross {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--ds-z-cursor);
+  width: 0;
+  height: 0;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transition: opacity var(--ds-duration-fast) linear;
+  will-change: transform;
+}
+
+.vf-cross[data-hidden='true'] {
+  opacity: 0;
+}
+
+.vf-cross::before,
+.vf-cross::after {
+  content: '';
+  position: absolute;
+}
+
+/* Garis 23 px dengan celah 5 px di tengah, berpusat tepat di titik pointer */
+.vf-cross::before {
+  top: -0.75px;
+  left: -11.5px;
+  width: 23px;
+  height: 1.5px;
+  background: linear-gradient(90deg, currentColor 9px, transparent 9px 14px, currentColor 14px);
+}
+
+.vf-cross::after {
+  top: -11.5px;
+  left: -0.75px;
+  width: 1.5px;
+  height: 23px;
+  background: linear-gradient(180deg, currentColor 9px, transparent 9px 14px, currentColor 14px);
+}
+
+.vf-coord {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: var(--ds-font-mono);
+  font-size: 10px;
+  font-weight: var(--ds-fw-medium);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: pre;
+}
+
+/* Bracket pengunci: empat sudut, masing-masing diposisikan lewat transform */
+.vf-lock {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ds-z-cursor);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vf-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--ds-focus-ring);
+  opacity: 0;
+  transition:
+    transform 160ms var(--ds-ease-out),
+    opacity var(--ds-duration-fast) linear;
+  will-change: transform;
+}
+
+.vf-corner--tl { border-top-width: 2px; border-left-width: 2px; }
+.vf-corner--tr { border-top-width: 2px; border-right-width: 2px; }
+.vf-corner--bl { border-bottom-width: 2px; border-left-width: 2px; }
+.vf-corner--br { border-bottom-width: 2px; border-right-width: 2px; }
+
+.vf-lock[data-state='locked'] .vf-corner {
+  opacity: 1;
+}
+
+/* Reduced motion: kursor bawaan tetap tampil (tanpa crosshair); bracket berpindah tanpa animasi */
+html.vf-cursor-reduced .vf-corner {
+  transition: none;
+}
