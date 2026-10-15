@@ -97,7 +97,7 @@ html:has(.admin-login-page) body {
   margin: 0;
   color: var(--ds-text-strong);
   font-size: var(--ds-fs-md);
-  font-weight: var(--ds-fw-semibold);
+  font-weight: var(--ds-fw-heavy);
   letter-spacing: var(--ds-tracking-tight);
   line-height: var(--ds-lh-snug);
 }
@@ -237,17 +237,20 @@ html:has(.admin-login-page) body {
 .admin-login-title {
   margin: 0;
   color: var(--ds-text-strong);
-  font-size: clamp(1.625rem, 1.35rem + 1vw, 1.875rem);
-  font-weight: var(--ds-fw-bold);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.125rem);
+  font-weight: var(--ds-fw-heavy);
   letter-spacing: var(--ds-tracking-tight);
   line-height: var(--ds-lh-tight);
   text-wrap: balance;
 }
 
+/* Tiga tingkat teks yang berbeda jelas: label (14 px, 600, text-strong), deskripsi (16 px, 400,
+   text-muted), placeholder (16 px, 400, text-subtle) */
 .admin-login-subtitle {
   margin: 0;
   color: var(--ds-text-muted);
   font-size: var(--ds-fs-md);
+  font-weight: var(--ds-fw-regular);
   line-height: var(--ds-lh-relaxed);
 }
 
@@ -303,6 +306,7 @@ html:has(.admin-login-page) body {
   color: var(--ds-text-strong);
   font-size: var(--ds-fs-sm);
   font-weight: var(--ds-fw-semibold);
+  letter-spacing: 0.01em;
   line-height: var(--ds-lh-snug);
 }
 
@@ -347,6 +351,7 @@ html:has(.admin-login-page) body {
 
 .admin-login-input::placeholder {
   color: var(--ds-text-subtle);
+  font-weight: var(--ds-fw-regular);
   opacity: 1;
 }
 
@@ -644,7 +649,6 @@ html:has(.admin-login-page) body {
 
   .admin-login-brand-name {
     font-size: var(--ds-fs-3xl);
-    font-weight: var(--ds-fw-bold);
     line-height: var(--ds-lh-tight);
   }
 
