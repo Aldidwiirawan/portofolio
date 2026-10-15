@@ -312,21 +312,26 @@ Util UI: `src/lib/useMediaQuery.js` berisi `useMediaQuery(query)`, `usePrefersRe
 ### RobotMascot ("a+") — `src/components/brand/RobotMascot.jsx`
 
 Desain orisinal: kepala kotak dengan layar wajah, antena berupa 4 bracket dengan lampu, badan kecil dengan
-`<Logo>` di dada, lengan dan kaki pendek, garis 4 unit. Garis `--ds-text-strong`, badan `--ds-surface`,
-layar `--ds-screen`. Selalu `aria-hidden`.
+`<Logo>` di dada, lengan "karet" dan kaki pendek, garis 4 unit. Garis `--ds-text-strong`, badan
+`--ds-surface`, layar `--ds-screen`. Selalu `aria-hidden`.
+
+Lengan digambar sebagai garis dengan `vector-effect: non-scaling-stroke`, sehingga bisa memanjang (`scaleY`)
+tanpa ujung bulatnya melar. Lebar stroke dikompensasi dengan `--robot-k` (= `size / 200`), jadi ukuran robot
+**wajib** diatur lewat prop `size`, bukan lewat CSS `width`. Lengan digambar paling akhir supaya bisa menutupi
+layar wajah; telapak tangan tersembunyi di ujung lengan dan hanya muncul saat `hiding`/`peeking`.
 
 | `mood` | Mata | Mulut | Antena | Gerak |
 |---|---|---|---|---|
-| `idle` | terbuka | senyum kecil | lampu sky | kedip acak 3–6 dtk |
-| `watching` | terbuka, mengikuti `lookAt` (-1..1) | datar | lampu sky | kepala miring ±4° ke arah pandang, kedip |
-| `hiding` | tertutup | datar | bracket menyempit 5 | — |
-| `peeking` | satu mata terbuka | senyum miring | bracket menyempit 3 | — |
+| `idle` | terbuka | senyum kecil | lampu sky | kedip acak 3–6 dtk; bernapas (badan atas naik-turun 2.5 unit per 3.2 dtk, bayangan ikut mengecil) |
+| `watching` | terbuka, mengikuti `lookAt` (-1..1) | datar | lampu sky | kepala bergeser ±3 unit dan miring ±4° ke arah pandang, kedip |
+| `hiding` | tertutup | datar | bracket menyempit 5 | kedua lengan naik, telapak menutup kedua mata |
+| `peeking` | satu mata terbuka | senyum miring | bracket menyempit 3 | lengan kanan turun sedikit, mata kanan terlihat |
 | `error` | X | sedih | lampu `--ds-danger-border` | menggeleng 520 ms |
 | `success` | senang (^ ^) | senyum lebar | lampu `--ds-brand-to`, bracket melebar 5 | lompat 560 ms, tangan terangkat |
 
 Props lain: `size` (lebar px, tinggi 1.2×) dan `cue` (ubah nilainya untuk memutar ulang gelengan atau
-lompatan). Reduced motion: hanya wajah yang berganti; tanpa kedip, lirikan, kemiringan, gelengan, atau
-lompatan.
+lompatan). Reduced motion: wajah dan pose tetap berganti (mis. telapak menutup mata), tetapi tanpa kedip,
+napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
 
 ### ViewfinderCursor — `src/components/effects/ViewfinderCursor.jsx`
 
@@ -348,8 +353,11 @@ lompatan.
 
 - Letakkan sebagai anak pertama container yang punya `position` + `isolation`. Lapisan berada di
   `z-index: -1`.
-- `variant="busy"` (login, publik): grid 32/128 px bergeser 128 px per 64 dtk, 3 garis ukur ber-label yang
-  tergambar sendiri bergiliran (siklus 12 dtk), dan 5 tanda crosshair berdenyut.
+- Dua lapis grid dari gradien CSS: grid utama 64 px dan sub-grid 16 px. Tanda crosshair (+) di beberapa
+  persimpangan utama berasal dari **satu** mask SVG 256 px yang diulang (warna dari token), bukan elemen
+  terpisah per tanda.
+- `variant="busy"` (login, publik): grid dan tanda bergeser 256 px per 128 dtk, dan 3 garis ukur ber-label
+  (panjang kelipatan 16 px) tergambar sendiri bergiliran (siklus 12 dtk).
 - `variant="calm"` (admin): grid diam dan satu garis pindai turun per 10 dtk.
 - Berhenti (`animation-play-state: paused`) saat tab tersembunyi (`visibilitychange`) atau elemen di luar
   layar (IntersectionObserver). Reduced motion: diam, garis ukur tampil penuh. `forced-colors`:

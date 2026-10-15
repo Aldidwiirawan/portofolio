@@ -1,6 +1,6 @@
 # Override Halaman: Login Admin (`/admin/login`)
 
-> **PROJECT:** Aldi Portfolio · **Diperbarui:** 15 Oktober 2026 (tahap 1 lanjutan sesuai BRIEF)
+> **PROJECT:** Aldi Portfolio · **Diperbarui:** 15 Oktober 2026 (polish tahap 1)
 > ⚠️ Aturan di file ini **menimpa** `design-system/aldi-portfolio/MASTER.md`. Hal yang tidak disebut di sini
 > mengikuti Master. `BRIEF.md` tetap acuan utama.
 
@@ -22,12 +22,18 @@ dijelaskan di Master §13.
 
 | Lebar | Susunan |
 |---|---|
-| < 768px | Bar brand gelap ringkas (`<Logo>` 32 px + nama). Di area form: robot 104 px di tengah **di atas** kartu (tidak menutupi form), lalu kartu selebar layar dengan gutter 16 px, padding 24 px |
-| 768–1023px | Sama, kartu maks 440 px di tengah, padding 40 px, `shadow-md` |
-| ≥ 1024px | Grid 2 kolom `5fr / 7fr`. Kiri: panel brand gelap (grid titik, glow sky/emerald, `<Logo assemble>` 64 px + nama 30 px di atas, robot 240 px di tengah sisa tinggi). Kanan: kartu di tengah vertikal |
+| < 768px | Bar brand gelap ringkas (`<Logo>` 32 px + nama). Di area form: robot 96 px di **docking pod** yang menempel di tepi atas kartu (pod putih, garis kartu, tanpa garis bawah, tidak menutupi form), lalu kartu selebar layar dengan gutter 16 px, padding 24 px |
+| 768–1023px | Sama, kartu maks 440 px di tengah, padding 40 px |
+| ≥ 1024px | Grid 2 kolom `5fr / 7fr`. Kiri: panel brand gelap (grid teknis 64/16 px, glow sky/emerald, bracket di 4 sudut, `<Logo assemble>` 64 px + nama 30 px di atas, lalu panggung robot di tengah sisa tinggi). Kanan: kartu di tengah vertikal |
 
 - Robot dirender di satu tempat saja sesuai `useMediaQuery('(min-width: 1024px)')`.
-- Area form memakai `<BlueprintBackground variant="busy" />` (menggantikan grid statis lama).
+- Area form memakai latar `--ds-inset` (sedikit lebih gelap dari kartu) dengan
+  `<BlueprintBackground variant="busy" />`. `<html>` ikut `--palette-slate-100` saat halaman ini tampil.
+- **Panggung robot (≥1024 px):** robot 240 px berdiri di pijakan skematik "DOK-01" (SVG dekoratif), dengan
+  pendar radial di belakangnya. Warna pendar (`--login-glow`, didaftarkan lewat `@property` supaya transisinya
+  halus 400 ms): `--ds-focus-ring` (biru) untuk idle/watching/hiding/peeking, `--ds-danger-border` (merah)
+  untuk error, `--ds-brand-to` (hijau) untuk success. Di bawahnya badge status monospace (`aria-hidden`):
+  SIAP, MEMBACA EMAIL, MATA DITUTUP, MENGINTIP SEDIKIT, COBA LAGI, BERHASIL MASUK.
 - `<ViewfinderCursor />` aktif di seluruh halaman (hanya untuk pointer halus).
 - Tampilan cek sesi ("Memeriksa status masuk...") memakai kerangka yang sama (`AdminLoginShell`), termasuk
   robot, sehingga tidak ada lompatan layout ketika form muncul.
@@ -89,7 +95,12 @@ dijelaskan di Master §13.
 | Field kata sandi | `autocomplete=current-password`; paste dan password manager diizinkan; tombol tampilkan 44×44 di dalam field |
 | Tombol submit | 48 px, lebar penuh; saat proses spinner + teks, `aria-disabled="true"`, form `aria-busy="true"`; submit ganda diblok guard |
 | Pesan error | Region `#admin-login-error` `role="alert"` selalu ada di DOM; kotak danger dengan ikon + teks; field `aria-describedby` ke region saat ada pesan |
-| Motion | Kartu masuk (opacity + translateY 8 px); getar error 400 ms (animasi masuk tetap di daftar `animation` supaya tidak diputar ulang). Reduced motion: semua mati |
+| Kartu "Blueprint Module" | Radius 6 px, border 1 px (`text-strong` 16 %), bayangan offset 6/8 px berwarna aksen 14 % + bayangan lembut, bracket aksen di 4 sudut (satu pseudo-element), bar header 32 px (titik indikator hijau + "AREA PRIBADI" monospace, `aria-hidden`). Cek sesi memakai kartu yang sama |
+| Badge | Tag sudut 2 px dengan titik indikator persegi, monospace uppercase |
+| Input | Radius 4 px. Saat `:focus-within`, garis kiri 3 px `--ds-accent` tumbuh (`scaleY`, 180 ms), sebagai **tambahan** outline 2 px |
+| Tombol "Masuk" | Radius 4 px + ikon panah. Hover/fokus: naik 1 px, bayangan offset 3 px, panah bergeser 4 px. Aktif: turun 1 px, bayangan dalam. Saat proses: spinner + "Sedang masuk...", tanpa panah |
+| Tipografi | Judul "Masuk" dan nama: Inter 800, tracking -0.02em. Label 14 px/600 `text-strong`, deskripsi 16 px/400 `text-muted`, placeholder 16 px/400 `text-subtle`. Elemen teknis (badge, bar kartu, status robot, label pijakan, koordinat kursor, label garis ukur) memakai `--ds-font-mono` |
+| Motion | Masuk kartu total 400 ms: bingkai 0–200, bracket 0–260, garis bar 60–300, isi 120–400 bertahap; hanya opacity/transform dengan fill `backwards`, jadi form bisa langsung diklik dan diketik. Getar error 400 ms (animasi bingkai tetap di daftar `animation` supaya tidak diputar ulang). Reduced motion: semua mati |
 
 ## Catatan kompatibilitas
 
@@ -101,7 +112,26 @@ dijelaskan di Master §13.
 - Fallback `Suspense` dan loading `AdminRoute` (`.admin-auth-loading`, gelap) belum diubah. Saat login sukses
   keduanya tertutup tirai transisi. Di tahap 2 keduanya ikut tema admin.
 
-## Verifikasi (15 Okt 2026)
+## Verifikasi polish (15 Okt 2026)
+
+**85/85 lolos** (61 pemeriksaan sebelumnya, disesuaikan dengan struktur baru, ditambah 24 pemeriksaan polish):
+- Area form `rgb(241,245,249)` vs kartu putih; grid 64/16 px + mask tanda crosshair; bracket panel, pijakan.
+- Kartu: radius 6 px, border 1 px, bayangan offset, bracket; bar "Area pribadi" `aria-hidden` dan monospace;
+  badge tag 2 px + titik; input & tombol 4 px; judul & nama 800 dengan tracking -0.02em.
+- Animasi masuk ≤ 400 ms, dan email bisa diklik dan diketik 146 ms setelah halaman dimuat, saat animasi masih
+  berjalan.
+- Robot: idle bernapas (`robot-breathe` + bayangan); watching menggeser dan memiringkan kepala; hiding
+  menaikkan lengan, telapak tepat di depan kedua mata; peeking menurunkan lengan kanan. Status panel dan warna
+  pendar benar untuk keenam mood (error merah dari login salah asli, success hijau dari login tiruan).
+- Fokus email: garis kiri menyala dan outline 2 px tetap ada. Hover tombol: naik 1 px, panah bergeser 4 px,
+  teks tetap "Masuk".
+- Pod 375/768: menempel di kartu (selisih -1 px), robot tidak menutupi form.
+- Reduced motion: tidak ada animasi atau transisi yang berjalan, pose tetap rapi.
+- Kontras tambahan: bar kartu 6.92, badge status 7.03.
+- Halaman publik tidak berubah (computed style, font, dan tinggi section setelah data stabil). Halaman admin
+  tidak memakai file yang diubah.
+
+### Verifikasi tahap 1 sebelumnya
 
 Chrome headless via DevTools Protocol, di dev server `localhost:5173`. **61/61 lolos**, ditambah:
 - 375/768/1024/1440: tanpa scroll horizontal; robot tidak berpotongan dengan kartu.
