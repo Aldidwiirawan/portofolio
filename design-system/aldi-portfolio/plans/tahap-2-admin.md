@@ -170,7 +170,7 @@ kasus.
 - [x] 7. Sertifikat, Prestasi, Bahasa, Organisasi
 - [x] 8. Pesan dan Buku tamu
 - [x] 9. Profil
-- [ ] 10. Pembersihan CSS lama
+- [x] 10. Pembersihan CSS lama
 - [ ] 11. Dokumentasi (MASTER.md, `pages/admin.md`) dan bagian "Uji manual" di file ini
 
 ## 8. Keputusan yang diambil

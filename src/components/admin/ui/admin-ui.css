@@ -405,7 +405,7 @@ html:has(.adm) body {
   transform: scaleY(1);
 }
 
-.is-invalid .adm-control::before {
+.adm-field.is-invalid .adm-control::before {
   background-color: var(--ds-danger-border);
 }
 
@@ -446,7 +446,7 @@ html:has(.adm) body {
   cursor: not-allowed;
 }
 
-.is-invalid .adm-input {
+.adm-field.is-invalid .adm-input {
   border-color: var(--ds-danger-border);
 }
 
@@ -780,7 +780,7 @@ html:has(.adm) body {
   background-color: var(--ds-accent-subtle);
 }
 
-.is-invalid .adm-upload {
+.adm-field.is-invalid .adm-upload {
   border-color: var(--ds-danger-border);
 }
 
