@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import './LanguageForm.css'
+import { ChoiceGroup, Field, FormSection, Input } from './ui/Field'
+import { FormPanel } from './ui/FormPanel'
+import { toFriendlyError } from './ui/friendlyError'
+import { useFormScreen } from './ui/useFormFeedback'
 
 const PROFICIENCY_OPTIONS = ['Pemula', 'Menengah', 'Mahir', 'Penutur Asli']
 
@@ -24,6 +27,10 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Screen only: feedback, unsaved-changes guard, guarded cancel
+  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const { finish } = screen
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -49,7 +56,7 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
     }
 
     if (!formData.proficiency_level) {
-      errors.proficiency_level = 'Tingkat kemahiran bahasa wajib dipilih.'
+      errors.proficiency_level = 'Pilih tingkat kemahiran.'
     }
 
     setFieldErrors(errors)
@@ -83,7 +90,7 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       } else {
         const { data, error: dbError } = await supabase
           .from('languages')
@@ -96,7 +103,7 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       }
     } catch (err) {
       setGeneralError(
@@ -108,109 +115,33 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
     }
   }
 
+  const busy = isSubmitting || screen.saved
+
   return (
-    <div className="admin-lang-form-card" role="region" aria-labelledby="lang-form-title">
-      <div className="lang-form-header">
-        <div>
-          <h3 id="lang-form-title" className="lang-form-title">
-            {isEditMode ? 'Edit Kemahiran Bahasa' : 'Tambah Bahasa Baru'}
-          </h3>
-          <p className="lang-form-subtitle">
-            {isEditMode
-              ? `Memperbarui data bahasa "${language?.language_name}".`
-              : 'Menambahkan data penguasaan bahasa ke database.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Tutup Form
-        </button>
-      </div>
-
-      {generalError && (
-        <div className="lang-form-alert lang-form-alert-error" role="alert">
-          <strong>Peringatan:</strong> {generalError}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="lang-form-grid">
-          {/* Language Name */}
-          <div className="form-group">
-            <label htmlFor="lang-name" className="form-label">
-              <span>Nama Bahasa</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="lang-name"
-              name="language_name"
-              type="text"
-              className={`form-control-input ${fieldErrors.language_name ? 'has-error' : ''}`}
-              placeholder="Contoh: Bahasa Indonesia, Bahasa Inggris"
-              value={formData.language_name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-              autoFocus
-            />
-            {fieldErrors.language_name && (
-              <p className="form-field-error">{fieldErrors.language_name}</p>
-            )}
-          </div>
-
-          {/* Proficiency Level Pills */}
-          <div className="form-group">
-            <label className="form-label">
-              <span>Tingkat Kemahiran</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <div className="lang-level-pills" role="radiogroup" aria-label="Tingkat kemahiran">
-              {PROFICIENCY_OPTIONS.map((level) => {
-                const isSelected = formData.proficiency_level === level
-                return (
-                  <button
-                    key={level}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    className={`lang-level-pill ${isSelected ? 'active' : ''}`}
-                    onClick={() => handleSelectProficiency(level)}
-                    disabled={isSubmitting}
-                  >
-                    {level}
-                  </button>
-                )
-              })}
-            </div>
-            {fieldErrors.proficiency_level && (
-              <p className="form-field-error">{fieldErrors.proficiency_level}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="lang-form-actions">
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Menyimpan...' : isEditMode ? 'Simpan Perubahan' : 'Tambah Bahasa'}
-          </button>
-        </div>
-      </form>
-    </div>
+    <FormPanel
+      label={isEditMode ? 'Ubah bahasa' : 'Bahasa baru'}
+      screen={screen}
+      error={generalError ? toFriendlyError(generalError, 'Bahasa belum tersimpan. Periksa koneksi internet, lalu coba lagi.') : ''}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan bahasa'}
+    >
+      <FormSection title="Bahasa">
+        <Field id="lang-name" label="Nama bahasa" required error={fieldErrors.language_name} hint="Contoh: Inggris, Jepang.">
+          <Input name="language_name" type="text" value={formData.language_name} onChange={handleChange} disabled={busy} />
+        </Field>
+        <ChoiceGroup
+          name="lang-level"
+          legend="Tingkat kemahiran"
+          required
+          options={PROFICIENCY_OPTIONS}
+          value={formData.proficiency_level}
+          onChange={handleSelectProficiency}
+          error={fieldErrors.proficiency_level}
+          disabled={busy}
+        />
+      </FormSection>
+    </FormPanel>
   )
 }
 

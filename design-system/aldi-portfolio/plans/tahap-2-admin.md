@@ -167,7 +167,7 @@ kasus.
 - [x] 4. Beranda
 - [x] 5. Proyek
 - [x] 6. Keahlian, Pengalaman, Pendidikan
-- [ ] 7. Sertifikat, Prestasi, Bahasa, Organisasi
+- [x] 7. Sertifikat, Prestasi, Bahasa, Organisasi
 - [ ] 8. Pesan dan Buku tamu
 - [ ] 9. Profil
 - [ ] 10. Pembersihan CSS lama

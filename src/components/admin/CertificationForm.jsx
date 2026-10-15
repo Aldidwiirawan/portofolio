@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import './CertificationForm.css'
+import { Field, FormSection, Input } from './ui/Field'
+import { FormPanel } from './ui/FormPanel'
+import { toFriendlyError } from './ui/friendlyError'
+import { useFormScreen } from './ui/useFormFeedback'
 
 /**
  * CertificationForm Component
@@ -25,6 +28,10 @@ function CertificationForm({ certification = null, onSuccess, onCancel }) {
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Screen only: feedback, unsaved-changes guard, guarded cancel
+  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const { finish } = screen
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -41,18 +48,18 @@ function CertificationForm({ certification = null, onSuccess, onCancel }) {
     const errors = {}
 
     if (!formData.name.trim()) {
-      errors.name = 'Nama sertifikasi / kursus wajib diisi.'
+      errors.name = 'Nama sertifikat wajib diisi.'
     }
 
     if (!formData.issuer.trim()) {
-      errors.issuer = 'Penerbit / Penyelenggara sertifikat wajib diisi.'
+      errors.issuer = 'Penerbit wajib diisi.'
     }
 
     if (formData.credential_url.trim()) {
       try {
         new URL(formData.credential_url.trim())
       } catch {
-        errors.credential_url = 'Format tautan sertifikat harus berupa URL valid (http/https).'
+        errors.credential_url = 'Tautan sertifikat harus diawali http:// atau https://.'
       }
     }
 
@@ -89,7 +96,7 @@ function CertificationForm({ certification = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       } else {
         const { data, error: dbError } = await supabase
           .from('certifications')
@@ -102,7 +109,7 @@ function CertificationForm({ certification = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       }
     } catch (err) {
       setGeneralError(
@@ -114,139 +121,39 @@ function CertificationForm({ certification = null, onSuccess, onCancel }) {
     }
   }
 
+  const busy = isSubmitting || screen.saved
+
   return (
-    <div className="admin-cert-form-card" role="region" aria-labelledby="cert-form-title">
-      <div className="cert-form-header">
-        <div>
-          <h3 id="cert-form-title" className="cert-form-title">
-            {isEditMode ? 'Edit Sertifikasi / Kursus' : 'Tambah Sertifikasi Baru'}
-          </h3>
-          <p className="cert-form-subtitle">
-            {isEditMode
-              ? `Memperbarui data sertifikasi "${certification?.name}".`
-              : 'Menambahkan data sertifikasi, pelatihan, atau lisensi profesional ke database.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={onCancel}
-          disabled={isSubmitting}
+    <FormPanel
+      label={isEditMode ? 'Ubah sertifikat' : 'Sertifikat baru'}
+      screen={screen}
+      error={generalError ? toFriendlyError(generalError, 'Sertifikat belum tersimpan. Periksa koneksi internet, lalu coba lagi.') : ''}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan sertifikat'}
+    >
+      <FormSection title="Sertifikat" columns={2}>
+        <Field id="cert-name" label="Nama sertifikat" required className="adm-span-2" error={fieldErrors.name} hint="Contoh: Dasar Pemrograman Web.">
+          <Input name="name" type="text" value={formData.name} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="cert-issuer" label="Penerbit" required error={fieldErrors.issuer} hint="Lembaga yang memberi sertifikat, misalnya Dicoding.">
+          <Input name="issuer" type="text" value={formData.issuer} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="cert-date" label="Tanggal terbit" optional>
+          <Input name="issue_date" type="date" value={formData.issue_date} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field
+          id="cert-url"
+          label="Tautan sertifikat"
+          optional
+          className="adm-span-2"
+          error={fieldErrors.credential_url}
+          hint="Tautan untuk memeriksa keaslian, atau file PDF sertifikat."
         >
-          Tutup Form
-        </button>
-      </div>
-
-      {generalError && (
-        <div className="cert-form-alert cert-form-alert-error" role="alert">
-          <strong>Peringatan:</strong> {generalError}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="cert-form-grid">
-          {/* Certification Name */}
-          <div className="form-group cert-form-grid-full">
-            <label htmlFor="cert-name" className="form-label">
-              <span>Nama Sertifikasi / Pelatihan</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="cert-name"
-              name="name"
-              type="text"
-              className={`form-control-input ${fieldErrors.name ? 'has-error' : ''}`}
-              placeholder="Contoh: MikroTik Certified Network Associate (MTCNA)"
-              value={formData.name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-              autoFocus
-            />
-            {fieldErrors.name && <p className="form-field-error">{fieldErrors.name}</p>}
-          </div>
-
-          {/* Issuer */}
-          <div className="form-group">
-            <label htmlFor="cert-issuer" className="form-label">
-              <span>Penerbit / Penyelenggara</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="cert-issuer"
-              name="issuer"
-              type="text"
-              className={`form-control-input ${fieldErrors.issuer ? 'has-error' : ''}`}
-              placeholder="Contoh: MikroTik, Cisco, Coursera"
-              value={formData.issuer}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.issuer && <p className="form-field-error">{fieldErrors.issuer}</p>}
-          </div>
-
-          {/* Issue Date */}
-          <div className="form-group">
-            <label htmlFor="cert-date" className="form-label">
-              <span>Tanggal Terbit</span>
-            </label>
-            <input
-              id="cert-date"
-              name="issue_date"
-              type="date"
-              className="form-control-input"
-              value={formData.issue_date}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            <p className="form-field-helper">Tanggal diterbitkannya sertifikat atau kursus.</p>
-          </div>
-
-          {/* Credential URL */}
-          <div className="form-group cert-form-grid-full">
-            <label htmlFor="cert-url" className="form-label">
-              <span>Tautan Kredensial / Sertifikat (Opsional)</span>
-            </label>
-            <input
-              id="cert-url"
-              name="credential_url"
-              type="url"
-              className={`form-control-input ${fieldErrors.credential_url ? 'has-error' : ''}`}
-              placeholder="https://..."
-              value={formData.credential_url}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.credential_url && (
-              <p className="form-field-error">{fieldErrors.credential_url}</p>
-            )}
-            <p className="form-field-helper">Tautan verifikasi resmi atau link dokumen sertifikat PDF.</p>
-          </div>
-        </div>
-
-        <div className="cert-form-actions">
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? 'Menyimpan...'
-              : isEditMode
-              ? 'Simpan Perubahan'
-              : 'Tambah Sertifikasi'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <Input name="credential_url" type="url" inputMode="url" placeholder="https://" value={formData.credential_url} onChange={handleChange} disabled={busy} />
+        </Field>
+      </FormSection>
+    </FormPanel>
   )
 }
 

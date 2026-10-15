@@ -655,6 +655,22 @@ html:has(.adm) body {
   margin-top: 0;
 }
 
+/* Kolom cari di atas daftar, dan pesan bila pencarian tidak menemukan apa pun */
+.adm-search {
+  max-width: 26rem;
+}
+
+.adm-list-none {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--ds-border-control);
+  border-radius: var(--adm-radius);
+  background-color: var(--ds-surface);
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+  text-align: center;
+}
+
 /* Kelompok field */
 .adm-form-section {
   min-width: 0;

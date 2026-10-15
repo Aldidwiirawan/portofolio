@@ -3,6 +3,7 @@ import { Alert } from './Alert'
 import { Button } from './Button'
 import { ConfirmDialog } from './Dialog'
 import { EmptyState, Skeleton } from './Feedback'
+import { Field, Input } from './Field'
 import { toFriendlyError } from './friendlyError'
 import { IconPencil, IconPlus, IconRefresh, IconTrash } from './icons'
 
@@ -130,5 +131,25 @@ export function RowActions({ name, onEdit, onDelete }) {
         Hapus
       </Button>
     </>
+  )
+}
+
+/** Search field above a list (visible label, filters as you type). */
+export function SearchBox({ id, label, value, onChange, hint }) {
+  return (
+    <div className="adm-list-toolbar adm-search">
+      <Field id={id} label={label} hint={hint}>
+        <Input type="search" autoComplete="off" value={value} onChange={(e) => onChange(e.target.value)} />
+      </Field>
+    </div>
+  )
+}
+
+/** Shown instead of the list when a search finds nothing. */
+export function NoMatches({ children }) {
+  return (
+    <p className="adm-list-none" role="status">
+      {children}
+    </p>
   )
 }
