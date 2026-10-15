@@ -13,10 +13,8 @@ const FREE_BOX = 10 // half size of the hidden bracket box around the pointer
 const ACTIVE_CLASS = 'vf-cursor-active'
 const REDUCED_CLASS = 'vf-cursor-reduced'
 
-const pad4 = (n) => String(Math.max(0, Math.round(n))).padStart(4, '0')
-
 /**
- * Viewfinder cursor: a small crosshair with coordinates that turns into four brackets locking
+ * Viewfinder cursor: a minimal crosshair (with a centre dot) that turns into four brackets locking
  * onto links, buttons, fields, [role=button] and [data-cursor-lock]. Keyboard focus gets the
  * brackets too. Only active for a fine, hovering pointer (not on touch screens or in forced
  * colors). With reduced motion the native cursor stays and the brackets move without animation.
@@ -33,13 +31,11 @@ function ViewfinderCursor() {
 
 function ViewfinderLayer({ reducedMotion }) {
   const crossRef = useRef(null)
-  const coordRef = useRef(null)
   const lockRef = useRef(null)
 
   useEffect(() => {
     const root = document.documentElement
     const cross = crossRef.current
-    const coord = coordRef.current
     const lock = lockRef.current
     const corners = Array.from(lock.children)
     const state = {
@@ -51,7 +47,6 @@ function ViewfinderLayer({ reducedMotion }) {
       hoverTarget: null,
       focusTarget: null,
       frame: 0,
-      coordText: '',
       box: '',
       theme: null,
     }
@@ -78,11 +73,8 @@ function ViewfinderLayer({ reducedMotion }) {
         cross.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`
         const hidden = !state.pointerInside || state.modality === 'keyboard' || state.overText
         cross.dataset.hidden = String(hidden)
-        const text = `X ${pad4(state.x)}  Y ${pad4(state.y)}`
-        if (text !== state.coordText) {
-          coord.textContent = text
-          state.coordText = text
-        }
+        // Locked: the crosshair hands over to the brackets, only the centre dot stays
+        cross.dataset.locked = String(Boolean(target))
       }
 
       if (target) {
@@ -194,9 +186,7 @@ function ViewfinderLayer({ reducedMotion }) {
   return (
     <>
       {!reducedMotion && (
-        <div ref={crossRef} className="vf-cross" data-hidden="true" aria-hidden="true">
-          <span ref={coordRef} className="vf-coord" />
-        </div>
+        <div ref={crossRef} className="vf-cross" data-hidden="true" aria-hidden="true" />
       )}
       <div ref={lockRef} className="vf-lock" data-state="free" aria-hidden="true">
         <span className="vf-corner vf-corner--tl" />

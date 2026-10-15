@@ -16,7 +16,8 @@ html.vf-cursor-active
   cursor: text !important;
 }
 
-/* Crosshair + koordinat. mix-blend-mode difference: gelap di latar terang, terang di latar gelap. */
+/* Crosshair minimalis + titik tengah (tanpa koordinat). mix-blend-mode difference: gelap di latar
+   terang, terang di latar gelap. */
 .vf-cross {
   position: fixed;
   top: 0;
@@ -41,34 +42,36 @@ html.vf-cursor-active
   position: absolute;
 }
 
-/* Garis 23 px dengan celah 5 px di tengah, berpusat tepat di titik pointer */
+/* Crosshair 19 px dengan celah 5 px, berpusat tepat di titik pointer */
 .vf-cross::before {
-  top: -0.75px;
-  left: -11.5px;
-  width: 23px;
-  height: 1.5px;
-  background: linear-gradient(90deg, currentColor 9px, transparent 9px 14px, currentColor 14px);
+  top: -9.5px;
+  left: -9.5px;
+  width: 19px;
+  height: 19px;
+  background:
+    linear-gradient(90deg, currentColor 7px, transparent 7px 12px, currentColor 12px) center / 19px 1.5px no-repeat,
+    linear-gradient(180deg, currentColor 7px, transparent 7px 12px, currentColor 12px) center / 1.5px 19px no-repeat;
 }
 
+.vf-cross::before {
+  transition:
+    opacity var(--ds-duration-fast) linear,
+    transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.vf-cross[data-locked='true']::before {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+/* Titik tengah 3 px */
 .vf-cross::after {
-  top: -11.5px;
-  left: -0.75px;
-  width: 1.5px;
-  height: 23px;
-  background: linear-gradient(180deg, currentColor 9px, transparent 9px 14px, currentColor 14px);
-}
-
-.vf-coord {
-  position: absolute;
-  top: 12px;
-  left: 14px;
-  font-family: var(--ds-font-mono);
-  font-size: 10px;
-  font-weight: var(--ds-fw-medium);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  white-space: pre;
+  top: -1.5px;
+  left: -1.5px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: currentColor;
 }
 
 /* Bracket pengunci: empat sudut, masing-masing diposisikan lewat transform */
