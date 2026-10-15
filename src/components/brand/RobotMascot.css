@@ -101,41 +101,41 @@
   transition: transform 220ms var(--ds-ease-out);
 }
 
-/* Lengan "karet": garis dengan stroke yang tidak ikut diskalakan, jadi lengan bisa memanjang
-   (scaleY) tanpa ujung bulatnya melar. Lebar stroke dikompensasi dengan --robot-k (size / 200). */
-.robot-arm {
-  transform-box: view-box;
-  transition: transform 280ms var(--ds-ease-out);
-}
-
-.robot-arm path {
+/* Lengan: satu garis dengan dua stroke (garis luar + isi) dan ujung bulat */
+.robot-arm-outline,
+.robot-arm-fill {
   fill: none;
   stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
 }
 
 .robot-arm-outline {
   stroke: var(--robot-ink);
-  stroke-width: calc(18px * var(--robot-k, 1));
+  stroke-width: 18;
 }
 
 .robot-arm-fill {
   stroke: var(--robot-body);
-  stroke-width: calc(10px * var(--robot-k, 1));
+  stroke-width: 10;
+}
+
+.robot-arm {
+  transform-box: view-box;
+  transition:
+    transform 280ms var(--ds-ease-out),
+    opacity 160ms linear;
 }
 
 .robot-arm--left { transform-origin: 45px 171px; }
 .robot-arm--right { transform-origin: 155px 171px; }
 
-/* Telapak: tersembunyi di ujung lengan; saat hiding/peeking pindah ke depan mata */
-.robot-hand {
+/* Pose menutup (hiding/peeking): lengan terangkat + telapak di depan mata. Bentuknya tetap;
+   muncul lewat opacity dan sedikit naik (transform), jadi tidak ada stroke yang meregang. */
+.robot-cover {
   opacity: 0;
-  transform: scale(0.5);
-  transform-box: fill-box;
-  transform-origin: center;
+  transform: translateY(14px);
   transition:
-    transform 280ms var(--ds-ease-out),
-    opacity 160ms linear;
+    opacity 180ms linear,
+    transform 280ms var(--ds-ease-out);
 }
 
 .robot-hand-lines {
@@ -178,41 +178,23 @@
   --spread: -5;
 }
 
-.robot--hiding .robot-arm--left,
-.robot--peeking .robot-arm--left {
-  transform: rotate(-155deg) scaleY(3.56);
-}
-
-.robot--hiding .robot-arm--right {
-  transform: rotate(155deg) scaleY(3.56);
-}
-
-.robot--hiding .robot-hand,
-.robot--peeking .robot-hand {
-  opacity: 1;
+.robot--hiding .robot-arm,
+.robot--peeking .robot-arm {
+  opacity: 0;
 }
 
 /* Telapak tepat di depan mata kiri (78, 100) dan kanan (122, 100) */
-.robot--hiding .robot-hand--left,
-.robot--peeking .robot-hand--left {
-  transform: translate(33px, -93px);
+.robot--hiding .robot-cover--left,
+.robot--hiding .robot-cover--right,
+.robot--peeking .robot-cover--left,
+.robot--peeking .robot-cover--peek {
+  opacity: 1;
+  transform: none;
 }
 
-.robot--hiding .robot-hand--right {
-  transform: translate(-33px, -93px);
-}
-
-/* peeking: lengan kanan turun sedikit, mata kanan terlihat */
+/* peeking: lengan kanan turun sedikit (telapak di 126, 128), mata kanan terlihat */
 .robot--peeking {
   --spread: -3;
-}
-
-.robot--peeking .robot-arm--right {
-  transform: rotate(146deg) scaleY(2.36);
-}
-
-.robot--peeking .robot-hand--right {
-  transform: translate(-29px, -65px);
 }
 
 .robot--error {

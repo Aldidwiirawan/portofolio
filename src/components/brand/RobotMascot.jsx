@@ -43,16 +43,29 @@ function Eye({ cx, cy, shape }) {
   return <rect className="robot-eye-open" x={cx - 7} y={cy - 10} width="14" height="20" rx="4" />
 }
 
+/** Raised arm with a palm over the face screen (hiding/peeking). Static shape, faded/raised in. */
+function Cover({ side, d, palm }) {
+  return (
+    <g className={`robot-cover robot-cover--${side}`}>
+      <path className="robot-arm-outline" d={d} />
+      <path className="robot-arm-fill" d={d} />
+      <g transform={`translate(${palm[0]} ${palm[1]})`}>
+        <rect className="robot-part" x="-13" y="-11" width="26" height="22" rx="9" />
+        <path className="robot-hand-lines" d="M-4.5 -11V-4M4.5 -11V-4" />
+      </g>
+    </g>
+  )
+}
+
 /**
  * Robot "a+" mascot (decorative, hidden from assistive tech).
  *
  * - `mood`: idle | watching | hiding | peeking | error | success
  * - `lookAt`: -1 (left) … 1 (right); moves the eyes while watching
  * - `cue`: change it to replay the one-shot motion of the current mood (head shake, jump)
- * - `size`: width in px (height is 1.2 × width). Always size the robot with this prop: the arm
- *   strokes are non-scaling (so they can stretch) and are compensated with it.
+ * - `size`: width in px (height is 1.2 × width)
  *
- * Idle breathes gently; hiding raises both arms over the face screen and peeking lowers one.
+ * Idle breathes gently; hiding raises both arms so the palms cover the eyes, peeking lowers one.
  * With reduced motion the robot only switches poses: no blinking, breathing, gaze, shake or jump.
  */
 function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className = '' }) {
@@ -105,7 +118,7 @@ function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className
       width={size}
       height={size * 1.2}
       className={classes}
-      style={{ '--look': look.toFixed(3), '--robot-k': (size / 200).toFixed(4) }}
+      style={{ '--look': look.toFixed(3) }}
       data-cue={cue % 2}
       aria-hidden="true"
       focusable="false"
@@ -143,8 +156,7 @@ function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className
             <path className="robot-mouth" d={MOUTHS[safeMood]} />
           </g>
 
-          {/* Arms are drawn last so they can cover the face screen. Two strokes (outline + fill)
-              on one line; the line stretches with scaleY while the strokes keep their width. */}
+          {/* Arms are drawn last so they can cover the face screen (outline + fill strokes) */}
           <g className="robot-arm robot-arm--left">
             <path className="robot-arm-outline" d="M45 171V193" />
             <path className="robot-arm-fill" d="M45 171V193" />
@@ -153,19 +165,9 @@ function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className
             <path className="robot-arm-outline" d="M155 171V193" />
             <path className="robot-arm-fill" d="M155 171V193" />
           </g>
-          {/* Palms: hidden at the arm tips, they cover the eyes while hiding/peeking */}
-          <g transform="translate(45 193)">
-            <g className="robot-hand robot-hand--left">
-              <rect className="robot-part" x="-13" y="-11" width="26" height="22" rx="9" />
-              <path className="robot-hand-lines" d="M-4.5 -11V-4M4.5 -11V-4" />
-            </g>
-          </g>
-          <g transform="translate(155 193)">
-            <g className="robot-hand robot-hand--right">
-              <rect className="robot-part" x="-13" y="-11" width="26" height="22" rx="9" />
-              <path className="robot-hand-lines" d="M-4.5 -11V-4M4.5 -11V-4" />
-            </g>
-          </g>
+          <Cover side="left" d="M45 171L78 100" palm={[78, 100]} />
+          <Cover side="right" d="M155 171L122 100" palm={[122, 100]} />
+          <Cover side="peek" d="M155 171L126 128" palm={[126, 128]} />
         </g>
       </g>
     </svg>
