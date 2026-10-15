@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import PublicPortfolioPage from './pages/PublicPortfolioPage'
 import AdminRoute from './components/admin/AdminRoute'
 import ShutterProvider from './components/effects/ShutterTransition'
@@ -21,8 +21,15 @@ const AdminOrganizationsPage = lazy(() => import('./pages/admin/AdminOrganizatio
 const AdminGuestbookPage = lazy(() => import('./pages/admin/AdminGuestbookPage'))
 
 function PageFallback() {
+  // Admin routes show the light admin shell; other lazy routes (login) a plain light screen
+  const { pathname } = useLocation()
+  const isAdminArea = pathname.startsWith('/admin') && pathname !== '/admin/login'
   return (
-    <div className="admin-auth-loading" role="status" aria-live="polite">
+    <div
+      className={`admin-auth-loading${isAdminArea ? '' : ' admin-auth-loading--plain'}`}
+      role="status"
+      aria-live="polite"
+    >
       <div className="admin-loading-spinner" aria-hidden="true" />
       <p className="admin-loading-text">Memuat halaman...</p>
     </div>

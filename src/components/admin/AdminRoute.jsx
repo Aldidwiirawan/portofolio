@@ -74,7 +74,7 @@ function AdminRoute({ children }) {
     return (
       <div className="admin-auth-loading" role="status" aria-live="polite">
         <div className="admin-loading-spinner" aria-hidden="true" />
-        <p className="admin-loading-text">Memverifikasi hak akses administrator...</p>
+        <p className="admin-loading-text">Memeriksa akses...</p>
       </div>
     )
   }
