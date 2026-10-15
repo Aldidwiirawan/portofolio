@@ -1,8 +1,20 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useMessages } from '../../hooks/useMessages'
-import './AdminProjectsPage.css'
+import { AdminLayout, AdminRoot } from '../../components/admin/ui/AdminLayout'
+import { useAdminShell } from '../../components/admin/ui/adminContexts'
+import { Alert } from '../../components/admin/ui/Alert'
+import { Button, ButtonLink } from '../../components/admin/ui/Button'
+import { Badge } from '../../components/admin/ui/Card'
+import { DataList, DataListItem } from '../../components/admin/ui/DataList'
+import { ConfirmDialog, Dialog } from '../../components/admin/ui/Dialog'
+import { EmptyState, Skeleton } from '../../components/admin/ui/Feedback'
+import { QuickPicks } from '../../components/admin/ui/Field'
+import { formatDateTime, formatRelativeDate } from '../../components/admin/ui/format'
+import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { IconEye, IconMail, IconMailOpen, IconRefresh, IconReply, IconTrash } from '../../components/admin/ui/icons'
+import { NoMatches } from '../../components/admin/ui/SectionScreen'
+import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
 import './AdminMessagesPage.css'
 
 /**
@@ -35,15 +47,27 @@ function formatMessageDate(dateStr) {
  * - Toggle read/unread status
  * - Quick reply via email (mailto link)
  * - Delete message with confirmation modal
+ * Screen: admin layout; detail and delete use dialogs (Escape is handled by them); the sidebar
+ * badge is refreshed after a message is opened, marked or deleted.
  */
 function AdminMessagesPage() {
+  return (
+    <AdminRoot>
+      <MessagesScreen />
+    </AdminRoot>
+  )
+}
+
+function MessagesScreen() {
   const { messages, unreadCount, isLoading, error, refetch } = useMessages()
+  // Screen only: toasts, focus after a delete, the sidebar's unread badge
+  const { toast, headingRef, returnToHeading, setReturnToHeading } = useSectionScreen()
+  const { refreshUnread } = useAdminShell()
   const [filterStatus, setFilterStatus] = useState('all') // 'all' | 'unread' | 'read'
   const [viewingMessage, setViewingMessage] = useState(null)
   const [deletingMessage, setDeletingMessage] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
 
   // Filtered messages
   const filteredMessages = useMemo(() => {
@@ -51,23 +75,6 @@ function AdminMessagesPage() {
     if (filterStatus === 'read') return messages.filter((m) => m.is_read)
     return messages
   }, [messages, filterStatus])
-
-  // Keyboard accessibility: Escape closes modal
-  useEffect(() => {
-    if (!viewingMessage && !deletingMessage) return
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        if (deletingMessage && !isDeleting) {
-          setDeletingMessage(null)
-          setDeleteError(null)
-        } else if (viewingMessage) {
-          setViewingMessage(null)
-        }
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [viewingMessage, deletingMessage, isDeleting])
 
   const handleOpenDetail = async (msg) => {
     setViewingMessage(msg)
@@ -80,6 +87,7 @@ function AdminMessagesPage() {
           .update({ is_read: true })
           .eq('id', msg.id)
         refetch()
+        refreshUnread()
       } catch (ex) {
         console.warn('Gagal menandai pesan sebagai dibaca:', ex)
       }
@@ -99,19 +107,22 @@ function AdminMessagesPage() {
         throw new Error(updateError.message)
       }
 
-      setSuccessMessage(
+      toast.success(
         nextRead
           ? `Pesan dari "${msg.name}" ditandai sudah dibaca.`
           : `Pesan dari "${msg.name}" ditandai belum dibaca.`
       )
       refetch()
+      refreshUnread()
     } catch (err) {
       console.warn('Gagal mengubah status baca:', err)
+      toast.error('Status pesan belum bisa diubah. Periksa koneksi internet, lalu coba lagi.')
     }
   }
 
   const handleOpenDeleteModal = (msg, e) => {
     e.stopPropagation()
+    setReturnToHeading(false)
     setDeletingMessage(msg)
     setDeleteError(null)
   }
@@ -144,8 +155,11 @@ function AdminMessagesPage() {
 
       const senderName = deletingMessage.name
       setDeletingMessage(null)
-      setSuccessMessage(`Pesan dari "${senderName}" berhasil dihapus!`)
+      // The row and its "Hapus" button disappear, so focus goes to the page heading
+      setReturnToHeading(true)
+      toast.success(`Pesan dari "${senderName}" dihapus.`)
       refetch()
+      refreshUnread()
     } catch (err) {
       setDeleteError(
         err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus pesan.'
@@ -155,401 +169,195 @@ function AdminMessagesPage() {
     }
   }
 
+  const readCount = messages.length - unreadCount
+  const showSkeleton = isLoading && messages.length === 0
+  const replyHref = (msg) =>
+    `mailto:${msg.email}?subject=${encodeURIComponent(`Re: ${msg.subject || 'Pesan dari situs portofolio'}`)}`
+  const openDetail = (msg) => {
+    setReturnToHeading(false)
+    handleOpenDetail(msg)
+  }
+
   return (
-    <div className="admin-messages-page">
-      {/* Top Navbar */}
-      <header className="admin-navbar">
-        <div className="container admin-navbar-inner">
-          <div className="admin-nav-brand">
-            <h1 className="admin-brand-title">Admin Portfolio CMS</h1>
-            <span className="admin-badge-active">&bull; Inbox Messages</span>
+    <AdminLayout
+      title="Pesan"
+      description="Pesan dari formulir kontak di halaman publik. Pesan yang Anda buka otomatis ditandai sudah dibaca."
+      headingRef={headingRef}
+      actions={
+        <Button variant="secondary" icon={<IconRefresh size={18} />} onClick={refetch} loading={isLoading} loadingText="Memuat...">
+          Muat ulang
+        </Button>
+      }
+    >
+      {showSkeleton && <Skeleton rows={3} label="Memuat pesan..." />}
+
+      {!isLoading && error && (
+        <Alert
+          tone="danger"
+          title="Pesan belum bisa dimuat."
+          action={
+            <Button size="sm" variant="secondary" icon={<IconRefresh size={16} />} onClick={refetch}>
+              Coba lagi
+            </Button>
+          }
+        >
+          {toFriendlyError(error, 'Periksa koneksi internet, lalu coba lagi.')}
+        </Alert>
+      )}
+
+      {!isLoading && !error && messages.length === 0 && (
+        <EmptyState title="Belum ada pesan">Pesan dari formulir kontak di halaman publik akan muncul di sini.</EmptyState>
+      )}
+
+      {!showSkeleton && !error && messages.length > 0 && (
+        <>
+          <p className="adm-list-summary" aria-live="polite">
+            {messages.length} pesan · {unreadCount} belum dibaca
+          </p>
+          <div className="adm-list-toolbar">
+            <QuickPicks
+              label="Tampilkan pesan"
+              options={[
+                { value: 'all', label: `Semua (${messages.length})` },
+                { value: 'unread', label: `Belum dibaca (${unreadCount})` },
+                { value: 'read', label: `Sudah dibaca (${readCount})` },
+              ]}
+              value={filterStatus}
+              onPick={setFilterStatus}
+            />
           </div>
 
-          <div className="admin-nav-actions">
-            <Link to="/admin" className="btn btn-outline btn-sm">
-              &larr; Dashboard
-            </Link>
-            <Link to="/" className="btn btn-outline btn-sm" title="Lihat website portfolio">
-              Situs Publik
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="admin-main-content">
-        <div className="container">
-          {/* Header Action Bar */}
-          <div className="admin-msg-header-actions">
-            <Link to="/admin" className="admin-back-btn">
-              <span>&larr;</span> Kembali ke Dashboard
-            </Link>
-
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              onClick={refetch}
-              disabled={isLoading}
-              title="Segarkan pesan dari database"
-            >
-              {isLoading ? 'Memuat...' : 'Segarkan Data'}
-            </button>
-          </div>
-
-          {/* Success Banner Notification */}
-          {successMessage && (
-            <div className="admin-projects-success-banner" role="status">
-              <span>{successMessage}</span>
-              <button
-                type="button"
-                className="admin-banner-close-btn"
-                onClick={() => setSuccessMessage(null)}
-                aria-label="Tutup notifikasi"
-              >
-                &times;
-              </button>
-            </div>
-          )}
-
-          {/* Title Box */}
-          <div className="admin-msg-title-box">
-            <h2 className="admin-msg-heading">Kotak Pesan Masuk (Messages / Inbox)</h2>
-            <p className="admin-msg-subheading">
-              Daftar pertanyaan, tawaran kerja, dan pesan yang dikirimkan oleh pengunjung melalui formulir kontak publik di tabel{' '}
-              <code>public.messages</code>.
-            </p>
-          </div>
-
-          {/* Summary Metrics */}
-          <div className="admin-projects-summary-grid">
-            <div className="admin-summary-card">
-              <span className="admin-summary-label">Total Pesan</span>
-              <span className="admin-summary-value">{isLoading ? '—' : messages.length}</span>
-            </div>
-
-            <div className="admin-summary-card">
-              <span className="admin-summary-label">Pesan Belum Dibaca</span>
-              <span
-                className="admin-summary-value"
-                style={{ color: unreadCount > 0 ? 'var(--color-primary)' : 'inherit' }}
-              >
-                {isLoading ? '—' : unreadCount}
-              </span>
-            </div>
-
-            <div className="admin-summary-card">
-              <span className="admin-summary-label">Database Target</span>
-              <span
-                className="badge badge-primary"
-                style={{ alignSelf: 'flex-start', marginTop: 'var(--space-2)' }}
-              >
-                public.messages
-              </span>
-            </div>
-          </div>
-
-          {/* Filter Bar */}
-          {!isLoading && messages.length > 0 && (
-            <div className="admin-msg-filter-bar" role="tablist" aria-label="Filter Status Pesan">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={filterStatus === 'all'}
-                className={`admin-filter-pill ${filterStatus === 'all' ? 'is-active' : ''}`}
-                onClick={() => setFilterStatus('all')}
-              >
-                Semua Pesan ({messages.length})
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={filterStatus === 'unread'}
-                className={`admin-filter-pill ${filterStatus === 'unread' ? 'is-active' : ''}`}
-                onClick={() => setFilterStatus('unread')}
-              >
-                Belum Dibaca ({unreadCount})
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={filterStatus === 'read'}
-                className={`admin-filter-pill ${filterStatus === 'read' ? 'is-active' : ''}`}
-                onClick={() => setFilterStatus('read')}
-              >
-                Sudah Dibaca ({messages.length - unreadCount})
-              </button>
-            </div>
-          )}
-
-          {/* Conditional State: LOADING */}
-          {isLoading && (
-            <div
-              className="admin-projects-skeleton-list"
-              aria-busy="true"
-              aria-label="Memuat pesan masuk"
-            >
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="admin-project-skeleton-card">
-                  <div className="skeleton-shimmer skeleton-title-bar" />
-                  <div className="skeleton-shimmer skeleton-desc-line" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Conditional State: ERROR */}
-          {!isLoading && error && (
-            <div className="admin-projects-error-box" role="alert">
-              <h3 className="admin-projects-error-title">Gagal Mengambil Data Pesan</h3>
-              <p className="admin-projects-error-desc">{error}</p>
-              <button type="button" className="btn btn-primary btn-sm" onClick={refetch}>
-                Coba Lagi
-              </button>
-            </div>
-          )}
-
-          {/* Conditional State: EMPTY */}
-          {!isLoading && !error && messages.length === 0 && (
-            <div className="admin-projects-empty-box">
-              <h3 className="admin-projects-empty-title">Belum ada pesan masuk.</h3>
-              <p className="admin-projects-empty-desc">
-                Tabel <code>public.messages</code> saat ini belum memiliki pesan dari pengunjung.
-                Ketika pengunjung mengirimkan pesan melalui formulir kontak di website publik, pesan
-                akan tampil di sini.
-              </p>
-            </div>
-          )}
-
-          {/* Conditional State: Filter Empty */}
-          {!isLoading && !error && messages.length > 0 && filteredMessages.length === 0 && (
-            <div className="admin-projects-empty-box">
-              <h3 className="admin-projects-empty-title">Tidak ada pesan dalam kategori ini.</h3>
-              <p className="admin-projects-empty-desc">
-                Tidak ada pesan dengan filter yang dipilih saat ini.
-              </p>
-            </div>
-          )}
-
-          {/* Messages List */}
-          {!isLoading && !error && filteredMessages.length > 0 && (
-            <div className="admin-msg-list-grid">
+          {filteredMessages.length === 0 ? (
+            <NoMatches>{filterStatus === 'unread' ? 'Semua pesan sudah dibaca.' : 'Belum ada pesan yang sudah dibaca.'}</NoMatches>
+          ) : (
+            <DataList label="Daftar pesan" aria-busy={isLoading || undefined}>
               {filteredMessages.map((msg) => (
-                <article
+                <DataListItem
                   key={msg.id}
-                  className={`admin-msg-card-item ${!msg.is_read ? 'is-unread' : ''}`}
-                  onClick={() => handleOpenDetail(msg)}
+                  highlight={!msg.is_read}
+                  title={msg.name}
+                  badges={
+                    !msg.is_read && (
+                      <Badge tone="accent" dot>
+                        Baru
+                      </Badge>
+                    )
+                  }
+                  subtitle={msg.subject || '(Tanpa subjek)'}
+                  meta={
+                    <>
+                      <span>{msg.email}</span>
+                      <time dateTime={msg.created_at} title={formatDateTime(msg.created_at)}>
+                        {formatRelativeDate(msg.created_at)}
+                      </time>
+                    </>
+                  }
+                  actions={
+                    <>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        icon={<IconEye size={16} />}
+                        onClick={() => openDetail(msg)}
+                        aria-label={`Buka pesan dari ${msg.name}`}
+                      >
+                        Buka
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        icon={msg.is_read ? <IconMail size={16} /> : <IconMailOpen size={16} />}
+                        onClick={(e) => handleToggleReadStatus(msg, e)}
+                        aria-label={`${msg.is_read ? 'Tandai belum dibaca' : 'Tandai sudah dibaca'}: pesan dari ${msg.name}`}
+                      >
+                        {msg.is_read ? 'Tandai belum dibaca' : 'Tandai sudah dibaca'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="adm-btn--danger-text"
+                        icon={<IconTrash size={16} />}
+                        onClick={(e) => handleOpenDeleteModal(msg, e)}
+                        aria-label={`Hapus pesan dari ${msg.name}`}
+                      >
+                        Hapus
+                      </Button>
+                    </>
+                  }
                 >
-                  <div className="admin-msg-card-top">
-                    <div className="admin-msg-sender-info">
-                      <h3 className="admin-msg-sender-name">
-                        <span>{msg.name}</span>
-                        {!msg.is_read && (
-                          <span className="admin-msg-status-badge badge-unread">Baru</span>
-                        )}
-                      </h3>
-                      <span className="admin-msg-sender-email">{msg.email}</span>
-                    </div>
-
-                    <div className="admin-msg-badges-row">
-                      <span className="admin-msg-date-badge">
-                        {formatMessageDate(msg.created_at)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <h4 className="admin-msg-subject">{msg.subject || '(Tanpa Subjek)'}</h4>
-                  <p className="admin-msg-preview-text">{msg.message}</p>
-
-                  <div className="admin-msg-card-actions">
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm admin-project-edit-btn"
-                      onClick={(e) => handleToggleReadStatus(msg, e)}
-                    >
-                      {msg.is_read ? 'Tandai Belum Dibaca' : 'Tandai Sudah Dibaca'}
-                    </button>
-
-                    <a
-                      href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(
-                        msg.subject || 'Portfolio Inquiry'
-                      )}`}
-                      className="btn btn-outline btn-sm admin-project-edit-btn"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Balas Email
-                    </a>
-
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm admin-project-delete-btn"
-                      onClick={(e) => handleOpenDeleteModal(msg, e)}
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </article>
+                  <p className="adm-list-desc adm-msg-snippet">{msg.message}</p>
+                </DataListItem>
               ))}
-            </div>
+            </DataList>
           )}
-        </div>
-      </main>
+        </>
+      )}
 
-      {/* Message Detail View Modal */}
-      {viewingMessage && (
-        <div
-          className="admin-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="msg-detail-modal-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setViewingMessage(null)
-          }}
-        >
-          <div className="admin-modal-dialog" style={{ maxWidth: '600px' }}>
-            <div className="admin-modal-header">
-              <div>
-                <h3 id="msg-detail-modal-title" className="admin-modal-title">
-                  Detail Pesan Masuk
-                </h3>
-                <p className="admin-modal-subtitle">
-                  Diterima pada {formatMessageDate(viewingMessage.created_at)}
-                </p>
-              </div>
-            </div>
-
-            <div className="admin-msg-detail-body">
-              <div className="admin-msg-detail-meta">
-                <div className="admin-msg-detail-row">
-                  <span className="admin-msg-detail-label">Pengirim:</span>
-                  <span className="admin-msg-detail-val">
-                    <strong>{viewingMessage.name}</strong>
-                  </span>
-                </div>
-                <div className="admin-msg-detail-row">
-                  <span className="admin-msg-detail-label">Email:</span>
-                  <span className="admin-msg-detail-val">
-                    <a href={`mailto:${viewingMessage.email}`} style={{ color: 'var(--color-primary)' }}>
-                      {viewingMessage.email}
-                    </a>
-                  </span>
-                </div>
-                <div className="admin-msg-detail-row">
-                  <span className="admin-msg-detail-label">Subjek:</span>
-                  <span className="admin-msg-detail-val">
-                    {viewingMessage.subject || '(Tanpa Subjek)'}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ fontSize: '0.9rem', marginBottom: 'var(--space-2)', color: 'var(--color-text-muted)' }}>
-                  Isi Pesan:
-                </h4>
-                <div className="admin-msg-detail-content">{viewingMessage.message}</div>
-              </div>
-            </div>
-
-            <div className="admin-modal-footer">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => setViewingMessage(null)}
+      <Dialog
+        open={Boolean(viewingMessage)}
+        onClose={() => setViewingMessage(null)}
+        size="md"
+        title={viewingMessage?.subject || '(Tanpa subjek)'}
+        description={viewingMessage ? `Dari ${viewingMessage.name}` : ''}
+        returnFocusRef={returnToHeading ? headingRef : undefined}
+        footer={
+          viewingMessage && (
+            <>
+              <Button
+                variant="ghost"
+                className="adm-btn--danger-text adm-msg-delete"
+                icon={<IconTrash size={18} />}
+                onClick={(e) => handleOpenDeleteModal(viewingMessage, e)}
               >
+                Hapus
+              </Button>
+              <Button variant="secondary" onClick={() => setViewingMessage(null)}>
                 Tutup
-              </button>
-              <a
-                href={`mailto:${viewingMessage.email}?subject=Re: ${encodeURIComponent(
-                  viewingMessage.subject || 'Portfolio Inquiry'
-                )}`}
-                className="btn btn-primary btn-sm"
-              >
-                Balas via Email &rarr;
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deletingMessage && (
-        <div
-          className="admin-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-msg-modal-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleCloseDeleteModal()
-          }}
-        >
-          <div className="admin-modal-dialog">
-            <div className="admin-modal-header">
-              <div className="admin-modal-icon-warning" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
+              </Button>
+              <ButtonLink href={replyHref(viewingMessage)} variant="primary" icon={<IconReply size={18} />}>
+                Balas lewat email
+              </ButtonLink>
+            </>
+          )
+        }
+      >
+        {viewingMessage && (
+          <>
+            <dl className="adm-msg-meta">
+              <div>
+                <dt>Pengirim</dt>
+                <dd>{viewingMessage.name}</dd>
               </div>
               <div>
-                <h3 id="delete-msg-modal-title" className="admin-modal-title">
-                  Hapus Pesan Masuk
-                </h3>
-                <p className="admin-modal-subtitle">
-                  Tindakan ini permanen dan tidak dapat dibatalkan.
-                </p>
+                <dt>Email</dt>
+                <dd>
+                  <a href={`mailto:${viewingMessage.email}`}>{viewingMessage.email}</a>
+                </dd>
               </div>
-            </div>
+              <div>
+                <dt>Diterima</dt>
+                <dd>{formatMessageDate(viewingMessage.created_at)}</dd>
+              </div>
+            </dl>
+            <p className="adm-msg-body">{viewingMessage.message}</p>
+          </>
+        )}
+      </Dialog>
 
-            <div className="admin-modal-body">
-              <p>
-                Apakah Anda yakin ingin menghapus pesan dari <strong>"{deletingMessage.name}"</strong>?
-              </p>
-              <p className="admin-modal-body-subtext">
-                Record di tabel <code>public.messages</code> akan dihapus secara permanen.
-              </p>
-
-              {deleteError && (
-                <div className="admin-modal-error-alert" role="alert">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                  </svg>
-                  <span>{deleteError}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="admin-modal-footer">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={handleCloseDeleteModal}
-                disabled={isDeleting}
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger btn-sm admin-modal-confirm-btn"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? 'Menghapus...' : 'Ya, Hapus Pesan'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <ConfirmDialog
+        open={Boolean(deletingMessage)}
+        title="Hapus pesan?"
+        busy={isDeleting}
+        error={deleteError ? toFriendlyError(deleteError, 'Pesan belum bisa dihapus. Periksa koneksi internet, lalu coba lagi.') : null}
+        returnFocusRef={returnToHeading ? headingRef : undefined}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCloseDeleteModal}
+      >
+        <p>
+          Pesan dari <strong>"{deletingMessage?.name}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+        </p>
+      </ConfirmDialog>
+    </AdminLayout>
   )
 }
 
