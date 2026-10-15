@@ -1,0 +1,28 @@
+/* Logo monogram — lihat design-system/aldi-portfolio/MASTER.md, bagian "Identitas & komponen brand" */
+
+.brand-logo {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Merakit diri: potongan meluncur dari arah masing-masing (unit viewBox), lalu diam di tempatnya */
+.brand-logo--assemble {
+  overflow: visible;
+}
+
+.brand-logo--assemble .brand-logo-piece {
+  animation: brand-logo-piece-in 600ms var(--ds-ease-out) var(--delay, 0ms) both;
+}
+
+@keyframes brand-logo-piece-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), var(--from-y, 0));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo--assemble .brand-logo-piece {
+    animation: none;
+  }
+}
