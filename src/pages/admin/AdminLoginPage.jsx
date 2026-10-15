@@ -222,6 +222,26 @@ function DockPedestal() {
 }
 
 /**
+ * Seam between the brand panel and the form area (wide screens): scale ticks along the line, a soft
+ * light/shadow transition and a chamfered connector node in the middle whose LED follows the mood.
+ * Absolutely positioned on the column boundary, so it never adds width. Decorative.
+ */
+function DividerRail() {
+  return (
+    <div className="admin-login-rail" data-theme="dark" aria-hidden="true">
+      <span className="admin-login-rail-ticks" />
+      <svg className="admin-login-rail-node" viewBox="0 0 72 96" focusable="false">
+        <path className="admin-login-rail-stub" d="M0 48H18M54 48H72" />
+        <path className="admin-login-rail-body" d="M28 1H44L53 10V86L44 95H28L19 86V10Z" />
+        <path className="admin-login-rail-slot" d="M36 18V34M36 62V78" />
+        <circle className="admin-login-rail-halo" cx="36" cy="48" r="8" />
+        <circle className="admin-login-rail-led" cx="36" cy="48" r="3.5" />
+      </svg>
+    </div>
+  )
+}
+
+/**
  * Light page shell shared by the session check and the form, so the layout does not jump
  * when the check finishes. The robot sits in the dark brand panel on wide screens and above
  * the card on smaller ones.
@@ -230,7 +250,7 @@ function AdminLoginShell({ children, robot }) {
   const isWide = useMediaQuery('(min-width: 1024px)')
 
   return (
-    <div className="admin-login-page" data-theme="light">
+    <div className="admin-login-page" data-theme="light" data-mood={robot.mood}>
       <ViewfinderCursor />
       <header className="admin-login-brand" data-theme="dark">
         <div className="admin-login-brand-inner">
@@ -262,6 +282,7 @@ function AdminLoginShell({ children, robot }) {
           )}
         </div>
       </header>
+      {isWide && <DividerRail />}
       <main className="admin-login-main">
         <BlueprintBackground variant="busy" />
         <div className="admin-login-stack">

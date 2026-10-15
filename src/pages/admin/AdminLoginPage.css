@@ -678,11 +678,102 @@ html:has(.admin-login-page) body {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   }
 
+  .admin-login-page {
+    position: relative;
+  }
+
+  /* Garis batas digambar oleh .admin-login-rail */
   .admin-login-brand {
     align-items: stretch;
     padding: var(--space-12);
     border-bottom: 0;
-    border-right: 1px solid var(--ds-border);
+  }
+
+  /* Technical Divider Rail: 48 px berpusat di batas kolom 5/12, absolut (tidak menambah lebar) */
+  .admin-login-rail {
+    --login-glow: var(--ds-focus-ring);
+    --login-rail-tick: color-mix(in srgb, var(--ds-text-muted) 55%, transparent);
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(100% * 5 / 12);
+    z-index: 2;
+    display: block;
+    width: 48px;
+    margin-left: -24px;
+    pointer-events: none;
+    transition: --login-glow 400ms var(--ds-ease-out);
+  }
+
+  .admin-login-page[data-mood='error'] .admin-login-rail {
+    --login-glow: var(--ds-danger-border);
+  }
+
+  .admin-login-page[data-mood='success'] .admin-login-rail {
+    --login-glow: var(--ds-brand-to);
+  }
+
+  /* Garis sambungan + transisi cahaya (sisi gelap) dan bayangan lembut (sisi terang) */
+  .admin-login-rail::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(var(--ds-border-control), var(--ds-border-control)) 24px 0 / 1px 100% no-repeat,
+      linear-gradient(90deg, transparent, color-mix(in srgb, var(--ds-brand-from) 12%, transparent)) 0 0 / 24px 100% no-repeat,
+      linear-gradient(90deg, color-mix(in srgb, var(--ds-canvas) 16%, transparent), transparent) 25px 0 / 23px 100% no-repeat;
+  }
+
+  /* Tanda skala: kecil tiap 16 px, besar tiap 64 px (sejajar grid panel) */
+  .admin-login-rail-ticks {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 18px;
+    width: 13px;
+    background:
+      linear-gradient(var(--login-rail-tick) 1px, transparent 1px) center 0 / 13px 64px repeat-y,
+      linear-gradient(var(--login-rail-tick) 1px, transparent 1px) center 0 / 7px 16px repeat-y;
+  }
+
+  /* Node penghubung bersudut di tengah garis */
+  .admin-login-rail-node {
+    position: absolute;
+    top: 50%;
+    left: -12px;
+    width: 72px;
+    height: 96px;
+    margin-top: -48px;
+    overflow: visible;
+  }
+
+  .admin-login-rail-stub {
+    fill: none;
+    stroke: var(--ds-border-control);
+    stroke-width: 1.5;
+  }
+
+  .admin-login-rail-body {
+    fill: var(--ds-surface);
+    stroke: var(--ds-border-control);
+    stroke-width: 1.5;
+  }
+
+  .admin-login-rail-slot {
+    fill: none;
+    stroke: color-mix(in srgb, var(--ds-text-muted) 60%, transparent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .admin-login-rail-led {
+    fill: var(--login-glow);
+  }
+
+  .admin-login-rail-halo {
+    fill: var(--login-glow);
+    opacity: 0.28;
   }
 
   /* Bracket ornamen di keempat sudut panel */
@@ -930,7 +1021,8 @@ html:has(.admin-login-page) body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .admin-login-stage {
+  .admin-login-stage,
+  .admin-login-rail {
     transition: none;
   }
 
@@ -972,7 +1064,8 @@ html:has(.admin-login-page) body {
   .admin-login-control::before,
   .admin-login-card::before,
   .admin-login-brand::after,
-  .admin-login-logo-frame::after {
+  .admin-login-logo-frame::after,
+  .admin-login-rail {
     display: none;
   }
 }
