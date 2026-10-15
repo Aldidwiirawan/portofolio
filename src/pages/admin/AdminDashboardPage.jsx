@@ -1,58 +1,12 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { getCurrentUser, onAuthStateChange, signOut } from '../../lib/authService'
+import { Link } from 'react-router-dom'
+import { AdminLayout } from '../../components/admin/ui/AdminLayout'
 import './AdminDashboardPage.css'
 
 /**
- * AdminDashboardPage Component (Placeholder for Stage 3 routing setup)
- * Displays active session status, admin email, logout button, and CMS module placeholders.
+ * Beranda admin. Navigasi, sesi, dan tombol Keluar ada di AdminLayout.
+ * Daftar modul di bawah masih tampilan lama sampai isi Beranda dibuat ulang (tahap 2, butir 4).
  */
 function AdminDashboardPage() {
-  const [currentUser, setCurrentUser] = useState(null)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadUser() {
-      const { user } = await getCurrentUser()
-      if (isMounted) {
-        setCurrentUser(user)
-      }
-    }
-
-    loadUser()
-
-    const subscription = onAuthStateChange((_event, session) => {
-      if (isMounted) {
-        if (!session?.user) {
-          navigate('/admin/login', { replace: true })
-        } else {
-          setCurrentUser(session.user)
-        }
-      }
-    })
-
-    return () => {
-      isMounted = false
-      if (subscription && typeof subscription.unsubscribe === 'function') {
-        subscription.unsubscribe()
-      }
-    }
-  }, [navigate])
-
-  const handleLogout = async () => {
-    setIsLoggingOut(true)
-    try {
-      await signOut()
-      // Navigasi ke /admin/login setelah sesi dibersihkan
-      navigate('/admin/login', { replace: true })
-    } catch {
-      setIsLoggingOut(false)
-    }
-  }
-
   const cmsModules = [
     {
       name: 'Profile',
@@ -112,107 +66,61 @@ function AdminDashboardPage() {
   ]
 
   return (
-    <div className="admin-dashboard-page">
-      {/* Admin Navbar */}
-      <header className="admin-navbar">
-        <div className="container admin-navbar-inner">
-          <div className="admin-nav-brand">
-            <h1 className="admin-brand-title">Admin Portfolio CMS</h1>
-            <span className="admin-badge-active">&bull; Terautentikasi</span>
-          </div>
+    <AdminLayout title="Selamat datang, Aldi" docTitle="Beranda">
+      <h3 className="admin-modules-title">Modul Pengelolaan Konten</h3>
+      <div className="admin-modules-grid">
+        {cmsModules.map((module) => {
+          const routeMap = {
+            Profile: '/admin/profile',
+            Projects: '/admin/projects',
+            Skills: '/admin/skills',
+            Experiences: '/admin/experiences',
+            Educations: '/admin/educations',
+            Messages: '/admin/messages',
+            Certifications: '/admin/certifications',
+            Achievements: '/admin/achievements',
+            Languages: '/admin/languages',
+            Organizations: '/admin/organizations',
+            Guestbook: '/admin/guestbook',
+          }
+          const targetPath = routeMap[module.name]
 
-          <div className="admin-nav-actions">
-            {currentUser?.email && (
-              <div className="admin-user-info">
-                <span>Login sebagai: </span>
-                <span className="admin-user-email">{currentUser.email}</span>
-              </div>
-            )}
-
-            <Link to="/" className="btn btn-outline btn-sm" title="Lihat website portfolio">
-              Situs Publik
-            </Link>
-
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? 'Keluar...' : 'Logout'}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Admin Content */}
-      <main className="admin-main-content">
-        <div className="container">
-          <div className="admin-welcome-banner">
-            <h2 className="admin-welcome-title">Selamat Datang di Panel CMS Portfolio</h2>
-            <p className="admin-welcome-desc">
-              Arsitektur routing terproteksi dan sesi autentikasi Supabase Auth telah aktif. Sesi ini
-              dibatasi hanya untuk akun pemilik portfolio terdaftar. Seluruh operasi CRUD untuk
-              modul di bawah terhubung langsung ke database Supabase.
-            </p>
-          </div>
-
-          <h3 className="admin-modules-title">Modul Pengelolaan Konten</h3>
-          <div className="admin-modules-grid">
-            {cmsModules.map((module) => {
-              const routeMap = {
-                Profile: '/admin/profile',
-                Projects: '/admin/projects',
-                Skills: '/admin/skills',
-                Experiences: '/admin/experiences',
-                Educations: '/admin/educations',
-                Messages: '/admin/messages',
-                Certifications: '/admin/certifications',
-                Achievements: '/admin/achievements',
-                Languages: '/admin/languages',
-                Organizations: '/admin/organizations',
-                Guestbook: '/admin/guestbook',
-              }
-              const targetPath = routeMap[module.name]
-
-              if (targetPath) {
-                return (
-                  <Link
-                    key={module.name}
-                    to={targetPath}
-                    className="admin-module-card clickable"
-                    title={`Buka Manajemen ${module.name}`}
-                    aria-label={`Buka Manajemen ${module.name}`}
-                  >
-                    <div className="admin-module-header">
-                      <h4 className="admin-module-name">{module.name}</h4>
-                      <span className="admin-module-status">Buka Modul &rarr;</span>
-                    </div>
-                    <p className="admin-module-desc">{module.description}</p>
-                    <div className="badge badge-primary" style={{ alignSelf: 'flex-start' }}>
-                      {module.table}
-                    </div>
-                  </Link>
-                )
-              }
-
-              return (
-                <div key={module.name} className="admin-module-card">
-                  <div className="admin-module-header">
-                    <h4 className="admin-module-name">{module.name}</h4>
-                    <span className="admin-module-status">Tahap Berikutnya</span>
-                  </div>
-                  <p className="admin-module-desc">{module.description}</p>
-                  <div className="badge badge-primary" style={{ alignSelf: 'flex-start' }}>
-                    {module.table}
-                  </div>
+          if (targetPath) {
+            return (
+              <Link
+                key={module.name}
+                to={targetPath}
+                className="admin-module-card clickable"
+                title={`Buka Manajemen ${module.name}`}
+                aria-label={`Buka Manajemen ${module.name}`}
+              >
+                <div className="admin-module-header">
+                  <h4 className="admin-module-name">{module.name}</h4>
+                  <span className="admin-module-status">Buka Modul &rarr;</span>
                 </div>
-              )
-            })}
-          </div>
-        </div>
-      </main>
-    </div>
+                <p className="admin-module-desc">{module.description}</p>
+                <div className="badge badge-primary" style={{ alignSelf: 'flex-start' }}>
+                  {module.table}
+                </div>
+              </Link>
+            )
+          }
+
+          return (
+            <div key={module.name} className="admin-module-card">
+              <div className="admin-module-header">
+                <h4 className="admin-module-name">{module.name}</h4>
+                <span className="admin-module-status">Tahap Berikutnya</span>
+              </div>
+              <p className="admin-module-desc">{module.description}</p>
+              <div className="badge badge-primary" style={{ alignSelf: 'flex-start' }}>
+                {module.table}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </AdminLayout>
   )
 }
 

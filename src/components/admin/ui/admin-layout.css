@@ -1,0 +1,658 @@
+/* ==========================================================================
+   KERANGKA ADMIN — sidebar, bar atas HP, area kerja, header halaman
+   Sidebar dan bar atas memakai data-theme="dark" (menyambung panel brand login); area kerja
+   terang. Hanya token --ds-* / --adm-* (kecuali latar scrim, sama dengan backdrop dialog).
+   ========================================================================== */
+
+/* index.css memberi body dan #root overflow-x: hidden. Itu menjadikan keduanya scroll container,
+   sehingga position: sticky (sidebar, bar atas, bar aksi form) tidak pernah menempel. Di admin
+   diganti clip: tetap memotong luapan horizontal tanpa membuat scroll container. */
+html:has(.adm) body,
+html:has(.adm) #root {
+  overflow-x: clip;
+}
+
+/* Pindah halaman/tampilan langsung ke atas (tanpa smooth scroll global), dan fokus yang
+   menggulir tidak tertutup bar atas HP */
+html:has(.adm) {
+  scroll-behavior: auto;
+  scroll-padding-top: 4.5rem;
+}
+
+@media (min-width: 1024px) {
+  html:has(.adm) {
+    scroll-padding-top: var(--space-6);
+  }
+}
+
+.adm {
+  --adm-gutter: var(--space-4);
+  --adm-nav-item-h: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .adm {
+    --adm-gutter: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .adm {
+    --adm-gutter: var(--space-8);
+  }
+}
+
+@media (min-width: 1440px) {
+  .adm {
+    --adm-gutter: var(--space-10);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tautan "Lewati ke konten" (muncul saat difokus keyboard)
+   -------------------------------------------------------------------------- */
+
+.adm-skip {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 950;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--adm-radius-control);
+  background-color: var(--ds-accent);
+  color: var(--ds-on-accent);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--space-4)));
+}
+
+.adm-skip:focus,
+.adm-skip:hover {
+  color: var(--ds-on-accent);
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Kerangka: satu kolom di HP/tablet, sidebar + area kerja mulai 1024 px
+   -------------------------------------------------------------------------- */
+
+.adm-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Mulai 1024 px: kolom sidebar + area kerja. Lajur gelap di latar kolom pertama menyambung sidebar
+   (yang menempel setinggi layar) sampai dasar halaman, misalnya saat overscroll. Lajur ini di luar
+   sub-pohon bertema gelap, jadi memakai primitive yang sama dengan --ds-canvas / --ds-border gelap. */
+@media (min-width: 1024px) {
+  .adm-shell {
+    display: grid;
+    grid-template-columns: var(--adm-sidebar-w) minmax(0, 1fr);
+    background-image: linear-gradient(
+      90deg,
+      var(--palette-navy-950) calc(var(--adm-sidebar-w) - 1px),
+      var(--palette-navy-800) 0 var(--adm-sidebar-w),
+      transparent 0
+    );
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Lockup brand (sama dengan login versi kecil)
+   -------------------------------------------------------------------------- */
+
+.adm-lockup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.adm-lockup-logo {
+  flex-shrink: 0;
+  color: var(--ds-text-strong);
+}
+
+.adm-lockup-rule {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 1px;
+  margin-block: 2px;
+  background-color: color-mix(in srgb, var(--ds-text-strong) 24%, transparent);
+}
+
+.adm-lockup-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+/* Blok teks 35 px (20 + 2 + 13) supaya logo 29 px yang dipusatkan jatuh di piksel bulat */
+.adm-lockup-name {
+  margin: 0;
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-md);
+  font-weight: var(--ds-fw-heavy);
+  letter-spacing: var(--ds-tracking-tight);
+  line-height: 1.25rem;
+  white-space: nowrap;
+}
+
+.adm-lockup-sub {
+  margin: 0;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.16em;
+  line-height: 0.8125rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Bar atas (< 1024 px)
+   -------------------------------------------------------------------------- */
+
+.adm-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--adm-topbar-h);
+  padding: 0 var(--space-4) 0 var(--space-2);
+  border-bottom: 1px solid var(--ds-border);
+  background-color: var(--ds-canvas);
+  color: var(--ds-text);
+}
+
+.adm-menu-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--ds-target-min);
+  height: var(--ds-target-min);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--adm-radius-control);
+  background: transparent;
+  color: var(--ds-text-strong);
+  cursor: pointer;
+  transition: background-color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-menu-btn:hover {
+  background-color: color-mix(in srgb, var(--ds-text-strong) 8%, transparent);
+}
+
+/* Titik penanda ada pesan belum dibaca (jumlahnya dibacakan lewat teks tersembunyi) */
+.adm-menu-btn-dot {
+  position: absolute;
+  top: 9px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--ds-canvas);
+  border-radius: 50%;
+  background-color: var(--ds-accent-text);
+}
+
+@media (min-width: 1024px) {
+  .adm-topbar {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar: laci di HP/tablet, kolom tetap mulai 1024 px
+   -------------------------------------------------------------------------- */
+
+.adm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 590;
+  background-color: color-mix(in srgb, var(--palette-navy-950) 55%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 180ms ease-in,
+    visibility 0s linear 180ms;
+}
+
+.adm-scrim.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 240ms var(--ds-ease-out);
+}
+
+.adm-sidebar {
+  --adm-side-grid: color-mix(in srgb, var(--ds-text-strong) 3%, transparent);
+
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  width: min(18rem, calc(100vw - var(--space-12)));
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--ds-border);
+  background-color: var(--ds-canvas);
+  scrollbar-color: color-mix(in srgb, var(--ds-text-strong) 20%, transparent) transparent;
+  scrollbar-width: thin;
+  /* Pendar brand tipis + grid 64 px samar (lebih tenang dari panel login) */
+  background-image:
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--ds-brand-from) 12%, transparent), transparent 55%),
+    linear-gradient(var(--adm-side-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--adm-side-grid) 1px, transparent 1px);
+  background-size:
+    auto,
+    64px 64px,
+    64px 64px;
+  background-attachment: local;
+  color: var(--ds-text);
+  transform: translateX(-100%);
+  visibility: hidden;
+  /* Menutup lebih cepat daripada membuka */
+  transition:
+    transform 180ms ease-in,
+    visibility 0s linear 180ms;
+}
+
+.adm-sidebar.is-open {
+  box-shadow: var(--ds-shadow-lg);
+  transform: none;
+  visibility: visible;
+  transition: transform 260ms var(--ds-ease-out);
+}
+
+@media (min-width: 1024px) {
+  .adm-sidebar {
+    position: sticky;
+    z-index: auto;
+    align-self: start;
+    width: auto;
+    box-shadow: none;
+    transform: none;
+    visibility: visible;
+    transition: none;
+  }
+}
+
+.adm-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-3) var(--space-5) var(--space-5);
+  border-bottom: 1px solid var(--ds-border);
+}
+
+@media (min-width: 1024px) {
+  .adm-sidebar-head {
+    padding-right: var(--space-5);
+  }
+}
+
+.adm-sidebar-close {
+  margin-block: calc(-1 * var(--space-2));
+}
+
+/* Bila layar pendek, seluruh sidebar digulir sebagai satu kesatuan (tanpa gulir bersarang), jadi
+   tidak ada menu yang tersembunyi di balik kaki sidebar. Kaki tetap di dasar bila ruangnya cukup. */
+.adm-nav {
+  flex: 1 0 auto;
+  padding: var(--space-4) var(--space-3);
+}
+
+.adm-nav-group + .adm-nav-group {
+  margin-top: var(--space-4);
+}
+
+.adm-nav-heading {
+  margin: 0 0 var(--space-1);
+  padding: 0 var(--space-3);
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.16em;
+  line-height: 1.5rem;
+  text-transform: uppercase;
+}
+
+.adm-nav-list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--adm-nav-item-h);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--adm-radius-control);
+  background: transparent;
+  color: var(--ds-text);
+  font: inherit;
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-medium);
+  line-height: 1.25;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--ds-duration-fast) var(--ds-ease-out),
+    color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-nav-link:hover {
+  background-color: color-mix(in srgb, var(--ds-text-strong) 7%, transparent);
+  color: var(--ds-text-strong);
+}
+
+.adm-nav-icon {
+  flex-shrink: 0;
+  color: var(--ds-text-muted);
+  transition: color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-nav-link:hover .adm-nav-icon {
+  color: var(--ds-text-strong);
+}
+
+/* Halaman aktif: latar aksen samar + rel kiri (bahasa visual yang sama dengan input saat fokus) */
+.adm-nav-link[aria-current='page'] {
+  background-color: color-mix(in srgb, var(--ds-accent) 20%, transparent);
+  color: var(--ds-text-strong);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.adm-nav-link[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: var(--space-2);
+  bottom: var(--space-2);
+  left: 0;
+  width: 2px;
+  background-color: var(--ds-accent-text);
+}
+
+.adm-nav-link[aria-current='page'] .adm-nav-icon {
+  color: var(--ds-accent-text);
+}
+
+.adm-nav-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-nav-count {
+  flex-shrink: 0;
+  min-width: 1.5rem;
+  padding: 0 var(--space-1);
+  border-radius: var(--adm-radius-tag);
+  background-color: var(--ds-accent);
+  color: var(--ds-on-accent);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.25rem;
+  text-align: center;
+}
+
+.adm-sidebar-foot {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  border-top: 1px solid var(--ds-border);
+}
+
+.adm-sidebar-user {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-3) var(--space-2);
+}
+
+.adm-sidebar-user-label {
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.16em;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.adm-sidebar-user-email {
+  overflow: hidden;
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-nav-logout:hover,
+.adm-nav-logout:hover .adm-nav-icon {
+  color: var(--ds-danger-text);
+}
+
+.adm-nav-logout[aria-disabled='true'] {
+  cursor: progress;
+}
+
+.adm-nav-logout .adm-spinner {
+  margin-inline: 1px;
+}
+
+@media (pointer: coarse) {
+  .adm {
+    --adm-nav-item-h: var(--ds-target-min);
+  }
+}
+
+/* Desktop: menu lebih rapat (36 px, tetap di atas batas 24 px WCAG 2.2) dan kaki sidebar menempel
+   di dasar, jadi "Keluar" selalu terlihat di layar laptop yang pendek; menu digulir di bawahnya. */
+@media (min-width: 1024px) and (pointer: fine) {
+  .adm {
+    --adm-nav-item-h: 2.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .adm-sidebar-foot {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--ds-canvas);
+  }
+
+  /* Pudar singkat di atas kaki: tanda masih ada menu di bawah bila layar pendek */
+  .adm-sidebar-foot::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 1px);
+    left: 0;
+    height: var(--space-6);
+    background-image: linear-gradient(transparent, var(--ds-canvas));
+    pointer-events: none;
+  }
+
+  /* Ruang ekstra supaya item terakhir bebas dari pudar saat digulir sampai bawah */
+  .adm-nav {
+    padding-bottom: var(--space-8);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Area kerja dan header halaman
+   -------------------------------------------------------------------------- */
+
+/* Latar blueprint calm berada di z-index -1 di dalam konteks tumpuk ini */
+.adm-work {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+}
+
+.adm-main {
+  width: 100%;
+  max-width: calc(var(--adm-content-max) + 2 * var(--adm-gutter));
+  margin: 0 auto;
+  padding: var(--space-6) var(--adm-gutter) var(--space-16);
+}
+
+@media (min-width: 1024px) {
+  .adm-main {
+    padding-top: var(--space-10);
+  }
+}
+
+/* Target "Lewati ke konten" dan fokus judul setelah pindah halaman: tanpa cincin besar */
+.adm .adm-main:focus,
+.adm .adm-page-title:focus {
+  outline: none;
+}
+
+.adm-page-header {
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .adm-page-header {
+    margin-bottom: var(--space-8);
+  }
+}
+
+.adm-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.adm-breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.adm-breadcrumb-link {
+  min-height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ds-accent-text);
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: underline;
+  text-transform: inherit;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.adm-breadcrumb-link:hover {
+  color: var(--ds-text-strong);
+}
+
+.adm-breadcrumb-sep {
+  color: var(--ds-text-subtle);
+}
+
+.adm-page-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.adm-page-heading {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.adm-page-title {
+  margin: 0;
+  color: var(--ds-text-strong);
+  font-family: var(--ds-font-sans);
+  font-size: clamp(1.625rem, 1.25rem + 1.2vw, 2.125rem);
+  font-weight: var(--ds-fw-heavy);
+  letter-spacing: var(--ds-tracking-tight);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.adm-page-desc {
+  max-width: 62ch;
+  margin: var(--space-2) 0 0;
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-md);
+  line-height: var(--ds-lh-relaxed);
+}
+
+.adm-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
+   Gerak dikurangi, warna paksa
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-scrim,
+  .adm-sidebar {
+    transition: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .adm-sidebar,
+  .adm-topbar {
+    border-color: CanvasText;
+  }
+
+  .adm-nav-link[aria-current='page'] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .adm-menu-btn-dot,
+  .adm-nav-count {
+    forced-color-adjust: none;
+  }
+}

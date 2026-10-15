@@ -43,3 +43,14 @@ export function useUnsavedChanges(dirty) {
 export function useLeaveGuard() {
   return useContext(UnsavedContext)
 }
+
+// ---- Admin shell ----------------------------------------------------------
+
+/** Provided by AdminLayout. `refreshUnread()` reloads the unread badge on the "Pesan" menu item. */
+export const AdminShellContext = createContext({
+  refreshUnread: () => {},
+})
+
+export function useAdminShell() {
+  return useContext(AdminShellContext)
+}

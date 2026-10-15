@@ -163,7 +163,7 @@ kasus.
 - [x] 0. Rencana ini (`plans/tahap-2-admin.md`)
 - [x] 1. Fondasi: token admin, layar loading terang, teks loading `AdminRoute`
 - [x] 2. Komponen bersama
-- [ ] 3. Layout dan sidebar
+- [x] 3. Layout dan sidebar
 - [ ] 4. Beranda
 - [ ] 5. Proyek
 - [ ] 6. Keahlian, Pengalaman, Pendidikan
