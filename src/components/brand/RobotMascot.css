@@ -101,13 +101,54 @@
   transition: transform 220ms var(--ds-ease-out);
 }
 
+/* Lengan "karet": garis dengan stroke yang tidak ikut diskalakan, jadi lengan bisa memanjang
+   (scaleY) tanpa ujung bulatnya melar. Lebar stroke dikompensasi dengan --robot-k (size / 200). */
 .robot-arm {
   transform-box: view-box;
   transition: transform 280ms var(--ds-ease-out);
 }
 
-.robot-arm--left { transform-origin: 45px 169px; }
-.robot-arm--right { transform-origin: 155px 169px; }
+.robot-arm path {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.robot-arm-outline {
+  stroke: var(--robot-ink);
+  stroke-width: calc(18px * var(--robot-k, 1));
+}
+
+.robot-arm-fill {
+  stroke: var(--robot-body);
+  stroke-width: calc(10px * var(--robot-k, 1));
+}
+
+.robot-arm--left { transform-origin: 45px 171px; }
+.robot-arm--right { transform-origin: 155px 171px; }
+
+/* Telapak: tersembunyi di ujung lengan; saat hiding/peeking pindah ke depan mata */
+.robot-hand {
+  opacity: 0;
+  transform: scale(0.5);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 280ms var(--ds-ease-out),
+    opacity 160ms linear;
+}
+
+.robot-hand-lines {
+  fill: none;
+  stroke: var(--robot-ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* Badan + kepala + lengan (kaki tetap menapak) */
+.robot-upper {
+  transform-box: view-box;
+}
 
 /* --- Suasana hati ------------------------------------------------------- */
 
@@ -115,20 +156,63 @@
   transform: scaleY(0.12);
 }
 
+/* idle: bernapas — badan naik-turun 2.5 unit (±3 px pada 240 px), bayangan ikut mengecil */
+.robot--idle .robot-upper {
+  animation: robot-breathe 3.2s ease-in-out infinite;
+}
+
+.robot--idle .robot-shadow {
+  animation: robot-breathe-shadow 3.2s ease-in-out infinite;
+}
+
 .robot--watching {
   --look-y: 3px;
 }
 
 .robot--watching .robot-head {
-  transform: rotate(calc(var(--look, 0) * 4deg));
+  transform: translateX(calc(var(--look, 0) * 3px)) rotate(calc(var(--look, 0) * 4deg));
 }
 
+/* hiding: kedua lengan naik menutupi layar wajah (ujung lengan tepat di depan mata) */
 .robot--hiding {
   --spread: -5;
 }
 
+.robot--hiding .robot-arm--left,
+.robot--peeking .robot-arm--left {
+  transform: rotate(-155deg) scaleY(3.56);
+}
+
+.robot--hiding .robot-arm--right {
+  transform: rotate(155deg) scaleY(3.56);
+}
+
+.robot--hiding .robot-hand,
+.robot--peeking .robot-hand {
+  opacity: 1;
+}
+
+/* Telapak tepat di depan mata kiri (78, 100) dan kanan (122, 100) */
+.robot--hiding .robot-hand--left,
+.robot--peeking .robot-hand--left {
+  transform: translate(33px, -93px);
+}
+
+.robot--hiding .robot-hand--right {
+  transform: translate(-33px, -93px);
+}
+
+/* peeking: lengan kanan turun sedikit, mata kanan terlihat */
 .robot--peeking {
   --spread: -3;
+}
+
+.robot--peeking .robot-arm--right {
+  transform: rotate(146deg) scaleY(2.36);
+}
+
+.robot--peeking .robot-hand--right {
+  transform: translate(-29px, -65px);
 }
 
 .robot--error {
@@ -180,7 +264,16 @@
   35% { transform: scaleX(0.7); opacity: 0.06; }
 }
 
-/* Reduced motion: hanya wajah yang berganti; tanpa kedip, lirikan, gelengan, atau lompatan */
+@keyframes robot-breathe {
+  50% { transform: translateY(-2.5px); }
+}
+
+@keyframes robot-breathe-shadow {
+  50% { transform: scaleX(0.9); opacity: 0.08; }
+}
+
+/* Reduced motion: hanya wajah dan pose yang berganti; tanpa kedip, napas, lirikan, gelengan,
+   atau lompatan */
 @media (prefers-reduced-motion: reduce) {
   .robot,
   .robot * {

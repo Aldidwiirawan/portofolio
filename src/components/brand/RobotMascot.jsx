@@ -48,9 +48,11 @@ function Eye({ cx, cy, shape }) {
  * - `mood`: idle | watching | hiding | peeking | error | success
  * - `lookAt`: -1 (left) … 1 (right); moves the eyes while watching
  * - `cue`: change it to replay the one-shot motion of the current mood (head shake, jump)
- * - `size`: width in px (height is 1.2 × width)
+ * - `size`: width in px (height is 1.2 × width). Always size the robot with this prop: the arm
+ *   strokes are non-scaling (so they can stretch) and are compensated with it.
  *
- * With reduced motion the robot only switches faces: no blinking, gaze, shake or jump.
+ * Idle breathes gently; hiding raises both arms over the face screen and peeking lowers one.
+ * With reduced motion the robot only switches poses: no blinking, breathing, gaze, shake or jump.
  */
 function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className = '' }) {
   const reducedMotion = usePrefersReducedMotion()
@@ -95,7 +97,7 @@ function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className
       width={size}
       height={size * 1.2}
       className={classes}
-      style={{ '--look': look.toFixed(3) }}
+      style={{ '--look': look.toFixed(3), '--robot-k': (size / 200).toFixed(4) }}
       data-cue={cue % 2}
       aria-hidden="true"
       focusable="false"
@@ -107,32 +109,55 @@ function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className
         <rect className="robot-part" x="68" y="222" width="30" height="10" rx="5" />
         <rect className="robot-part" x="102" y="222" width="30" height="10" rx="5" />
 
-        <rect className="robot-part robot-arm robot-arm--left" x="38" y="164" width="14" height="36" rx="7" />
-        <rect className="robot-part robot-arm robot-arm--right" x="148" y="164" width="14" height="36" rx="7" />
+        <g className="robot-upper">
+          <rect className="robot-part" x="54" y="158" width="92" height="56" rx="12" />
+          <Logo size={30} x={85} y={170} className="robot-chest-logo" />
+          <rect className="robot-ink-fill" x="88" y="148" width="24" height="12" />
 
-        <rect className="robot-part" x="54" y="158" width="92" height="56" rx="12" />
-        <Logo size={30} x={85} y={170} className="robot-chest-logo" />
-        <rect className="robot-ink-fill" x="88" y="148" width="24" height="12" />
+          <g className="robot-head">
+            <g className="robot-antenna">
+              <path className="robot-stroke" d="M100 42V56" />
+              <circle className="robot-light-glow" cx="100" cy="24" r="11" />
+              <circle className="robot-light" cx="100" cy="24" r="5.5" />
+              <path className="robot-stroke robot-bracket robot-bracket--tl" d="M83 16V7H92" />
+              <path className="robot-stroke robot-bracket robot-bracket--tr" d="M108 7H117V16" />
+              <path className="robot-stroke robot-bracket robot-bracket--bl" d="M83 32V41H92" />
+              <path className="robot-stroke robot-bracket robot-bracket--br" d="M108 41H117V32" />
+            </g>
+            <rect className="robot-part" x="24" y="86" width="12" height="34" rx="4" />
+            <rect className="robot-part" x="164" y="86" width="12" height="34" rx="4" />
+            <rect className="robot-part" x="34" y="54" width="132" height="98" rx="18" />
+            <rect className="robot-screen" x="48" y="68" width="104" height="70" rx="10" />
+            <g className="robot-eyes">
+              <Eye cx={78} cy={98} shape={leftEye} />
+              <Eye cx={122} cy={98} shape={rightEye} />
+            </g>
+            <path className="robot-mouth" d={MOUTHS[safeMood]} />
+          </g>
 
-        <g className="robot-head">
-          <g className="robot-antenna">
-            <path className="robot-stroke" d="M100 42V56" />
-            <circle className="robot-light-glow" cx="100" cy="24" r="11" />
-            <circle className="robot-light" cx="100" cy="24" r="5.5" />
-            <path className="robot-stroke robot-bracket robot-bracket--tl" d="M83 16V7H92" />
-            <path className="robot-stroke robot-bracket robot-bracket--tr" d="M108 7H117V16" />
-            <path className="robot-stroke robot-bracket robot-bracket--bl" d="M83 32V41H92" />
-            <path className="robot-stroke robot-bracket robot-bracket--br" d="M108 41H117V32" />
+          {/* Arms are drawn last so they can cover the face screen. Two strokes (outline + fill)
+              on one line; the line stretches with scaleY while the strokes keep their width. */}
+          <g className="robot-arm robot-arm--left">
+            <path className="robot-arm-outline" d="M45 171V193" />
+            <path className="robot-arm-fill" d="M45 171V193" />
           </g>
-          <rect className="robot-part" x="24" y="86" width="12" height="34" rx="4" />
-          <rect className="robot-part" x="164" y="86" width="12" height="34" rx="4" />
-          <rect className="robot-part" x="34" y="54" width="132" height="98" rx="18" />
-          <rect className="robot-screen" x="48" y="68" width="104" height="70" rx="10" />
-          <g className="robot-eyes">
-            <Eye cx={78} cy={98} shape={leftEye} />
-            <Eye cx={122} cy={98} shape={rightEye} />
+          <g className="robot-arm robot-arm--right">
+            <path className="robot-arm-outline" d="M155 171V193" />
+            <path className="robot-arm-fill" d="M155 171V193" />
           </g>
-          <path className="robot-mouth" d={MOUTHS[safeMood]} />
+          {/* Palms: hidden at the arm tips, they cover the eyes while hiding/peeking */}
+          <g transform="translate(45 193)">
+            <g className="robot-hand robot-hand--left">
+              <rect className="robot-part" x="-13" y="-11" width="26" height="22" rx="9" />
+              <path className="robot-hand-lines" d="M-4.5 -11V-4M4.5 -11V-4" />
+            </g>
+          </g>
+          <g transform="translate(155 193)">
+            <g className="robot-hand robot-hand--right">
+              <rect className="robot-part" x="-13" y="-11" width="26" height="22" rx="9" />
+              <path className="robot-hand-lines" d="M-4.5 -11V-4M4.5 -11V-4" />
+            </g>
+          </g>
         </g>
       </g>
     </svg>

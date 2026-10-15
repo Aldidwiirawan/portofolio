@@ -157,7 +157,7 @@ html:has(.admin-login-page) body {
   box-shadow:
     6px 6px 0 var(--login-card-offset),
     var(--ds-shadow-sm);
-  animation: admin-login-enter var(--ds-duration-slow) var(--ds-ease-out) both;
+  animation: admin-login-frame-in 200ms var(--ds-ease-out) backwards;
 }
 
 .admin-login-card::before {
@@ -168,15 +168,16 @@ html:has(.admin-login-page) body {
   position: absolute;
   inset: -7px;
   pointer-events: none;
+  animation: admin-login-brackets-in 260ms var(--ds-ease-out) backwards;
 }
 
 .admin-login-card-bar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 2rem;
-  padding: 0 var(--space-4);
-  border-bottom: 1px solid var(--ds-border);
+  min-height: calc(2rem + 1px);
+  padding: 0 var(--space-4) 1px;
   border-radius: calc(var(--login-radius) - 1px) calc(var(--login-radius) - 1px) 0 0;
   background-color: var(--ds-inset);
   color: var(--ds-text-muted);
@@ -186,6 +187,19 @@ html:has(.admin-login-page) body {
   letter-spacing: 0.14em;
   line-height: 1;
   text-transform: uppercase;
+}
+
+/* Garis bawah bar digambar dari kiri saat kartu muncul */
+.admin-login-card-bar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background-color: var(--ds-border);
+  transform-origin: left;
+  animation: admin-login-line-in 240ms var(--ds-ease-out) 60ms backwards;
 }
 
 .admin-login-card-led {
@@ -788,18 +802,49 @@ html:has(.admin-login-page) body {
    Motion & aksesibilitas
    -------------------------------------------------------------------------- */
 
-@keyframes admin-login-enter {
+/* Animasi masuk kartu (total 400 ms): bingkai 0–200, bracket 0–260, garis bar 60–300, lalu isi
+   120–400 bertahap. Hanya opacity/transform dengan fill "backwards", jadi form bisa langsung
+   diklik dan diketik, dan tidak ada transform yang tertinggal setelah selesai. */
+.admin-login-card-bar > *,
+.admin-login-card-body > * {
+  animation: admin-login-content-in 200ms var(--ds-ease-out) 120ms backwards;
+}
+
+.admin-login-card-body > :nth-child(2) { animation-delay: 160ms; }
+.admin-login-card-body > :nth-child(3) { animation-delay: 180ms; }
+.admin-login-card-body > :nth-child(n + 4) { animation-delay: 200ms; }
+
+@keyframes admin-login-frame-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 
-/* Getar singkat saat login gagal. "admin-login-enter" tetap di daftar supaya animasi masuk
+@keyframes admin-login-brackets-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes admin-login-line-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes admin-login-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Getar singkat saat login gagal. "admin-login-frame-in" tetap di daftar supaya animasi masuk
    tidak diputar ulang ketika kelas getar dilepas. */
 .admin-login-card--shake {
   animation:
-    admin-login-enter var(--ds-duration-slow) var(--ds-ease-out) both,
+    admin-login-frame-in 200ms var(--ds-ease-out) backwards,
     admin-login-shake 400ms ease-in-out;
 }
 
@@ -822,7 +867,11 @@ html:has(.admin-login-page) body {
   }
 
   .admin-login-card,
-  .admin-login-card--shake {
+  .admin-login-card--shake,
+  .admin-login-card::before,
+  .admin-login-card-bar::after,
+  .admin-login-card-bar > *,
+  .admin-login-card-body > * {
     animation: none;
   }
 
