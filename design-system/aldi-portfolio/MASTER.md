@@ -163,9 +163,13 @@ Rasio kontras dihitung terhadap latar tempat token itu dipakai (WCAG 2.x). Teks 
 - Maksimal 1–2 elemen bergerak per layar. Animasi keluar lebih cepat dari animasi masuk.
 - Saat `prefers-reduced-motion: reduce`, durasi `--ds-*` otomatis menjadi 0. Animasi tak hingga (spinner)
   wajib dimatikan eksplisit di CSS komponen, dengan teks status tetap tampil.
-- **Pengecualian dari BRIEF:** komponen identitas (§13) boleh bergerak terus-menerus (grid bergeser, garis
-  ukur, kedip robot), dengan syarat: hanya `transform`/`opacity`/`stroke-dashoffset`, berhenti saat tab
-  tersembunyi atau elemen di luar layar, dan diam total saat reduced motion.
+- **Pengecualian dari BRIEF:** komponen identitas (§13) boleh bergerak terus-menerus (grid bergeser,
+  cahaya di jalur sirkuit, cincin HUD, napas robot), dengan syarat: hanya `transform`/`opacity`, berhenti
+  saat tab tersembunyi atau elemen di luar layar, dan diam total saat reduced motion.
+- Transform pada elemen **di dalam** SVG (`<g>`, `<path>`) tidak bisa dijalankan compositor dan dihitung di
+  main thread setiap frame. Pakai seperlunya dan ukur: login saat ini ±0.8 ms/frame (style + layout + script).
+  Hindari `vector-effect: non-scaling-stroke` pada elemen yang ikut bergerak, karena memaksa layout SVG
+  setiap frame.
 
 ## 7. Komponen dasar (spesifikasi state)
 
@@ -292,7 +296,8 @@ Komponen bersama, siap dipakai ulang di admin (tahap 2) dan publik (tahap 3). Se
 | `--ds-z-shutter` / `--ds-z-cursor` | 900 / 1000 | lapisan overlay transisi dan kursor |
 
 Util UI: `src/lib/useMediaQuery.js` berisi `useMediaQuery(query)`, `usePrefersReducedMotion()`, dan
-`prefersReducedMotion()` (untuk handler/timer).
+`prefersReducedMotion()` (untuk handler/timer). `src/lib/usePageHidden.js` berisi `usePageHidden()`
+(`true` saat tab tidak aktif) untuk menjeda animasi dekoratif.
 
 ### Logo — `src/components/brand/Logo.jsx`
 
@@ -312,13 +317,13 @@ Util UI: `src/lib/useMediaQuery.js` berisi `useMediaQuery(query)`, `usePrefersRe
 ### RobotMascot ("a+") — `src/components/brand/RobotMascot.jsx`
 
 Desain orisinal: kepala kotak dengan layar wajah, antena berupa 4 bracket dengan lampu, badan kecil dengan
-`<Logo>` di dada, lengan "karet" dan kaki pendek, garis 4 unit. Garis `--ds-text-strong`, badan
-`--ds-surface`, layar `--ds-screen`. Selalu `aria-hidden`.
+`<Logo>` di dada, lengan dan kaki pendek, garis 4 unit. Garis `--ds-text-strong`, badan `--ds-surface`,
+layar `--ds-screen`. Selalu `aria-hidden`.
 
-Lengan digambar sebagai garis dengan `vector-effect: non-scaling-stroke`, sehingga bisa memanjang (`scaleY`)
-tanpa ujung bulatnya melar. Lebar stroke dikompensasi dengan `--robot-k` (= `size / 200`), jadi ukuran robot
-**wajib** diatur lewat prop `size`, bukan lewat CSS `width`. Lengan digambar paling akhir supaya bisa menutupi
-layar wajah; telapak tangan tersembunyi di ujung lengan dan hanya muncul saat `hiding`/`peeking`.
+Lengan digambar paling akhir supaya bisa menutupi layar wajah. Pose menutup (`hiding`/`peeking`) adalah
+bentuk tetap (lengan terangkat + telapak di depan mata) yang muncul lewat opacity dan sedikit naik; lengan
+yang menggantung memudar. Tidak ada stroke yang meregang, jadi robot boleh diskalakan dengan cara apa pun.
+Saat tab tidak aktif robot memberi kelas `robot--paused` dan semua animasinya berhenti.
 
 | `mood` | Mata | Mulut | Antena | Gerak |
 |---|---|---|---|---|
@@ -335,8 +340,9 @@ napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
 
 ### ViewfinderCursor — `src/components/effects/ViewfinderCursor.jsx`
 
-- Crosshair 23 px dengan koordinat mono (`X 0412  Y 0233`) dan `mix-blend-mode: difference`, supaya terbaca
-  di latar terang maupun gelap.
+- Crosshair minimalis 19 px dengan titik tengah 3 px, **tanpa koordinat**, dan `mix-blend-mode:
+  difference` supaya terbaca di latar terang maupun gelap. Saat bracket mengunci elemen, garis crosshair
+  menyusut dan hanya titik tengah yang tersisa (tidak menimpa teks tombol).
 - Hover pada `a[href], button, input, select, textarea, [role=button], [data-cursor-lock]` membuat 4 bracket
   (`--ds-focus-ring`, jarak 6 px) mengunci elemen. Bracket mengikuti tema elemen yang dikunci.
 - Kolom teks: crosshair disembunyikan, kursor teks bawaan tampil, bracket tetap mengunci.
@@ -356,12 +362,17 @@ napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
 - Dua lapis grid dari gradien CSS: grid utama 64 px dan sub-grid 16 px. Tanda crosshair (+) di beberapa
   persimpangan utama berasal dari **satu** mask SVG 256 px yang diulang (warna dari token), bukan elemen
   terpisah per tanda.
-- `variant="busy"` (login, publik): grid dan tanda bergeser 256 px per 128 dtk, dan 3 garis ukur ber-label
-  (panjang kelipatan 16 px) tergambar sendiri bergiliran (siklus 12 dtk).
+- `variant="busy"` (login, publik): grid dan tanda bergeser 256 px per 128 dtk, ditambah:
+  - **jalur sirkuit** tipis bersudut siku di garis sub-grid 16 px (satu mask SVG 512 px yang diulang);
+  - **cahaya mengalir** di jalur: lapisan bergradien yang hanya digeser (transform, 9 dtk mendatar /
+    11 dtk tegak) di balik mask segmen mendatar/tegak; periode 384/448 px sengaja berbeda dari ubin;
+  - **titik persimpangan** utama yang berpendar bergantian (dua set dengan fase opacity berlawanan).
+  Semua berbasis ubin, jadi cocok untuk area lebar (publik), dan cukup samar sehingga tidak bersaing dengan
+  isi. Tidak ada lagi garis ukur berangka.
 - `variant="calm"` (admin): grid diam dan satu garis pindai turun per 10 dtk.
 - Berhenti (`animation-play-state: paused`) saat tab tersembunyi (`visibilitychange`) atau elemen di luar
-  layar (IntersectionObserver). Reduced motion: diam, garis ukur tampil penuh. `forced-colors`:
-  disembunyikan.
+  layar (IntersectionObserver). Reduced motion: grid dan jalur diam, cahaya mengalir disembunyikan, titik
+  tidak berdenyut. `forced-colors`: disembunyikan.
 
 ### ShutterTransition — `src/components/effects/ShutterTransition.jsx`
 

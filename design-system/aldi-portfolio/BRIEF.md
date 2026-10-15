@@ -9,22 +9,24 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
 - **Design system:** "Blueprint" (token di `src/index.css`, dokumentasi di `design-system/`).
 - **Logo:** `public/logo.svg`. Monogram geometris bergaya stensil. Setiap potongan logo
   harus menjadi `<path>` terpisah supaya bisa dianimasikan (merakit diri).
-- **Kursor viewfinder:** crosshair kecil dengan koordinat, berubah menjadi bracket yang
-  mengunci elemen interaktif saat hover. Dipakai **penuh di semua halaman**.
+- **Kursor viewfinder:** crosshair minimalis dengan titik tengah, **tanpa koordinat**,
+  berubah menjadi bracket yang mengunci elemen interaktif saat hover. Dipakai **penuh di semua
+  halaman**.
   - Hanya aktif bila `(hover: hover) and (pointer: fine)`; di HP memakai perilaku bawaan.
   - Di kolom teks kembali ke kursor teks biasa.
   - Elemen yang difokus lewat keyboard juga mendapat bracket.
   - Bila `prefers-reduced-motion`: kursor biasa, bracket tanpa animasi.
 - **Background blueprint:**
-  - `busy` untuk login dan publik: grid bergeser pelan, garis ukur yang tergambar sendiri,
-    tanda crosshair kecil.
+  - `busy` untuk login dan publik: grid bergeser pelan, jalur sirkuit tipis bersudut siku
+    dengan cahaya yang mengalir pelan, titik persimpangan grid yang berpendar bergantian, dan
+    tanda crosshair kecil. Tidak ada lagi garis ukur berangka.
   - `calm` untuk admin: grid tipis diam dan satu garis pindai yang turun perlahan.
   - Pilihan `calm` untuk admin masih bisa berubah nanti.
 - **Orisinalitas:** dua situs referensi (irfansabrian.vercel.app dan styfensagala.vercel.app)
   hanya sumber inspirasi. Jangan menyalin tata letak khasnya: sidebar bernomor dan garis
   kontur (Irfan), stiker pil miring dengan bayangan tegas dan karakter gumpalan hitam
-  (Styfen). Ciri khas kita: logo yang merakit diri, transisi jepret, maskot sendiri, garis
-  ukur blueprint, label bergaya tag blueprint.
+  (Styfen). Ciri khas kita: logo yang merakit diri, transisi jepret, maskot sendiri, jalur
+  sirkuit blueprint, label bergaya tag blueprint.
 
 ## 2. Bahasa dan teks
 
