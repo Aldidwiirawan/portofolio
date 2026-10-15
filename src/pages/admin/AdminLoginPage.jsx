@@ -20,6 +20,16 @@ const SUCCESS_HOLD_MS = 450 // robot celebrates before the shutter starts
 const ERROR_MOOD_MS = 2000
 const SHAKE_MS = 400
 
+// Status badge under the robot (decorative; errors are announced by the alert region)
+const ROBOT_STATUS = {
+  idle: 'Siap',
+  watching: 'Membaca email',
+  hiding: 'Mata ditutup',
+  peeking: 'Mengintip sedikit',
+  error: 'Coba lagi',
+  success: 'Berhasil masuk',
+}
+
 // Supabase Auth returns raw English messages and the auth logic uses technical Indonesian.
 // Both are mapped to plain Indonesian at render time; any other message is shown as-is.
 const FRIENDLY_AUTH_ERRORS = [
@@ -173,6 +183,22 @@ function useLoginExitNavigate(onExitStart) {
   }, [])
 }
 
+/** Schematic docking pedestal the robot stands on in the brand panel (decorative). */
+function DockPedestal() {
+  return (
+    <svg className="admin-login-dock" viewBox="0 0 280 72" aria-hidden="true" focusable="false">
+      <path className="admin-login-dock-line" d="M92 30L78 54M188 30L202 54" />
+      <path className="admin-login-dock-plate" d="M56 16V24A84 11 0 0 0 224 24V16" />
+      <ellipse className="admin-login-dock-plate" cx="140" cy="16" rx="84" ry="11" />
+      <ellipse className="admin-login-dock-ring" cx="140" cy="16" rx="58" ry="7" />
+      <path className="admin-login-dock-line" d="M24 54H256M24 49V59M256 49V59M140 51V57" />
+      <text className="admin-login-dock-label" x="148" y="68">
+        DOK-01
+      </text>
+    </svg>
+  )
+}
+
 /**
  * Light page shell shared by the session check and the form, so the layout does not jump
  * when the check finishes. The robot sits in the dark brand panel on wide screens and above
@@ -191,8 +217,15 @@ function AdminLoginShell({ children, robot }) {
             <p className="admin-login-brand-name">Aldi Dwi Irawan</p>
           </div>
           {isWide && (
-            <div className="admin-login-robot admin-login-robot--panel">
-              <RobotMascot {...robot} size={240} />
+            <div className="admin-login-stage" data-mood={robot.mood}>
+              <div className="admin-login-robot admin-login-robot--panel">
+                <RobotMascot {...robot} size={240} />
+              </div>
+              <DockPedestal />
+              <p className="admin-login-status" aria-hidden="true">
+                <span className="admin-login-status-dot" />
+                {ROBOT_STATUS[robot.mood] || ROBOT_STATUS.idle}
+              </p>
             </div>
           )}
         </div>

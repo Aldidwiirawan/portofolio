@@ -1,23 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import './BlueprintBackground.css'
 
-// Measure lines (busy): position in % of the area, length in px, label in mono
+// Measure lines (busy): position in % of the area, length in px (multiples of the 16 px sub-grid)
 const MEASURES = [
-  { id: 'm1', axis: 'x', top: '6%', left: '4%', length: 96, label: '96' },
-  { id: 'm2', axis: 'y', top: '34%', right: '6%', length: 152, label: '152' },
-  { id: 'm3', axis: 'x', bottom: '11%', left: '18%', length: 208, label: '208' },
+  { id: 'm1', axis: 'x', top: '6%', left: '4%', length: 96 },
+  { id: 'm2', axis: 'y', top: '34%', right: '6%', length: 160 },
+  { id: 'm3', axis: 'x', bottom: '11%', left: '18%', length: 192 },
 ]
 
-// Small crosshair marks (busy)
-const MARKS = [
-  { id: 'c1', top: '9%', left: '20%' },
-  { id: 'c2', top: '26%', left: '88%' },
-  { id: 'c3', top: '62%', left: '5%' },
-  { id: 'c4', top: '84%', left: '72%' },
-  { id: 'c5', top: '48%', left: '52%' },
-]
-
-function Measure({ axis, length, label, style }) {
+function Measure({ axis, length, style }) {
   const horizontal = axis === 'x'
   const w = horizontal ? length : 28
   const h = horizontal ? 28 : length
@@ -30,7 +21,7 @@ function Measure({ axis, length, label, style }) {
       <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} overflow="visible">
         <path className="bp-measure-line" d={d} pathLength="1" />
       </svg>
-      <span className="bp-measure-label">{label}</span>
+      <span className="bp-measure-label">{length}</span>
     </div>
   )
 }
@@ -38,8 +29,11 @@ function Measure({ axis, length, label, style }) {
 /**
  * Decorative blueprint backdrop. Place it as the first child of a positioned container.
  *
- * - `busy`: the grid drifts slowly, measure lines draw themselves one after another, small
- *   crosshair marks pulse. Used on the login and public pages.
+ * Two grid layers drawn with CSS gradients (main grid every 64 px, fine sub-grid every 16 px) plus
+ * registration marks on some main intersections, drawn by one repeating SVG mask. No per-cell DOM.
+ *
+ * - `busy`: the grid drifts slowly and measure lines draw themselves one after another.
+ *   Used on the login and public pages.
  * - `calm`: still grid with one slow scan line. Used in the admin panel.
  *
  * Animations pause while the tab is hidden or the backdrop is scrolled out of view, and stop
@@ -80,20 +74,14 @@ function BlueprintBackground({ variant = 'busy', className = '' }) {
       </div>
 
       {isBusy ? (
-        <>
-          {MEASURES.map(({ id, axis, length, label, ...pos }, index) => (
-            <Measure
-              key={id}
-              axis={axis}
-              length={length}
-              label={label}
-              style={{ ...pos, '--bp-delay': `${index * 4}s` }}
-            />
-          ))}
-          {MARKS.map(({ id, ...pos }) => (
-            <span key={id} className="bp-mark" style={pos} />
-          ))}
-        </>
+        MEASURES.map(({ id, axis, length, ...pos }, index) => (
+          <Measure
+            key={id}
+            axis={axis}
+            length={length}
+            style={{ ...pos, '--bp-delay': `${index * 4}s` }}
+          />
+        ))
       ) : (
         <div className="bp-scan" />
       )}

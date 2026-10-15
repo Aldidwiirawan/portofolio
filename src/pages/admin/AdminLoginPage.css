@@ -7,20 +7,30 @@
    stylesheet sendiri; file ini hanya mengatur tata letaknya di halaman login.
    ========================================================================== */
 
-/* Latar dokumen ikut terang selama halaman login tampil (overscroll, scrollbar). */
+/* Latar dokumen ikut terang selama halaman login tampil (overscroll, scrollbar).
+   Nilainya sama dengan --ds-inset tema terang (latar area form). */
 html:has(.admin-login-page) {
   color-scheme: light;
-  background-color: var(--palette-slate-75);
+  background-color: var(--palette-slate-100);
 }
 
 html:has(.admin-login-page) body {
-  background-color: var(--palette-slate-75);
+  background-color: var(--palette-slate-100);
+}
+
+/* Warna pendar robot dianimasikan, jadi didaftarkan sebagai <color> */
+@property --login-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
 }
 
 .admin-login-page {
   /* Component tokens */
   --login-card-padding: var(--space-6);
   --login-card-max: 27.5rem;
+  --login-corner-size: 18px;
+  --login-corner-weight: 2px;
 
   min-height: 100vh;
   min-height: 100dvh;
@@ -38,17 +48,24 @@ html:has(.admin-login-page) body {
    -------------------------------------------------------------------------- */
 
 .admin-login-brand {
+  --login-panel-line: color-mix(in srgb, var(--ds-text-strong) 7%, transparent);
+  --login-panel-line-minor: color-mix(in srgb, var(--ds-text-strong) 3%, transparent);
+
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   padding: var(--space-4);
   background-color: var(--ds-canvas);
+  /* Glow brand + grid teknis tipis (64 px utama, 16 px halus) */
   background-image:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--ds-brand-from) 22%, transparent), transparent 60%),
-    radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--ds-brand-to) 16%, transparent), transparent 60%),
-    radial-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px);
-  background-size: auto, auto, 20px 20px;
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--ds-brand-from) 18%, transparent), transparent 60%),
+    radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--ds-brand-to) 12%, transparent), transparent 60%),
+    linear-gradient(var(--login-panel-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--login-panel-line) 1px, transparent 1px),
+    linear-gradient(var(--login-panel-line-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--login-panel-line-minor) 1px, transparent 1px);
+  background-size: auto, auto, 64px 64px, 64px 64px, 16px 16px, 16px 16px;
   border-bottom: 1px solid var(--ds-border);
   color: var(--ds-text);
 }
@@ -94,6 +111,8 @@ html:has(.admin-login-page) body {
   position: relative;
   isolation: isolate;
   flex: 1;
+  /* Sedikit lebih gelap dari kartu (--ds-surface), supaya kartu langsung menonjol */
+  background-color: var(--ds-inset);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -482,7 +501,16 @@ html:has(.admin-login-page) body {
     padding: var(--space-12);
     border-bottom: 0;
     border-right: 1px solid var(--ds-border);
-    background-size: auto, auto, 24px 24px;
+  }
+
+  /* Bracket ornamen di keempat sudut panel */
+  .admin-login-brand::after {
+    --login-corner-color: color-mix(in srgb, var(--ds-brand-from) 70%, transparent);
+
+    content: '';
+    position: absolute;
+    inset: var(--space-5);
+    pointer-events: none;
   }
 
   .admin-login-brand-inner {
@@ -509,14 +537,135 @@ html:has(.admin-login-page) body {
     line-height: var(--ds-lh-tight);
   }
 
-  .admin-login-robot--panel {
+  /* Panggung robot: pendar sesuai mood, pijakan skematik, badge status */
+  .admin-login-stage {
+    --login-glow: var(--ds-focus-ring);
+
+    position: relative;
     flex: 1;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    transition: --login-glow 400ms var(--ds-ease-out);
+  }
+
+  .admin-login-stage[data-mood='error'] {
+    --login-glow: var(--ds-danger-border);
+  }
+
+  .admin-login-stage[data-mood='success'] {
+    --login-glow: var(--ds-brand-to);
+  }
+
+  .admin-login-stage::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 26rem;
+    height: 26rem;
+    margin: -14.5rem 0 0 -13rem;
+    border-radius: 50%;
+    /* Inti pendar lebar karena bagian tengahnya tertutup badan robot */
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--login-glow) 42%, transparent),
+      color-mix(in srgb, var(--login-glow) 24%, transparent) 55%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  .admin-login-robot--panel {
+    position: relative;
+    z-index: 1;
+  }
+
+  .admin-login-dock {
+    display: block;
+    width: 17.5rem;
+    height: auto;
+    margin-top: -22px;
+    color: var(--ds-text-muted);
+  }
+
+  .admin-login-dock-plate {
+    fill: var(--ds-surface);
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  .admin-login-dock-ring {
+    fill: none;
+    stroke: var(--ds-brand-from);
+    stroke-width: 1.25;
+    stroke-dasharray: 4 4;
+    opacity: 0.8;
+  }
+
+  .admin-login-dock-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.25;
+    opacity: 0.7;
+  }
+
+  .admin-login-dock-label {
+    fill: currentColor;
+    font-family: var(--ds-font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+
+  .admin-login-status {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    padding: 0.3125rem 0.75rem;
+    border: 1px solid var(--ds-border);
+    border-radius: 2px;
+    background-color: color-mix(in srgb, var(--ds-surface) 85%, transparent);
+    color: var(--ds-text-muted);
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-fs-xs);
+    font-weight: var(--ds-fw-semibold);
+    letter-spacing: var(--ds-tracking-wide);
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .admin-login-status-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background-color: var(--login-glow);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--login-glow) 25%, transparent);
   }
 
   .admin-login-main {
     padding: var(--space-12);
   }
+}
+
+/* Ornamen bracket 4 sudut: 8 batang gradien pada satu pseudo-element.
+   Atur lewat --login-corner-color, --login-corner-size, --login-corner-weight. */
+.admin-login-brand::after {
+  --c: var(--login-corner-color);
+  --s: var(--login-corner-size);
+  --w: var(--login-corner-weight);
+
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--s) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--s) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--s) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--s) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--s) no-repeat;
 }
 
 /* --------------------------------------------------------------------------
@@ -552,6 +701,10 @@ html:has(.admin-login-page) body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .admin-login-stage {
+    transition: none;
+  }
+
   .admin-login-card,
   .admin-login-card--shake {
     animation: none;

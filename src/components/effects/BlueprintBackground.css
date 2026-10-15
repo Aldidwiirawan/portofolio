@@ -2,8 +2,9 @@
    position + isolation; lapisan ini berada di z-index -1 dan tidak menangkap klik. */
 
 .bp-bg {
-  --bp-line: color-mix(in srgb, var(--ds-text-strong) 6%, transparent);
-  --bp-line-major: color-mix(in srgb, var(--ds-text-strong) 10%, transparent);
+  --bp-line: color-mix(in srgb, var(--ds-text-strong) 5%, transparent);
+  --bp-line-major: color-mix(in srgb, var(--ds-text-strong) 11%, transparent);
+  --bp-mark: color-mix(in srgb, var(--ds-accent-text) 50%, transparent);
   --bp-ink: color-mix(in srgb, var(--ds-accent-text) 55%, transparent);
   --bp-label: var(--ds-text-subtle);
   --bp-cycle: 12s;
@@ -23,30 +24,43 @@
   mask-image: radial-gradient(ellipse at 50% 45%, #000 30%, transparent 80%);
 }
 
-/* Lebih besar 128 px di tiap sisi supaya pergeseran satu periode (128 px) tetap menutup area */
+/* Dua lapis: grid utama 64 px dan sub-grid 16 px. Lebih besar 256 px di tiap sisi supaya
+   pergeseran satu periode pola tanda (256 px) tetap menutup area. */
 .bp-grid {
   position: absolute;
-  inset: -128px;
+  inset: -256px;
   background-image:
     linear-gradient(var(--bp-line-major) 1px, transparent 1px),
     linear-gradient(90deg, var(--bp-line-major) 1px, transparent 1px),
     linear-gradient(var(--bp-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
   background-size:
-    128px 128px,
-    128px 128px,
-    32px 32px,
-    32px 32px;
+    64px 64px,
+    64px 64px,
+    16px 16px,
+    16px 16px;
+}
+
+/* Tanda crosshair (+) di beberapa persimpangan utama: satu mask SVG 256 px yang
+   diulang, diwarnai token lewat background-color. Ikut bergeser bersama grid. */
+.bp-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--bp-mark);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M57.5 64.5h14M64.5 57.5v14M185.5 128.5h14M192.5 121.5v14M121.5 192.5h14M128.5 185.5v14'/%3E%3C/svg%3E");
+  mask-size: 256px 256px;
+  mask-repeat: repeat;
 }
 
 .bp-bg--busy .bp-grid {
-  animation: bp-drift 64s linear infinite;
+  animation: bp-drift 128s linear infinite;
   will-change: transform;
 }
 
 @keyframes bp-drift {
   to {
-    transform: translate3d(128px, 128px, 0);
+    transform: translate3d(256px, 256px, 0);
   }
 }
 
@@ -123,32 +137,6 @@
   82%,
   100% {
     opacity: 0;
-  }
-}
-
-/* --- Tanda crosshair kecil (busy) ---------------------------------------- */
-
-.bp-mark {
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  margin: -5.5px 0 0 -5.5px;
-  color: var(--bp-ink);
-  background:
-    linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
-    linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
-  opacity: 0.35;
-  animation: bp-pulse 5s ease-in-out infinite alternate;
-}
-
-.bp-mark:nth-of-type(2) { animation-delay: -1.2s; }
-.bp-mark:nth-of-type(3) { animation-delay: -2.4s; }
-.bp-mark:nth-of-type(4) { animation-delay: -3.6s; }
-.bp-mark:nth-of-type(5) { animation-delay: -4.8s; }
-
-@keyframes bp-pulse {
-  to {
-    opacity: 0.8;
   }
 }
 
