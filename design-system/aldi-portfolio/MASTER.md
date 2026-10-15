@@ -2,13 +2,14 @@
 
 > **LOGIKA:** Saat membangun sebuah halaman, cek dulu `design-system/aldi-portfolio/pages/[nama-halaman].md`.
 > Jika file itu ada, aturannya **menimpa** file Master ini. Jika tidak ada, ikuti aturan di bawah.
+> **Acuan utama:** `design-system/aldi-portfolio/BRIEF.md`. Bila ada yang bertentangan, brief yang dipakai.
 
 ---
 
 **Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
 **Versi:** v1 · 15 Oktober 2026
-**Status penerapan:** token & font sudah ada di kode; dipakai oleh `/admin/login` (tahap 1).
-Panel admin (tahap 2) dan halaman publik (tahap 3) masih memakai token lama.
+**Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode; dipakai oleh
+`/admin/login` (tahap 1). Panel admin (tahap 2) dan halaman publik (tahap 3) masih memakai token lama.
 **Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
 
 ### Asal-usul & kurasi
@@ -162,6 +163,9 @@ Rasio kontras dihitung terhadap latar tempat token itu dipakai (WCAG 2.x). Teks 
 - Maksimal 1–2 elemen bergerak per layar. Animasi keluar lebih cepat dari animasi masuk.
 - Saat `prefers-reduced-motion: reduce`, durasi `--ds-*` otomatis menjadi 0. Animasi tak hingga (spinner)
   wajib dimatikan eksplisit di CSS komponen, dengan teks status tetap tampil.
+- **Pengecualian dari BRIEF:** komponen identitas (§13) boleh bergerak terus-menerus (grid bergeser, garis
+  ukur, kedip robot), dengan syarat: hanya `transform`/`opacity`/`stroke-dashoffset`, berhenti saat tab
+  tersembunyi atau elemen di luar layar, dan diam total saat reduced motion.
 
 ## 7. Komponen dasar (spesifikasi state)
 
@@ -187,7 +191,7 @@ stylesheet bersama untuk dipakai halaman admin.
   pesan. Field terkait diberi `aria-describedby` ke region itu. Error autentikasi tidak menunjuk field
   tertentu, supaya tidak membocorkan field mana yang salah.
 - Saat submit berjalan, pakai `aria-disabled` + guard (bukan `disabled`) agar fokus keyboard tidak hilang.
-  Fokus tetap di tempatnya setelah submit gagal.
+  Setelah submit gagal, fokus diarahkan ke field yang paling mungkin diperbaiki (di login: Kata sandi).
 - Pesan mentah dari Supabase (bahasa Inggris) dipetakan ke kalimat Indonesia yang menjelaskan sebab dan
   langkah berikutnya.
 
@@ -258,6 +262,9 @@ Setelah sebuah halaman selesai dimigrasi, token lama yang tidak lagi dipakai bol
 - ❌ Gradien brand untuk teks isi atau latar tombol.
 - ❌ Hover yang menggeser layout, atau animasi `width/height/top/left`.
 - ❌ Migrasi ke Tailwind atau menambah framework UI tanpa persetujuan pemilik project.
+- ❌ Efek dekoratif yang menangkap klik, mengambil fokus, terbaca screen reader, atau tetap bergerak saat
+  reduced motion / tab tersembunyi.
+- ❌ Menyalin tata letak khas situs referensi (lihat BRIEF §1 "Orisinalitas").
 
 ## 12. Pre-delivery checklist
 
@@ -268,4 +275,96 @@ Setelah sebuah halaman selesai dimigrasi, token lama yang tidak lagi dipakai bol
 - [ ] Kontras dihitung dari computed style (bukan ditebak).
 - [ ] Reduced motion diuji (emulasi `prefers-reduced-motion: reduce`).
 - [ ] Halaman lain tidak berubah (bandingkan computed style/tinggi section dengan baseline).
-- [ ] Screenshot sebelum/sesudah disimpan di `screenshots/<halaman>/`.
+- [ ] Screenshot sebelum/sesudah ditunjukkan di laporan. Sejak 15 Okt 2026 screenshot halaman tidak
+      di-commit (keputusan pemilik); pemeriksaan logo tetap di `screenshots/logo-check/`.
+
+## 13. Identitas & komponen brand (BRIEF tahap 1)
+
+Komponen bersama, siap dipakai ulang di admin (tahap 2) dan publik (tahap 3). Semua hanya memakai token
+`--ds-*` dan mengikuti tema tempat komponen berada.
+
+### Token tambahan (sama di kedua tema)
+
+| Token | Nilai | Kegunaan |
+|---|---|---|
+| `--ds-screen` | `navy-950` | layar wajah robot (selalu gelap) |
+| `--ds-screen-ink` | `sky-400` | mata, mulut, lampu antena robot |
+| `--ds-z-shutter` / `--ds-z-cursor` | 900 / 1000 | lapisan overlay transisi dan kursor |
+
+Util UI: `src/lib/useMediaQuery.js` berisi `useMediaQuery(query)`, `usePrefersReducedMotion()`, dan
+`prefersReducedMotion()` (untuk handler/timer).
+
+### Logo — `src/components/brand/Logo.jsx`
+
+- Sumber bentuk: `public/logo.svg` (grid 16 unit di viewBox 512, 8 `<path>`). Data path disalin di
+  `logoGeometry.js` dan wajib identik; pemeriksaan otomatis membandingkan keduanya.
+- Props: `size` (px), `title` (tanpa title berarti `aria-hidden`), `assemble`, sisa props ke `<svg>`
+  (bisa bersarang di SVG lain lewat `x`/`y`). Warna mengikuti `currentColor`.
+- `assemble`: tiap potongan meluncur dari arahnya sendiri (600 ms, jeda 25 ms per potongan, ±0.75 dtk
+  total). Mati saat reduced motion. Ganti `key` untuk memutar ulang.
+- **Ukuran tajam:** pakai kelipatan 64 px (semua garis grid jatuh di piksel). Di kelipatan ganjil 32 px
+  (32, 96) viewBox otomatis digeser 8 unit supaya tepi tegak tetap di piksel. Di bawah 24 px pakai
+  `public/favicon.svg` (versi sederhana grid 16 px).
+- Favicon dan ikon: `favicon.svg` (terang/gelap lewat `prefers-color-scheme` di dalam SVG),
+  `apple-touch-icon.png` 180, `icon-512.png` (di `site.webmanifest`). Rincian di
+  `screenshots/logo-check/metrics.md`.
+
+### RobotMascot ("a+") — `src/components/brand/RobotMascot.jsx`
+
+Desain orisinal: kepala kotak dengan layar wajah, antena berupa 4 bracket dengan lampu, badan kecil dengan
+`<Logo>` di dada, lengan dan kaki pendek, garis 4 unit. Garis `--ds-text-strong`, badan `--ds-surface`,
+layar `--ds-screen`. Selalu `aria-hidden`.
+
+| `mood` | Mata | Mulut | Antena | Gerak |
+|---|---|---|---|---|
+| `idle` | terbuka | senyum kecil | lampu sky | kedip acak 3–6 dtk |
+| `watching` | terbuka, mengikuti `lookAt` (-1..1) | datar | lampu sky | kepala miring ±4° ke arah pandang, kedip |
+| `hiding` | tertutup | datar | bracket menyempit 5 | — |
+| `peeking` | satu mata terbuka | senyum miring | bracket menyempit 3 | — |
+| `error` | X | sedih | lampu `--ds-danger-border` | menggeleng 520 ms |
+| `success` | senang (^ ^) | senyum lebar | lampu `--ds-brand-to`, bracket melebar 5 | lompat 560 ms, tangan terangkat |
+
+Props lain: `size` (lebar px, tinggi 1.2×) dan `cue` (ubah nilainya untuk memutar ulang gelengan atau
+lompatan). Reduced motion: hanya wajah yang berganti; tanpa kedip, lirikan, kemiringan, gelengan, atau
+lompatan.
+
+### ViewfinderCursor — `src/components/effects/ViewfinderCursor.jsx`
+
+- Crosshair 23 px dengan koordinat mono (`X 0412  Y 0233`) dan `mix-blend-mode: difference`, supaya terbaca
+  di latar terang maupun gelap.
+- Hover pada `a[href], button, input, select, textarea, [role=button], [data-cursor-lock]` membuat 4 bracket
+  (`--ds-focus-ring`, jarak 6 px) mengunci elemen. Bracket mengikuti tema elemen yang dikunci.
+- Kolom teks: crosshair disembunyikan, kursor teks bawaan tampil, bracket tetap mengunci.
+- Keyboard: elemen yang fokus dengan `:focus-visible` mendapat bracket; crosshair disembunyikan selama
+  navigasi keyboard.
+- Aktif hanya bila `(hover: hover) and (pointer: fine)` dan bukan `forced-colors`. Kursor bawaan
+  disembunyikan lewat kelas `html.vf-cursor-active`, yang dilepas saat komponen dilepas.
+- Performa: satu listener `pointermove` pasif, render lewat rAF, posisi hanya lewat `transform`. rAF
+  berjalan terus hanya selama bracket mengunci elemen, untuk mengikuti pergeseran layout.
+- Reduced motion: kursor bawaan tetap, tanpa crosshair, bracket berpindah tanpa animasi.
+- Dirender lewat portal di `<body>`, `aria-hidden`, `pointer-events: none`.
+
+### BlueprintBackground — `src/components/effects/BlueprintBackground.jsx`
+
+- Letakkan sebagai anak pertama container yang punya `position` + `isolation`. Lapisan berada di
+  `z-index: -1`.
+- `variant="busy"` (login, publik): grid 32/128 px bergeser 128 px per 64 dtk, 3 garis ukur ber-label yang
+  tergambar sendiri bergiliran (siklus 12 dtk), dan 5 tanda crosshair berdenyut.
+- `variant="calm"` (admin): grid diam dan satu garis pindai turun per 10 dtk.
+- Berhenti (`animation-play-state: paused`) saat tab tersembunyi (`visibilitychange`) atau elemen di luar
+  layar (IntersectionObserver). Reduced motion: diam, garis ukur tampil penuh. `forced-colors`:
+  disembunyikan.
+
+### ShutterTransition — `src/components/effects/ShutterTransition.jsx`
+
+- `<ShutterProvider>` dipasang sekali di `App.jsx`, **di luar `<Suspense>`**, supaya overlay bertahan saat
+  halaman tujuan dimuat. Halaman memanggil `useShutter().runShutter({ onCovered, isReady, message,
+  focusSelector })` dari `shutterContext.js`.
+- Linimasa: bracket dari sudut layar menyempit ke kotak 168 px (0–280 ms) → logo 128 px merakit (mulai
+  100 ms) → dua tirai atas/bawah menutup (340–600 ms) → `onCovered()` (navigasi) + kilatan halus 120 ms →
+  menunggu `isReady()` (maks 2.5 dtk; logo tetap tampil sebagai pemuat) → tirai membuka 280 ms. Animasinya
+  sendiri ±1.0 dtk, ditambah waktu muat halaman tujuan.
+- Klik atau Escape melewati transisi: navigasi tetap terjadi dan overlay langsung hilang.
+- Setelah selesai, fokus pindah ke `focusSelector` (bawaan `h1`) dengan `tabindex="-1"` sementara. Region
+  `role="status"` mengumumkan `message`. Overlay `aria-hidden` dan tidak mengambil fokus.
+- Reduced motion: tanpa overlay; navigasi langsung, fokus tetap dipindah ke `h1` tujuan.

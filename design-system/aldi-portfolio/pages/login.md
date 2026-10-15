@@ -1,10 +1,11 @@
 # Override Halaman: Login Admin (`/admin/login`)
 
-> **PROJECT:** Aldi Portfolio · **Diperbarui:** 15 Oktober 2026 (tahap 1 selesai)
+> **PROJECT:** Aldi Portfolio · **Diperbarui:** 15 Oktober 2026 (tahap 1 lanjutan sesuai BRIEF)
 > ⚠️ Aturan di file ini **menimpa** `design-system/aldi-portfolio/MASTER.md`. Hal yang tidak disebut di sini
-> mengikuti Master.
+> mengikuti Master. `BRIEF.md` tetap acuan utama.
 
-Implementasi: `src/pages/admin/AdminLoginPage.jsx` + `AdminLoginPage.css`.
+Implementasi: `src/pages/admin/AdminLoginPage.jsx` + `AdminLoginPage.css`. Komponen brand/efek yang dipakai
+dijelaskan di Master §13.
 
 ---
 
@@ -21,73 +22,105 @@ Implementasi: `src/pages/admin/AdminLoginPage.jsx` + `AdminLoginPage.css`.
 
 | Lebar | Susunan |
 |---|---|
-| < 768px | Bar brand gelap ringkas di atas (monogram 36px + nama), kartu form selebar layar dengan gutter 16px, padding kartu 24px, `shadow-sm` |
-| 768–1023px | Bar brand sama, kartu maks 440px di tengah, padding 40px, `shadow-md` |
-| ≥ 1024px | Grid 2 kolom `5fr / 7fr`. Kiri: panel brand gelap setinggi layar (grid titik, glow sky/emerald, monogram 56px, nama 30px, garis gradien). Kanan: kartu di tengah vertikal |
+| < 768px | Bar brand gelap ringkas (`<Logo>` 32 px + nama). Di area form: robot 104 px di tengah **di atas** kartu (tidak menutupi form), lalu kartu selebar layar dengan gutter 16 px, padding 24 px |
+| 768–1023px | Sama, kartu maks 440 px di tengah, padding 40 px, `shadow-md` |
+| ≥ 1024px | Grid 2 kolom `5fr / 7fr`. Kiri: panel brand gelap (grid titik, glow sky/emerald, `<Logo assemble>` 64 px + nama 30 px di atas, robot 240 px di tengah sisa tinggi). Kanan: kartu di tengah vertikal |
 
-- Latar area form memakai grid garis 32px yang memudar ke tepi (`mask-image`), sebagai nuansa "blueprint".
-- Tampilan cek sesi ("Memeriksa status login...") memakai kerangka yang sama (`AdminLoginShell`), sehingga
-  tidak ada kilasan tema gelap atau lompatan layout ketika form muncul.
+- Robot dirender di satu tempat saja sesuai `useMediaQuery('(min-width: 1024px)')`.
+- Area form memakai `<BlueprintBackground variant="busy" />` (menggantikan grid statis lama).
+- `<ViewfinderCursor />` aktif di seluruh halaman (hanya untuk pointer halus).
+- Tampilan cek sesi ("Memeriksa status masuk...") memakai kerangka yang sama (`AdminLoginShell`), termasuk
+  robot, sehingga tidak ada lompatan layout ketika form muncul.
+
+## Robot dan form
+
+| Kejadian | `mood` robot | Lainnya |
+|---|---|---|
+| Halaman tampil / fokus di luar field | `idle` | — |
+| Fokus atau mengetik di Email | `watching` | `lookAt` dari lebar teks (canvas `measureText`) dibagi lebar isi field, -1..1 |
+| Fokus di Kata sandi (field atau tombol tampilkan) | `hiding` | — |
+| Sama, dengan "Tampilkan kata sandi" aktif | `peeking` | — |
+| Submit selesai dengan pesan error | `error` selama 2 dtk | kartu bergetar 400 ms, fokus dipindah ke Kata sandi |
+| Login berhasil (form, listener auth, atau sesi admin yang sudah ada) | `success` | 450 ms kemudian transisi jepret ke tujuan |
+
+- Semua state di atas murni tampilan. Blok logika auth (`useEffect` cek sesi + listener, `handleSubmit`,
+  `handleNonAdminSignOut`) identik dengan versi sebelumnya (diverifikasi dengan diff).
+- Satu-satunya perubahan alur: `navigate` diganti `useLoginExitNavigate()`. Panggilan pertama memulai urutan
+  keluar (robot sukses → `runShutter` → navigasi di balik tirai). Panggilan berikutnya diabaikan, karena cek
+  sesi, listener auth, dan form bisa sama-sama memanggil `navigate` saat sukses.
+- Tirai membuka bila path tujuan aktif, `h1` tujuan ada (bukan `h1` login), dan tidak ada
+  `.admin-auth-loading`. Fokus lalu dipindah ke `h1` tujuan.
+
+## Teks (bahasa sederhana)
+
+| Elemen | Teks |
+|---|---|
+| `document.title` | "Masuk · Aldi Dwi Irawan" (judul lama dipulihkan saat keluar halaman) |
+| Badge | "Kelola isi portofolio" |
+| Judul `h1` | "Masuk" |
+| Subtitle | "Masuk dengan akun pemilik untuk mengelola isi portofolio dan pesan masuk." |
+| Label | "Email" (placeholder "nama@email.com") dan "Kata sandi" (tanpa placeholder) |
+| Tombol tampilkan | `aria-label` "Tampilkan kata sandi" + `aria-pressed` |
+| Petunjuk | "Caps Lock aktif" (region `aria-live="polite"`, ditautkan lewat `aria-describedby`) |
+| Tombol | "Masuk"; saat proses "Sedang masuk..." |
+| Tautan | "Kembali ke beranda" |
+| Cek sesi | "Memeriksa status masuk..." |
+| Akun non-admin | "Anda masuk sebagai {email}. Keluar dulu, lalu masuk dengan akun pemilik." + tombol "Keluar dari akun ini" |
+| Status transisi | "Berhasil masuk. Membuka beranda…" (`role="status"`) |
+
+### Pemetaan pesan error (saat render; string di logika tidak diubah)
+
+| Pesan asli | Ditampilkan |
+|---|---|
+| `Invalid login credentials` | Email atau kata sandi salah. Periksa lagi, lalu coba sekali lagi. |
+| `Email not confirmed` | Email ini belum dikonfirmasi. Buka tautan konfirmasi di email Anda dulu. |
+| `Failed to fetch` / `NetworkError` / `Load failed` | Tidak bisa terhubung ke server. Periksa koneksi internet, lalu coba lagi. |
+| `rate limit` / `Too many requests` / `For security purposes…` | Terlalu banyak percobaan masuk. Tunggu beberapa menit, lalu coba lagi. |
+| "… tidak terdaftar sebagai administrator …" (form, cek sesi, dan `AdminRoute`) | Akun ini tidak punya akses untuk mengelola situs. |
+| "Gagal masuk. …" | Gagal masuk. Periksa email dan kata sandi, lalu coba lagi. |
+| "Terjadi kesalahan sistem …" | Terjadi kesalahan. Coba lagi sebentar lagi. |
+| Pesan lain | Ditampilkan apa adanya |
 
 ## Komponen di halaman ini
 
 | Elemen | Spesifikasi |
 |---|---|
-| Badge | "Portal CMS Portfolio", mono 12px uppercase, `accent-subtle` / `accent-text` |
-| Judul | `h1` "Admin Login", `clamp(26px → 30px)`, 700, tracking -0.02em |
-| Subtitle | 16px, `text-muted`, line-height 1.65 |
 | Field email | `type=email`, `name=email`, `autocomplete=email`, `inputmode=email`, `autocapitalize=none`, `spellcheck=false` |
-| Field password | `autocomplete=current-password`; paste dan password manager diizinkan; toggle show/hide 44×44 di dalam field (`aria-pressed`, `aria-controls`, label tetap "Tampilkan password") |
-| Tombol submit | 48px, lebar penuh; saat proses: spinner + "Memverifikasi...", `aria-disabled="true"`, form `aria-busy="true"`; submit ganda diblok guard |
-| Pesan error | Region `#admin-login-error` `role="alert"` selalu ada di DOM; kotak danger dengan ikon + teks; kedua field `aria-describedby` ke region saat ada pesan; fokus tidak dipindah |
-| Akun non-admin | Teks penjelasan + tombol utama "Keluar dari Akun Ini" (logika tidak berubah) |
-| Tautan kembali | "Kembali ke Halaman Utama" dengan ikon panah SVG, target 44px |
-| Motion | Kartu masuk (opacity + translateY 8px, 320ms). Reduced motion: tanpa animasi, spinner diam |
-
-### Pemetaan pesan error (saat render, logika auth tidak diubah)
-
-| Pesan mentah Supabase | Ditampilkan |
-|---|---|
-| `Invalid login credentials` | Email atau password salah. Periksa kembali, lalu coba lagi. |
-| `Email not confirmed` | Email ini belum dikonfirmasi. Buka tautan konfirmasi di kotak masuk email Anda terlebih dahulu. |
-| `Failed to fetch` / `NetworkError` / `Load failed` | Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi. |
-| `rate limit` / `Too many requests` / `For security purposes…` | Terlalu banyak percobaan masuk. Tunggu beberapa menit, lalu coba lagi. |
-| Pesan lain (termasuk pesan bahasa Indonesia yang sudah ada) | Ditampilkan apa adanya |
+| Field kata sandi | `autocomplete=current-password`; paste dan password manager diizinkan; tombol tampilkan 44×44 di dalam field |
+| Tombol submit | 48 px, lebar penuh; saat proses spinner + teks, `aria-disabled="true"`, form `aria-busy="true"`; submit ganda diblok guard |
+| Pesan error | Region `#admin-login-error` `role="alert"` selalu ada di DOM; kotak danger dengan ikon + teks; field `aria-describedby` ke region saat ada pesan |
+| Motion | Kartu masuk (opacity + translateY 8 px); getar error 400 ms (animasi masuk tetap di daftar `animation` supaya tidak diputar ulang). Reduced motion: semua mati |
 
 ## Catatan kompatibilitas
 
 - Aturan `.admin-back-link` **dipertahankan** di bagian akhir `AdminLoginPage.css`. Login tidak memakainya,
   tetapi 4 halaman admin (Achievements, Certifications, Languages, Organizations) bergantung padanya.
   Pindahkan ke stylesheet admin bersama di tahap 2.
-- Fallback `Suspense` di `App.jsx` dan loading di `AdminRoute` (`.admin-auth-loading`, tema gelap) tidak
-  diubah. Saat pertama kali membuka `/admin/login`, fallback gelap "Memuat halaman..." bisa tampil sekilas
-  sebelum chunk login dimuat. Selesaikan bersama tema terang admin di tahap 2.
+- `<ShutterProvider>` di `App.jsx` hanya pembungkus; daftar rute tidak berubah. Ia menambah satu `<p
+  role="status">` tersembunyi (kosong) di semua halaman.
+- Fallback `Suspense` dan loading `AdminRoute` (`.admin-auth-loading`, gelap) belum diubah. Saat login sukses
+  keduanya tertutup tirai transisi. Di tahap 2 keduanya ikut tema admin.
 
-## Saran perbaikan teks (BELUM diterapkan, menunggu persetujuan)
+## Verifikasi (15 Okt 2026)
 
-| Sekarang | Saran | Alasan |
-|---|---|---|
-| "Admin Login" | "Masuk Admin" | Konsisten berbahasa Indonesia |
-| "Email Admin" | "Email" | Konteks admin sudah jelas dari judul |
-| Placeholder password "••••••••" | (kosongkan) | Titik-titik bisa dikira field sudah terisi |
-| "Masuk ke Dashboard" | "Masuk" | Lebih singkat; tujuan setelah login tidak selalu dashboard (bisa halaman asal) |
-| "Akses ditolak: Akun terotentikasi ini …" | "Akses ditolak: akun ini tidak terdaftar sebagai administrator portfolio." | Ejaan baku "terautentikasi", dan kalimat lebih ringkas |
-| "Sedang login sebagai: … (Non-Admin)" | "Anda masuk sebagai … Akun ini bukan administrator." | Lebih natural |
-| `<title>` sama untuk semua halaman | "Masuk Admin · Aldi Dwi Irawan" | Judul tab per halaman (WCAG 2.4.2) |
-| — | Petunjuk "Caps Lock aktif" di field password | Mencegah salah ketik |
+Chrome headless via DevTools Protocol, di dev server `localhost:5173`. **61/61 lolos**, ditambah:
+- 375/768/1024/1440: tanpa scroll horizontal; robot tidak berpotongan dengan kartu.
+- Robot: idle → watching (pandangan -1 → -0.84 → 0.51 mengikuti panjang email) → hiding (bracket
+  menyempit) → peeking; petunjuk Caps Lock muncul dan hilang.
+- Kursor: crosshair + koordinat mengikuti pointer; bracket mengunci tombol tepat (±6 px); kolom teks memakai
+  kursor teks; tidak menangkap klik; nonaktif di 375/768 (layar sentuh); kelas `html` dilepas setelah keluar.
+- Background: grid bergeser; berhenti saat `visibilityState` disimulasikan `hidden`, lanjut saat `visible`.
+- Login salah (Supabase asli): "Sedang masuk...", pesan ramah di `role="alert"`, robot error + lampu merah,
+  kartu bergetar, fokus di Kata sandi, kembali `hiding` setelah 2 dtk.
+- Login benar (respons Supabase tiruan lewat `Fetch.enable`): success 450 ms → tirai menutup → URL `/admin`
+  berganti di balik tirai → tirai membuka setelah `h1` "Admin Portfolio CMS" tampil → fokus di `h1`.
+  Sesi admin yang sudah ada juga memicu transisi. Escape dan klik melewati transisi.
+- Keyboard penuh: Email → Kata sandi → Tampilkan → Masuk → Kembali; semua outline 2 px dan mendapat bracket.
+- Reduced motion: tanpa crosshair, logo tidak merakit, background diam, robot tidak melirik, transisi
+  dilewati tetapi navigasi dan fokus `h1` tetap.
+- Kontras: judul/label 17.85, subtitle & petunjuk 7.58, badge 6.16, placeholder 5.44, tombol 5.17.
+- Halaman publik: computed style dan tinggi section (setelah data Supabase stabil) identik dengan versi
+  sebelumnya.
 
-## Verifikasi tahap 1 (15 Okt 2026)
-
-Chrome headless via DevTools Protocol, di dev server `localhost:5173`. Hasilnya **31/31 lolos**:
-- urutan Tab email → password → toggle → submit → kembali, dan semua punya outline fokus 2px;
-- Space pada toggle mengganti `type` dan `aria-pressed`;
-- kontras dari computed style: judul/label/input 17.85, subtitle 7.58, badge 6.16, tombol 5.17,
-  placeholder 5.44, border input 3.40, ikon toggle 7.58;
-- kedua font variable termuat dan `lang="id"`;
-- login salah lewat Enter: status proses tampil, pesan ramah diumumkan di `role="alert"`, fokus tetap di
-  password, tombol kembali normal;
-- reduced motion: animasi kartu mati dan durasi token 0;
-- `/admin` tanpa sesi tetap redirect ke login; tidak ada scroll horizontal di 375–1440.
-
-**Login dengan akun yang benar** diuji manual oleh pemilik project. Screenshot ada di `../screenshots/login/`:
-`before-*.webp`, `after-*.webp` (375/768/1024/1440), dan `after-error-*.webp`.
+**Login dengan akun yang benar ke Supabase asli** diuji manual oleh pemilik project. Screenshot sebelum/
+sesudah tidak di-commit (keputusan pemilik); pemeriksaan logo ada di `../screenshots/logo-check/`.
