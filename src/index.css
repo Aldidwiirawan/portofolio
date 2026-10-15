@@ -151,6 +151,14 @@
   --ds-focus-ring-offset: 2px;
   --ds-control-height: 3rem; /* 48px */
   --ds-target-min: 2.75rem;  /* 44px */
+
+  /* Layar wajah robot: selalu gelap dengan tinta terang, sama di kedua tema */
+  --ds-screen: var(--palette-navy-950);
+  --ds-screen-ink: var(--palette-sky-400);
+
+  /* Lapisan tumpuk komponen efek (kursor di atas transisi jepret) */
+  --ds-z-shutter: 900;
+  --ds-z-cursor: 1000;
 }
 
 /* Semantic — tema gelap (default dokumen, dipakai halaman publik) */
