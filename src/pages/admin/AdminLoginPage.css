@@ -166,7 +166,8 @@ html:has(.admin-login-page) body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: var(--space-8) var(--space-4) var(--space-12);
+  /* HP: padding atas ringkas supaya tombol Masuk terlihat tanpa scroll di 375×812 */
+  padding: var(--space-4) var(--space-4) var(--space-12);
 }
 
 /* Robot (di bawah 1024 px) dan kartu ditumpuk di tengah kolom */
@@ -265,7 +266,7 @@ html:has(.admin-login-page) body {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-3);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
 }
 
 /* Tag bersudut tegas dengan titik indikator */
@@ -657,6 +658,10 @@ html:has(.admin-login-page) body {
   .admin-login-main {
     align-items: center;
     padding: var(--space-16) var(--space-6);
+  }
+
+  .admin-login-header {
+    margin-bottom: var(--space-6);
   }
 
   .admin-login-card {

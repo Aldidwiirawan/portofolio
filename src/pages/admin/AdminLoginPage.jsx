@@ -360,7 +360,7 @@ function AdminLoginShell({ children, robot }) {
         <div className="admin-login-stack">
           {!isWide && (
             <div className="admin-login-robot admin-login-pod">
-              <RobotMascot {...robot} size={96} />
+              <RobotMascot {...robot} size={88} />
             </div>
           )}
           {children}
@@ -488,10 +488,11 @@ function AdminLoginPage() {
 
   const emailRef = useRef(null)
   const passwordRef = useRef(null)
-  const wasSubmittingRef = useRef(false)
+  const pendingAttemptRef = useRef(false)
   const [focusArea, setFocusArea] = useState(null) // 'email' | 'password' | null
   const [gaze, setGaze] = useState(0)
   const [errorCue, setErrorCue] = useState(0)
+  const [attempt, setAttempt] = useState(0)
   const [isErrorMood, setIsErrorMood] = useState(false)
   const [isShaking, setIsShaking] = useState(false)
   const [capsLockOn, setCapsLockOn] = useState(false)
@@ -514,18 +515,19 @@ function AdminLoginPage() {
     setGaze(progress * 2 - 1)
   }, [email, focusArea])
 
-  // A failed attempt (submit finished with a message): robot reacts, card shakes,
-  // and focus returns to the password field
+  // A failed attempt (a submit that ended with a message): robot reacts, card shakes, and focus
+  // returns to the password field. Each submit is counted, so this also works when the request
+  // settles before the busy state is ever rendered.
   useEffect(() => {
-    const wasSubmitting = wasSubmittingRef.current
-    wasSubmittingRef.current = isSubmitting
-    if (wasSubmitting && !isSubmitting && errorMsg) {
+    const settled = pendingAttemptRef.current && !isSubmitting
+    if (settled) pendingAttemptRef.current = false
+    if (settled && errorMsg) {
       setErrorCue((cue) => cue + 1)
       setIsErrorMood(true)
       setIsShaking(true)
       passwordRef.current?.focus()
     }
-  }, [isSubmitting, errorMsg])
+  }, [attempt, isSubmitting, errorMsg])
 
   useEffect(() => {
     if (!isErrorMood) return undefined
@@ -566,6 +568,8 @@ function AdminLoginPage() {
       e.preventDefault()
       return
     }
+    pendingAttemptRef.current = true
+    setAttempt((count) => count + 1)
     handleSubmit(e)
   }
 
