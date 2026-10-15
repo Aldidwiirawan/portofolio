@@ -234,9 +234,19 @@ function AdminLoginShell({ children, robot }) {
       <ViewfinderCursor />
       <header className="admin-login-brand" data-theme="dark">
         <div className="admin-login-brand-inner">
+          {/* Framed logo | thin rule | name + meta line. Logo sizes keep the grid on whole pixels:
+              64 px on wide screens, 32 px (snapped viewBox) on small ones. */}
           <div className="admin-login-lockup">
-            <Logo size={32} assemble className="admin-login-logo" />
-            <p className="admin-login-brand-name">Aldi Dwi Irawan</p>
+            <span className="admin-login-logo-frame">
+              <Logo size={isWide ? 64 : 32} assemble className="admin-login-logo" />
+            </span>
+            <span className="admin-login-lockup-rule" aria-hidden="true" />
+            <div className="admin-login-lockup-text">
+              <p className="admin-login-brand-name">Aldi Dwi Irawan</p>
+              <p className="admin-login-brand-meta" aria-hidden="true">
+                Portofolio // 2026
+              </p>
+            </div>
           </div>
           {isWide && (
             <div className="admin-login-stage" data-mood={robot.mood}>

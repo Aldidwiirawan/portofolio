@@ -59,7 +59,7 @@ html:has(.admin-login-page) body {
   overflow: hidden;
   display: flex;
   align-items: center;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   background-color: var(--ds-canvas);
   /* Glow brand + grid teknis tipis (64 px utama, 16 px halus) */
   background-image:
@@ -81,16 +81,57 @@ html:has(.admin-login-page) body {
   width: 100%;
 }
 
+/* Lockup horizontal: [logo dalam bingkai] | [nama + baris meta], sejajar tengah vertikal */
 .admin-login-lockup {
+  --login-frame-line: color-mix(in srgb, var(--ds-text-strong) 24%, transparent);
+
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
+}
+
+.admin-login-logo-frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 3px;
+  border: 1px solid var(--login-frame-line);
+  border-radius: 2px;
+  background-color: color-mix(in srgb, var(--ds-surface) 70%, transparent);
+}
+
+/* Tanda sudut kecil di bingkai logo (memakai ornamen bracket bersama) */
+.admin-login-logo-frame::after {
+  --login-corner-color: var(--ds-brand-from);
+  --login-corner-size: 6px;
+  --login-corner-weight: 1.5px;
+
+  content: '';
+  position: absolute;
+  inset: -3px;
+  pointer-events: none;
 }
 
 .admin-login-logo {
-  width: 2rem;
-  height: 2rem;
   color: var(--ds-text-strong);
+}
+
+.admin-login-lockup-rule {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 1px;
+  margin-block: var(--space-2);
+  background-color: var(--login-frame-line);
+}
+
+.admin-login-lockup-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.125rem;
+  min-width: 0;
 }
 
 .admin-login-brand-name {
@@ -99,7 +140,18 @@ html:has(.admin-login-page) body {
   font-size: var(--ds-fs-md);
   font-weight: var(--ds-fw-heavy);
   letter-spacing: var(--ds-tracking-tight);
-  line-height: var(--ds-lh-snug);
+  line-height: var(--ds-lh-tight);
+}
+
+.admin-login-brand-meta {
+  margin: 0;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--ds-fw-medium);
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .admin-login-robot {
@@ -650,20 +702,35 @@ html:has(.admin-login-page) body {
   }
 
   .admin-login-lockup {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-5);
+    gap: var(--space-4);
   }
 
-  /* 64 px: setiap garis grid logo (kelipatan 8 unit) jatuh tepat di piksel */
-  .admin-login-logo {
-    width: 4rem;
-    height: 4rem;
+  /* Logo 64 px di bingkai 80 px */
+  .admin-login-logo-frame {
+    padding: 7px;
+  }
+
+  .admin-login-logo-frame::after {
+    --login-corner-size: 9px;
+    --login-corner-weight: 2px;
+
+    inset: -4px;
+  }
+
+  .admin-login-lockup-rule {
+    margin-block: var(--space-3);
+  }
+
+  .admin-login-lockup-text {
+    gap: var(--space-1);
   }
 
   .admin-login-brand-name {
-    font-size: var(--ds-fs-3xl);
-    line-height: var(--ds-lh-tight);
+    font-size: 1.75rem;
+  }
+
+  .admin-login-brand-meta {
+    font-size: var(--ds-fs-xs);
   }
 
   /* Panggung robot: pendar sesuai mood, pijakan skematik, badge status */
@@ -782,7 +849,8 @@ html:has(.admin-login-page) body {
 /* Ornamen bracket 4 sudut: 8 batang gradien pada satu pseudo-element.
    Atur lewat --login-corner-color, --login-corner-size, --login-corner-weight. */
 .admin-login-brand::after,
-.admin-login-card::before {
+.admin-login-card::before,
+.admin-login-logo-frame::after {
   --c: var(--login-corner-color);
   --s: var(--login-corner-size);
   --w: var(--login-corner-weight);
@@ -903,7 +971,8 @@ html:has(.admin-login-page) body {
 
   .admin-login-control::before,
   .admin-login-card::before,
-  .admin-login-brand::after {
+  .admin-login-brand::after,
+  .admin-login-logo-frame::after {
     display: none;
   }
 }
