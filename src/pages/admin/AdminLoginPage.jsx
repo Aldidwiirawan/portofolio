@@ -13,6 +13,7 @@ import BlueprintBackground from '../../components/effects/BlueprintBackground'
 import ViewfinderCursor from '../../components/effects/ViewfinderCursor'
 import { useShutter } from '../../components/effects/shutterContext'
 import { prefersReducedMotion, useMediaQuery } from '../../lib/useMediaQuery'
+import { usePageHidden } from '../../lib/usePageHidden'
 import './AdminLoginPage.css'
 
 const PAGE_TITLE = 'Masuk · Aldi Dwi Irawan'
@@ -205,6 +206,62 @@ function useLoginExitNavigate(onExitStart) {
   }, [])
 }
 
+/**
+ * Blueprint HUD behind the robot (one SVG, 460 × 460, centred on the robot): three schematic rings
+ * turning very slowly in opposite directions, three graphic-only chips floating gently and two data
+ * pulses running along grid traces into the pedestal. Accents use the mood colour (--login-glow).
+ * Animations are transform/opacity only and pause with the page.
+ */
+function StageHud() {
+  return (
+    <svg className="admin-login-hud" viewBox="0 0 460 460" aria-hidden="true" focusable="false">
+      <g className="hud-ring hud-ring--outer">
+        <circle className="hud-line hud-dots" cx="230" cy="230" r="190" />
+      </g>
+      <g className="hud-ring hud-ring--mid">
+        <circle className="hud-line hud-dash" cx="230" cy="230" r="168" />
+        <path className="hud-arc" d="M367.6 133.6A168 168 0 0 1 395.4 259.2M92.4 326.4A168 168 0 0 1 64.6 200.8" />
+      </g>
+      <g className="hud-ring hud-ring--inner">
+        <circle className="hud-line hud-ticks" cx="230" cy="230" r="146" />
+        <path className="hud-arc hud-arc--thin" d="M92.8 180.1A146 146 0 0 1 180.1 92.8" />
+      </g>
+
+      <path className="hud-trace" d="M0 300H110V368H146M460 220H340V368H314" />
+      <path className="hud-node" d="M108.5 298.5h3v3h-3zM108.5 366.5h3v3h-3zM338.5 218.5h3v3h-3zM338.5 366.5h3v3h-3z" />
+      <g className="hud-pulse hud-pulse--a">
+        <circle className="hud-pulse-glow" r="6" />
+        <circle className="hud-pulse-core" r="2.5" />
+      </g>
+      <g className="hud-pulse hud-pulse--b">
+        <circle className="hud-pulse-glow" r="6" />
+        <circle className="hud-pulse-core" r="2.5" />
+      </g>
+
+      <g transform="translate(60 70)">
+        <g className="hud-chip hud-chip--a">
+          <rect className="hud-chip-body" width="56" height="26" rx="3" />
+          <path className="hud-chip-wave" d="M8 13H18L22 6L27 20L31 9L34 13H48" />
+        </g>
+      </g>
+      <g transform="translate(344 92)">
+        <g className="hud-chip hud-chip--b">
+          <rect className="hud-chip-body" width="56" height="26" rx="3" />
+          <circle className="hud-chip-dot" cx="14" cy="13" r="3" />
+          <circle className="hud-chip-dot" cx="28" cy="13" r="3" />
+          <circle className="hud-chip-dot hud-chip-dot--live" cx="42" cy="13" r="3" />
+        </g>
+      </g>
+      <g transform="translate(360 290)">
+        <g className="hud-chip hud-chip--c">
+          <rect className="hud-chip-body" width="56" height="26" rx="3" />
+          <path className="hud-chip-bars" d="M9 8H40M9 13H30M9 18H46" />
+        </g>
+      </g>
+    </svg>
+  )
+}
+
 /** Schematic docking pedestal the robot stands on in the brand panel (decorative). */
 function DockPedestal() {
   return (
@@ -248,9 +305,15 @@ function DividerRail() {
  */
 function AdminLoginShell({ children, robot }) {
   const isWide = useMediaQuery('(min-width: 1024px)')
+  const pageHidden = usePageHidden()
 
   return (
-    <div className="admin-login-page" data-theme="light" data-mood={robot.mood}>
+    <div
+      className="admin-login-page"
+      data-theme="light"
+      data-mood={robot.mood}
+      data-paused={pageHidden ? 'true' : 'false'}
+    >
       <ViewfinderCursor />
       <header className="admin-login-brand" data-theme="dark">
         <div className="admin-login-brand-inner">
@@ -270,10 +333,19 @@ function AdminLoginShell({ children, robot }) {
           </div>
           {isWide && (
             <div className="admin-login-stage" data-mood={robot.mood}>
-              <div className="admin-login-robot admin-login-robot--panel">
-                <RobotMascot {...robot} size={240} />
+              {/* Mood glow: three layers, only the active one is visible (opacity cross-fade) */}
+              <span className="admin-login-stage-glow" aria-hidden="true">
+                <i data-tone="calm" />
+                <i data-tone="error" />
+                <i data-tone="success" />
+              </span>
+              <div className="admin-login-rig">
+                <StageHud />
+                <div className="admin-login-robot admin-login-robot--panel">
+                  <RobotMascot {...robot} size={240} />
+                </div>
+                <DockPedestal />
               </div>
-              <DockPedestal />
               <p className="admin-login-status" aria-hidden="true">
                 <span className="admin-login-status-dot" />
                 {ROBOT_STATUS[robot.mood] || ROBOT_STATUS.idle}

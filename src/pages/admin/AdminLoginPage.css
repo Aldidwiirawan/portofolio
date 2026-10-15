@@ -18,12 +18,6 @@ html:has(.admin-login-page) body {
   background-color: var(--palette-slate-100);
 }
 
-/* Warna pendar robot dianimasikan, jadi didaftarkan sebagai <color> */
-@property --login-glow {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: transparent;
-}
 
 .admin-login-page {
   /* Component tokens */
@@ -703,7 +697,6 @@ html:has(.admin-login-page) body {
     width: 48px;
     margin-left: -24px;
     pointer-events: none;
-    transition: --login-glow 400ms var(--ds-ease-out);
   }
 
   .admin-login-page[data-mood='error'] .admin-login-rail {
@@ -834,7 +827,6 @@ html:has(.admin-login-page) body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: --login-glow 400ms var(--ds-ease-out);
   }
 
   .admin-login-stage[data-mood='error'] {
@@ -845,23 +837,49 @@ html:has(.admin-login-page) body {
     --login-glow: var(--ds-brand-to);
   }
 
-  .admin-login-stage::before {
-    content: '';
+  /* Pendar mood: tiga lapisan bertumpuk, berganti lewat opacity (400 ms) */
+  .admin-login-stage-glow {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 26rem;
     height: 26rem;
     margin: -14.5rem 0 0 -13rem;
+    pointer-events: none;
+  }
+
+  .admin-login-stage-glow i {
+    --tone: var(--ds-focus-ring);
+
+    position: absolute;
+    inset: 0;
     border-radius: 50%;
     /* Inti pendar lebar karena bagian tengahnya tertutup badan robot */
     background: radial-gradient(
       closest-side,
-      color-mix(in srgb, var(--login-glow) 42%, transparent),
-      color-mix(in srgb, var(--login-glow) 24%, transparent) 55%,
+      color-mix(in srgb, var(--tone) 42%, transparent),
+      color-mix(in srgb, var(--tone) 24%, transparent) 55%,
       transparent
     );
-    pointer-events: none;
+    opacity: 0;
+    transition: opacity 400ms var(--ds-ease-out);
+  }
+
+  .admin-login-stage-glow i[data-tone='error'] { --tone: var(--ds-danger-border); }
+  .admin-login-stage-glow i[data-tone='success'] { --tone: var(--ds-brand-to); }
+
+  .admin-login-stage:not([data-mood='error'], [data-mood='success']) .admin-login-stage-glow i[data-tone='calm'],
+  .admin-login-stage[data-mood='error'] .admin-login-stage-glow i[data-tone='error'],
+  .admin-login-stage[data-mood='success'] .admin-login-stage-glow i[data-tone='success'] {
+    opacity: 1;
+  }
+
+  /* Rig: HUD (z 0) → pijakan (z 0, sesudahnya) → robot (z 1). HUD berpusat di tengah robot (240 × 288). */
+  .admin-login-rig {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .admin-login-robot--panel {
@@ -869,7 +887,167 @@ html:has(.admin-login-page) body {
     z-index: 1;
   }
 
+  .admin-login-hud {
+    --hud-line: color-mix(in srgb, var(--ds-text-strong) 16%, transparent);
+    --hud-line-soft: color-mix(in srgb, var(--ds-text-strong) 9%, transparent);
+    --hud-accent: color-mix(in srgb, var(--login-glow) 60%, transparent);
+
+    position: absolute;
+    top: 144px;
+    left: 50%;
+    z-index: 0;
+    width: 460px;
+    height: 460px;
+    margin: -230px 0 0 -230px;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hud-ring {
+    transform-box: view-box;
+    transform-origin: 230px 230px;
+  }
+
+  /* Satu putaran 60–90 dtk, arah berselang-seling */
+  .hud-ring--outer { animation: hud-spin 90s linear infinite; }
+  .hud-ring--mid { animation: hud-spin 75s linear infinite reverse; }
+  .hud-ring--inner { animation: hud-spin 60s linear infinite; }
+
+  .hud-line {
+    fill: none;
+    stroke: var(--hud-line);
+    stroke-width: 1;
+  }
+
+  .hud-dots {
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 0 10;
+  }
+
+  .hud-dash {
+    stroke-dasharray: 3 7;
+  }
+
+  .hud-ticks {
+    stroke: var(--hud-line-soft);
+    stroke-width: 6;
+    stroke-dasharray: 1 14.3;
+  }
+
+  .hud-arc {
+    fill: none;
+    stroke: var(--hud-accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .hud-arc--thin {
+    stroke-width: 1.25;
+  }
+
+  .hud-trace {
+    fill: none;
+    stroke: var(--hud-line);
+  }
+
+  .hud-node {
+    fill: var(--hud-line);
+  }
+
+  /* Titik cahaya mengalir di jalur menuju pijakan (translate per segmen, linear) */
+  .hud-pulse {
+    opacity: 0;
+  }
+
+  .hud-pulse-glow {
+    fill: var(--login-glow);
+    opacity: 0.3;
+  }
+
+  .hud-pulse-core {
+    fill: var(--login-glow);
+  }
+
+  .hud-pulse--a { animation: hud-pulse-a 6s linear infinite; }
+  .hud-pulse--b { animation: hud-pulse-b 7s linear 2.5s infinite; }
+
+  /* Chip grafis (tanpa angka/teks), mengambang ±3 unit */
+  .hud-chip {
+    animation: hud-float 6s ease-in-out infinite alternate;
+  }
+
+  .hud-chip--b { animation-duration: 7s; animation-delay: -2s; }
+  .hud-chip--c { animation-duration: 5.5s; animation-delay: -4s; }
+
+  .hud-chip-body {
+    fill: color-mix(in srgb, var(--ds-surface) 85%, transparent);
+    stroke: var(--hud-line);
+  }
+
+  .hud-chip-wave {
+    fill: none;
+    stroke: var(--hud-accent);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  .hud-chip-dot {
+    fill: color-mix(in srgb, var(--ds-text-strong) 22%, transparent);
+  }
+
+  .hud-chip-dot--live {
+    fill: var(--ds-brand-to);
+    animation: hud-blink 2.4s ease-in-out infinite;
+  }
+
+  .hud-chip-bars {
+    fill: none;
+    stroke: color-mix(in srgb, var(--ds-text-strong) 28%, transparent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .admin-login-page[data-paused='true'] .admin-login-hud * {
+    animation-play-state: paused;
+  }
+
+  @keyframes hud-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes hud-float {
+    from { transform: translateY(-3px); }
+    to { transform: translateY(3px); }
+  }
+
+  @keyframes hud-blink {
+    50% { opacity: 0.35; }
+  }
+
+  /* Jalur a: (0,300) → (110,300) → (110,368) → (146,368); jalan 0–70 %, lalu jeda */
+  @keyframes hud-pulse-a {
+    0% { transform: translate(0, 300px); opacity: 0; }
+    5% { opacity: 1; }
+    36% { transform: translate(110px, 300px); }
+    58.2% { transform: translate(110px, 368px); }
+    65% { opacity: 1; }
+    70%, 100% { transform: translate(146px, 368px); opacity: 0; }
+  }
+
+  /* Jalur b: (460,220) → (340,220) → (340,368) → (314,368) */
+  @keyframes hud-pulse-b {
+    0% { transform: translate(460px, 220px); opacity: 0; }
+    5% { opacity: 1; }
+    28.6% { transform: translate(340px, 220px); }
+    63.8% { transform: translate(340px, 368px); }
+    65% { opacity: 1; }
+    70%, 100% { transform: translate(314px, 368px); opacity: 0; }
+  }
+
   .admin-login-dock {
+    position: relative;
+    z-index: 0;
     display: block;
     width: 17.5rem;
     height: auto;
@@ -1021,9 +1199,13 @@ html:has(.admin-login-page) body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .admin-login-stage,
-  .admin-login-rail {
+  .admin-login-stage-glow i {
     transition: none;
+  }
+
+  /* HUD diam: cincin & chip di tempat, titik data tidak tampil */
+  .admin-login-hud * {
+    animation: none !important;
   }
 
   .admin-login-card,
@@ -1065,7 +1247,8 @@ html:has(.admin-login-page) body {
   .admin-login-card::before,
   .admin-login-brand::after,
   .admin-login-logo-frame::after,
-  .admin-login-rail {
+  .admin-login-rail,
+  .admin-login-hud {
     display: none;
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Logo from './Logo'
 import { usePrefersReducedMotion } from '../../lib/useMediaQuery'
+import { usePageHidden } from '../../lib/usePageHidden'
 import './RobotMascot.css'
 
 // Eye shape per mood: [left, right]
@@ -56,6 +57,7 @@ function Eye({ cx, cy, shape }) {
  */
 function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className = '' }) {
   const reducedMotion = usePrefersReducedMotion()
+  const pageHidden = usePageHidden()
   const [isBlinking, setIsBlinking] = useState(false)
   const safeMood = EYES[mood] ? mood : 'idle'
   const canBlink = (safeMood === 'idle' || safeMood === 'watching') && !reducedMotion
@@ -86,7 +88,13 @@ function RobotMascot({ mood = 'idle', lookAt = 0, cue = 0, size = 200, className
 
   const look = Math.max(-1, Math.min(1, Number(lookAt) || 0))
   const [leftEye, rightEye] = EYES[safeMood]
-  const classes = ['robot', `robot--${safeMood}`, isBlinking && canBlink && 'robot--blink', className]
+  const classes = [
+    'robot',
+    `robot--${safeMood}`,
+    isBlinking && canBlink && 'robot--blink',
+    pageHidden && 'robot--paused',
+    className,
+  ]
     .filter(Boolean)
     .join(' ')
 

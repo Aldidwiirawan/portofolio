@@ -233,6 +233,12 @@
 .robot--success .robot-arm--left { transform: rotate(130deg); }
 .robot--success .robot-arm--right { transform: rotate(-130deg); }
 
+/* Tab tidak aktif: semua gerak berhenti di tempat */
+.robot--paused,
+.robot--paused * {
+  animation-play-state: paused !important;
+}
+
 /* Dua keyframe identik supaya animasi bisa diulang saat `cue` berganti */
 @keyframes robot-shake-0 {
   20% { transform: translateX(-8px) rotate(-3deg); }
