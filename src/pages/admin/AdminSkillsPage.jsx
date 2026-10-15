@@ -1,10 +1,14 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useSkills } from '../../hooks/useSkills'
 import SkillForm from '../../components/admin/SkillForm'
-import './AdminProjectsPage.css'
-import './AdminSkillsPage.css'
+import { AdminRoot } from '../../components/admin/ui/AdminLayout'
+import { Badge } from '../../components/admin/ui/Card'
+import { DataList, DataListItem } from '../../components/admin/ui/DataList'
+import { QuickPicks } from '../../components/admin/ui/Field'
+import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { RowActions, SectionScreen } from '../../components/admin/ui/SectionScreen'
+import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
 
 /**
  * AdminSkillsPage Component (CRUD)
@@ -15,10 +19,19 @@ import './AdminSkillsPage.css'
  * - Delete skill with confirmation modal
  */
 function AdminSkillsPage() {
+  return (
+    <AdminRoot>
+      <SkillsScreen />
+    </AdminRoot>
+  )
+}
+
+function SkillsScreen() {
   const { skills, isLoading, error, refetch } = useSkills()
+  // Screen only: toasts, focus after a delete, guarded breadcrumb (Escape is handled by ConfirmDialog)
+  const { toast, headingRef, returnToHeading, setReturnToHeading, guarded } = useSectionScreen()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingSkill, setEditingSkill] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
   const [deletingSkill, setDeletingSkill] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
@@ -38,40 +51,25 @@ function AdminSkillsPage() {
     )
   }, [skills, selectedCategory])
 
-  // Keyboard accessibility: Escape closes delete modal
-  useEffect(() => {
-    if (!deletingSkill) return
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && !isDeleting) {
-        setDeletingSkill(null)
-        setDeleteError(null)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [deletingSkill, isDeleting])
-
   const handleFormSuccess = (savedSkill) => {
     const isEdit = Boolean(editingSkill)
     setIsFormOpen(false)
     setEditingSkill(null)
-    setSuccessMessage(
+    toast.success(
       isEdit
-        ? `Skill "${savedSkill.name}" berhasil diperbarui!`
-        : `Skill "${savedSkill.name}" berhasil ditambahkan!`
+        ? `Perubahan keahlian "${savedSkill.name}" disimpan.`
+        : `Keahlian "${savedSkill.name}" ditambahkan.`
     )
     refetch()
   }
 
   const handleOpenCreateForm = () => {
     setEditingSkill(null)
-    setSuccessMessage(null)
     setIsFormOpen(true)
   }
 
   const handleOpenEditForm = (skill) => {
     setEditingSkill(skill)
-    setSuccessMessage(null)
     setIsFormOpen(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -82,6 +80,7 @@ function AdminSkillsPage() {
   }
 
   const handleOpenDeleteModal = (skill) => {
+    setReturnToHeading(false)
     setDeletingSkill(skill)
     setDeleteError(null)
   }
@@ -115,7 +114,9 @@ function AdminSkillsPage() {
 
       const deletedName = deletingSkill.name
       setDeletingSkill(null)
-      setSuccessMessage(`Skill "${deletedName}" berhasil dihapus!`)
+      // The row and its "Hapus" button disappear, so focus goes to the page heading
+      setReturnToHeading(true)
+      toast.success(`Keahlian "${deletedName}" dihapus.`)
       refetch()
     } catch (err) {
       setDeleteError(
@@ -126,295 +127,91 @@ function AdminSkillsPage() {
     }
   }
 
+  // A category can disappear (its last skill deleted): then show all again
+  const categoryShown = categories.includes(selectedCategory) ? selectedCategory : 'All'
+  const shownSkills = categoryShown === selectedCategory ? filteredSkills : skills
+
   return (
-    <div className="admin-skills-page">
-      {/* Top Navbar */}
-      <header className="admin-navbar">
-        <div className="container admin-navbar-inner">
-          <div className="admin-nav-brand">
-            <h1 className="admin-brand-title">Admin Portfolio CMS</h1>
-            <span className="admin-badge-active">&bull; Skills</span>
-          </div>
-
-          <div className="admin-nav-actions">
-            <Link to="/admin" className="btn btn-outline btn-sm">
-              &larr; Dashboard
-            </Link>
-            <Link to="/" className="btn btn-outline btn-sm" title="Lihat website portfolio">
-              Situs Publik
-            </Link>
-          </div>
+    <SectionScreen
+      title="Keahlian"
+      description="Teknologi dan alat kerja yang tampil di halaman publik, dikelompokkan per kategori."
+      addLabel="Tambah keahlian"
+      onAdd={handleOpenCreateForm}
+      count={skills.length}
+      isLoading={isLoading}
+      error={error}
+      onReload={refetch}
+      loadErrorTitle="Keahlian belum bisa dimuat."
+      emptyTitle="Belum ada keahlian"
+      emptyText="Keahlian yang Anda tambahkan akan tampil di halaman publik."
+      emptyActionLabel="Tambah keahlian pertama"
+      summary={`${skills.length} keahlian · ${Math.max(0, categories.length - 1)} kategori`}
+      toolbar={
+        <div className="adm-list-toolbar">
+          <QuickPicks
+            label="Tampilkan kategori"
+            options={categories.map((cat) => ({ value: cat, label: cat === 'All' ? 'Semua' : cat }))}
+            value={categoryShown}
+            onPick={setSelectedCategory}
+          />
         </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="admin-main-content">
-        <div className="container">
-          {/* Header Action Bar */}
-          <div className="admin-skills-header-actions">
-            <Link to="/admin" className="admin-back-btn">
-              <span>&larr;</span> Kembali ke Dashboard
-            </Link>
-
-            <div className="admin-header-button-group">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={refetch}
-                disabled={isLoading}
-                title="Segarkan data dari database"
-              >
-                {isLoading ? 'Memuat...' : 'Segarkan Data'}
-              </button>
-
-              {!isFormOpen && (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={handleOpenCreateForm}
-                >
-                  + Tambah Skill
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Success Banner Notification */}
-          {successMessage && (
-            <div className="admin-projects-success-banner" role="status">
-              <span>{successMessage}</span>
-              <button
-                type="button"
-                className="admin-banner-close-btn"
-                onClick={() => setSuccessMessage(null)}
-                aria-label="Tutup notifikasi"
-              >
-                &times;
-              </button>
-            </div>
-          )}
-
-          {/* Form Create / Edit Skill (Conditional) */}
-          {isFormOpen && (
-            <SkillForm
-              key={editingSkill?.id || 'new-skill'}
-              skill={editingSkill}
-              onSuccess={handleFormSuccess}
-              onCancel={handleCancelForm}
-            />
-          )}
-
-          {/* Title & Description */}
-          <div className="admin-skills-title-box">
-            <h2 className="admin-skills-heading">Manajemen Keahlian (Skills)</h2>
-            <p className="admin-skills-subheading">
-              Kelola keahlian teknologi dan perangkat kerja yang tersimpan di tabel database{' '}
-              <code>public.skills</code>.
-            </p>
-          </div>
-
-          {/* Summary Metrics */}
-          <div className="admin-projects-summary-grid">
-            <div className="admin-summary-card">
-              <span className="admin-summary-label">Total Skills</span>
-              <span className="admin-summary-value">{isLoading ? '—' : skills.length}</span>
-            </div>
-
-            <div className="admin-summary-card">
-              <span className="admin-summary-label">Kategori</span>
-              <span className="admin-summary-value">
-                {isLoading ? '—' : Math.max(0, categories.length - 1)}
-              </span>
-            </div>
-
-            <div className="admin-summary-card">
-              <span className="admin-summary-label">Database Target</span>
-              <span
-                className="badge badge-primary"
-                style={{ alignSelf: 'flex-start', marginTop: 'var(--space-2)' }}
-              >
-                public.skills
-              </span>
-            </div>
-          </div>
-
-          {/* Category Filter Tabs */}
-          {!isLoading && skills.length > 0 && (
-            <div className="admin-skills-filter-bar" role="tablist" aria-label="Filter Kategori">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedCategory === cat}
-                  className={`admin-filter-pill ${selectedCategory === cat ? 'is-active' : ''}`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat === 'All' ? 'Semua Kategori' : cat}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Conditional State: LOADING */}
-          {isLoading && (
-            <div className="admin-projects-skeleton-list" aria-busy="true" aria-label="Memuat skills">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="admin-project-skeleton-card">
-                  <div className="skeleton-shimmer skeleton-title-bar" />
-                  <div className="skeleton-shimmer skeleton-desc-line" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Conditional State: ERROR */}
-          {!isLoading && error && (
-            <div className="admin-projects-error-box" role="alert">
-              <h3 className="admin-projects-error-title">Gagal Mengambil Data Skills</h3>
-              <p className="admin-projects-error-desc">{error}</p>
-              <button type="button" className="btn btn-primary btn-sm" onClick={refetch}>
-                Coba Lagi
-              </button>
-            </div>
-          )}
-
-          {/* Conditional State: EMPTY */}
-          {!isLoading && !error && skills.length === 0 && (
-            <div className="admin-projects-empty-box">
-              <h3 className="admin-projects-empty-title">Belum ada skill yang ditambahkan.</h3>
-              <p className="admin-projects-empty-desc">
-                Tabel <code>public.skills</code> saat ini belum memiliki record data. Klik tombol{' '}
-                <strong>"+ Tambah Skill"</strong> di atas untuk menambahkan keahlian pertama Anda.
-              </p>
-            </div>
-          )}
-
-          {/* Conditional State: SUCCESS (Skills List) */}
-          {!isLoading && !error && filteredSkills.length > 0 && (
-            <div className="admin-skills-list-grid">
-              {filteredSkills.map((skill) => (
-                <div key={skill.id} className="admin-skill-card-item">
-                  <div className="admin-skill-card-top">
-                    <div>
-                      <h3 className="admin-skill-item-name">{skill.name}</h3>
-                      <div className="admin-skill-tags-row">
-                        <span className="admin-skill-category-badge">{skill.category}</span>
-                        {skill.proficiency && (
-                          <span className="admin-skill-proficiency-badge">
-                            {skill.proficiency}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <span className="admin-skill-sort-badge">Urutan: {skill.sort_order ?? 0}</span>
-                  </div>
-
-                  <div className="admin-skill-card-actions">
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm admin-skill-action-btn admin-project-edit-btn"
-                      onClick={() => handleOpenEditForm(skill)}
-                      title={`Edit skill "${skill.name}"`}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm admin-skill-action-btn admin-project-delete-btn"
-                      onClick={() => handleOpenDeleteModal(skill)}
-                      title={`Hapus skill "${skill.name}"`}
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Delete Confirmation Modal */}
-      {deletingSkill && (
-        <div
-          className="admin-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-skill-modal-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleCloseDeleteModal()
-          }}
-        >
-          <div className="admin-modal-dialog">
-            <div className="admin-modal-header">
-              <div className="admin-modal-icon-warning" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 id="delete-skill-modal-title" className="admin-modal-title">
-                  Hapus Keahlian (Skill)
-                </h3>
-                <p className="admin-modal-subtitle">
-                  Tindakan ini permanen dan tidak dapat dibatalkan.
-                </p>
-              </div>
-            </div>
-
-            <div className="admin-modal-body">
-              <p>
-                Apakah Anda yakin ingin menghapus skill <strong>"{deletingSkill.name}"</strong>?
-              </p>
-              <p className="admin-modal-body-subtext">
-                Record di tabel <code>public.skills</code> akan dihapus secara permanen.
-              </p>
-
-              {deleteError && (
-                <div className="admin-modal-error-alert" role="alert">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  <span>{deleteError}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="admin-modal-footer">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={handleCloseDeleteModal}
-                disabled={isDeleting}
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger btn-sm admin-modal-confirm-btn"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? 'Menghapus...' : 'Ya, Hapus Skill'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      }
+      headingRef={headingRef}
+      form={{
+        open: isFormOpen,
+        title: editingSkill ? 'Ubah keahlian' : 'Tambah keahlian',
+        description: editingSkill ? `Perbarui keahlian "${editingSkill.name}", lalu simpan.` : 'Isi data keahlian, lalu simpan.',
+        onBack: guarded(handleCancelForm),
+        children: (
+          <SkillForm
+            key={editingSkill?.id || 'new-skill'}
+            skill={editingSkill}
+            onSuccess={handleFormSuccess}
+            onCancel={handleCancelForm}
+          />
+        ),
+      }}
+      deleteDialog={{
+        open: Boolean(deletingSkill),
+        title: 'Hapus keahlian?',
+        busy: isDeleting,
+        error: deleteError ? toFriendlyError(deleteError, 'Keahlian belum bisa dihapus. Periksa koneksi internet, lalu coba lagi.') : null,
+        returnFocusRef: returnToHeading ? headingRef : undefined,
+        onConfirm: handleConfirmDelete,
+        onCancel: handleCloseDeleteModal,
+        children: (
+          <p>
+            Keahlian <strong>"{deletingSkill?.name}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+          </p>
+        ),
+      }}
+    >
+      <DataList
+        label={categoryShown === 'All' ? 'Daftar keahlian' : `Keahlian kategori ${categoryShown}`}
+        aria-busy={isLoading || undefined}
+      >
+        {shownSkills.map((skill) => (
+          <DataListItem
+            key={skill.id}
+            title={skill.name}
+            badges={
+              <>
+                <Badge>{skill.category}</Badge>
+                {skill.proficiency && <Badge tone="accent">{skill.proficiency}</Badge>}
+              </>
+            }
+            meta={<span>Urutan {skill.sort_order ?? 0}</span>}
+            actions={
+              <RowActions
+                name={`keahlian "${skill.name}"`}
+                onEdit={() => handleOpenEditForm(skill)}
+                onDelete={() => handleOpenDeleteModal(skill)}
+              />
+            }
+          />
+        ))}
+      </DataList>
+    </SectionScreen>
   )
 }
 

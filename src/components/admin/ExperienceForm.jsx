@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import './ExperienceForm.css'
+import { Checkbox, ChoiceGroup, Field, FormSection, Input, Textarea } from './ui/Field'
+import { FormPanel } from './ui/FormPanel'
+import { toFriendlyError } from './ui/friendlyError'
+import { useFormScreen } from './ui/useFormFeedback'
 
 /**
  * ExperienceForm Component
@@ -29,6 +32,10 @@ function ExperienceForm({ experience = null, onSuccess, onCancel }) {
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Screen only: feedback, unsaved-changes guard, guarded cancel
+  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const { finish } = screen
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -59,15 +66,15 @@ function ExperienceForm({ experience = null, onSuccess, onCancel }) {
     const errors = {}
 
     if (!formData.role.trim()) {
-      errors.role = 'Posisi / Peran wajib diisi.'
+      errors.role = 'Posisi wajib diisi.'
     } else if (formData.role.trim().length > 100) {
-      errors.role = 'Posisi / Peran tidak boleh lebih dari 100 karakter.'
+      errors.role = 'Posisi maksimal 100 karakter.'
     }
 
     if (!formData.company.trim()) {
-      errors.company = 'Perusahaan / Organisasi wajib diisi.'
+      errors.company = 'Nama perusahaan atau organisasi wajib diisi.'
     } else if (formData.company.trim().length > 100) {
-      errors.company = 'Nama perusahaan/organisasi tidak boleh lebih dari 100 karakter.'
+      errors.company = 'Nama perusahaan atau organisasi maksimal 100 karakter.'
     }
 
     if (!formData.start_date) {
@@ -82,7 +89,7 @@ function ExperienceForm({ experience = null, onSuccess, onCancel }) {
 
     const sortOrderVal = Number(formData.sort_order)
     if (isNaN(sortOrderVal) || !Number.isInteger(sortOrderVal) || sortOrderVal < 0) {
-      errors.sort_order = 'Urutan harus berupa angka bulat positif (>= 0).'
+      errors.sort_order = 'Urutan tampil harus berupa angka bulat 0 atau lebih.'
     }
 
     setFieldErrors(errors)
@@ -125,7 +132,7 @@ function ExperienceForm({ experience = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       } else {
         const { data, error: dbError } = await supabase
           .from('experiences')
@@ -138,7 +145,7 @@ function ExperienceForm({ experience = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       }
     } catch (err) {
       setGeneralError(
@@ -150,241 +157,96 @@ function ExperienceForm({ experience = null, onSuccess, onCancel }) {
     }
   }
 
+  const busy = isSubmitting || screen.saved
+
   return (
-    <div className="admin-exp-form-card">
-      <div className="exp-form-header">
-        <div>
-          <h3 className="exp-form-title">
-            {isEditMode ? 'Edit Pengalaman' : 'Tambah Pengalaman Baru'}
-          </h3>
-          <p className="exp-form-subtitle">
-            {isEditMode
-              ? `Memperbarui riwayat pengalaman "${experience?.role} di ${experience?.company}".`
-              : 'Menambahkan riwayat pengalaman kerja atau proyek ke tabel database public.experiences.'}
-          </p>
+    <FormPanel
+      label={isEditMode ? 'Ubah pengalaman' : 'Pengalaman baru'}
+      screen={screen}
+      error={generalError ? toFriendlyError(generalError, 'Pengalaman belum tersimpan. Periksa koneksi internet, lalu coba lagi.') : ''}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan pengalaman'}
+    >
+      <FormSection title="Peran" columns={2}>
+        <div className="adm-span-2">
+          <ChoiceGroup
+            name="exp-type"
+            legend="Jenis pengalaman"
+            required
+            options={['Kerja', 'Magang', 'PKL']}
+            value={formData.experience_type}
+            onChange={handleTypeSelect}
+            hint="Kerja profesional, magang, atau PKL."
+            disabled={busy}
+          />
         </div>
+        <Field id="exp-role" label="Posisi" required error={fieldErrors.role} hint="Contoh: Web Developer, Frontend Intern.">
+          <Input name="role" type="text" value={formData.role} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="exp-company" label="Perusahaan atau organisasi" required error={fieldErrors.company} hint="Tempat kerja, klien, atau institusi.">
+          <Input name="company" type="text" value={formData.company} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="exp-location" label="Lokasi" optional hint="Kota, atau tulis Remote.">
+          <Input name="location" type="text" value={formData.location} onChange={handleChange} disabled={busy} />
+        </Field>
+      </FormSection>
 
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={onCancel}
-          disabled={isSubmitting}
+      <FormSection title="Waktu" columns={2}>
+        <Field id="exp-start-date" label="Tanggal mulai" required error={fieldErrors.start_date}>
+          <Input name="start_date" type="date" value={formData.start_date} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field
+          id="exp-end-date"
+          label="Tanggal selesai"
+          optional
+          error={fieldErrors.end_date}
+          hint={formData.is_current ? 'Tidak perlu diisi karena masih berjalan.' : 'Kosongkan bila belum ada tanggalnya.'}
         >
-          Tutup Form
-        </button>
-      </div>
-
-      {generalError && (
-        <div className="exp-form-alert exp-form-alert-error" role="alert">
-          <strong>Peringatan:</strong> {generalError}
+          <Input
+            name="end_date"
+            type="date"
+            value={formData.end_date}
+            onChange={handleChange}
+            disabled={busy || formData.is_current}
+          />
+        </Field>
+        <div className="adm-span-2">
+          <Checkbox
+            id="exp-current"
+            name="is_current"
+            label="Masih berjalan sampai sekarang"
+            checked={formData.is_current}
+            onChange={handleChange}
+            disabled={busy}
+          />
         </div>
-      )}
+      </FormSection>
 
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="exp-form-grid">
-          {/* Experience Type (Kerja, Magang, PKL) */}
-          <div className="form-group exp-form-grid-full">
-            <label className="form-label">
-              <span>Jenis Pengalaman</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <div className="exp-type-pills" role="radiogroup" aria-label="Pilih jenis pengalaman">
-              {['Kerja', 'Magang', 'PKL'].map((type) => {
-                const isSelected = formData.experience_type === type
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    className={`exp-type-pill ${isSelected ? 'active' : ''}`}
-                    onClick={() => handleTypeSelect(type)}
-                    disabled={isSubmitting}
-                  >
-                    {type}
-                  </button>
-                )
-              })}
-            </div>
-            <p className="form-field-helper">Pilih jenis pengalaman: Kerja profesional, Magang, atau PKL.</p>
-          </div>
-
-          {/* Role / Position */}
-          <div className="form-group">
-            <label htmlFor="exp-role" className="form-label">
-              <span>Posisi / Peran</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="exp-role"
-              name="role"
-              type="text"
-              className={`form-control-input ${fieldErrors.role ? 'has-error' : ''}`}
-              placeholder="Contoh: Web Developer, Frontend Intern"
-              value={formData.role}
-              onChange={handleChange}
-              disabled={isSubmitting}
-              autoFocus
-            />
-            {fieldErrors.role && <p className="form-field-error">{fieldErrors.role}</p>}
-            <p className="form-field-helper">Judul posisi atau peran jabatan.</p>
-          </div>
-
-          {/* Company / Organization */}
-          <div className="form-group">
-            <label htmlFor="exp-company" className="form-label">
-              <span>Perusahaan / Organisasi</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="exp-company"
-              name="company"
-              type="text"
-              className={`form-control-input ${fieldErrors.company ? 'has-error' : ''}`}
-              placeholder="Contoh: PT Solusi Web Mandiri"
-              value={formData.company}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.company && <p className="form-field-error">{fieldErrors.company}</p>}
-            <p className="form-field-helper">Nama tempat kerja, klien, atau institusi.</p>
-          </div>
-
-          {/* Location */}
-          <div className="form-group">
-            <label htmlFor="exp-location" className="form-label">
-              <span>Lokasi</span>
-            </label>
-            <input
-              id="exp-location"
-              name="location"
-              type="text"
-              className="form-control-input"
-              placeholder="Contoh: Jakarta, Indonesia / Remote"
-              value={formData.location}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            <p className="form-field-helper">Kota, negara, atau metode kerja remote.</p>
-          </div>
-
-          {/* Sort Order */}
-          <div className="form-group">
-            <label htmlFor="exp-sort-order" className="form-label">
-              <span>Urutan Tampilan (Sort Order)</span>
-            </label>
-            <input
-              id="exp-sort-order"
-              name="sort_order"
-              type="number"
-              min="0"
-              step="1"
-              className={`form-control-input ${fieldErrors.sort_order ? 'has-error' : ''}`}
-              value={formData.sort_order}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.sort_order && (
-              <p className="form-field-error">{fieldErrors.sort_order}</p>
-            )}
-            <p className="form-field-helper">Angka lebih kecil akan ditampilkan lebih atas.</p>
-          </div>
-
-          {/* Start Date */}
-          <div className="form-group">
-            <label htmlFor="exp-start-date" className="form-label">
-              <span>Tanggal Mulai</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="exp-start-date"
-              name="start_date"
-              type="date"
-              className={`form-control-input ${fieldErrors.start_date ? 'has-error' : ''}`}
-              value={formData.start_date}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.start_date && (
-              <p className="form-field-error">{fieldErrors.start_date}</p>
-            )}
-          </div>
-
-          {/* End Date & Current Checkbox */}
-          <div className="form-group">
-            <label htmlFor="exp-end-date" className="form-label">
-              <span>Tanggal Selesai</span>
-            </label>
-            <input
-              id="exp-end-date"
-              name="end_date"
-              type="date"
-              className={`form-control-input ${fieldErrors.end_date ? 'has-error' : ''}`}
-              value={formData.end_date}
-              onChange={handleChange}
-              disabled={isSubmitting || formData.is_current}
-            />
-            {fieldErrors.end_date && <p className="form-field-error">{fieldErrors.end_date}</p>}
-
-            <label className="exp-checkbox-wrapper">
-              <input
-                type="checkbox"
-                name="is_current"
-                className="exp-checkbox-input"
-                checked={formData.is_current}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-              <span className="exp-checkbox-label">
-                Saat ini masih aktif / bekerja di posisi ini
-              </span>
-            </label>
-          </div>
-
-          {/* Description */}
-          <div className="form-group form-group-full">
-            <label htmlFor="exp-description" className="form-label">
-              <span>Deskripsi Tanggung Jawab & Pencapaian</span>
-            </label>
-            <textarea
-              id="exp-description"
-              name="description"
-              rows="4"
-              className="form-control-textarea"
-              placeholder="Jelaskan peran, teknologi yang digunakan, serta kontribusi atau hasil pekerjaan..."
-              value={formData.description}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            <p className="form-field-helper">
-              Teks penjelasan ringkas aktivitas atau hasil karya.
-            </p>
-          </div>
-        </div>
-
-        <div className="exp-form-actions">
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary btn-sm"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? 'Menyimpan...'
-              : isEditMode
-              ? 'Simpan Perubahan'
-              : 'Tambah Pengalaman'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <FormSection title="Keterangan" columns={2}>
+        <Field
+          id="exp-description"
+          label="Tanggung jawab dan hasil"
+          optional
+          className="adm-span-2"
+          hint="Ceritakan peran, teknologi yang dipakai, dan hasil kerjanya."
+        >
+          <Textarea name="description" rows={5} value={formData.description} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="exp-sort-order" label="Urutan tampil" error={fieldErrors.sort_order} hint="Angka kecil tampil lebih atas.">
+          <Input
+            name="sort_order"
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
+            value={formData.sort_order}
+            onChange={handleChange}
+            disabled={busy}
+          />
+        </Field>
+      </FormSection>
+    </FormPanel>
   )
 }
 

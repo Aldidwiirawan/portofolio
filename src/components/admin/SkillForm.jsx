@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import './SkillForm.css'
+import { Field, FormSection, Input, QuickPicks } from './ui/Field'
+import { FormPanel } from './ui/FormPanel'
+import { toFriendlyError } from './ui/friendlyError'
+import { useFormScreen } from './ui/useFormFeedback'
 
 const CATEGORY_PRESETS = ['Frontend', 'Backend', 'Database', 'Tools']
 const PROFICIENCY_PRESETS = ['Dasar', 'Menengah', 'Mahir', 'Dasar / Menengah']
@@ -27,6 +30,10 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Screen only: feedback, unsaved-changes guard, guarded cancel
+  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const { finish } = screen
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -55,18 +62,18 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
     const errors = {}
 
     if (!formData.name.trim()) {
-      errors.name = 'Nama skill wajib diisi.'
+      errors.name = 'Nama keahlian wajib diisi.'
     } else if (formData.name.trim().length > 100) {
-      errors.name = 'Nama skill tidak boleh lebih dari 100 karakter.'
+      errors.name = 'Nama keahlian maksimal 100 karakter.'
     }
 
     if (!formData.category.trim()) {
-      errors.category = 'Kategori skill wajib dipilih atau diisi.'
+      errors.category = 'Kategori wajib diisi. Pilih salah satu atau ketik sendiri.'
     }
 
     const sortOrderVal = Number(formData.sort_order)
     if (isNaN(sortOrderVal) || !Number.isInteger(sortOrderVal) || sortOrderVal < 0) {
-      errors.sort_order = 'Urutan harus berupa angka bulat positif (>= 0).'
+      errors.sort_order = 'Urutan tampil harus berupa angka bulat 0 atau lebih.'
     }
 
     setFieldErrors(errors)
@@ -104,7 +111,7 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       } else {
         const { data, error: dbError } = await supabase
           .from('skills')
@@ -117,7 +124,7 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       }
     } catch (err) {
       setGeneralError(
@@ -129,175 +136,66 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
     }
   }
 
+  const busy = isSubmitting || screen.saved
+
   return (
-    <div className="admin-skill-form-card">
-      <div className="skill-form-header">
-        <div>
-          <h3 className="skill-form-title">
-            {isEditMode ? 'Edit Keahlian (Skill)' : 'Tambah Keahlian Baru'}
-          </h3>
-          <p className="skill-form-subtitle">
-            {isEditMode
-              ? `Memperbarui data skill "${skill?.name}" di tabel public.skills.`
-              : 'Menambahkan data keahlian teknologi ke tabel database public.skills.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={onCancel}
-          disabled={isSubmitting}
+    <FormPanel
+      label={isEditMode ? 'Ubah keahlian' : 'Keahlian baru'}
+      screen={screen}
+      error={generalError ? toFriendlyError(generalError, 'Keahlian belum tersimpan. Periksa koneksi internet, lalu coba lagi.') : ''}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan keahlian'}
+    >
+      <FormSection title="Keahlian" columns={2}>
+        <Field
+          id="skill-name"
+          label="Nama keahlian"
+          required
+          error={fieldErrors.name}
+          hint="Nama teknologi, bahasa, atau alat kerja. Contoh: React, PostgreSQL, Figma."
         >
-          Tutup Form
-        </button>
-      </div>
-
-      {generalError && (
-        <div className="skill-form-alert skill-form-alert-error" role="alert">
-          <strong>Peringatan:</strong> {generalError}
+          <Input name="name" type="text" value={formData.name} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="skill-sort-order" label="Urutan tampil" error={fieldErrors.sort_order} hint="Angka kecil tampil lebih dulu.">
+          <Input
+            name="sort_order"
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
+            value={formData.sort_order}
+            onChange={handleChange}
+            disabled={busy}
+          />
+        </Field>
+        <div>
+          <Field id="skill-category" label="Kategori" required error={fieldErrors.category} hint="Pilih salah satu, atau ketik sendiri.">
+            <Input name="category" type="text" value={formData.category} onChange={handleChange} disabled={busy} />
+          </Field>
+          <QuickPicks
+            label="Pilihan kategori"
+            options={CATEGORY_PRESETS}
+            value={formData.category}
+            onPick={handleSelectCategoryPreset}
+            isSelected={(option, current) => current.toLowerCase() === option.toLowerCase()}
+            disabled={busy}
+          />
         </div>
-      )}
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="skill-form-grid">
-          {/* Skill Name */}
-          <div className="form-group">
-            <label htmlFor="skill-name" className="form-label">
-              <span>Nama Keahlian / Teknologi</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="skill-name"
-              name="name"
-              type="text"
-              className={`form-control-input ${fieldErrors.name ? 'has-error' : ''}`}
-              placeholder="Contoh: React.js, PostgreSQL, Docker"
-              value={formData.name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-              autoFocus
-            />
-            {fieldErrors.name && (
-              <p className="form-field-error">{fieldErrors.name}</p>
-            )}
-            <p className="form-field-helper">Nama teknologi, library, atau alat kerja.</p>
-          </div>
-
-          {/* Sort Order */}
-          <div className="form-group">
-            <label htmlFor="skill-sort-order" className="form-label">
-              <span>Urutan Tampilan (Sort Order)</span>
-            </label>
-            <input
-              id="skill-sort-order"
-              name="sort_order"
-              type="number"
-              min="0"
-              step="1"
-              className={`form-control-input ${fieldErrors.sort_order ? 'has-error' : ''}`}
-              value={formData.sort_order}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.sort_order && (
-              <p className="form-field-error">{fieldErrors.sort_order}</p>
-            )}
-            <p className="form-field-helper">Angka lebih kecil akan ditampilkan lebih dahulu.</p>
-          </div>
-
-          {/* Category */}
-          <div className="form-group">
-            <label htmlFor="skill-category" className="form-label">
-              <span>Kategori</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="skill-category"
-              name="category"
-              type="text"
-              className={`form-control-input ${fieldErrors.category ? 'has-error' : ''}`}
-              placeholder="Frontend, Backend, Database, Tools..."
-              value={formData.category}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.category && (
-              <p className="form-field-error">{fieldErrors.category}</p>
-            )}
-            <div className="skill-category-presets" aria-label="Preset Kategori">
-              {CATEGORY_PRESETS.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  className={`skill-preset-btn ${
-                    formData.category.toLowerCase() === preset.toLowerCase() ? 'is-selected' : ''
-                  }`}
-                  onClick={() => handleSelectCategoryPreset(preset)}
-                  disabled={isSubmitting}
-                >
-                  {preset}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Proficiency */}
-          <div className="form-group">
-            <label htmlFor="skill-proficiency" className="form-label">
-              <span>Tingkat Kemahiran (Proficiency)</span>
-            </label>
-            <input
-              id="skill-proficiency"
-              name="proficiency"
-              type="text"
-              className="form-control-input"
-              placeholder="Mahir, Menengah, Dasar..."
-              value={formData.proficiency}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            <div className="skill-category-presets" aria-label="Preset Kemahiran">
-              {PROFICIENCY_PRESETS.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  className={`skill-preset-btn ${
-                    formData.proficiency === preset ? 'is-selected' : ''
-                  }`}
-                  onClick={() => handleSelectProficiencyPreset(preset)}
-                  disabled={isSubmitting}
-                >
-                  {preset}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div>
+          <Field id="skill-proficiency" label="Tingkat kemahiran" optional hint="Pilih salah satu, atau ketik sendiri.">
+            <Input name="proficiency" type="text" value={formData.proficiency} onChange={handleChange} disabled={busy} />
+          </Field>
+          <QuickPicks
+            label="Pilihan tingkat kemahiran"
+            options={PROFICIENCY_PRESETS}
+            value={formData.proficiency}
+            onPick={handleSelectProficiencyPreset}
+            disabled={busy}
+          />
         </div>
-
-        <div className="skill-form-actions">
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary btn-sm"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? 'Menyimpan...'
-              : isEditMode
-              ? 'Simpan Perubahan'
-              : 'Tambah Skill'}
-          </button>
-        </div>
-      </form>
-    </div>
+      </FormSection>
+    </FormPanel>
   )
 }
 

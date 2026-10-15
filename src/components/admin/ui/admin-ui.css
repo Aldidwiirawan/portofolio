@@ -604,6 +604,57 @@ html:has(.adm) body {
   opacity: 0.6;
 }
 
+/* Pilihan cepat (tombol toggle) di bawah kolom teks, atau penyaring di atas daftar */
+.adm-quickpicks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.adm-quickpick {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--ds-border-control);
+  border-radius: var(--adm-radius-control);
+  background-color: var(--ds-surface);
+  color: var(--ds-text-strong);
+  font: inherit;
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--ds-duration-fast) var(--ds-ease-out),
+    border-color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-quickpick:hover {
+  border-color: var(--ds-accent);
+}
+
+.adm-quickpick[aria-pressed='true'] {
+  border-color: var(--ds-accent);
+  background-color: var(--ds-accent-subtle);
+  color: var(--ds-accent-text);
+  box-shadow: inset 3px 0 0 var(--ds-accent);
+}
+
+.adm-quickpick:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Baris alat di atas daftar (mis. saring kategori) */
+.adm-list-toolbar {
+  margin-bottom: var(--space-4);
+}
+
+.adm-list-toolbar .adm-quickpicks {
+  margin-top: 0;
+}
+
 /* Kelompok field */
 .adm-form-section {
   min-width: 0;
@@ -1142,6 +1193,20 @@ html:has(.adm) body {
   color: var(--ds-text-strong);
 }
 
+/* Keterangan panjang di dalam baris daftar (maks. 3 baris) */
+.adm-list-desc {
+  display: -webkit-box;
+  margin: var(--space-1) 0 0;
+  overflow: hidden;
+  color: var(--ds-text);
+  font-size: var(--ds-fs-sm);
+  line-height: var(--ds-lh-normal);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
 /* Ringkasan jumlah di atas daftar, mis. "6 proyek · 2 unggulan" */
 .adm-list-summary {
   margin: 0 0 var(--space-3);
@@ -1613,6 +1678,7 @@ html:has(.adm) body {
 @media (pointer: coarse) {
   .adm-btn--sm,
   .adm-icon-btn--sm,
+  .adm-quickpick,
   .adm-choice-label {
     min-height: var(--ds-target-min);
   }

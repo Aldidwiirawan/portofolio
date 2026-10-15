@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import './EducationForm.css'
+import { Checkbox, Field, FormSection, Input, QuickPicks, Textarea } from './ui/Field'
+import { FormPanel } from './ui/FormPanel'
+import { toFriendlyError } from './ui/friendlyError'
+import { useFormScreen } from './ui/useFormFeedback'
 
 const DEGREE_PRESETS = ['Diploma III (D3)', 'Sarjana (S1)', 'Magister (S2)', 'SMK / SMA']
 
@@ -30,6 +33,10 @@ function EducationForm({ education = null, onSuccess, onCancel }) {
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Screen only: feedback, unsaved-changes guard, guarded cancel
+  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const { finish } = screen
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -62,17 +69,17 @@ function EducationForm({ education = null, onSuccess, onCancel }) {
     const errors = {}
 
     if (!formData.institution.trim()) {
-      errors.institution = 'Nama institusi / perguruan tinggi wajib diisi.'
+      errors.institution = 'Nama sekolah atau kampus wajib diisi.'
     } else if (formData.institution.trim().length > 150) {
-      errors.institution = 'Nama institusi tidak boleh lebih dari 150 karakter.'
+      errors.institution = 'Nama sekolah atau kampus maksimal 150 karakter.'
     }
 
     if (!formData.degree.trim()) {
-      errors.degree = 'Gelar / jenjang pendidikan wajib diisi.'
+      errors.degree = 'Jenjang pendidikan wajib diisi.'
     }
 
     if (!formData.field_of_study.trim()) {
-      errors.field_of_study = 'Jurusan / bidang studi wajib diisi.'
+      errors.field_of_study = 'Jurusan wajib diisi.'
     }
 
     const startYearNum = Number(formData.start_year)
@@ -91,7 +98,7 @@ function EducationForm({ education = null, onSuccess, onCancel }) {
 
     const sortOrderVal = Number(formData.sort_order)
     if (isNaN(sortOrderVal) || !Number.isInteger(sortOrderVal) || sortOrderVal < 0) {
-      errors.sort_order = 'Urutan harus berupa angka bulat positif (>= 0).'
+      errors.sort_order = 'Urutan tampil harus berupa angka bulat 0 atau lebih.'
     }
 
     setFieldErrors(errors)
@@ -133,7 +140,7 @@ function EducationForm({ education = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       } else {
         const { data, error: dbError } = await supabase
           .from('educations')
@@ -146,7 +153,7 @@ function EducationForm({ education = null, onSuccess, onCancel }) {
         }
 
         setIsSubmitting(false)
-        onSuccess(data)
+        finish(() => onSuccess(data))
       }
     } catch (err) {
       setGeneralError(
@@ -158,235 +165,112 @@ function EducationForm({ education = null, onSuccess, onCancel }) {
     }
   }
 
+  const busy = isSubmitting || screen.saved
+
   return (
-    <div className="admin-edu-form-card">
-      <div className="edu-form-header">
-        <div>
-          <h3 className="edu-form-title">
-            {isEditMode ? 'Edit Riwayat Pendidikan' : 'Tambah Riwayat Pendidikan'}
-          </h3>
-          <p className="edu-form-subtitle">
-            {isEditMode
-              ? `Memperbarui data studi "${education?.degree} ${education?.field_of_study}".`
-              : 'Menambahkan riwayat pendidikan formal ke tabel database public.educations.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={onCancel}
-          disabled={isSubmitting}
+    <FormPanel
+      label={isEditMode ? 'Ubah pendidikan' : 'Pendidikan baru'}
+      screen={screen}
+      error={generalError ? toFriendlyError(generalError, 'Data pendidikan belum tersimpan. Periksa koneksi internet, lalu coba lagi.') : ''}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan pendidikan'}
+    >
+      <FormSection title="Sekolah atau kampus" columns={2}>
+        <Field
+          id="edu-institution"
+          label="Nama sekolah atau kampus"
+          required
+          className="adm-span-2"
+          error={fieldErrors.institution}
+          hint="Contoh: Politeknik Negeri Malang, SMK Negeri 1 Kediri."
         >
-          Tutup Form
-        </button>
-      </div>
-
-      {generalError && (
-        <div className="edu-form-alert edu-form-alert-error" role="alert">
-          <strong>Peringatan:</strong> {generalError}
+          <Input name="institution" type="text" value={formData.institution} onChange={handleChange} disabled={busy} />
+        </Field>
+        <div>
+          <Field id="edu-degree" label="Jenjang" required error={fieldErrors.degree} hint="Pilih salah satu, atau ketik sendiri.">
+            <Input name="degree" type="text" value={formData.degree} onChange={handleChange} disabled={busy} />
+          </Field>
+          <QuickPicks
+            label="Pilihan jenjang"
+            options={DEGREE_PRESETS}
+            value={formData.degree}
+            onPick={handleSelectDegreePreset}
+            disabled={busy}
+          />
         </div>
-      )}
+        <Field id="edu-field-of-study" label="Jurusan" required error={fieldErrors.field_of_study} hint="Contoh: Teknik Informatika.">
+          <Input name="field_of_study" type="text" value={formData.field_of_study} onChange={handleChange} disabled={busy} />
+        </Field>
+      </FormSection>
 
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="edu-form-grid">
-          {/* Institution */}
-          <div className="form-group form-group-full">
-            <label htmlFor="edu-institution" className="form-label">
-              <span>Nama Institusi / Universitas / Sekolah</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="edu-institution"
-              name="institution"
-              type="text"
-              className={`form-control-input ${fieldErrors.institution ? 'has-error' : ''}`}
-              placeholder="Contoh: Universitas Dian Nuswantoro, Politeknik Negeri"
-              value={formData.institution}
-              onChange={handleChange}
-              disabled={isSubmitting}
-              autoFocus
-            />
-            {fieldErrors.institution && (
-              <p className="form-field-error">{fieldErrors.institution}</p>
-            )}
-          </div>
-
-          {/* Degree */}
-          <div className="form-group">
-            <label htmlFor="edu-degree" className="form-label">
-              <span>Gelar / Jenjang Pendidikan</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="edu-degree"
-              name="degree"
-              type="text"
-              className={`form-control-input ${fieldErrors.degree ? 'has-error' : ''}`}
-              placeholder="Contoh: Diploma III (D3), Sarjana (S1)"
-              value={formData.degree}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.degree && <p className="form-field-error">{fieldErrors.degree}</p>}
-            <div className="edu-degree-presets" aria-label="Preset Jenjang">
-              {DEGREE_PRESETS.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  className={`skill-preset-btn ${
-                    formData.degree.toLowerCase() === preset.toLowerCase() ? 'is-selected' : ''
-                  }`}
-                  onClick={() => handleSelectDegreePreset(preset)}
-                  disabled={isSubmitting}
-                >
-                  {preset}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Field of Study */}
-          <div className="form-group">
-            <label htmlFor="edu-field-of-study" className="form-label">
-              <span>Jurusan / Program Studi</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="edu-field-of-study"
-              name="field_of_study"
-              type="text"
-              className={`form-control-input ${fieldErrors.field_of_study ? 'has-error' : ''}`}
-              placeholder="Contoh: Manajemen Informatika, Teknik Informatika"
-              value={formData.field_of_study}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.field_of_study && (
-              <p className="form-field-error">{fieldErrors.field_of_study}</p>
-            )}
-          </div>
-
-          {/* Start Year */}
-          <div className="form-group">
-            <label htmlFor="edu-start-year" className="form-label">
-              <span>Tahun Masuk / Mulai</span>
-              <span className="required-indicator">*</span>
-            </label>
-            <input
-              id="edu-start-year"
-              name="start_year"
-              type="number"
-              min="1950"
-              max="2100"
-              className={`form-control-input ${fieldErrors.start_year ? 'has-error' : ''}`}
-              value={formData.start_year}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.start_year && (
-              <p className="form-field-error">{fieldErrors.start_year}</p>
-            )}
-          </div>
-
-          {/* End Year & Current Checkbox */}
-          <div className="form-group">
-            <label htmlFor="edu-end-year" className="form-label">
-              <span>Tahun Lulus / Selesai</span>
-            </label>
-            <input
-              id="edu-end-year"
-              name="end_year"
-              type="number"
-              min="1950"
-              max="2100"
-              className={`form-control-input ${fieldErrors.end_year ? 'has-error' : ''}`}
-              value={formData.end_year}
-              onChange={handleChange}
-              disabled={isSubmitting || formData.is_current}
-            />
-            {fieldErrors.end_year && (
-              <p className="form-field-error">{fieldErrors.end_year}</p>
-            )}
-
-            <label className="edu-checkbox-wrapper">
-              <input
-                type="checkbox"
-                name="is_current"
-                className="edu-checkbox-input"
-                checked={formData.is_current}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-              <span className="edu-checkbox-label">
-                Masih aktif menempuh studi saat ini
-              </span>
-            </label>
-          </div>
-
-          {/* Sort Order */}
-          <div className="form-group">
-            <label htmlFor="edu-sort-order" className="form-label">
-              <span>Urutan Tampilan (Sort Order)</span>
-            </label>
-            <input
-              id="edu-sort-order"
-              name="sort_order"
-              type="number"
-              min="0"
-              step="1"
-              className={`form-control-input ${fieldErrors.sort_order ? 'has-error' : ''}`}
-              value={formData.sort_order}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {fieldErrors.sort_order && (
-              <p className="form-field-error">{fieldErrors.sort_order}</p>
-            )}
-            <p className="form-field-helper">Angka lebih kecil akan ditampilkan lebih atas.</p>
-          </div>
-
-          {/* Description */}
-          <div className="form-group form-group-full">
-            <label htmlFor="edu-description" className="form-label">
-              <span>Deskripsi / Fokus Pembelajaran</span>
-            </label>
-            <textarea
-              id="edu-description"
-              name="description"
-              rows="3"
-              className="form-control-textarea"
-              placeholder="Jelaskan fokus studi, mata kuliah inti, skripsi/tugas akhir, atau capaian akademis..."
-              value={formData.description}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </div>
+      <FormSection title="Waktu" columns={2}>
+        <Field id="edu-start-year" label="Tahun masuk" required error={fieldErrors.start_year}>
+          <Input
+            name="start_year"
+            type="number"
+            min="1950"
+            max="2100"
+            inputMode="numeric"
+            value={formData.start_year}
+            onChange={handleChange}
+            disabled={busy}
+          />
+        </Field>
+        <Field
+          id="edu-end-year"
+          label="Tahun lulus"
+          optional
+          error={fieldErrors.end_year}
+          hint={formData.is_current ? 'Tidak perlu diisi karena masih belajar di sini.' : 'Kosongkan bila belum lulus.'}
+        >
+          <Input
+            name="end_year"
+            type="number"
+            min="1950"
+            max="2100"
+            inputMode="numeric"
+            value={formData.end_year}
+            onChange={handleChange}
+            disabled={busy || formData.is_current}
+          />
+        </Field>
+        <div className="adm-span-2">
+          <Checkbox
+            id="edu-current"
+            name="is_current"
+            label="Masih belajar di sini"
+            checked={formData.is_current}
+            onChange={handleChange}
+            disabled={busy}
+          />
         </div>
+      </FormSection>
 
-        <div className="edu-form-actions">
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary btn-sm"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? 'Menyimpan...'
-              : isEditMode
-              ? 'Simpan Perubahan'
-              : 'Tambah Riwayat Pendidikan'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <FormSection title="Keterangan" columns={2}>
+        <Field
+          id="edu-description"
+          label="Keterangan"
+          optional
+          className="adm-span-2"
+          hint="Misalnya fokus belajar, tugas akhir, atau prestasi selama sekolah."
+        >
+          <Textarea name="description" rows={4} value={formData.description} onChange={handleChange} disabled={busy} />
+        </Field>
+        <Field id="edu-sort-order" label="Urutan tampil" error={fieldErrors.sort_order} hint="Angka kecil tampil lebih atas.">
+          <Input
+            name="sort_order"
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
+            value={formData.sort_order}
+            onChange={handleChange}
+            disabled={busy}
+          />
+        </Field>
+      </FormSection>
+    </FormPanel>
   )
 }
 

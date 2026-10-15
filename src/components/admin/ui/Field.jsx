@@ -162,3 +162,29 @@ export function FormSection({ title, description, children, columns = 1 }) {
     </fieldset>
   )
 }
+
+/**
+ * Quick picks under a free-text field (e.g. Frontend / Backend), or a filter row above a list.
+ * Toggle buttons with aria-pressed; `label` names the group for screen readers.
+ */
+export function QuickPicks({ label, options, value, onPick, disabled = false, isSelected = (option, current) => option === current }) {
+  return (
+    <div className="adm-quickpicks" role="group" aria-label={label}>
+      {options.map((option) => {
+        const opt = typeof option === 'string' ? { value: option, label: option } : option
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            className="adm-quickpick"
+            aria-pressed={isSelected(opt.value, value)}
+            onClick={() => onPick(opt.value)}
+            disabled={disabled}
+          >
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}

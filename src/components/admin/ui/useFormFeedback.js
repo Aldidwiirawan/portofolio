@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { prefersReducedMotion } from '../../../lib/useMediaQuery'
+import { useUnsavedChanges } from './adminContexts'
 
 // How long the save button shows "Tersimpan" (brackets lock on, check appears) before the form closes
 const SUCCESS_HOLD_MS = 700
@@ -41,4 +42,29 @@ export function useFormFeedback(formRef, { generalError, alertRef } = {}) {
   }, [])
 
   return { noteSubmit, saved, finish }
+}
+
+/** Comparable form values: numbers typed into inputs come back as strings, so compare as text. */
+export function formSnapshot(data) {
+  return JSON.stringify(
+    Object.entries(data).map(([key, value]) => [key, typeof value === 'boolean' ? value : String(value ?? '')])
+  )
+}
+
+/**
+ * Everything a form screen needs around its own logic: feedback (see useFormFeedback), whether
+ * `data` differs from the values the form opened with, the unsaved-changes guard, and a guarded
+ * cancel that asks before discarding changes.
+ */
+export function useFormScreen({ data, generalError, onCancel }) {
+  const formRef = useRef(null)
+  const alertRef = useRef(null)
+  const feedback = useFormFeedback(formRef, { generalError, alertRef })
+  const [initial] = useState(() => formSnapshot(data))
+  const isDirty = formSnapshot(data) !== initial
+  const confirmLeave = useUnsavedChanges(isDirty && !feedback.saved)
+  const cancel = async () => {
+    if (await confirmLeave()) onCancel()
+  }
+  return { formRef, alertRef, ...feedback, isDirty, cancel }
 }
