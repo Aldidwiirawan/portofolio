@@ -82,7 +82,7 @@ dijaga dialog "Tinggalkan perubahan?".
 ## 4. Urutan commit
 
 - [x] 0. Rencana ini (`plans/tahap-2b-admin.md`)
-- [ ] 1. Migrasi (`supabase/migrations/20261016000000_admin_content_model.sql`)
+- [x] 1. Migrasi (`supabase/migrations/20261016000000_admin_content_model.sql`)
 - [ ] 2. Navigasi 5 menu + sub-tab
 - [ ] 3. Komponen bersama, util unggah/kompresi, opsi hooks
 - [ ] 4. Profil
