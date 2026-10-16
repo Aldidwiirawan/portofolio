@@ -8,20 +8,26 @@ import { useOrganizations } from '../../hooks/useOrganizations'
 import { useProfile } from '../../hooks/useProfile'
 import { useProjects } from '../../hooks/useProjects'
 import { useSkills } from '../../hooks/useSkills'
+import { Link } from 'react-router-dom'
 import RobotMascot from '../../components/brand/RobotMascot'
 import { AdminLayout, AdminRoot } from '../../components/admin/ui/AdminLayout'
 import { useAdminShell } from '../../components/admin/ui/adminContexts'
+import { ADMIN_SECTIONS } from '../../components/admin/ui/adminNav'
 import { Alert } from '../../components/admin/ui/Alert'
 import { Button, ButtonLink } from '../../components/admin/ui/Button'
 import { Badge, Card, StatCard } from '../../components/admin/ui/Card'
+import { certificateValidity } from '../../components/admin/ui/contentLabels'
 import { Skeleton } from '../../components/admin/ui/Feedback'
 import { formatDateTime, formatRelativeDate } from '../../components/admin/ui/format'
+import { toFriendlyError } from '../../components/admin/ui/friendlyError'
 import {
+  IconAlert,
   IconArrowRight,
   IconAward,
   IconBook,
   IconBriefcase,
   IconCap,
+  IconCheck,
   IconCode,
   IconFolder,
   IconGlobe,
@@ -35,16 +41,72 @@ import './AdminDashboardPage.css'
 
 const LATEST_COUNT = 5
 
-// Main profile fields shown on the public page; the Profil card counts how many are filled in
+// Main profile data for the public page; the Profil card counts how many are filled in
 const PROFILE_KEY_FIELDS = [
   (p) => p.full_name,
-  (p) => p.tagline,
+  (p) => p.primary_role || p.tagline,
   (p) => p.bio,
-  (p) => p.email,
   (p) => p.avatar_url,
+  (p) => p.cv_file_url || p.resume_url || p.resume_link,
   (p) => p.location,
-  (p) => p.resume_url || p.resume_link,
+  (p) => p.linkedin_url,
+  (p) => p.github_username,
 ]
+
+const visibleOnly = (list) => (list ?? []).filter((item) => item.is_visible !== false)
+
+/**
+ * Completeness reminders computed from the data (only for parts that loaded):
+ * [{ id, text, to, tone }] — tone 'danger' for something already wrong (e.g. expired).
+ */
+function buildReminders({ profile, projects, certifications, experiences }) {
+  const out = []
+  const add = (id, text, to, tone = 'warn') => out.push({ id, text, to, tone })
+
+  if (profile.ready) {
+    const p = profile.data || {}
+    if (!p.avatar_url) add('avatar', 'Foto profil belum diunggah', '/admin/profile')
+    if (!p.cv_file_url) {
+      add('cv', p.resume_url || p.resume_link ? 'CV PDF belum diunggah (masih memakai tautan cadangan)' : 'CV belum diunggah', '/admin/profile')
+    }
+    if (!p.primary_role) add('role', 'Peran utama belum diisi', '/admin/profile')
+    if (!Array.isArray(p.hero_keywords) || p.hero_keywords.length === 0) add('keywords', 'Kata berganti di bagian pembuka belum diisi', '/admin/profile')
+    if (!p.linkedin_url) add('linkedin', 'Tautan LinkedIn belum diisi', '/admin/profile')
+    if (!p.github_username) add('github', 'Username GitHub belum diisi', '/admin/profile')
+  }
+
+  if (projects.ready) {
+    const shown = visibleOnly(projects.data)
+    const featured = shown.filter((x) => x.is_featured).length
+    if (shown.length > 0 && featured === 0) add('projects-featured', 'Proyek unggulan belum dipilih', '/admin/projects')
+    if (featured > 4) add('projects-too-many', `${featured} proyek unggulan; pilih 3–4 saja`, '/admin/projects')
+    const noCover = shown.filter((x) => !x.thumbnail_url).length
+    if (noCover > 0) add('projects-cover', `${noCover} proyek belum punya gambar sampul`, '/admin/projects')
+    const noStatus = shown.filter((x) => !x.status).length
+    if (noStatus > 0) add('projects-status', `${noStatus} proyek belum punya status`, '/admin/projects')
+  }
+
+  if (certifications.ready) {
+    const shown = visibleOnly(certifications.data)
+    const noImage = shown.filter((x) => !x.image_url).length
+    if (noImage > 0) add('cert-image', `${noImage} sertifikat belum punya gambar`, '/admin/certifications')
+    const states = shown.map((x) => certificateValidity(x).state)
+    const soon = states.filter((x) => x === 'soon').length
+    if (soon > 0) add('cert-soon', `${soon} sertifikat akan kedaluwarsa dalam 3 bulan`, '/admin/certifications', 'danger')
+    const expired = states.filter((x) => x === 'expired').length
+    if (expired > 0) add('cert-expired', `${expired} sertifikat sudah kedaluwarsa`, '/admin/certifications', 'danger')
+    if (shown.length > 0 && !shown.some((x) => x.is_featured)) add('cert-featured', 'Sertifikat unggulan belum dipilih', '/admin/certifications')
+  }
+
+  if (experiences.ready) {
+    const shown = visibleOnly(experiences.data)
+    const noTasks = shown.filter((x) => !Array.isArray(x.responsibilities) || x.responsibilities.length === 0).length
+    if (noTasks > 0) add('exp-tasks', `${noTasks} pengalaman belum punya poin tugas`, '/admin/experiences')
+    if (shown.length > 0 && !shown.some((x) => x.is_featured)) add('exp-featured', 'Pengalaman unggulan belum dipilih', '/admin/experiences')
+  }
+
+  return out
+}
 
 /** Beranda admin: ringkasan setiap bagian, pesan dan buku tamu terbaru. Data lewat hooks yang ada. */
 function AdminDashboardPage() {
@@ -58,15 +120,15 @@ function AdminDashboardPage() {
 function DashboardScreen() {
   const { inbox } = useAdminShell()
   const guestbook = useGuestbook()
-  const profile = useProfile()
-  const projects = useProjects()
-  const skills = useSkills()
-  const experiences = useExperiences()
-  const educations = useEducations()
-  const certifications = useCertifications()
-  const achievements = useAchievements()
-  const languages = useLanguages()
-  const organizations = useOrganizations()
+  const profile = useProfile({ includePrivateFields: true })
+  const projects = useProjects({ includeAdminFields: true })
+  const skills = useSkills({ includeAdminFields: true })
+  const experiences = useExperiences({ includeAdminFields: true })
+  const educations = useEducations({ includeAdminFields: true })
+  const certifications = useCertifications({ includeAdminFields: true })
+  const achievements = useAchievements({ includeAdminFields: true })
+  const languages = useLanguages({ includeAdminFields: true })
+  const organizations = useOrganizations({ includeAdminFields: true })
 
   const messages = inbox?.messages ?? []
   const unread = inbox?.unreadCount ?? 0
@@ -76,58 +138,62 @@ function DashboardScreen() {
   const profileFilled = profile.profile ? PROFILE_KEY_FIELDS.filter((get) => Boolean(get(profile.profile))).length : 0
   const countWhere = (list, test) => (list ?? []).filter(test).length
 
-  const contentCards = [
-    {
-      to: '/admin/profile',
-      label: 'Profil',
+  const featuredNote = (list) => {
+    const featured = countWhere(list, (x) => x.is_featured)
+    const hidden = countWhere(list, (x) => x.is_visible === false)
+    return [featured > 0 && `${featured} unggulan`, hidden > 0 && `${hidden} disembunyikan`].filter(Boolean).join(' · ') || null
+  }
+
+  // Summary cards per menu section (paths and order from adminNav)
+  const cards = {
+    '/admin/profile': {
       icon: IconUser,
       state: profile,
       value: `${profileFilled}/${PROFILE_KEY_FIELDS.length}`,
       note: profile.profile ? 'data utama terisi' : 'Belum diisi',
     },
-    {
-      to: '/admin/projects',
-      label: 'Proyek',
-      icon: IconFolder,
-      state: projects,
-      list: projects.projects,
-      note: (list) => `${countWhere(list, (p) => p.is_featured)} unggulan`,
+    '/admin/educations': {
+      icon: IconCap,
+      state: educations,
+      list: educations.educations,
+      note: (list) => currentNote(countWhere(list, (x) => x.is_current)) || featuredNote(list),
     },
-    {
-      to: '/admin/skills',
-      label: 'Keahlian',
+    '/admin/languages': { icon: IconGlobe, state: languages, list: languages.languages, note: featuredNote },
+    '/admin/projects': { icon: IconFolder, state: projects, list: projects.projects, note: (list) => `${countWhere(list, (p) => p.is_featured)} unggulan` },
+    '/admin/skills': {
       icon: IconCode,
       state: skills,
       list: skills.skills,
       note: (list) => `${new Set(list.map((s) => s.category).filter(Boolean)).size} kategori`,
     },
-    {
-      to: '/admin/experiences',
-      label: 'Pengalaman',
+    '/admin/certifications': { icon: IconAward, state: certifications, list: certifications.certifications, note: featuredNote },
+    '/admin/experiences': {
       icon: IconBriefcase,
       state: experiences,
       list: experiences.experiences,
-      note: (list) => currentNote(countWhere(list, (x) => x.is_current)),
+      note: (list) => [currentNote(countWhere(list, (x) => x.is_current)), featuredNote(list)].filter(Boolean).join(' · ') || null,
     },
-    {
-      to: '/admin/educations',
-      label: 'Pendidikan',
-      icon: IconCap,
-      state: educations,
-      list: educations.educations,
-      note: (list) => currentNote(countWhere(list, (x) => x.is_current)),
-    },
-    { to: '/admin/certifications', label: 'Sertifikat', icon: IconAward, state: certifications, list: certifications.certifications },
-    { to: '/admin/achievements', label: 'Prestasi', icon: IconTrophy, state: achievements, list: achievements.achievements },
-    { to: '/admin/languages', label: 'Bahasa', icon: IconGlobe, state: languages, list: languages.languages },
-    { to: '/admin/organizations', label: 'Organisasi', icon: IconUsers, state: organizations, list: organizations.organizations },
-  ]
+    '/admin/organizations': { icon: IconUsers, state: organizations, list: organizations.organizations, note: featuredNote },
+    '/admin/achievements': { icon: IconTrophy, state: achievements, list: achievements.achievements, note: featuredNote },
+  }
+  const contentCards = Object.values(cards)
+  const contentSections = ADMIN_SECTIONS.filter((section) => section.group === 'content')
+
+  const reminderSources = {
+    profile: { ready: !profile.isLoading && !profile.error, data: profile.profile },
+    projects: { ready: !projects.isLoading && !projects.error, data: projects.projects },
+    certifications: { ready: !certifications.isLoading && !certifications.error, data: certifications.certifications },
+    experiences: { ready: !experiences.isLoading && !experiences.error, data: experiences.experiences },
+  }
+  const remindersLoading = [profile, projects, certifications, experiences].some((x) => x.isLoading)
+  const reminders = buildReminders(reminderSources)
 
   const failed = [
     inbox?.error && inbox.refetch,
     guestbook.error && guestbook.refresh,
     ...contentCards.map((c) => c.state.error && c.state.refetch),
   ].filter(Boolean)
+  const firstError = [inbox?.error, guestbook.error, ...contentCards.map((c) => c.state.error)].find(Boolean)
 
   const latestMessages = messages.slice(0, LATEST_COUNT)
   const latestEntries = [...entries]
@@ -138,7 +204,7 @@ function DashboardScreen() {
     <AdminLayout
       title="Selamat datang, Aldi"
       docTitle="Beranda"
-      description="Ringkasan isi portofolio dan pesan yang masuk. Pilih kartu untuk mengelola bagiannya."
+      description="Hal yang perlu dilengkapi, ringkasan isi portofolio, dan pesan yang masuk. Pilih kartu untuk mengelola bagiannya."
       leading={<RobotMascot mood="idle" size={64} className="adm-home-robot" />}
     >
       {failed.length > 0 && (
@@ -152,14 +218,68 @@ function DashboardScreen() {
               </Button>
             }
           >
-            Periksa koneksi internet, lalu coba muat ulang.
+            {toFriendlyError(firstError, 'Periksa koneksi internet, lalu coba muat ulang.')}
           </Alert>
         </div>
       )}
 
-      <section className="adm-home-section" aria-labelledby="home-interaksi">
-        <h2 id="home-interaksi" className="adm-section-title">
-          Interaksi
+      <section className="adm-home-section" aria-labelledby="home-todo">
+        <Card as="div" heading="Perlu dilengkapi" headingId="home-todo" barAside={!remindersLoading && reminders.length > 0 ? <Badge tone="neutral">{reminders.length}</Badge> : null} flush>
+          {remindersLoading ? (
+            <Skeleton rows={2} label="Memeriksa kelengkapan..." />
+          ) : reminders.length === 0 ? (
+            <p className="adm-todo-done">
+              <IconCheck size={18} />
+              <span>Semua data utama sudah lengkap.</span>
+            </p>
+          ) : (
+            <ul className="adm-todo">
+              {reminders.map((item) => (
+                <li key={item.id}>
+                  <Link to={item.to} className={`adm-todo-link${item.tone === 'danger' ? ' is-danger' : ''}`}>
+                    <IconAlert size={16} className="adm-todo-icon" />
+                    <span className="adm-todo-text">{item.text}</span>
+                    <IconArrowRight size={16} className="adm-todo-go" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </section>
+
+      {contentSections.map((section) => (
+        <section key={section.id} className="adm-home-section" aria-labelledby={`home-${section.id}`}>
+          <h2 id={`home-${section.id}`} className="adm-section-title">
+            {section.label}
+          </h2>
+          <div className="adm-home-grid adm-home-grid--content">
+            {section.items.map((item) => {
+              const card = cards[item.to]
+              const list = card.list ?? []
+              const value = card.value ?? list.length
+              const note =
+                typeof card.note === 'function' ? (list.length === 0 ? 'Belum ada isi' : card.note(list)) : (card.note ?? (list.length === 0 ? 'Belum ada isi' : null))
+              return (
+                <SummaryCard
+                  key={item.to}
+                  to={item.to}
+                  label={item.label}
+                  icon={card.icon}
+                  loading={card.state.isLoading}
+                  error={card.state.error}
+                  value={value}
+                  note={note}
+                />
+              )
+            })}
+          </div>
+        </section>
+      ))}
+
+      <section className="adm-home-section" aria-labelledby="home-inbox">
+        <h2 id="home-inbox" className="adm-section-title">
+          Kotak Masuk
         </h2>
         <div className="adm-home-grid adm-home-grid--pair">
           <SummaryCard
@@ -182,31 +302,6 @@ function DashboardScreen() {
             note={entries.length === 0 ? 'Belum ada entri' : unreplied > 0 ? `${unreplied} belum dibalas` : 'semua sudah dibalas'}
             highlight={unreplied > 0}
           />
-        </div>
-      </section>
-
-      <section className="adm-home-section" aria-labelledby="home-isi">
-        <h2 id="home-isi" className="adm-section-title">
-          Isi portofolio
-        </h2>
-        <div className="adm-home-grid adm-home-grid--content">
-          {contentCards.map((card) => {
-            const list = card.list ?? []
-            const value = card.value ?? list.length
-            const note = typeof card.note === 'function' ? (list.length === 0 ? 'Belum ada isi' : card.note(list)) : (card.note ?? (list.length === 0 ? 'Belum ada isi' : null))
-            return (
-              <SummaryCard
-                key={card.to}
-                to={card.to}
-                label={card.label}
-                icon={card.icon}
-                loading={card.state.isLoading}
-                error={card.state.error}
-                value={value}
-                note={note}
-              />
-            )
-          })}
         </div>
       </section>
 

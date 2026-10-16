@@ -156,3 +156,68 @@
   line-height: 1.25rem;
   white-space: nowrap;
 }
+
+/* --- Perlu dilengkapi: pengingat kelengkapan berupa tautan ----------------- */
+
+.adm-todo {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-todo li + li {
+  border-top: 1px solid var(--ds-border);
+}
+
+.adm-todo-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--ds-target-min);
+  padding: var(--space-2) var(--space-4);
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-medium);
+  line-height: var(--ds-lh-snug);
+  text-decoration: none;
+  transition: background-color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-todo-link:hover {
+  background-color: var(--ds-inset);
+  color: var(--ds-text-strong);
+}
+
+.adm .adm-todo-link[href]:focus-visible {
+  outline-offset: -2px;
+}
+
+.adm-todo-icon {
+  flex-shrink: 0;
+  color: var(--ds-accent-text);
+}
+
+.adm-todo-link.is-danger .adm-todo-icon {
+  color: var(--ds-danger-text);
+}
+
+.adm-todo-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.adm-todo-go {
+  flex-shrink: 0;
+  color: var(--ds-text-muted);
+}
+
+.adm-todo-done {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  color: var(--ds-success-text);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+}
