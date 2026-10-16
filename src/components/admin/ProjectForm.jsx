@@ -1,14 +1,22 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import { extractStoragePath } from '../../lib/storageUtils'
-import { useUnsavedChanges } from './ui/adminContexts'
-import { Alert } from './ui/Alert'
-import { Button } from './ui/Button'
-import { Card } from './ui/Card'
-import { Checkbox, Field, FormSection, Input, Textarea } from './ui/Field'
-import { ImageUpload } from './ui/ImageUpload'
+import { GalleryUpload, ImageField } from './ui/AssetUpload'
+import { PROJECT_STATUSES, PROJECT_TYPES } from './ui/contentLabels'
+import { Checkbox, Field, FormSection, Input, Select, Textarea } from './ui/Field'
+import { cleanList } from './ui/formValues'
+import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
-import { useFormFeedback } from './ui/useFormFeedback'
+import { ListInput } from './ui/ListInput'
+import { DisplaySettings } from './ui/Switch'
+import { prepareUploads, useAssetField, useGalleryField } from './ui/useAssetFields'
+import { useFormScreen } from './ui/useFormFeedback'
+
+// Columns returned after saving (same as the admin list reads)
+const PROJECT_COLUMNS =
+  'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible'
+
+const THIS_YEAR = new Date().getFullYear()
+const YEARS = Array.from({ length: THIS_YEAR + 1 - 2010 + 1 }, (_, i) => String(THIS_YEAR + 1 - i))
 
 /**
  * Helper: Converts text into a clean URL-friendly slug
@@ -40,168 +48,84 @@ function isValidUrl(string) {
 }
 
 /**
- * Helper: Formats file size in readable bytes, KB, or MB
- * @param {number} bytes
- * @returns {string}
- */
-function formatFileSize(bytes) {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
-}
-
-/**
  * ProjectForm Component
- * Handles input validation, storage image upload, and explicit INSERT or UPDATE into public.projects table.
- * Supports both CREATE and UPDATE modes seamlessly.
+ * Input validation, cover image and gallery uploads, and explicit INSERT or UPDATE into
+ * public.projects. Supports both CREATE and UPDATE modes.
  * Screen: admin form panel (sections, visible labels, errors under each field, unsaved-changes
  * guard, "Menyimpan..." and a short success state on the save button).
  *
  * @param {Object} props
  * @param {Object|null} [props.project] - Existing project data if editing, or null if creating
+ * @param {number} [props.nextSortOrder] - Position of a new project (end of the list)
  * @param {(savedProject: Object) => void} props.onSuccess - Callback on successful insert or update
  * @param {() => void} props.onCancel - Callback on cancel button click
  */
-function ProjectForm({ project = null, onSuccess, onCancel }) {
+function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel }) {
   const isEditMode = Boolean(project?.id)
 
-  const [title, setTitle] = useState(project?.title || '')
-  const [slug, setSlug] = useState(project?.slug || '')
+  const [formData, setFormData] = useState(() => ({
+    title: project?.title || '',
+    slug: project?.slug || '',
+    description: project?.description || '',
+    content: project?.content || '',
+    status: project?.status || '',
+    project_type: project?.project_type || '',
+    year: project?.year ? String(project.year) : '',
+    client_name: project?.client_name || '',
+    my_role: project?.my_role || '',
+    problem: project?.problem || '',
+    solution: project?.solution || '',
+    outcome: project?.outcome || '',
+    tech_stack: Array.isArray(project?.tech_stack) ? project.tech_stack : [],
+    demo_url: project?.demo_url || '',
+    github_url: project?.github_url || '',
+    is_repo_private: Boolean(project?.is_repo_private),
+    is_visible: project?.is_visible ?? true,
+    is_featured: Boolean(project?.is_featured),
+  }))
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(isEditMode)
-  const [description, setDescription] = useState(project?.description || '')
-  const [content, setContent] = useState(project?.content || '')
-  const [demoUrl, setDemoUrl] = useState(project?.demo_url || '')
-  const [githubUrl, setGithubUrl] = useState(project?.github_url || '')
-  const [techStackInput, setTechStackInput] = useState(
-    Array.isArray(project?.tech_stack) ? project.tech_stack.join(', ') : ''
-  )
-  const [isFeatured, setIsFeatured] = useState(Boolean(project?.is_featured))
-  const [sortOrder, setSortOrder] = useState(String(project?.sort_order ?? 0))
 
-  // Existing thumbnail URL from database (if in edit mode)
-  const existingThumbnailUrl = project?.thumbnail_url || null
-
-  // New thumbnail file and preview state
-  const [thumbnailFile, setThumbnailFile] = useState(null)
-  const [thumbnailPreview, setThumbnailPreview] = useState(null)
-  const fileInputRef = useRef(null)
+  // Cover image (projects/) and gallery screenshots (gallery/), uploaded when saving
+  const cover = useAssetField(project?.thumbnail_url, { folder: 'projects' })
+  const gallery = useGalleryField(project?.gallery, { max: 5 })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
 
-  // Screen only: values when the form opened (to detect unsaved changes), feedback helpers
-  const [initial] = useState(() => ({ title, slug, description, content, demoUrl, githubUrl, techStackInput, isFeatured, sortOrder }))
-  const formRef = useRef(null)
-  const alertRef = useRef(null)
-  const { noteSubmit, saved, finish } = useFormFeedback(formRef, { generalError, alertRef })
-  const isDirty =
-    Boolean(thumbnailFile) ||
-    title !== initial.title ||
-    slug !== initial.slug ||
-    description !== initial.description ||
-    content !== initial.content ||
-    demoUrl !== initial.demoUrl ||
-    githubUrl !== initial.githubUrl ||
-    techStackInput !== initial.techStackInput ||
-    isFeatured !== initial.isFeatured ||
-    sortOrder !== initial.sortOrder
-  const confirmLeave = useUnsavedChanges(isDirty && !saved)
+  // Screen only: feedback, unsaved-changes guard, guarded cancel
+  const screen = useFormScreen({ data: formData, generalError, onCancel, extraDirty: cover.dirty || gallery.dirty })
+  const { finish } = screen
 
-  const handleCancel = async () => {
-    if (await confirmLeave()) onCancel()
+  const set = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: null }))
+    if (generalError) setGeneralError('')
   }
-
-  // Revoke preview object URL when component unmounts or preview changes to prevent memory leak
-  useEffect(() => {
-    return () => {
-      if (thumbnailPreview) {
-        URL.revokeObjectURL(thumbnailPreview)
-      }
-    }
-  }, [thumbnailPreview])
+  const handleChange = (e) => set(e.target.name, e.target.value)
 
   // Handle title change and auto-generate slug if not manually customized
   const handleTitleChange = (e) => {
     const val = e.target.value
-    setTitle(val)
-    if (!isSlugManuallyEdited) {
-      setSlug(slugify(val))
-    }
-    if (fieldErrors.title) {
-      setFieldErrors((prev) => ({ ...prev, title: null }))
-    }
+    setFormData((prev) => ({ ...prev, title: val, slug: isSlugManuallyEdited ? prev.slug : slugify(val) }))
+    if (fieldErrors.title) setFieldErrors((prev) => ({ ...prev, title: null }))
   }
 
   // Handle manual slug input
   const handleSlugChange = (e) => {
     setIsSlugManuallyEdited(true)
-    const val = e.target.value.toLowerCase().replace(/\s+/g, '-')
-    setSlug(val)
-    if (fieldErrors.slug) {
-      setFieldErrors((prev) => ({ ...prev, slug: null }))
-    }
-  }
-
-  // Handle thumbnail image selection
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate MIME type
-    if (!file.type.startsWith('image/')) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        thumbnail: 'File ini bukan gambar. Pilih file PNG, JPG, atau WebP.',
-      }))
-      return
-    }
-
-    // Validate file size limit: 2 MB = 2097152 bytes
-    if (file.size > 2097152) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        thumbnail: 'Gambar ini lebih dari 2 MB. Pilih gambar yang lebih kecil.',
-      }))
-      return
-    }
-
-    // Clear previous error
-    setFieldErrors((prev) => ({ ...prev, thumbnail: null }))
-
-    // Clean up previous object URL if any
-    if (thumbnailPreview) {
-      URL.revokeObjectURL(thumbnailPreview)
-    }
-
-    setThumbnailFile(file)
-    setThumbnailPreview(URL.createObjectURL(file))
-  }
-
-  // Remove selected new thumbnail image (reverts to existing thumbnail in edit mode)
-  const handleRemoveThumbnail = () => {
-    if (thumbnailPreview) {
-      URL.revokeObjectURL(thumbnailPreview)
-    }
-    setThumbnailFile(null)
-    setThumbnailPreview(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-    setFieldErrors((prev) => ({ ...prev, thumbnail: null }))
+    set('slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))
   }
 
   // Validate form inputs before submission
   const validateForm = () => {
     const errors = {}
 
-    // Title validation
-    if (!title.trim()) {
+    if (!formData.title.trim()) {
       errors.title = 'Judul proyek wajib diisi.'
     }
 
-    // Slug validation
-    const trimmedSlug = slug.trim()
+    const trimmedSlug = formData.slug.trim()
     const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
     if (!trimmedSlug) {
       errors.slug = 'Alamat singkat wajib diisi.'
@@ -209,28 +133,15 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
       errors.slug = 'Alamat singkat hanya boleh berisi huruf kecil, angka, dan tanda hubung (-), tanpa spasi.'
     }
 
-    // Description validation
-    if (!description.trim()) {
+    if (!formData.description.trim()) {
       errors.description = 'Deskripsi singkat wajib diisi.'
     }
 
-    // URL validations
-    if (demoUrl.trim() && !isValidUrl(demoUrl)) {
-      errors.demoUrl = 'Tautan demo harus diawali http:// atau https://.'
+    if (formData.demo_url.trim() && !isValidUrl(formData.demo_url)) {
+      errors.demo_url = 'Tautan demo harus diawali http:// atau https://.'
     }
-    if (githubUrl.trim() && !isValidUrl(githubUrl)) {
-      errors.githubUrl = 'Tautan kode harus diawali http:// atau https://.'
-    }
-
-    // Thumbnail size re-check if selected
-    if (thumbnailFile && thumbnailFile.size > 2097152) {
-      errors.thumbnail = 'Gambar ini lebih dari 2 MB. Pilih gambar yang lebih kecil.'
-    }
-
-    // Sort order validation
-    const parsedSortOrder = parseInt(sortOrder, 10)
-    if (isNaN(parsedSortOrder) || parsedSortOrder < 0) {
-      errors.sortOrder = 'Urutan tampil harus berupa angka 0 atau lebih.'
+    if (formData.github_url.trim() && !isValidUrl(formData.github_url)) {
+      errors.github_url = 'Tautan kode harus diawali http:// atau https://.'
     }
 
     setFieldErrors(errors)
@@ -244,106 +155,60 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
     if (!validateForm()) {
       return
     }
+    if (cover.busy || gallery.busy) {
+      setGeneralError('Tunggu sebentar, gambar yang dipilih masih diproses.')
+      return
+    }
 
     setIsSubmitting(true)
 
-    let uploadedFilePath = null
-    let finalThumbnailUrl = isEditMode ? existingThumbnailUrl : null
-
-    // 1. Upload thumbnail to Supabase Storage if user chose a new file
-    if (thumbnailFile) {
-      const fileExt = thumbnailFile.name.split('.').pop().toLowerCase() || 'png'
-      const filePath = `projects/${crypto.randomUUID()}.${fileExt}`
-      uploadedFilePath = filePath
-
-      try {
-        const { error: uploadError } = await supabase.storage
-          .from('portfolio-assets')
-          .upload(uploadedFilePath, thumbnailFile, {
-            cacheControl: '3600',
-            upsert: false,
-          })
-
-        if (uploadError) {
-          setGeneralError(
-            uploadError.message || 'Gagal mengunggah thumbnail ke storage.'
-          )
-          setIsSubmitting(false)
-          return
-        }
-
-        const { data: urlData } = supabase.storage
-          .from('portfolio-assets')
-          .getPublicUrl(uploadedFilePath)
-
-        finalThumbnailUrl = urlData?.publicUrl || null
-      } catch (err) {
-        setGeneralError(
-          err instanceof Error
-            ? err.message
-            : 'Terjadi kesalahan saat mengunggah thumbnail.'
-        )
-        setIsSubmitting(false)
-        return
-      }
+    // 1. Upload the new cover and screenshots (removed again if anything below fails)
+    let uploads
+    try {
+      uploads = await prepareUploads({ thumbnail_url: cover, gallery })
+    } catch (err) {
+      setGeneralError(err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunggah gambar.')
+      setIsSubmitting(false)
+      return
     }
 
-    // 2. Parse tech_stack from comma-separated string into clean array TEXT[]
-    const techStackArray = techStackInput
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0)
-
-    // 3. Prepare controlled and explicit payload (no id, no timestamps)
+    // 2. Prepare controlled and explicit payload (no id, no timestamps)
     const payload = {
-      title: title.trim(),
-      slug: slug.trim(),
-      description: description.trim(),
-      content: content.trim() ? content.trim() : null,
-      thumbnail_url: finalThumbnailUrl,
-      demo_url: demoUrl.trim() ? demoUrl.trim() : null,
-      github_url: githubUrl.trim() ? githubUrl.trim() : null,
-      tech_stack: techStackArray,
-      is_featured: Boolean(isFeatured),
-      sort_order: parseInt(sortOrder, 10) || 0,
+      title: formData.title.trim(),
+      slug: formData.slug.trim(),
+      description: formData.description.trim(),
+      content: formData.content.trim() ? formData.content.trim() : null,
+      thumbnail_url: uploads.values.thumbnail_url,
+      demo_url: formData.demo_url.trim() ? formData.demo_url.trim() : null,
+      github_url: formData.github_url.trim() ? formData.github_url.trim() : null,
+      tech_stack: cleanList(formData.tech_stack),
+      is_featured: Boolean(formData.is_featured),
+      gallery: uploads.values.gallery,
+      status: formData.status || null,
+      year: formData.year ? Number(formData.year) : null,
+      project_type: formData.project_type || null,
+      client_name: formData.client_name.trim() || null,
+      my_role: formData.my_role.trim() || null,
+      problem: formData.problem.trim() || null,
+      solution: formData.solution.trim() || null,
+      outcome: formData.outcome.trim() || null,
+      is_repo_private: Boolean(formData.is_repo_private),
+      is_visible: Boolean(formData.is_visible),
     }
+    // A new project goes to the end of the list; the order is changed with Naik/Turun in the list
+    if (!isEditMode) payload.sort_order = nextSortOrder
 
-    // 4. Execute database mutation (UPDATE or INSERT)
+    // 3. Execute database mutation (UPDATE or INSERT)
     try {
       const query = isEditMode
         ? supabase.from('projects').update(payload).eq('id', project.id)
         : supabase.from('projects').insert(payload)
 
-      const { data, error: dbError } = await query
-        .select(
-          'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at'
-        )
-        .single()
+      const { data, error: dbError } = await query.select(PROJECT_COLUMNS).single()
 
       if (dbError) {
-        // Orphan file cleanup: remove newly uploaded file if DB operation fails
-        let cleanupWarning = ''
-        if (uploadedFilePath) {
-          try {
-            const { error: cleanupError } = await supabase.storage
-              .from('portfolio-assets')
-              .remove([uploadedFilePath])
-
-            if (cleanupError) {
-              console.warn(
-                `[Storage Cleanup Warning] Gagal membersihkan file orphan '${uploadedFilePath}':`,
-                cleanupError.message
-              )
-              cleanupWarning = ` (Peringatan: File thumbnail '${uploadedFilePath}' tidak dapat dibersihkan otomatis: ${cleanupError.message})`
-            }
-          } catch (cleanupEx) {
-            console.warn(
-              `[Storage Cleanup Exception] Gagal saat menghapus file orphan '${uploadedFilePath}':`,
-              cleanupEx
-            )
-            cleanupWarning = ` (Peringatan: Terjadi error saat membersihkan file thumbnail '${uploadedFilePath}')`
-          }
-        }
+        // Orphan file cleanup: remove the newly uploaded files if the DB operation fails
+        await uploads.rollback()
 
         // Handle unique constraint duplicate slug error (PostgreSQL error code 23505)
         if (
@@ -351,81 +216,26 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
           dbError.message?.toLowerCase().includes('slug') ||
           dbError.message?.toLowerCase().includes('duplicate')
         ) {
-          setGeneralError(
-            `Alamat singkat ini sudah dipakai proyek lain. Ganti dengan alamat lain.${cleanupWarning}`
-          )
+          setGeneralError('Alamat singkat ini sudah dipakai proyek lain. Ganti dengan alamat lain.')
           setFieldErrors((prev) => ({
             ...prev,
             slug: 'Alamat singkat ini sudah dipakai proyek lain.',
           }))
         } else {
-          setGeneralError(
-            `${dbError.message || (isEditMode ? 'Gagal memperbarui project.' : 'Gagal menyimpan project ke database.')}${cleanupWarning}`
-          )
+          setGeneralError(dbError.message || (isEditMode ? 'Gagal memperbarui project.' : 'Gagal menyimpan project ke database.'))
         }
         setIsSubmitting(false)
         return
       }
 
-      // 5. Best-effort cleanup of old thumbnail if replaced in edit mode
-      if (isEditMode && uploadedFilePath && existingThumbnailUrl) {
-        const oldFilePath = extractStoragePath(existingThumbnailUrl)
-        if (oldFilePath && oldFilePath !== uploadedFilePath) {
-          try {
-            const { error: oldRemoveError } = await supabase.storage
-              .from('portfolio-assets')
-              .remove([oldFilePath])
+      // 4. Best-effort cleanup of replaced or removed images
+      await uploads.cleanup()
 
-            if (oldRemoveError) {
-              console.warn(
-                `[Storage Cleanup] Gagal menghapus thumbnail lama '${oldFilePath}':`,
-                oldRemoveError.message
-              )
-            }
-          } catch (ex) {
-            console.warn(
-              `[Storage Cleanup] Exception saat menghapus thumbnail lama:`,
-              ex
-            )
-          }
-        }
-      }
-
-      // Success
       setIsSubmitting(false)
       finish(() => onSuccess(data))
     } catch (err) {
-      // Orphan file cleanup on unexpected exceptions
-      let cleanupWarning = ''
-      if (uploadedFilePath) {
-        try {
-          const { error: cleanupError } = await supabase.storage
-            .from('portfolio-assets')
-            .remove([uploadedFilePath])
-
-          if (cleanupError) {
-            console.warn(
-              `[Storage Cleanup Warning] Gagal membersihkan file orphan '${uploadedFilePath}':`,
-              cleanupError.message
-            )
-            cleanupWarning = ` (Peringatan: File thumbnail '${uploadedFilePath}' tidak dapat dibersihkan otomatis: ${cleanupError.message})`
-          }
-        } catch (cleanupEx) {
-          console.warn(
-            `[Storage Cleanup Exception] Gagal saat menghapus file orphan '${uploadedFilePath}':`,
-            cleanupEx
-          )
-          cleanupWarning = ` (Peringatan: Terjadi error saat membersihkan file thumbnail '${uploadedFilePath}')`
-        }
-      }
-
-      setGeneralError(
-        `${
-          err instanceof Error
-            ? err.message
-            : 'Terjadi kesalahan sistem yang tidak terduga saat menyimpan data.'
-        }${cleanupWarning}`
-      )
+      await uploads.rollback()
+      setGeneralError(err instanceof Error ? err.message : 'Terjadi kesalahan sistem yang tidak terduga saat menyimpan data.')
       setIsSubmitting(false)
     }
   }
@@ -438,183 +248,165 @@ function ProjectForm({ project = null, onSuccess, onCancel }) {
           : 'Proyek belum tersimpan. Periksa koneksi internet, lalu coba lagi.'
       )
     : ''
-  const busy = isSubmitting || saved
+  const busy = isSubmitting || screen.saved
+  const input = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
 
   return (
-    <Card as="div" label={isEditMode ? 'Ubah proyek' : 'Proyek baru'} corners className="adm-form-card">
-      <form
-        ref={formRef}
-        noValidate
-        onSubmit={(e) => {
-          // Already saved: the form is about to close, never submit twice
-          if (saved) {
-            e.preventDefault()
-            return
+    <FormPanel
+      label={isEditMode ? 'Ubah proyek' : 'Proyek baru'}
+      screen={screen}
+      error={saveError}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan proyek'}
+    >
+      <FormSection title="Informasi utama">
+        <Field id="project-title" label="Judul proyek" required error={fieldErrors.title}>
+          <Input type="text" placeholder="Contoh: Aplikasi Kasir UMKM" name="title" value={formData.title} onChange={handleTitleChange} disabled={busy} />
+        </Field>
+        <Field
+          id="project-slug"
+          label="Alamat singkat"
+          required
+          error={fieldErrors.slug}
+          hint={
+            <>
+              Dipakai di alamat halaman proyek: <span className="adm-code">/projects/{formData.slug || 'alamat-singkat'}</span>.
+              {isEditMode ? ' Hanya huruf kecil, angka, dan tanda hubung.' : ' Dibuat otomatis dari judul; boleh diubah.'}
+            </>
           }
-          noteSubmit()
-          handleSubmit(e)
-        }}
-      >
-        {saveError && (
-          <div ref={alertRef} className="adm-form-alert">
-            <Alert tone="danger">{saveError}</Alert>
-          </div>
-        )}
-        <p className="adm-required-note">
-          Kolom bertanda <span aria-hidden="true">*</span>
-          <span className="adm-sr-only">bintang</span> wajib diisi.
-        </p>
+        >
+          <Input type="text" autoComplete="off" spellCheck={false} name="slug" value={formData.slug} onChange={handleSlugChange} disabled={busy} />
+        </Field>
+        <Field id="project-desc" label="Deskripsi singkat" required error={fieldErrors.description} hint="Satu atau dua kalimat yang tampil di kartu proyek.">
+          <Textarea rows={3} {...input('description')} />
+        </Field>
+        <Field id="project-content" label="Penjelasan lengkap" optional hint="Latar belakang, fitur, atau cara kerja proyek.">
+          <Textarea rows={6} {...input('content')} />
+        </Field>
+      </FormSection>
 
-        <FormSection title="Informasi utama">
-          <Field id="project-title" label="Judul proyek" required error={fieldErrors.title}>
-            <Input
-              type="text"
-              placeholder="Contoh: Aplikasi Kasir UMKM"
-              value={title}
-              onChange={handleTitleChange}
-              disabled={busy}
-            />
-          </Field>
-          <Field
-            id="project-slug"
-            label="Alamat singkat"
-            required
-            error={fieldErrors.slug}
-            hint={
-              <>
-                Dipakai di alamat halaman proyek: <span className="adm-code">/projects/{slug || 'alamat-singkat'}</span>.
-                {isEditMode ? ' Hanya huruf kecil, angka, dan tanda hubung.' : ' Dibuat otomatis dari judul; boleh diubah.'}
-              </>
-            }
-          >
-            <Input type="text" autoComplete="off" spellCheck={false} value={slug} onChange={handleSlugChange} disabled={busy} />
-          </Field>
-          <Field id="project-desc" label="Deskripsi singkat" required error={fieldErrors.description} hint="Satu atau dua kalimat yang tampil di kartu proyek.">
-            <Textarea
-              rows={3}
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value)
-                if (fieldErrors.description) {
-                  setFieldErrors((prev) => ({ ...prev, description: null }))
-                }
-              }}
-              disabled={busy}
-            />
-          </Field>
-          <Field id="project-content" label="Penjelasan lengkap" optional hint="Latar belakang, fitur, atau cara kerja proyek.">
-            <Textarea rows={6} value={content} onChange={(e) => setContent(e.target.value)} disabled={busy} />
-          </Field>
-        </FormSection>
+      <FormSection title="Detail proyek" columns={2}>
+        <Field id="project-status" label="Status" optional hint="Kondisi proyek saat ini.">
+          <Select {...input('status')}>
+            <option value="">Belum dipilih</option>
+            {PROJECT_STATUSES.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field id="project-type" label="Jenis" optional>
+          <Select {...input('project_type')}>
+            <option value="">Belum dipilih</option>
+            {PROJECT_TYPES.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field id="project-year" label="Tahun" optional hint="Tahun proyek selesai atau terakhir dikerjakan.">
+          <Select {...input('year')}>
+            <option value="">Belum dipilih</option>
+            {(formData.year && !YEARS.includes(formData.year) ? [formData.year, ...YEARS] : YEARS).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field id="project-client" label="Klien atau instansi" optional hint="Untuk siapa proyek ini dibuat, misalnya Toko Makmur.">
+          <Input type="text" {...input('client_name')} />
+        </Field>
+        <Field
+          id="project-role"
+          label="Peran saya"
+          optional
+          className="adm-span-2"
+          hint="Bagian yang Anda kerjakan, misalnya Full-stack developer: merancang database dan membuat API."
+        >
+          <Input type="text" {...input('my_role')} />
+        </Field>
+      </FormSection>
 
-        <FormSection title="Teknologi dan tautan" columns={2}>
-          <Field
+      <FormSection title="Studi kasus" description="Opsional. Ringkas saja; isi hanya yang benar-benar Anda ketahui.">
+        <Field id="project-problem" label="Masalah" optional hint="Masalah apa yang diselesaikan? Contoh: pencatatan penjualan masih manual di buku.">
+          <Textarea rows={3} {...input('problem')} />
+        </Field>
+        <Field id="project-solution" label="Solusi" optional hint="Apa yang Anda bangun dan bagaimana caranya.">
+          <Textarea rows={3} {...input('solution')} />
+        </Field>
+        <Field id="project-outcome" label="Hasil" optional hint="Dampak yang terlihat. Tulis angka hanya kalau memang ada datanya.">
+          <Textarea rows={3} {...input('outcome')} />
+        </Field>
+      </FormSection>
+
+      <FormSection title="Teknologi dan tautan" columns={2}>
+        <div className="adm-span-2">
+          <ListInput
             id="project-tech"
             label="Teknologi yang dipakai"
             optional
-            className="adm-span-2"
-            hint="Pisahkan dengan koma, misalnya: React, Supabase, CSS."
-          >
-            <Input type="text" value={techStackInput} onChange={(e) => setTechStackInput(e.target.value)} disabled={busy} />
-          </Field>
-          <Field id="project-demo" label="Tautan demo" optional error={fieldErrors.demoUrl}>
-            <Input
-              type="url"
-              inputMode="url"
-              placeholder="https://"
-              value={demoUrl}
-              onChange={(e) => {
-                setDemoUrl(e.target.value)
-                if (fieldErrors.demoUrl) {
-                  setFieldErrors((prev) => ({ ...prev, demoUrl: null }))
-                }
-              }}
-              disabled={busy}
-            />
-          </Field>
-          <Field id="project-github" label="Tautan kode" optional error={fieldErrors.githubUrl} hint="Misalnya halaman GitHub proyek.">
-            <Input
-              type="url"
-              inputMode="url"
-              placeholder="https://github.com/"
-              value={githubUrl}
-              onChange={(e) => {
-                setGithubUrl(e.target.value)
-                if (fieldErrors.githubUrl) {
-                  setFieldErrors((prev) => ({ ...prev, githubUrl: null }))
-                }
-              }}
-              disabled={busy}
-            />
-          </Field>
-        </FormSection>
-
-        <FormSection title="Gambar sampul">
-          <ImageUpload
-            id="project-thumb-upload"
-            label="Gambar sampul"
-            optional
-            hint={
-              isEditMode && existingThumbnailUrl
-                ? 'Gambar baru menggantikan gambar saat ini setelah Anda menyimpan. PNG, JPG, atau WebP, maksimal 2 MB.'
-                : 'PNG, JPG, atau WebP. Maksimal 2 MB.'
-            }
-            error={fieldErrors.thumbnail}
-            previewUrl={thumbnailPreview}
-            currentUrl={isEditMode ? existingThumbnailUrl : null}
-            fileName={thumbnailFile?.name}
-            fileSize={thumbnailFile ? formatFileSize(thumbnailFile.size) : null}
-            inputRef={fileInputRef}
-            onChange={handleThumbnailChange}
-            onRemove={handleRemoveThumbnail}
+            value={formData.tech_stack}
+            onChange={(items) => set('tech_stack', items)}
+            max={15}
+            itemLabel="Teknologi"
+            addLabel="Tambah teknologi"
+            placeholder="Contoh: Laravel"
+            maxLength={40}
+            hint="Urutkan dari yang paling utama."
             disabled={busy}
           />
-        </FormSection>
-
-        <FormSection title="Tampilan" columns={2}>
-          <Field id="project-sort" label="Urutan tampil" error={fieldErrors.sortOrder} hint="Angka kecil tampil lebih dulu. 0 paling awal.">
-            <Input
-              type="number"
-              min="0"
-              inputMode="numeric"
-              value={sortOrder}
-              onChange={(e) => {
-                setSortOrder(e.target.value)
-                if (fieldErrors.sortOrder) {
-                  setFieldErrors((prev) => ({ ...prev, sortOrder: null }))
-                }
-              }}
-              disabled={busy}
-            />
-          </Field>
-          <Checkbox
-            id="project-featured"
-            label="Jadikan proyek unggulan"
-            description="Proyek unggulan tampil paling atas di halaman publik."
-            checked={isFeatured}
-            onChange={(e) => setIsFeatured(e.target.checked)}
-            disabled={busy}
-          />
-        </FormSection>
-
-        <div className="adm-form-actions">
-          {isDirty && !saved && <p className="adm-form-actions-note">Ada perubahan yang belum disimpan</p>}
-          <Button variant="secondary" onClick={handleCancel} disabled={busy}>
-            Batal
-          </Button>
-          <Button
-            type="submit"
-            loading={isSubmitting}
-            loadingText="Menyimpan..."
-            status={saved ? 'success' : undefined}
-            successText="Tersimpan"
-            aria-disabled={busy || undefined}
-          >
-            {isEditMode ? 'Simpan perubahan' : 'Simpan proyek'}
-          </Button>
         </div>
-      </form>
-    </Card>
+        <Field id="project-demo" label="Tautan demo" optional error={fieldErrors.demo_url}>
+          <Input type="url" inputMode="url" placeholder="https://" {...input('demo_url')} />
+        </Field>
+        <Field id="project-github" label="Tautan kode" optional error={fieldErrors.github_url} hint="Misalnya halaman GitHub proyek.">
+          <Input type="url" inputMode="url" placeholder="https://github.com/" {...input('github_url')} />
+        </Field>
+        <Checkbox
+          id="project-private"
+          className="adm-span-2"
+          label="Repo privat"
+          description="Kodenya tidak bisa dibuka publik. Halaman publik menampilkan keterangan “Repo privat”, bukan tombol kode."
+          checked={formData.is_repo_private}
+          onChange={(e) => set('is_repo_private', e.target.checked)}
+          disabled={busy}
+        />
+      </FormSection>
+
+      <FormSection title="Gambar">
+        <ImageField
+          id="project-thumb-upload"
+          label="Gambar sampul"
+          field={cover}
+          hint="Tampil di kartu proyek. PNG, JPG, atau WebP sampai 10 MB; otomatis dikecilkan sebelum diunggah."
+          disabled={busy}
+        />
+        <GalleryUpload
+          id="project-gallery"
+          label="Galeri screenshot"
+          field={gallery}
+          altName={formData.title.trim()}
+          captionPlaceholder="Contoh: Halaman kasir"
+          hint="Sampai 5 gambar. Urutan di sini menjadi urutan tampil."
+          disabled={busy}
+        />
+      </FormSection>
+
+      <DisplaySettings
+        idPrefix="project"
+        visible={formData.is_visible}
+        onVisibleChange={(value) => set('is_visible', value)}
+        featured={formData.is_featured}
+        onFeaturedChange={(value) => set('is_featured', value)}
+        featuredLabel="Proyek unggulan"
+        featuredDescription="Tampil sebagai studi kasus di halaman publik. Pilih 3–4 proyek terbaik."
+        disabled={busy}
+      />
+    </FormPanel>
   )
 }
 

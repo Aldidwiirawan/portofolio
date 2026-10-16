@@ -1868,6 +1868,11 @@ html:has(.adm) body {
   pointer-events: none;
 }
 
+/* While a form is open, toasts sit above its sticky Batal / Simpan bar instead of covering it */
+html:has(.adm-form-actions) .adm-toasts {
+  bottom: calc(var(--ds-target-min) + var(--space-10));
+}
+
 .adm-toast-region {
   display: flex;
   flex-direction: column;

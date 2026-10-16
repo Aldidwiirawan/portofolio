@@ -200,8 +200,10 @@ export function GalleryUpload({ field, id, label, hint, altName = '', captionPla
   })
 
   const add = (files) => {
+    // Copy first: input.files is live and empties when the input is reset
+    const chosen = [...(files || [])]
     if (inputRef.current) inputRef.current.value = ''
-    if (!locked && !full) field.add(files)
+    if (!locked && !full) field.add(chosen)
   }
 
   const move = (item, index, delta) => {

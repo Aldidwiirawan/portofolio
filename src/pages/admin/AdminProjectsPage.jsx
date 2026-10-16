@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import { extractStoragePath } from '../../lib/storageUtils'
+import { removeAssets } from '../../lib/storageUtils'
 import { useProjects } from '../../hooks/useProjects'
 import ProjectForm from '../../components/admin/ProjectForm'
 import { AdminLayout, AdminRoot } from '../../components/admin/ui/AdminLayout'
@@ -8,12 +8,19 @@ import { useLeaveGuard, useToast } from '../../components/admin/ui/adminContexts
 import { Alert } from '../../components/admin/ui/Alert'
 import { Button } from '../../components/admin/ui/Button'
 import { Badge } from '../../components/admin/ui/Card'
+import { DisplayBadges, ReorderButtons, ReorderStatus, Thumb } from '../../components/admin/ui/ContentList'
+import { PROJECT_STATUSES, PROJECT_TYPES, bySortOrder, labelOf, nextSortOrder } from '../../components/admin/ui/contentLabels'
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
 import { ConfirmDialog } from '../../components/admin/ui/Dialog'
 import { EmptyState, Skeleton } from '../../components/admin/ui/Feedback'
 import { formatDateTime } from '../../components/admin/ui/format'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
-import { IconImage, IconPencil, IconPlus, IconRefresh, IconTrash } from '../../components/admin/ui/icons'
+import { IconPencil, IconPlus, IconRefresh, IconTrash } from '../../components/admin/ui/icons'
+import { assetUrlsOf, normalizeGallery } from '../../components/admin/ui/useAssetFields'
+import { useReorder } from '../../components/admin/ui/useReorder'
+
+// Status badges: finished work in green, work in progress in blue, ideas neutral
+const STATUS_TONE = { production: 'success', completed: 'success', final_project: 'accent', in_development: 'accent', concept: 'neutral' }
 
 /**
  * AdminProjectsPage Component (READ, CREATE, UPDATE, DELETE)
@@ -32,7 +39,7 @@ function AdminProjectsPage() {
 }
 
 function ProjectsScreen() {
-  const { projects, isLoading, error, refetch } = useProjects()
+  const { projects, isLoading, error, refetch } = useProjects({ includeAdminFields: true })
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
@@ -40,6 +47,15 @@ function ProjectsScreen() {
   const [deleteError, setDeleteError] = useState(null)
 
   const featuredCount = projects.filter((p) => p.is_featured).length
+  const hiddenCount = projects.filter((p) => p.is_visible === false).length
+
+  // Display order of the admin list: sort_order (Naik/Turun), newest first among equals
+  const reorder = useReorder({ table: 'projects', onSaved: refetch })
+  const sorted = useMemo(
+    () => bySortOrder(projects, (a, b) => String(b.created_at || '').localeCompare(String(a.created_at || ''))),
+    [projects]
+  )
+  const ordered = reorder.arrange(sorted)
 
   // Screen only: toasts, unsaved-changes guard for the breadcrumb, focus target after a delete
   // (Escape on the delete dialog is handled by ConfirmDialog)
@@ -105,29 +121,8 @@ function ProjectsScreen() {
         throw new Error(dbDeleteError.message || 'Gagal menghapus project dari database.')
       }
 
-      // 2. Best-effort storage cleanup of thumbnail if exists
-      if (deletingProject.thumbnail_url) {
-        const storagePath = extractStoragePath(deletingProject.thumbnail_url)
-        if (storagePath) {
-          try {
-            const { error: storageDeleteError } = await supabase.storage
-              .from('portfolio-assets')
-              .remove([storagePath])
-
-            if (storageDeleteError) {
-              console.warn(
-                `[Storage Cleanup] Gagal menghapus thumbnail '${storagePath}':`,
-                storageDeleteError.message
-              )
-            }
-          } catch (storageEx) {
-            console.warn(
-              `[Storage Cleanup] Exception saat menghapus thumbnail '${storagePath}':`,
-              storageEx
-            )
-          }
-        }
-      }
+      // 2. Best-effort storage cleanup of the cover image and the gallery screenshots
+      await removeAssets(assetUrlsOf(deletingProject, ['thumbnail_url'], ['gallery']))
 
       // 3. Close edit form if current deleted project was being edited
       if (editingProject?.id === deletingProject.id) {
@@ -170,6 +165,7 @@ function ProjectsScreen() {
         <ProjectForm
           key={editingProject?.id || 'new-project'}
           project={editingProject}
+          nextSortOrder={nextSortOrder(projects)}
           onSuccess={handleFormSuccess}
           onCancel={handleCancelForm}
         />
@@ -183,7 +179,7 @@ function ProjectsScreen() {
   return (
     <AdminLayout
       title="Proyek"
-      description="Proyek yang tampil di halaman publik. Proyek unggulan tampil paling atas."
+      description="Proyek untuk halaman publik. Pilih 3–4 proyek unggulan sebagai studi kasus, lalu atur urutannya dengan Naik dan Turun."
       headingRef={headingRef}
       actions={
         <>
@@ -229,38 +225,34 @@ function ProjectsScreen() {
         <>
           <p className="adm-list-summary" aria-live="polite">
             {projects.length} proyek · {featuredCount} unggulan
+            {hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}
           </p>
+          <ReorderStatus reorder={reorder} />
           <DataList label="Daftar proyek" aria-busy={isLoading || undefined}>
-            {projects.map((project) => {
+            {ordered.map((project, index) => {
               const techList = Array.isArray(project.tech_stack) ? project.tech_stack : []
+              const shots = normalizeGallery(project.gallery).length
+              const status = labelOf(PROJECT_STATUSES, project.status)
 
               return (
                 <DataListItem
                   key={project.id}
                   highlight={project.is_featured}
-                  media={
-                    project.thumbnail_url ? (
-                      <img src={project.thumbnail_url} alt="" loading="lazy" />
-                    ) : (
-                      <span className="adm-list-media-placeholder">
-                        <IconImage size={22} />
-                      </span>
-                    )
-                  }
+                  media={<Thumb url={project.thumbnail_url} />}
                   title={project.title}
                   badges={
                     <>
-                      {project.is_featured && (
-                        <Badge tone="accent" dot>
-                          Unggulan
-                        </Badge>
-                      )}
-                      <Badge>Urutan {project.sort_order ?? 0}</Badge>
+                      {status && <Badge tone={STATUS_TONE[project.status]}>{status}</Badge>}
+                      <DisplayBadges item={project} />
                     </>
                   }
                   subtitle={project.description || 'Belum ada deskripsi singkat.'}
                   meta={
                     <>
+                      {project.year && <span>{project.year}</span>}
+                      {project.project_type && <span>{labelOf(PROJECT_TYPES, project.project_type)}</span>}
+                      {project.client_name && <span>{project.client_name}</span>}
+                      {shots > 0 && <span>{shots} screenshot</span>}
                       {project.slug && <span>/projects/{project.slug}</span>}
                       {project.demo_url && (
                         <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
@@ -272,6 +264,7 @@ function ProjectsScreen() {
                           Kode<span className="adm-sr-only"> (tab baru)</span>
                         </a>
                       )}
+                      {project.is_repo_private && <span>Repo privat</span>}
                       {project.created_at && (
                         <time dateTime={project.created_at} title={formatDateTime(project.created_at)}>
                           Ditambahkan{' '}
@@ -286,6 +279,7 @@ function ProjectsScreen() {
                   }
                   actions={
                     <>
+                      <ReorderButtons reorder={reorder} list={ordered} index={index} name={`proyek "${project.title}"`} />
                       <Button
                         size="sm"
                         variant="secondary"
@@ -335,7 +329,10 @@ function ProjectsScreen() {
       >
         <p>
           Proyek <strong>"{deletingProject?.title}"</strong> akan dihapus permanen
-          {deletingProject?.thumbnail_url ? ' beserta gambar sampulnya' : ''}. Tindakan ini tidak bisa dibatalkan.
+          {deletingProject && assetUrlsOf(deletingProject, ['thumbnail_url'], ['gallery']).length > 0
+            ? ' beserta gambar sampul dan screenshot-nya'
+            : ''}
+          . Tindakan ini tidak bisa dibatalkan.
         </p>
       </ConfirmDialog>
     </AdminLayout>
