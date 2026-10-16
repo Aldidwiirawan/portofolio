@@ -1,12 +1,17 @@
 import { useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { removeAssets } from '../../lib/storageUtils'
 import { useOrganizations } from '../../hooks/useOrganizations'
 import OrganizationForm from '../../components/admin/OrganizationForm'
 import { AdminRoot } from '../../components/admin/ui/AdminLayout'
 import { Badge } from '../../components/admin/ui/Card'
+import { DisplayBadges, ReorderButtons, ReorderStatus, Thumb } from '../../components/admin/ui/ContentList'
+import { bySortOrder, nextSortOrder } from '../../components/admin/ui/contentLabels'
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
 import { NoMatches, RowActions, SearchBox, SectionScreen } from '../../components/admin/ui/SectionScreen'
+import { IconUsers } from '../../components/admin/ui/icons'
+import { useReorder } from '../../components/admin/ui/useReorder'
 import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
 
 /**
@@ -22,7 +27,7 @@ function AdminOrganizationsPage() {
 }
 
 function OrganizationsScreen() {
-  const { organizations, isLoading, error, refetch } = useOrganizations()
+  const { organizations, isLoading, error, refetch } = useOrganizations({ includeAdminFields: true })
   // Screen only: toasts, focus after a delete, guarded breadcrumb (Escape is handled by ConfirmDialog)
   const { toast, headingRef, returnToHeading, setReturnToHeading, guarded } = useSectionScreen()
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -32,15 +37,25 @@ function OrganizationsScreen() {
   const [deleteError, setDeleteError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Display order: sort_order (Naik/Turun; not while searching), latest start first among equals
+  const searching = Boolean(searchQuery.trim())
+  const reorder = useReorder({ table: 'organizations', onSaved: refetch, locked: searching })
+  const sorted = useMemo(
+    () => bySortOrder(organizations, (a, b) => String(b.start_date || '').localeCompare(String(a.start_date || ''))),
+    [organizations]
+  )
+  const ordered = reorder.arrange(sorted)
+  const hiddenCount = organizations.filter((o) => o.is_visible === false).length
+
   const filteredOrgs = useMemo(() => {
-    if (!searchQuery.trim()) return organizations
+    if (!searchQuery.trim()) return ordered
     const query = searchQuery.toLowerCase()
-    return organizations.filter(
+    return ordered.filter(
       (o) =>
         o.name?.toLowerCase().includes(query) ||
         o.role?.toLowerCase().includes(query)
     )
-  }, [organizations, searchQuery])
+  }, [ordered, searchQuery])
 
   const handleFormSuccess = (saved) => {
     const isEdit = Boolean(editingOrg)
@@ -98,6 +113,9 @@ function OrganizationsScreen() {
         throw new Error(dbError.message || 'Gagal menghapus organisasi dari database.')
       }
 
+      // Best-effort removal of the logo or photo
+      await removeAssets([deletingOrg.logo_url])
+
       if (editingOrg?.id === deletingOrg.id) {
         setIsFormOpen(false)
         setEditingOrg(null)
@@ -143,8 +161,16 @@ function OrganizationsScreen() {
       emptyTitle="Belum ada organisasi"
       emptyText="Organisasi atau kepanitiaan yang Anda tambahkan akan tampil di halaman publik."
       emptyActionLabel="Tambah organisasi pertama"
-      summary={`${organizations.length} organisasi`}
-      toolbar={<SearchBox id="org-search" label="Cari organisasi" hint="Ketik nama organisasi atau jabatan." value={searchQuery} onChange={setSearchQuery} />}
+      summary={`${organizations.length} organisasi${hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}`}
+      toolbar={
+        <SearchBox
+          id="org-search"
+          label="Cari organisasi"
+          hint={searching ? 'Kosongkan pencarian untuk mengatur urutan.' : 'Ketik nama organisasi atau jabatan.'}
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+      }
       headingRef={headingRef}
       form={{
         open: isFormOpen,
@@ -155,6 +181,7 @@ function OrganizationsScreen() {
           <OrganizationForm
             key={editingOrg?.id || 'new-org'}
             organization={editingOrg}
+            nextSortOrder={nextSortOrder(organizations)}
             onSuccess={handleFormSuccess}
             onCancel={handleCancelForm}
           />
@@ -170,16 +197,18 @@ function OrganizationsScreen() {
         onCancel: handleCloseDeleteModal,
         children: (
           <p>
-            Organisasi <strong>"{deletingOrg?.name}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+            Organisasi <strong>"{deletingOrg?.name}"</strong> akan dihapus permanen
+            {deletingOrg?.logo_url ? ' beserta logonya' : ''}. Tindakan ini tidak bisa dibatalkan.
           </p>
         ),
       }}
     >
+      <ReorderStatus reorder={reorder} />
       {filteredOrgs.length === 0 ? (
         <NoMatches>Tidak ada organisasi yang cocok dengan "{searchQuery}".</NoMatches>
       ) : (
         <DataList label="Daftar organisasi" aria-busy={isLoading || undefined}>
-          {filteredOrgs.map((item) => {
+          {filteredOrgs.map((item, index) => {
             const startText = formatDate(item.start_date)
             const endText = item.end_date ? formatDate(item.end_date) : 'Sekarang'
             const ongoing = Boolean(item.start_date) && !item.end_date
@@ -188,22 +217,29 @@ function OrganizationsScreen() {
               <DataListItem
                 key={item.id}
                 highlight={ongoing}
+                media={<Thumb url={item.logo_url} icon={IconUsers} contain />}
                 title={item.name}
                 badges={
-                  ongoing && (
-                    <Badge tone="success" dot>
-                      Masih aktif
-                    </Badge>
-                  )
+                  <>
+                    {ongoing && (
+                      <Badge tone="success" dot>
+                        Masih aktif
+                      </Badge>
+                    )}
+                    <DisplayBadges item={item} />
+                  </>
                 }
                 subtitle={item.role}
                 meta={startText ? <span>{startText} — {endText}</span> : null}
                 actions={
-                  <RowActions
-                    name={`organisasi "${item.name}"`}
-                    onEdit={() => handleOpenEditForm(item)}
-                    onDelete={() => handleOpenDeleteModal(item)}
-                  />
+                  <>
+                    <ReorderButtons reorder={reorder} list={filteredOrgs} index={index} name={`organisasi "${item.name}"`} />
+                    <RowActions
+                      name={`organisasi "${item.name}"`}
+                      onEdit={() => handleOpenEditForm(item)}
+                      onDelete={() => handleOpenDeleteModal(item)}
+                    />
+                  </>
                 }
               >
                 {item.description && <p className="adm-list-desc">{item.description}</p>}

@@ -4,9 +4,12 @@ import { useLanguages } from '../../hooks/useLanguages'
 import LanguageForm from '../../components/admin/LanguageForm'
 import { AdminRoot } from '../../components/admin/ui/AdminLayout'
 import { Badge } from '../../components/admin/ui/Card'
+import { DisplayBadges, ReorderButtons, ReorderStatus } from '../../components/admin/ui/ContentList'
+import { bySortOrder, nextSortOrder } from '../../components/admin/ui/contentLabels'
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
 import { NoMatches, RowActions, SearchBox, SectionScreen } from '../../components/admin/ui/SectionScreen'
+import { useReorder } from '../../components/admin/ui/useReorder'
 import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
 
 /**
@@ -22,7 +25,7 @@ function AdminLanguagesPage() {
 }
 
 function LanguagesScreen() {
-  const { languages, isLoading, error, refetch } = useLanguages()
+  const { languages, isLoading, error, refetch } = useLanguages({ includeAdminFields: true })
   // Screen only: toasts, focus after a delete, guarded breadcrumb (Escape is handled by ConfirmDialog)
   const { toast, headingRef, returnToHeading, setReturnToHeading, guarded } = useSectionScreen()
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -32,15 +35,25 @@ function LanguagesScreen() {
   const [deleteError, setDeleteError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Display order: sort_order (Naik/Turun; not while searching), oldest first among equals
+  const searching = Boolean(searchQuery.trim())
+  const reorder = useReorder({ table: 'languages', onSaved: refetch, locked: searching })
+  const sorted = useMemo(
+    () => bySortOrder(languages, (a, b) => String(a.created_at || '').localeCompare(String(b.created_at || ''))),
+    [languages]
+  )
+  const ordered = reorder.arrange(sorted)
+  const hiddenCount = languages.filter((l) => l.is_visible === false).length
+
   const filteredLanguages = useMemo(() => {
-    if (!searchQuery.trim()) return languages
+    if (!searchQuery.trim()) return ordered
     const query = searchQuery.toLowerCase()
-    return languages.filter(
+    return ordered.filter(
       (l) =>
         l.language_name?.toLowerCase().includes(query) ||
         l.proficiency_level?.toLowerCase().includes(query)
     )
-  }, [languages, searchQuery])
+  }, [ordered, searchQuery])
 
   const handleFormSuccess = (saved) => {
     const isEdit = Boolean(editingLang)
@@ -120,11 +133,12 @@ function LanguagesScreen() {
 
   // Badge tone per level (screen only)
   const proficiencyTone = (level) => {
-    switch (level) {
-      case 'Penutur Asli':
+    switch (String(level).trim().toLowerCase()) {
+      case 'penutur asli':
         return 'success'
-      case 'Mahir':
-      case 'Menengah':
+      case 'aktif':
+      case 'mahir':
+      case 'menengah':
         return 'accent'
       default:
         return 'neutral'
@@ -145,8 +159,16 @@ function LanguagesScreen() {
       emptyTitle="Belum ada bahasa"
       emptyText="Bahasa yang Anda tambahkan akan tampil di halaman publik."
       emptyActionLabel="Tambah bahasa pertama"
-      summary={`${languages.length} bahasa`}
-      toolbar={<SearchBox id="lang-search" label="Cari bahasa" hint="Ketik nama bahasa atau tingkatnya." value={searchQuery} onChange={setSearchQuery} />}
+      summary={`${languages.length} bahasa${hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}`}
+      toolbar={
+        <SearchBox
+          id="lang-search"
+          label="Cari bahasa"
+          hint={searching ? 'Kosongkan pencarian untuk mengatur urutan.' : 'Ketik nama bahasa atau tingkatnya.'}
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+      }
       headingRef={headingRef}
       form={{
         open: isFormOpen,
@@ -157,6 +179,7 @@ function LanguagesScreen() {
           <LanguageForm
             key={editingLang?.id || 'new-lang'}
             language={editingLang}
+            nextSortOrder={nextSortOrder(languages)}
             onSuccess={handleFormSuccess}
             onCancel={handleCancelForm}
           />
@@ -177,21 +200,30 @@ function LanguagesScreen() {
         ),
       }}
     >
+      <ReorderStatus reorder={reorder} />
       {filteredLanguages.length === 0 ? (
         <NoMatches>Tidak ada bahasa yang cocok dengan "{searchQuery}".</NoMatches>
       ) : (
         <DataList label="Daftar bahasa" aria-busy={isLoading || undefined}>
-          {filteredLanguages.map((item) => (
+          {filteredLanguages.map((item, index) => (
             <DataListItem
               key={item.id}
               title={item.language_name}
-              badges={item.proficiency_level && <Badge tone={proficiencyTone(item.proficiency_level)}>{item.proficiency_level}</Badge>}
+              badges={
+                <>
+                  {item.proficiency_level && <Badge tone={proficiencyTone(item.proficiency_level)}>{item.proficiency_level}</Badge>}
+                  <DisplayBadges item={item} />
+                </>
+              }
               actions={
-                <RowActions
-                  name={`bahasa "${item.language_name}"`}
-                  onEdit={() => handleOpenEditForm(item)}
-                  onDelete={() => handleOpenDeleteModal(item)}
-                />
+                <>
+                  <ReorderButtons reorder={reorder} list={filteredLanguages} index={index} name={`bahasa "${item.language_name}"`} />
+                  <RowActions
+                    name={`bahasa "${item.language_name}"`}
+                    onEdit={() => handleOpenEditForm(item)}
+                    onDelete={() => handleOpenDeleteModal(item)}
+                  />
+                </>
               }
             />
           ))}

@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import { ChoiceGroup, Field, FormSection, Input } from './ui/Field'
+import { LANGUAGE_LEVELS } from './ui/contentLabels'
+import { Field, FormSection, Input, QuickPicks } from './ui/Field'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
+import { DisplaySettings } from './ui/Switch'
 import { useFormScreen } from './ui/useFormFeedback'
-
-const PROFICIENCY_OPTIONS = ['Pemula', 'Menengah', 'Mahir', 'Penutur Asli']
 
 /**
  * LanguageForm Component
@@ -13,15 +13,17 @@ const PROFICIENCY_OPTIONS = ['Pemula', 'Menengah', 'Mahir', 'Penutur Asli']
  *
  * @param {Object} props
  * @param {Object|null} [props.language] - Existing language object
+ * @param {number} [props.nextSortOrder] - Position of a new language (end of the list)
  * @param {(saved: Object) => void} props.onSuccess - Callback on save success
  * @param {() => void} props.onCancel - Callback when canceled
  */
-function LanguageForm({ language = null, onSuccess, onCancel }) {
+function LanguageForm({ language = null, nextSortOrder = 0, onSuccess, onCancel }) {
   const isEditMode = Boolean(language)
 
   const [formData, setFormData] = useState({
     language_name: language?.language_name || '',
-    proficiency_level: language?.proficiency_level || 'Menengah',
+    proficiency_level: language?.proficiency_level || '',
+    is_visible: language?.is_visible ?? true,
   })
 
   const [fieldErrors, setFieldErrors] = useState({})
@@ -32,20 +34,10 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
   const screen = useFormScreen({ data: formData, generalError, onCancel })
   const { finish } = screen
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const set = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
-
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: null }))
-    }
-    if (generalError) {
-      setGeneralError(null)
-    }
-  }
-
-  const handleSelectProficiency = (level) => {
-    setFormData((prev) => ({ ...prev, proficiency_level: level }))
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: null }))
+    if (generalError) setGeneralError(null)
   }
 
   const validate = () => {
@@ -55,8 +47,8 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
       errors.language_name = 'Nama bahasa wajib diisi.'
     }
 
-    if (!formData.proficiency_level) {
-      errors.proficiency_level = 'Pilih tingkat kemahiran.'
+    if (!formData.proficiency_level.trim()) {
+      errors.proficiency_level = 'Tulis tingkat kemampuan, atau pilih salah satu.'
     }
 
     setFieldErrors(errors)
@@ -73,8 +65,11 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
 
     const payload = {
       language_name: formData.language_name.trim(),
-      proficiency_level: formData.proficiency_level,
+      proficiency_level: formData.proficiency_level.trim(),
+      is_visible: Boolean(formData.is_visible),
     }
+    // A new language goes to the end of the list; the order is changed with Naik/Turun
+    if (!isEditMode) payload.sort_order = nextSortOrder
 
     try {
       if (isEditMode) {
@@ -126,21 +121,37 @@ function LanguageForm({ language = null, onSuccess, onCancel }) {
       isSubmitting={isSubmitting}
       submitLabel={isEditMode ? 'Simpan perubahan' : 'Simpan bahasa'}
     >
-      <FormSection title="Bahasa">
+      <FormSection title="Bahasa" columns={2}>
         <Field id="lang-name" label="Nama bahasa" required error={fieldErrors.language_name} hint="Contoh: Inggris, Jepang.">
-          <Input name="language_name" type="text" value={formData.language_name} onChange={handleChange} disabled={busy} />
+          <Input type="text" value={formData.language_name} onChange={(e) => set('language_name', e.target.value)} disabled={busy} />
         </Field>
-        <ChoiceGroup
-          name="lang-level"
-          legend="Tingkat kemahiran"
-          required
-          options={PROFICIENCY_OPTIONS}
-          value={formData.proficiency_level}
-          onChange={handleSelectProficiency}
-          error={fieldErrors.proficiency_level}
-          disabled={busy}
-        />
+        <div>
+          <Field
+            id="lang-level"
+            label="Tingkat kemampuan"
+            required
+            error={fieldErrors.proficiency_level}
+            hint="Teks sederhana, misalnya Aktif atau Dasar. Skor tes (mis. TOEIC) dicatat di Sertifikat."
+          >
+            <Input type="text" value={formData.proficiency_level} onChange={(e) => set('proficiency_level', e.target.value)} disabled={busy} />
+          </Field>
+          <QuickPicks
+            label="Pilihan tingkat kemampuan"
+            options={LANGUAGE_LEVELS}
+            value={formData.proficiency_level}
+            onPick={(value) => set('proficiency_level', value)}
+            isSelected={(option, current) => current.trim().toLowerCase() === option.toLowerCase()}
+            disabled={busy}
+          />
+        </div>
       </FormSection>
+
+      <DisplaySettings
+        idPrefix="lang"
+        visible={formData.is_visible}
+        onVisibleChange={(value) => set('is_visible', value)}
+        disabled={busy}
+      />
     </FormPanel>
   )
 }

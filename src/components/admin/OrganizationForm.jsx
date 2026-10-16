@@ -1,9 +1,17 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { ImageField } from './ui/AssetUpload'
 import { Field, FormSection, Input, Textarea } from './ui/Field'
+import { dateToMonthYear, monthYearToDate } from './ui/format'
+import { checkMonthYear } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
+import { MonthYearSelect } from './ui/MonthYearSelect'
+import { DisplaySettings } from './ui/Switch'
+import { prepareUploads, useAssetField } from './ui/useAssetFields'
 import { useFormScreen } from './ui/useFormFeedback'
+
+const THIS_YEAR = new Date().getFullYear()
 
 /**
  * OrganizationForm Component
@@ -11,39 +19,39 @@ import { useFormScreen } from './ui/useFormFeedback'
  *
  * @param {Object} props
  * @param {Object|null} [props.organization] - Existing organization object
+ * @param {number} [props.nextSortOrder] - Position of a new organization (end of the list)
  * @param {(saved: Object) => void} props.onSuccess - Callback on save success
  * @param {() => void} props.onCancel - Callback when canceled
  */
-function OrganizationForm({ organization = null, onSuccess, onCancel }) {
+function OrganizationForm({ organization = null, nextSortOrder = 0, onSuccess, onCancel }) {
   const isEditMode = Boolean(organization)
 
   const [formData, setFormData] = useState({
     name: organization?.name || '',
     role: organization?.role || '',
-    start_date: organization?.start_date ? organization.start_date.split('T')[0] : '',
-    end_date: organization?.end_date ? organization.end_date.split('T')[0] : '',
+    start: dateToMonthYear(organization?.start_date),
+    end: dateToMonthYear(organization?.end_date),
     description: organization?.description || '',
+    is_visible: organization?.is_visible ?? true,
   })
+
+  // Logo or a small photo (logos/, 400 px), uploaded when saving
+  const logo = useAssetField(organization?.logo_url, { folder: 'logos', imageKind: 'logo' })
 
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Screen only: feedback, unsaved-changes guard, guarded cancel
-  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const screen = useFormScreen({ data: formData, generalError, onCancel, extraDirty: logo.dirty })
   const { finish } = screen
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const set = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
-
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: null }))
-    }
-    if (generalError) {
-      setGeneralError(null)
-    }
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: null }))
+    if (generalError) setGeneralError(null)
   }
+  const handleChange = (e) => set(e.target.name, e.target.value)
 
   const validate = () => {
     const errors = {}
@@ -56,9 +64,14 @@ function OrganizationForm({ organization = null, onSuccess, onCancel }) {
       errors.role = 'Jabatan wajib diisi.'
     }
 
-    if (formData.start_date && formData.end_date) {
-      if (new Date(formData.end_date) < new Date(formData.start_date)) {
-        errors.end_date = 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.'
+    const startProblem = checkMonthYear(formData.start)
+    if (startProblem) errors.start = startProblem
+    const endProblem = checkMonthYear(formData.end)
+    if (endProblem) {
+      errors.end = endProblem
+    } else if (!startProblem && formData.start.year && formData.end.year) {
+      if (monthYearToDate(formData.end) < monthYearToDate(formData.start)) {
+        errors.end = 'Selesai tidak boleh lebih awal dari mulai.'
       }
     }
 
@@ -70,17 +83,34 @@ function OrganizationForm({ organization = null, onSuccess, onCancel }) {
     e.preventDefault()
 
     if (!validate()) return
+    if (logo.busy) {
+      setGeneralError('Tunggu sebentar, gambar yang dipilih masih diproses.')
+      return
+    }
 
     setIsSubmitting(true)
     setGeneralError(null)
 
+    let uploads
+    try {
+      uploads = await prepareUploads({ logo_url: logo })
+    } catch (err) {
+      setGeneralError(err instanceof Error ? err.message : 'Gagal mengunggah gambar.')
+      setIsSubmitting(false)
+      return
+    }
+
     const payload = {
       name: formData.name.trim(),
       role: formData.role.trim(),
-      start_date: formData.start_date || null,
-      end_date: formData.end_date || null,
+      start_date: monthYearToDate(formData.start),
+      end_date: monthYearToDate(formData.end),
       description: formData.description.trim() || null,
+      logo_url: uploads.values.logo_url,
+      is_visible: Boolean(formData.is_visible),
     }
+    // A new organization goes to the end of the list; the order is changed with Naik/Turun
+    if (!isEditMode) payload.sort_order = nextSortOrder
 
     try {
       if (isEditMode) {
@@ -95,6 +125,7 @@ function OrganizationForm({ organization = null, onSuccess, onCancel }) {
           throw new Error(dbError.message || 'Gagal memperbarui data organisasi.')
         }
 
+        await uploads.cleanup()
         setIsSubmitting(false)
         finish(() => onSuccess(data))
       } else {
@@ -108,10 +139,12 @@ function OrganizationForm({ organization = null, onSuccess, onCancel }) {
           throw new Error(dbError.message || 'Gagal menambahkan organisasi baru.')
         }
 
+        await uploads.cleanup()
         setIsSubmitting(false)
         finish(() => onSuccess(data))
       }
     } catch (err) {
+      await uploads.rollback()
       setGeneralError(
         err instanceof Error
           ? err.message
@@ -141,20 +174,51 @@ function OrganizationForm({ organization = null, onSuccess, onCancel }) {
         </Field>
       </FormSection>
 
-      <FormSection title="Waktu" columns={2}>
-        <Field id="org-start-date" label="Tanggal mulai" optional>
-          <Input name="start_date" type="date" value={formData.start_date} onChange={handleChange} disabled={busy} />
-        </Field>
-        <Field id="org-end-date" label="Tanggal selesai" optional error={fieldErrors.end_date} hint="Kosongkan bila masih aktif.">
-          <Input name="end_date" type="date" value={formData.end_date} onChange={handleChange} disabled={busy} />
-        </Field>
+      <FormSection title="Periode" columns={2}>
+        <MonthYearSelect
+          id="org-start"
+          legend="Mulai"
+          optional
+          value={formData.start}
+          onChange={(value) => set('start', value)}
+          error={fieldErrors.start}
+          maxYear={THIS_YEAR}
+          disabled={busy}
+        />
+        <MonthYearSelect
+          id="org-end"
+          legend="Selesai"
+          optional
+          value={formData.end}
+          onChange={(value) => set('end', value)}
+          error={fieldErrors.end}
+          hint="Kosongkan bila masih aktif."
+          maxYear={THIS_YEAR + 1}
+          disabled={busy}
+        />
       </FormSection>
 
       <FormSection title="Keterangan">
         <Field id="org-desc" label="Tanggung jawab dan kontribusi" optional hint="Ceritakan apa yang Anda kerjakan di sana.">
           <Textarea name="description" rows={4} value={formData.description} onChange={handleChange} disabled={busy} />
         </Field>
+        <ImageField
+          id="org-logo"
+          label="Logo atau foto"
+          field={logo}
+          shape="square"
+          imageKind="logo"
+          hint="Logo organisasi atau foto kecil kegiatan. PNG, JPG, atau WebP; otomatis dikecilkan menjadi 400 px."
+          disabled={busy}
+        />
       </FormSection>
+
+      <DisplaySettings
+        idPrefix="org"
+        visible={formData.is_visible}
+        onVisibleChange={(value) => set('is_visible', value)}
+        disabled={busy}
+      />
     </FormPanel>
   )
 }
