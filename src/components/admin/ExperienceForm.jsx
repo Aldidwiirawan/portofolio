@@ -232,7 +232,7 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
         <Field id="exp-company" label="Instansi atau perusahaan" required error={fieldErrors.company} hint="Tempat kerja, magang, klien, atau organisasi.">
           <Input type="text" {...input('company')} />
         </Field>
-        <Field id="exp-location" label="Kota" optional hint="Misalnya Kediri, atau tulis Remote.">
+        <Field id="exp-location" label="Kota" optional hint="Cukup nama kota, misalnya Kediri.">
           <Input type="text" {...input('location')} />
         </Field>
       </FormSection>

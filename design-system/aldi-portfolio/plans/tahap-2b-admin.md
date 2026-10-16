@@ -105,7 +105,7 @@ dijaga dialog "Tinggalkan perubahan?".
 
 **Koreksi pemilik (17 Oktober 2026)** — migrasi belum pernah dijalankan, jadi file migrasi diubah langsung.
 - [x] 12. Migrasi: satu transaksi + query cek, `messages.topic`, kolom foto profil/kota/urutan dipastikan ada
-- [ ] 13. Orientasi foto dari HP saat kompresi; petunjuk IPK (koma atau titik) dan kota
+- [x] 13. Orientasi foto dari HP saat kompresi; petunjuk IPK (koma atau titik) dan kota
 - [ ] 14. Uji ulang (lint, uji otomatis, build) dan laporan akhir
 
 ## 5. Pengujian
@@ -136,6 +136,10 @@ lint 0 diagnostik, build sukses.
 - **Organisasi:** logo atau foto kecil diperlakukan seperti logo (400 px).
 - **Beranda:** pengingat hanya menghitung data yang tampil di publik; galat memuat menyebut bila migrasi belum
   dijalankan.
+- **Koreksi 17 Oktober:** kota memakai kolom `location` yang sudah ada; petunjuk di Profil dan Pengalaman kini
+  "Cukup nama kota, misalnya Kediri." (contoh "Jawa Timur" dan "Remote" dihapus). `messages.topic` dibatasi 60
+  karakter, sama dengan batas topik di Profil. Form IPK sudah menerima koma dan titik sejak bagian 8; yang
+  diubah hanya petunjuknya ("3,62 atau 3.62").
 
 ## 7. Uji manual
 

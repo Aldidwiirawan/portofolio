@@ -238,7 +238,7 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
           <Field id="profile-tagline" label="Profesi atau tagline" optional hint="Tampil di bawah nama, misalnya Web Developer.">
             <Input type="text" {...field('tagline')} />
           </Field>
-          <Field id="profile-location" label="Kota" optional hint="Cukup nama kota, misalnya Kediri, Jawa Timur.">
+          <Field id="profile-location" label="Kota" optional hint="Cukup nama kota, misalnya Kediri.">
             <Input type="text" autoComplete="address-level2" {...field('location')} />
           </Field>
           <Field id="profile-email" label="Email kontak" optional>

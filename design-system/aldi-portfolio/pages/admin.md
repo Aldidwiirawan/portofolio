@@ -149,6 +149,9 @@ Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`
 
 - Hanya PNG, JPG, dan WebP untuk gambar (SVG dan GIF ditolak); gambar selalu digambar ulang di canvas, jadi
   data lokasi foto ikut hilang. Browser yang tidak bisa membuat WebP memakai JPEG (foto) atau PNG (logo).
+- **Orientasi foto HP tetap:** kamera HP menyimpan foto potret dalam posisi miring dan menambah tag EXIF
+  Orientation. Tag itu dibaca dari file JPEG; bila browser belum memutar foto saat membukanya (dicek sekali
+  dengan JPEG 2×1 bertag "putar 90°"), canvas yang memutar/membalik foto (semua nilai 1–8).
 - Nama file acak (`{folder}/{uuid}.webp`), `contentType` dikirim eksplisit karena bucket membatasi MIME.
 - Bucket `portfolio-assets` menerima PNG, JPEG, WebP, dan PDF sampai 5 MB; policy admin per folder
   memeriksa ekstensi (migrasi `20261016000000_admin_content_model.sql`). Batas 2 MB untuk gambar dijaga di

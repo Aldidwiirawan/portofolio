@@ -285,7 +285,7 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
       </FormSection>
 
       <FormSection title="Nilai dan tugas akhir" columns={2}>
-        <Field id="edu-gpa" label="IPK" optional error={fieldErrors.gpa} hint="Skala 4, misalnya 3,62. Kosongkan bila tidak ingin ditampilkan.">
+        <Field id="edu-gpa" label="IPK" optional error={fieldErrors.gpa} hint="Skala 4, misalnya 3,62 atau 3.62. Kosongkan bila tidak ingin ditampilkan.">
           <Input name="gpa" type="text" inputMode="decimal" autoComplete="off" value={formData.gpa} onChange={handleChange} disabled={busy} />
         </Field>
         <Field id="edu-thesis" label="Judul tugas akhir" optional hint="Judul skripsi atau tugas akhir.">
