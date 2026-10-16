@@ -252,6 +252,19 @@ tersentuh. Migrasi diuji terpisah di PGlite (Postgres WASM) dengan tiruan skema 
 - **`npm run lint`** 0 diagnostik; **`npm run build`** sukses (peringatan ukuran chunk utama > 500 kB sudah ada
   di `main`).
 
+### Uji ulang setelah koreksi (17 Oktober 2026)
+
+| Uji | Hasil |
+|---|---|
+| Migrasi di PGlite: `BEGIN;` di baris pertama dan hanya query cek setelah `COMMIT;`; dijalankan 2× (uuid dan bigint); query cek 60 baris per tabel tanpa "BELUM ADA"; `messages.topic` teks boleh kosong, bisa diisi pengunjung (anon), > 60 karakter ditolak; tabel tanpa `sort_order` mendapat kolom itu; satu perintah gagal → tidak ada kolom, data, atau policy yang berubah | 106/106 |
+| Orientasi foto: EXIF 1–8 (dua bentuk EXIF), JPEG tanpa EXIF, PNG, foto 4032×3024 6 MB → 1200×1600 tegak, foto persegi, EXIF rusak; di Chrome biasa, Chrome yang dibuat mengabaikan EXIF, dan jalur `<img>` | 63/63 |
+| Parser IPK: `3,54`, `3.54`, `4,00` diterima; `4,01`, `3,541`, `abc` ditolak | 13/13 |
+| Uji UI admin diulang (Navigasi, Profil, Proyek, Keahlian, Pengalaman, Pendidikan/Bahasa/Organisasi, Sertifikat/Prestasi, Beranda) | 733/733 |
+
+Uji orientasi juga dijalankan pada kode sebelum koreksi: 16 kasus gagal di Chrome yang mengabaikan EXIF (foto
+tersimpan miring), jadi uji ini memang menangkap masalahnya. Regresi login/publik tidak diulang karena koreksi
+hanya menyentuh admin dan migrasi. `npm run lint` 0 diagnostik, `npm run build` sukses.
+
 ## 11. Batasan yang diketahui
 
 - **Halaman publik belum membaca kolom baru** (tahap 3). Sakelar tampil/unggulan, CV PDF, galeri, dan lainnya

@@ -106,7 +106,7 @@ dijaga dialog "Tinggalkan perubahan?".
 **Koreksi pemilik (17 Oktober 2026)** — migrasi belum pernah dijalankan, jadi file migrasi diubah langsung.
 - [x] 12. Migrasi: satu transaksi + query cek, `messages.topic`, kolom foto profil/kota/urutan dipastikan ada
 - [x] 13. Orientasi foto dari HP saat kompresi; petunjuk IPK (koma atau titik) dan kota
-- [ ] 14. Uji ulang (lint, uji otomatis, build) dan laporan akhir
+- [x] 14. Uji ulang (lint, uji otomatis, build) dan laporan akhir
 
 ## 5. Pengujian
 
@@ -118,7 +118,8 @@ dijaga dialog "Tinggalkan perubahan?".
 - `npm run lint` dan `npm run build`. Screenshot di `C:\Users\acer\portofolio-screenshots\tahap-2b\`.
 
 Hasil lengkap per bagian ada di `pages/admin.md` §10: **864/864** uji otomatis (termasuk migrasi di PGlite),
-lint 0 diagnostik, build sukses.
+lint 0 diagnostik, build sukses. Setelah koreksi 17 Oktober: migrasi 106/106, orientasi foto 63/63, IPK 13/13,
+uji UI admin diulang 733/733, lint 0 diagnostik, build sukses (rincian di `pages/admin.md` §10).
 
 ## 6. Keputusan selama pengerjaan
 
@@ -175,16 +176,19 @@ tidak sesuai, catat halaman, langkah, dan teks pesan yang muncul.
    samping.
 
 **C. Unggahan setiap jenis** (cek setiap file di Storage → `portfolio-assets` → folder yang disebut)
-9. **Profil:** pilih foto dari HP (3–8 MB). Ukuran "asli … MB" dan ukuran baru tampil; simpan → file `.webp` di
-   `profile/`, di bawah 2 MB. Ganti foto dan simpan → file lama hilang dari `profile/`.
+9. **Profil:** pilih foto dari HP (3–8 MB) yang diambil dengan HP **tegak** (potret). Ukuran "asli … MB" dan
+   ukuran baru tampil, dan pratinjau tegak; simpan → file `.webp` di `profile/`, di bawah 2 MB. Buka file itu di
+   Storage: foto tetap tegak, tidak miring. Ganti foto dan simpan → file lama hilang dari `profile/`.
+   Isi **Kota** dengan nama kota saja, misalnya Kediri.
 10. **Profil, CV:** pilih PDF CV, klik "Pratinjau" (tab baru), simpan → file di `cv/`. Klik "Hapus PDF", simpan →
     file hilang.
 11. **Proyek "UJI – …":** gambar sampul + 3 screenshot dengan keterangan, ubah urutan screenshot, simpan → file di
     `projects/` dan `gallery/`. Ubah proyek, hapus satu screenshot, simpan → file itu hilang. Hapus proyek → semua
     filenya hilang.
 12. **Keahlian:** ikon PNG berlatar transparan → file `.webp` 400 px di `logos/`, latar tetap transparan di daftar.
-13. **Pengalaman:** logo + 2 foto + proyek terkait; simpan → `logos/` dan `gallery/`.
-14. **Pendidikan** dan **Organisasi:** logo → `logos/`.
+13. **Pengalaman:** logo + 2 foto + proyek terkait, Kota diisi nama kota; simpan → `logos/` dan `gallery/`.
+14. **Pendidikan** dan **Organisasi:** logo → `logos/`. Di Pendidikan isi IPK `3,54` lalu simpan → daftar
+    menampilkan "IPK 3,54". Ubah menjadi `3.54` → juga diterima; `4,5` → ditolak dengan pesan di bawah kolom.
 15. **Sertifikat:** gambar + PDF asli, isi "Berlaku sampai" → keduanya di `certificates/`; badge "Berlaku sampai
     …" tampil di daftar. Coba "Tidak kedaluwarsa".
 16. **Prestasi:** dokumen PDF → `documents/`, foto → `gallery/`.
