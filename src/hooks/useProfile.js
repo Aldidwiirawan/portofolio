@@ -5,8 +5,9 @@ import { supabase } from '../lib/supabaseClient'
 const PUBLIC_PROFILE_COLUMNS =
   'full_name, tagline, bio, location, email, phone_number, github_url, linkedin_url, instagram_url, resume_url, resume_link, hobbies, avatar_url, is_available'
 
-// The admin form also needs the row id (to update instead of insert) and full_address.
-const ADMIN_PROFILE_COLUMNS = `id, ${PUBLIC_PROFILE_COLUMNS}, full_address`
+// The admin form also needs the row id (to update instead of insert), full_address and the
+// columns added in stage 2B (migration 20261016000000).
+const ADMIN_PROFILE_COLUMNS = `id, ${PUBLIC_PROFILE_COLUMNS}, full_address, cv_file_url, primary_role, secondary_roles, hero_keywords, github_username, contact_topics`
 
 /**
  * Custom Hook: useProfile

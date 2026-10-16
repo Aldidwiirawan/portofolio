@@ -44,10 +44,16 @@ export function useFormFeedback(formRef, { generalError, alertRef } = {}) {
   return { noteSubmit, saved, finish }
 }
 
-/** Comparable form values: numbers typed into inputs come back as strings, so compare as text. */
+/**
+ * Comparable form values: numbers typed into inputs come back as strings, so compare as text;
+ * lists and objects (list fields, month/year pairs) compare by content.
+ */
 export function formSnapshot(data) {
   return JSON.stringify(
-    Object.entries(data).map(([key, value]) => [key, typeof value === 'boolean' ? value : String(value ?? '')])
+    Object.entries(data).map(([key, value]) => [
+      key,
+      typeof value === 'boolean' ? value : value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value ?? ''),
+    ])
   )
 }
 
@@ -55,13 +61,14 @@ export function formSnapshot(data) {
  * Everything a form screen needs around its own logic: feedback (see useFormFeedback), whether
  * `data` differs from the values the form opened with, the unsaved-changes guard, and a guarded
  * cancel that asks before discarding changes.
+ * - extraDirty: changes kept outside `data`, e.g. file fields (useAssetField().dirty)
  */
-export function useFormScreen({ data, generalError, onCancel }) {
+export function useFormScreen({ data, generalError, onCancel, extraDirty = false }) {
   const formRef = useRef(null)
   const alertRef = useRef(null)
   const feedback = useFormFeedback(formRef, { generalError, alertRef })
   const [initial] = useState(() => formSnapshot(data))
-  const isDirty = formSnapshot(data) !== initial
+  const isDirty = formSnapshot(data) !== initial || Boolean(extraDirty)
   const confirmLeave = useUnsavedChanges(isDirty && !feedback.saved)
   const cancel = async () => {
     if (await confirmLeave()) onCancel()

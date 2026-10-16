@@ -3,6 +3,11 @@
 
 const PATTERNS = [
   {
+    // A column added by a migration that has not been run yet (PostgREST 42703 / PGRST204)
+    pattern: /42703|PGRST204|column .* does not exist|could not find the .* column/i,
+    message: 'Pembaruan database untuk panel admin belum dijalankan. Jalankan file migrasi terbaru di Supabase, lalu muat ulang halaman.',
+  },
+  {
     pattern: /failed to fetch|networkerror|network request failed|load failed|fetch failed/i,
     message: 'Tidak bisa terhubung ke server. Periksa koneksi internet, lalu coba lagi.',
   },
@@ -20,11 +25,15 @@ const PATTERNS = [
   },
   {
     pattern: /payload too large|maximum allowed size|exceeded the maximum|413/i,
-    message: 'Ukuran file terlalu besar. Pilih gambar maksimal 2 MB.',
+    message: 'Ukuran file terlalu besar. Gambar maksimal 2 MB dan PDF maksimal 5 MB.',
   },
   {
     pattern: /mime type|invalid file type|not supported/i,
-    message: 'Format file tidak didukung. Pakai PNG, JPG, atau WebP.',
+    message: 'Format file tidak didukung. Pakai gambar PNG, JPG, atau WebP, atau file PDF.',
+  },
+  {
+    pattern: /foreign key|23503/i,
+    message: 'Data yang dihubungkan sudah tidak ada. Muat ulang halaman, lalu pilih lagi.',
   },
   {
     pattern: /not-null|null value in column|violates not-null/i,

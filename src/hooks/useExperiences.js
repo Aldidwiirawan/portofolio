@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns read by the public portfolio page (unchanged).
+const PUBLIC_COLUMNS =
+  'id, company, role, location, start_date, end_date, is_current, description, sort_order, experience_type, created_at'
+
+// The admin also reads the content columns added in stage 2B (migration 20261016000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, responsibilities, skill_tags, logo_url, photos, related_project_id, is_visible, is_featured`
+
 /**
  * Custom Hook: useExperiences
  * Provides read access for public.experiences table.
  * Encapsulates data fetching, loading state, error handling, and refetch capabilities.
  *
+ * @param {{ includeAdminFields?: boolean }} [options]
+ *   Set includeAdminFields to true only in the admin (columns from the stage 2B migration).
  * @returns {{
  *   experiences: Array<Object>,
  *   isLoading: boolean,
@@ -13,7 +22,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useExperiences() {
+export function useExperiences({ includeAdminFields = false } = {}) {
   const [experiences, setExperiences] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -32,9 +41,7 @@ export function useExperiences() {
       try {
         const { data, error: queryError } = await supabase
           .from('experiences')
-          .select(
-            'id, company, role, location, start_date, end_date, is_current, description, sort_order, experience_type, created_at'
-          )
+          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
           .order('sort_order', { ascending: true, nullsFirst: false })
           .order('start_date', { ascending: false })
 
@@ -66,7 +73,7 @@ export function useExperiences() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includeAdminFields])
 
   return {
     experiences,

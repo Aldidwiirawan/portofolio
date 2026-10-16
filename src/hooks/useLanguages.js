@@ -1,10 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns read by the public portfolio page (unchanged).
+const PUBLIC_COLUMNS =
+  'id, language_name, proficiency_level, created_at'
+
+// The admin also reads the content columns added in stage 2B (migration 20261016000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, is_visible, sort_order`
+
 /**
  * Custom Hook: useLanguages
  * Provides read access for public.languages table.
  *
+ * @param {{ includeAdminFields?: boolean }} [options]
+ *   Set includeAdminFields to true only in the admin (columns from the stage 2B migration).
  * @returns {{
  *   languages: Array<Object>,
  *   isLoading: boolean,
@@ -12,7 +21,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useLanguages() {
+export function useLanguages({ includeAdminFields = false } = {}) {
   const [languages, setLanguages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -31,7 +40,7 @@ export function useLanguages() {
       try {
         const { data, error: queryError } = await supabase
           .from('languages')
-          .select('id, language_name, proficiency_level, created_at')
+          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
           .order('created_at', { ascending: true })
 
         if (!isMounted) return
@@ -62,7 +71,7 @@ export function useLanguages() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includeAdminFields])
 
   return {
     languages,

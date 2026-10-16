@@ -84,7 +84,7 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 0. Rencana ini (`plans/tahap-2b-admin.md`)
 - [x] 1. Migrasi (`supabase/migrations/20261016000000_admin_content_model.sql`)
 - [x] 2. Navigasi 5 menu + sub-tab
-- [ ] 3. Komponen bersama, util unggah/kompresi, opsi hooks
+- [x] 3. Komponen bersama, util unggah/kompresi, opsi hooks
 - [ ] 4. Profil
 - [ ] 5. Proyek
 - [ ] 6. Keahlian

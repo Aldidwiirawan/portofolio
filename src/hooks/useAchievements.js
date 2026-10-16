@@ -1,10 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns read by the public portfolio page (unchanged).
+const PUBLIC_COLUMNS =
+  'id, title, event_name, year, description, created_at'
+
+// The admin also reads the content columns added in stage 2B (migration 20261016000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, month, document_url, photo_url, is_visible, is_featured, sort_order`
+
 /**
  * Custom Hook: useAchievements
  * Provides read access for public.achievements table.
  *
+ * @param {{ includeAdminFields?: boolean }} [options]
+ *   Set includeAdminFields to true only in the admin (columns from the stage 2B migration).
  * @returns {{
  *   achievements: Array<Object>,
  *   isLoading: boolean,
@@ -12,7 +21,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useAchievements() {
+export function useAchievements({ includeAdminFields = false } = {}) {
   const [achievements, setAchievements] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -31,7 +40,7 @@ export function useAchievements() {
       try {
         const { data, error: queryError } = await supabase
           .from('achievements')
-          .select('id, title, event_name, year, description, created_at')
+          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
           .order('year', { ascending: false })
           .order('created_at', { ascending: false })
 
@@ -63,7 +72,7 @@ export function useAchievements() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includeAdminFields])
 
   return {
     achievements,

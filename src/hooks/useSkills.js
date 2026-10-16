@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns read by the public portfolio page (unchanged).
+const PUBLIC_COLUMNS =
+  'id, name, category, proficiency, sort_order, created_at'
+
+// The admin also reads the content columns added in stage 2B (migration 20261016000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, icon_url, is_visible, is_featured`
+
 /**
  * Custom Hook: useSkills
  * Provides read access for public.skills table.
  * Encapsulates data fetching, loading state, error handling, and refetch capabilities.
  *
+ * @param {{ includeAdminFields?: boolean }} [options]
+ *   Set includeAdminFields to true only in the admin (columns from the stage 2B migration).
  * @returns {{
  *   skills: Array<Object>,
  *   isLoading: boolean,
@@ -13,7 +22,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useSkills() {
+export function useSkills({ includeAdminFields = false } = {}) {
   const [skills, setSkills] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -32,7 +41,7 @@ export function useSkills() {
       try {
         const { data, error: queryError } = await supabase
           .from('skills')
-          .select('id, name, category, proficiency, sort_order, created_at')
+          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
           .order('category', { ascending: true })
           .order('sort_order', { ascending: true, nullsFirst: false })
           .order('name', { ascending: true })
@@ -65,7 +74,7 @@ export function useSkills() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includeAdminFields])
 
   return {
     skills,

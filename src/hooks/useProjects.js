@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns read by the public portfolio page (unchanged).
+const PUBLIC_COLUMNS =
+  'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at'
+
+// The admin also reads the content columns added in stage 2B (migration 20261016000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible`
+
 /**
  * Custom Hook: useProjects
  * Provides read-only data access for public.projects table.
  * Encapsulates data fetching, loading state, error handling, and refetch capabilities.
  *
+ * @param {{ includeAdminFields?: boolean }} [options]
+ *   Set includeAdminFields to true only in the admin (columns from the stage 2B migration).
  * @returns {{
  *   projects: Array<Object>,
  *   isLoading: boolean,
@@ -13,7 +22,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useProjects() {
+export function useProjects({ includeAdminFields = false } = {}) {
   const [projects, setProjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -32,9 +41,7 @@ export function useProjects() {
       try {
         const { data, error: queryError } = await supabase
           .from('projects')
-          .select(
-            'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at'
-          )
+          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
           .order('is_featured', { ascending: false })
           .order('sort_order', { ascending: true, nullsFirst: false })
           .order('created_at', { ascending: false })
@@ -67,7 +74,7 @@ export function useProjects() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includeAdminFields])
 
   return {
     projects,

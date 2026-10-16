@@ -1,10 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+// Columns read by the public portfolio page (unchanged).
+const PUBLIC_COLUMNS =
+  'id, name, role, start_date, end_date, description, created_at'
+
+// The admin also reads the content columns added in stage 2B (migration 20261016000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, logo_url, is_visible, sort_order`
+
 /**
  * Custom Hook: useOrganizations
  * Provides read access for public.organizations table.
  *
+ * @param {{ includeAdminFields?: boolean }} [options]
+ *   Set includeAdminFields to true only in the admin (columns from the stage 2B migration).
  * @returns {{
  *   organizations: Array<Object>,
  *   isLoading: boolean,
@@ -12,7 +21,7 @@ import { supabase } from '../lib/supabaseClient'
  *   refetch: () => void
  * }}
  */
-export function useOrganizations() {
+export function useOrganizations({ includeAdminFields = false } = {}) {
   const [organizations, setOrganizations] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -31,7 +40,7 @@ export function useOrganizations() {
       try {
         const { data, error: queryError } = await supabase
           .from('organizations')
-          .select('id, name, role, start_date, end_date, description, created_at')
+          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
           .order('start_date', { ascending: false, nullsLast: true })
           .order('created_at', { ascending: false })
 
@@ -63,7 +72,7 @@ export function useOrganizations() {
     return () => {
       isMounted = false
     }
-  }, [reloadKey])
+  }, [reloadKey, includeAdminFields])
 
   return {
     organizations,

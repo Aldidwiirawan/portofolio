@@ -248,6 +248,37 @@ export const IconArrowLeft = (p) => (
   </Svg>
 )
 
+export const IconArrowUp = (p) => (
+  <Svg {...p}>
+    <path d="M12 19V5" />
+    <path d="m6 11 6-6 6 6" />
+  </Svg>
+)
+
+export const IconArrowDown = (p) => (
+  <Svg {...p}>
+    <path d="M12 5v14" />
+    <path d="m6 13 6 6 6-6" />
+  </Svg>
+)
+
+export const IconFile = (p) => (
+  <Svg {...p}>
+    <path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z" />
+    <path d="M14 3v4.5h4.5" />
+    <path d="M9 13h6M9 16.5h4" />
+  </Svg>
+)
+
+export const IconEyeOff = (p) => (
+  <Svg {...p}>
+    <path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.7 3.6" />
+    <path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.9 0 3.5-.6 4.9-1.4" />
+    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+    <path d="m3 3 18 18" />
+  </Svg>
+)
+
 export const IconArrowRight = (p) => (
   <Svg {...p}>
     <path d="M5 12h14" />
