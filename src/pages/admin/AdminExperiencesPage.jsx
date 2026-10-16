@@ -1,29 +1,21 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { removeAssets } from '../../lib/storageUtils'
 import { useExperiences } from '../../hooks/useExperiences'
+import { useProjects } from '../../hooks/useProjects'
 import ExperienceForm from '../../components/admin/ExperienceForm'
 import { AdminRoot } from '../../components/admin/ui/AdminLayout'
 import { Badge } from '../../components/admin/ui/Card'
+import { DisplayBadges, ReorderButtons, ReorderStatus, Thumb } from '../../components/admin/ui/ContentList'
+import { bySortOrder, nextSortOrder } from '../../components/admin/ui/contentLabels'
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
+import { formatPeriod } from '../../components/admin/ui/format'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { IconBriefcase } from '../../components/admin/ui/icons'
 import { RowActions, SectionScreen } from '../../components/admin/ui/SectionScreen'
+import { assetUrlsOf, normalizeGallery } from '../../components/admin/ui/useAssetFields'
+import { useReorder } from '../../components/admin/ui/useReorder'
 import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
-
-/**
- * Helper: Formats ISO date (YYYY-MM-DD) into Indonesian Month & Year
- * @param {string|null} dateStr
- * @returns {string}
- */
-function formatDateDisplay(dateStr) {
-  if (!dateStr) return ''
-  try {
-    const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return dateStr
-    return d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
-  } catch {
-    return dateStr
-  }
-}
 
 /**
  * AdminExperiencesPage Component (CRUD)
@@ -42,7 +34,9 @@ function AdminExperiencesPage() {
 }
 
 function ExperiencesScreen() {
-  const { experiences, isLoading, error, refetch } = useExperiences()
+  const { experiences, isLoading, error, refetch } = useExperiences({ includeAdminFields: true })
+  // Project titles for "Proyek terkait" (same public query as the projects list)
+  const { projects } = useProjects()
   // Screen only: toasts, focus after a delete, guarded breadcrumb (Escape is handled by ConfirmDialog)
   const { toast, headingRef, returnToHeading, setReturnToHeading, guarded } = useSectionScreen()
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -52,6 +46,17 @@ function ExperiencesScreen() {
   const [deleteError, setDeleteError] = useState(null)
 
   const activeCount = experiences.filter((e) => e.is_current).length
+  const featuredCount = experiences.filter((e) => e.is_featured).length
+  const hiddenCount = experiences.filter((e) => e.is_visible === false).length
+
+  // Display order: sort_order (Naik/Turun), most recent start first among equals
+  const reorder = useReorder({ table: 'experiences', onSaved: refetch })
+  const sorted = useMemo(
+    () => bySortOrder(experiences, (a, b) => String(b.start_date || '').localeCompare(String(a.start_date || ''))),
+    [experiences]
+  )
+  const ordered = reorder.arrange(sorted)
+  const projectTitle = (id) => projects.find((p) => p.id === id)?.title
 
   const handleFormSuccess = (savedExp) => {
     const isEdit = Boolean(editingExp)
@@ -111,6 +116,9 @@ function ExperiencesScreen() {
         )
       }
 
+      // Best-effort removal of the logo and the photos
+      await removeAssets(assetUrlsOf(deletingExp, ['logo_url'], ['photos']))
+
       if (editingExp?.id === deletingExp.id) {
         setEditingExp(null)
         setIsFormOpen(false)
@@ -134,7 +142,7 @@ function ExperiencesScreen() {
   return (
     <SectionScreen
       title="Pengalaman"
-      description="Riwayat kerja, magang, dan PKL yang tampil di halaman publik."
+      description="Riwayat magang, kerja, freelance, dan organisasi. Pilih 2–4 pengalaman unggulan untuk halaman publik."
       addLabel="Tambah pengalaman"
       onAdd={handleOpenCreateForm}
       count={experiences.length}
@@ -143,9 +151,9 @@ function ExperiencesScreen() {
       onReload={refetch}
       loadErrorTitle="Pengalaman belum bisa dimuat."
       emptyTitle="Belum ada pengalaman"
-      emptyText="Pengalaman kerja, magang, atau PKL yang Anda tambahkan akan tampil di halaman publik."
+      emptyText="Pengalaman magang, kerja, freelance, atau organisasi yang Anda tambahkan akan tampil di halaman publik."
       emptyActionLabel="Tambah pengalaman pertama"
-      summary={`${experiences.length} pengalaman · ${activeCount} masih berjalan`}
+      summary={`${experiences.length} pengalaman · ${activeCount} masih berjalan · ${featuredCount} unggulan${hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}`}
       headingRef={headingRef}
       form={{
         open: isFormOpen,
@@ -158,6 +166,8 @@ function ExperiencesScreen() {
           <ExperienceForm
             key={editingExp?.id || 'new-experience'}
             experience={editingExp}
+            projects={projects}
+            nextSortOrder={nextSortOrder(experiences)}
             onSuccess={handleFormSuccess}
             onCancel={handleCancelForm}
           />
@@ -173,21 +183,27 @@ function ExperiencesScreen() {
         onCancel: handleCloseDeleteModal,
         children: (
           <p>
-            Pengalaman <strong>"{deletingExp?.role} di {deletingExp?.company}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+            Pengalaman <strong>"{deletingExp?.role} di {deletingExp?.company}"</strong> akan dihapus permanen
+            {deletingExp && assetUrlsOf(deletingExp, ['logo_url'], ['photos']).length > 0 ? ' beserta logo dan fotonya' : ''}. Tindakan ini tidak
+            bisa dibatalkan.
           </p>
         ),
       }}
     >
+      <ReorderStatus reorder={reorder} />
       <DataList label="Daftar pengalaman" aria-busy={isLoading || undefined}>
-        {experiences.map((exp) => {
-          const periodText = exp.is_current
-            ? `${formatDateDisplay(exp.start_date)} — Sekarang`
-            : `${formatDateDisplay(exp.start_date)} — ${formatDateDisplay(exp.end_date) || 'Selesai'}`
+        {ordered.map((exp, index) => {
+          const name = `pengalaman "${exp.role} di ${exp.company}"`
+          const tasks = Array.isArray(exp.responsibilities) ? exp.responsibilities.length : 0
+          const photoCount = normalizeGallery(exp.photos).length
+          const tags = Array.isArray(exp.skill_tags) ? exp.skill_tags : []
+          const project = exp.related_project_id ? projectTitle(exp.related_project_id) : null
 
           return (
             <DataListItem
               key={exp.id}
-              highlight={exp.is_current}
+              highlight={exp.is_featured}
+              media={<Thumb url={exp.logo_url} icon={IconBriefcase} contain />}
               title={exp.role}
               badges={
                 <>
@@ -197,24 +213,35 @@ function ExperiencesScreen() {
                       Masih berjalan
                     </Badge>
                   )}
+                  <DisplayBadges item={exp} />
                 </>
               }
               subtitle={[exp.company, exp.location].filter(Boolean).join(' · ')}
               meta={
                 <>
-                  <span>{periodText}</span>
-                  <span>Urutan {exp.sort_order ?? 0}</span>
+                  <span>{formatPeriod(exp.start_date, exp.end_date, exp.is_current)}</span>
+                  <span>{tasks > 0 ? `${tasks} poin tugas` : 'Belum ada poin tugas'}</span>
+                  {photoCount > 0 && <span>{photoCount} foto</span>}
+                  {project && <span>Proyek: {project}</span>}
                 </>
               }
               actions={
-                <RowActions
-                  name={`pengalaman "${exp.role} di ${exp.company}"`}
-                  onEdit={() => handleOpenEditForm(exp)}
-                  onDelete={() => handleOpenDeleteModal(exp)}
-                />
+                <>
+                  <ReorderButtons reorder={reorder} list={ordered} index={index} name={name} />
+                  <RowActions name={name} onEdit={() => handleOpenEditForm(exp)} onDelete={() => handleOpenDeleteModal(exp)} />
+                </>
               }
             >
               {exp.description && <p className="adm-list-desc">{exp.description}</p>}
+              {tags.length > 0 && (
+                <ul className="adm-tags" aria-label="Tag keahlian">
+                  {tags.map((tag) => (
+                    <li key={tag} className="adm-tag">
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </DataListItem>
           )
         })}

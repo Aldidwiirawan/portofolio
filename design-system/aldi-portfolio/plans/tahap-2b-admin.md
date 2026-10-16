@@ -88,7 +88,7 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 4. Profil
 - [x] 5. Proyek
 - [x] 6. Keahlian
-- [ ] 7. Pengalaman
+- [x] 7. Pengalaman
 - [ ] 8. Pendidikan, Bahasa, Organisasi
 - [ ] 9. Sertifikat, Prestasi
 - [ ] 10. Beranda (kartu per kelompok + pengingat kelengkapan)
