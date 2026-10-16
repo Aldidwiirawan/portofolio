@@ -71,6 +71,10 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
   loading.
 - Nama menu dengan bahasa sederhana: Beranda, Profil, Proyek, Keahlian, Pengalaman,
   Pendidikan, Sertifikat, Prestasi, Bahasa, Organisasi, Pesan, Buku tamu.
+- Sejak tahap 2B menu dikelompokkan menjadi 5: Beranda; Tentang Saya (Profil, Pendidikan,
+  Bahasa); Karya & Keahlian (Proyek, Keahlian, Sertifikat); Rekam Jejak (Pengalaman,
+  Organisasi, Prestasi); Kotak Masuk (Pesan, Buku tamu). Halaman dalam satu menu tampil
+  sebagai sub-tab. Admin menyimpan data lengkap; lihat bagian 9 untuk yang ditampilkan publik.
 - Tambahan untuk fitur publik (lihat bagian 5):
   - Halaman untuk mengatur **label fisika** (isi label, urutan, tampil/sembunyi).
   - Kolom versi Inggris yang opsional di form konten.
@@ -191,3 +195,27 @@ bebek, supaya tidak tiga karakter bicara bersamaan.
      footer dan buku tamu.
    - **3c.** Studi kasus, section lainnya, kolom versi Inggris di admin, pengaturan label
      dari admin.
+
+## 9. Strategi konten (tahap 2B, berlaku untuk halaman publik tahap 3)
+
+Admin menyimpan data selengkap mungkin, tetapi halaman publik hanya menampilkan **ringkasan
+pilihan**. Pemilihannya lewat sakelar di setiap form admin: **Tampil di halaman publik**
+(`is_visible`), **Unggulan** (`is_featured`), dan urutan dengan tombol Naik/Turun (`sort_order`).
+
+- **Yang ditampilkan publik:**
+  - 3–4 proyek unggulan, masing-masing sebagai studi kasus (masalah, solusi, hasil);
+  - 2–4 pengalaman;
+  - pendidikan perguruan tinggi saja (SMK/SMA disembunyikan);
+  - 3–6 sertifikat terpilih;
+  - keahlian yang dikelompokkan per kategori.
+- **Peran:** peran utama **Junior Programmer (Web & Mobile)**, dengan peran pendukung
+  **IT Support**. Keduanya diisi di Profil dan dipakai di hero.
+- **Riwayat dan sertifikat lengkap diarahkan ke LinkedIn.** Halaman publik tidak mencoba
+  memuat semuanya.
+- **Tautan LinkedIn, GitHub, dan CV ditonjolkan** di hero dan di bagian kontak. CV memakai file
+  PDF yang diunggah di Profil; tautan CV lama hanya cadangan.
+- **Alamat lengkap dan nomor HP tidak ditampilkan** di halaman publik. Cukup kota.
+- Beranda admin memberi pengingat bila sesuatu yang dibutuhkan strategi ini belum ada (mis. foto
+  profil, CV, proyek unggulan, gambar sertifikat, sertifikat yang akan kedaluwarsa).
+- `is_visible` hanya mengatur tampilan, **bukan privasi**: data dan file tetap bisa dibaca lewat
+  API dan URL publik. Jangan simpan data rahasia di kolom konten.

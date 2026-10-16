@@ -1,12 +1,12 @@
 # Override Halaman: Panel Admin (`/admin/*`)
 
-> **PROJECT:** Aldi Portfolio · **Diperbarui:** 16 Oktober 2026
+> **PROJECT:** Aldi Portfolio · **Diperbarui:** 16 Oktober 2026 (tahap 2B)
 > ⚠️ Aturan di file ini **menimpa** `design-system/aldi-portfolio/MASTER.md`. Bila bertentangan dengan
 > `BRIEF.md`, brief yang dipakai.
-> **Status:** diterapkan di tahap 2 (branch `feat/ui-admin`). Rencana dan urutan kerjanya:
-> `plans/tahap-2-admin.md`.
+> **Status:** diterapkan di tahap 2 dan 2B (branch `feat/ui-admin`). Rencana dan urutan kerjanya:
+> `plans/tahap-2-admin.md` dan `plans/tahap-2b-admin.md`. Strategi isi publik: `BRIEF.md` §9.
 
-Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2.
+Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2 maupun 2B.
 
 ---
 
@@ -38,164 +38,229 @@ Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2.
   elemen global lama (`h1–h6`, `p`, `a` di `index.css`) dinetralkan di dalam admin lewat `:where(...)`.
   Di admin, `body` dan `#root` memakai `overflow-x: clip` (bukan `hidden`) supaya `position: sticky` bekerja.
 
-## 2. Kerangka
+## 2. Kerangka dan navigasi
 
 ```
-≥1024 px                                   <1024 px
-┌───────────┬─────────────────────────┐    ┌──────────────────────────┐
-│ [logo]│Aldi│ Judul        [aksi]     │    │ ☰  [logo]│Aldi Dwi Irawan│
-│  KELOLA…  │ deskripsi                │    ├──────────────────────────┤
-│ Beranda   │                          │    │ Judul halaman  [aksi]    │
-│ ISI …     │  isi (grid calm samar)   │    │ isi (daftar jadi kartu)  │
-│ INTERAKSI │                          │    └──────────────────────────┘
-│ Masuk sbg │                          │     ☰ → laci: fokus terkunci,
-│ Lihat situs│                         │     Esc / scrim / pilih menu
-│ Keluar    │                          │     menutup, fokus kembali ke ☰
-└───────────┴─────────────────────────┘
+≥1024 px                                      <1024 px
+┌────────────┬──────────────────────────┐     ┌───────────────────────────┐
+│ [logo]│Aldi │ Judul           [aksi]   │     │ ☰  [logo]│Aldi Dwi Irawan │
+│  KELOLA…   │ deskripsi                 │     ├───────────────────────────┤
+│ Beranda    │ Proyek  Keahlian  Sertif. │     │ Judul halaman   [aksi]    │
+│ ISI PORTO… │ ═════── (sub-tab)          │     │ Tab │ Tab │ Tab  → geser  │
+│  Tentang   │                           │     │ isi (daftar jadi kartu)   │
+│  Karya ◀   │  isi (grid calm samar)    │     └───────────────────────────┘
+│  Rekam     │                           │      ☰ → laci: 5 menu, fokus terkunci,
+│ INTERAKSI  │                           │      Esc / scrim / pilih menu menutup
+│  Kotak (2) │                           │
+│ Masuk sbg  │                           │
+│ Keluar     │                           │
+└────────────┴──────────────────────────┘
 ```
 
 - **`AdminRoot`** (`ui/AdminLayout.jsx`) membungkus setiap halaman: tema terang, toast, penjaga perubahan,
-  pemantau sesi dan tombol Keluar (logika dipindahkan apa adanya dari Beranda lama), serta daftar pesan
-  untuk badge "belum dibaca" (bisa dibaca halaman lewat `useAdminShell()`).
+  pemantau sesi dan tombol Keluar, serta daftar pesan untuk badge "belum dibaca" (`useAdminShell()`).
 - **`AdminLayout`** adalah kerangka yang terlihat: tautan "Lewati ke konten", `ViewfinderCursor`,
-  sidebar, `BlueprintBackground variant="calm"`, `<main id="adm-main">`, dan `PageHeader`.
-- **Sidebar:**
-  - lockup brand (`BrandLockup`: logo 29 px trim | garis | "Aldi Dwi Irawan" + "KELOLA ISI // 2026");
-  - 12 menu dalam 3 kelompok (Beranda; Isi portofolio; Interaksi), dengan `aria-current="page"`;
-  - badge jumlah pesan belum dibaca di menu Pesan;
-  - kaki: "Masuk sebagai {email}", "Lihat situs" (tab baru), "Keluar". Di desktop kaki menempel di dasar
-    (dengan pudar tipis di atasnya) supaya "Keluar" selalu terlihat di layar laptop pendek. Seluruh sidebar
-    digulir sebagai satu kesatuan (tanpa gulir bersarang).
+  sidebar, `BlueprintBackground variant="calm"`, `<main id="adm-main">`, `PageHeader`, lalu `SubNav`.
+- **Menu (`adminNav.js`)**: 5 bagian, rute `App.jsx` tidak berubah.
+
+  | Menu | Sub-halaman | Kelompok di sidebar |
+  |---|---|---|
+  | Beranda | `/admin` | – |
+  | Tentang Saya | Profil, Pendidikan, Bahasa | Isi portofolio |
+  | Karya & Keahlian | Proyek, Keahlian, Sertifikat | Isi portofolio |
+  | Rekam Jejak | Pengalaman, Organisasi, Prestasi | Isi portofolio |
+  | Kotak Masuk | Pesan, Buku tamu | Interaksi |
+
+- **Sidebar:** lockup brand, 5 menu, kaki ("Masuk sebagai", "Lihat situs", "Keluar"; menempel di dasar pada
+  desktop). Menu tetap aktif di semua sub-halamannya: `aria-current="page"` bila tautannya adalah halaman
+  yang terbuka (menu menuju sub-halaman pertama), `aria-current="true"` di sub-halaman lain. Badge belum
+  dibaca ada di **Kotak Masuk**.
+- **Sub-tab (`SubNav`)** di bawah header halaman: `<nav aria-label="{nama menu}">` berisi tautan dengan
+  `aria-current="page"` (bukan `role="tablist"`, karena setiap tab adalah rute). Garis aktif 2 px
+  `--ds-accent-text`. Bila tidak muat, hanya baris tab yang digeser ke samping (`overflow-x: auto`,
+  `overscroll-behavior-x: contain`); tab yang terbuka digulir ke layar dan tepi yang masih menyimpan tab
+  memudar. Badge belum dibaca juga ada di sub-tab Pesan. Beranda tidak punya sub-tab.
+- **Penjaga perubahan:** sidebar dan sub-tab memakai `useGuardedNav` (klik biasa → "Tinggalkan
+  perubahan?" bila form belum disimpan; klik tab baru/jendela baru dibiarkan).
 - **Laci HP (< 1024 px):** `role="dialog"` + `aria-modal`, `inert` saat tertutup, scroll halaman dikunci saat
   terbuka. Titik penanda di tombol ☰ bila ada pesan belum dibaca (jumlahnya dibacakan).
-- **`PageHeader`:** jejak opsional (mis. "Proyek / Tambah proyek"), satu-satunya `h1` (Inter 800, -0.02em,
-  `tabIndex=-1`), deskripsi singkat, aksi halaman, dan slot `leading` (robot kecil di Beranda).
-- **Fokus dan judul tab:**
-  - pindah halaman di dalam admin → gulir ke atas dan fokus ke `h1` baru;
-  - ganti tampilan di halaman yang sama (daftar ↔ form) → fokus ke `h1` baru;
-  - setelah login, transisi jepret mendarat di `h1` "Selamat datang, Aldi";
-  - judul tab: `{Halaman} · Kelola isi · Aldi Dwi Irawan`.
-- **Loading antarhalaman:** layar terang `AdminRoute.css` (lajur gelap di posisi sidebar/bar atas); spinner
-  dan teks baru muncul setelah 0,3 detik.
+- **`PageHeader`:** jejak opsional (mis. "Proyek / Tambah proyek"), satu-satunya `h1`, deskripsi, aksi
+  halaman, dan slot `leading` (robot kecil di Beranda).
+- **Fokus dan judul tab:** pindah halaman (juga lewat sub-tab) → gulir ke atas dan fokus ke `h1` baru;
+  daftar ↔ form → fokus ke `h1` baru; judul tab `{Halaman} · Kelola isi · Aldi Dwi Irawan`.
 
 ## 3. Komponen bersama (`src/components/admin/ui/`)
 
 | Komponen | Isi dan perilaku |
 |---|---|
-| `Button`, `ButtonLink`, `IconButton` | varian `primary`, `secondary`, `danger`, `ghost` (+ `adm-btn--danger-text` untuk Hapus di daftar). `loading` memakai `aria-disabled` + guard dan teks "Menyimpan..." / "Memuat...". `status="success"`: bracket mengunci tombol lalu centang dan "Tersimpan". |
-| `Field`, `Input`, `Textarea`, `Select` | label terlihat, tanda `*` atau "(opsional)", petunjuk, dan pesan galat tepat di bawah kolom. `id`, `aria-describedby`, `aria-invalid` dipasang otomatis. Rel kiri aksen saat fokus (merah saat galat) di samping outline 2 px. |
-| `Checkbox`, `ChoiceGroup`, `QuickPicks` | kotak centang dengan deskripsi; grup radio berbentuk chip (mis. Kerja/Magang/PKL); tombol pilihan cepat `aria-pressed` (preset kategori, juga penyaring daftar). |
-| `FormSection`, `FormPanel` | `fieldset` + judul mono; kartu form berbracket dengan galat server di atas (digulir ke tengah layar), catatan kolom wajib, dan bar Batal / Simpan yang menempel di bawah. |
-| `ImageUpload` | pratinjau, seret-lepas (teks seret disembunyikan di layar sentuh), "Pilih/Ganti gambar", "Batalkan pilihan". Batas 2 MB dan validasi tetap di form pemiliknya. |
-| `Card`, `Badge`, `StatCard` | Blueprint Module Card (bar mono, bisa berisi `h2` asli); badge mono nada netral/aksen/sukses/bahaya; kartu ringkasan berupa tautan ("Proyek: 6, 2 unggulan" untuk pembaca layar). |
-| `DataList`, `DataListItem` | daftar `ul` yang menjadi baris di layar lebar dan kartu di HP: media, judul `h3`, badge, subjudul, meta mono (dipisah titik tengah), aksi. |
-| `SectionScreen`, `RowActions`, `SearchBox`, `NoMatches` | layar bagian isi: daftar ↔ form panel penuh, skeleton saat muat pertama (muat ulang tidak mengosongkan daftar), galat dengan "Coba lagi", empty state, dialog hapus; tombol Ubah/Hapus dengan nama unik; kolom cari berlabel; pesan "tidak ada yang cocok". |
-| `Dialog`, `ConfirmDialog` | portal terang, fokus terkunci (bertumpuk dengan benar di atas laci atau dialog lain), Esc dan backdrop menutup (kecuali sedang proses), fokus awal di "Batal", galat di dalam dialog, `returnFocusRef` untuk mengembalikan fokus ke `h1` bila baris yang dihapus sudah hilang. |
-| `ToastProvider` / `useToast` | sukses dan info (`role="status"`, hilang setelah 4 detik, berhenti saat disorot/difokus); galat (`role="alert"`, tetap sampai ditutup); maksimal 4. |
-| `Alert`, `EmptyState`, `Skeleton` | alert nada bahaya/sukses/info; empty state dengan robot a+ kecil dan ajakan; skeleton daftar/ringkasan/form. |
-| `UnsavedChangesProvider`, `useUnsavedChanges`, `useFormScreen` | penjaga perubahan: peringatan browser saat tab ditutup atau dimuat ulang, dialog "Tinggalkan perubahan?" untuk menu sidebar, jejak, Batal, Keluar, dan "Muat ulang". |
-| `useFormFeedback` | fokus ke kolom galat pertama setelah submit, gulir galat server ke layar, jeda singkat "Tersimpan" sebelum form tertutup. |
-| `toFriendlyError` | memetakan pesan mentah (Supabase, istilah teknis) ke kalimat sederhana saat ditampilkan. |
-| `format.js` | tanggal relatif ("2 jam yang lalu", "kemarin", lalu "5 Okt 2026") dan tanggal lengkap untuk `title`. |
+| `Button`, `ButtonLink`, `IconButton` | varian `primary`, `secondary`, `danger`, `ghost`. `loading` memakai `aria-disabled` + guard. `status="success"`: bracket mengunci tombol lalu centang "Tersimpan". |
+| `Field`, `Input`, `Textarea`, `Select` | label terlihat, `*` atau "(opsional)", petunjuk dan galat tepat di bawah kolom; `id`, `aria-describedby`, `aria-invalid` otomatis. |
+| `Checkbox`, `ChoiceGroup`, `QuickPicks` | kotak centang; grup radio berbentuk chip (jenis pengalaman, kategori keahlian); pilihan cepat `aria-pressed`. Nilai lama di luar daftar tetap bisa dipilih dengan label "(lama)". |
+| `Switch`, `DisplaySettings` | sakelar `role="switch"` (tombol asli, Space/Enter) dengan deskripsi yang mengikuti keadaan; blok "Tampilan di halaman publik" berisi "Tampil di halaman publik" dan (bila ada) "Unggulan". |
+| `ListInput` | daftar isian pendek (poin tugas, teknologi, tag, kata berganti, topik pesan, peran pendukung): tambah, hapus, Naikkan/Turunkan dengan tombol berlabel unik; Enter di satu baris menambah baris berikutnya; batas jumlah ("Sudah 5 dari 5"); fokus mengikuti baris yang dipindah dan posisinya diumumkan. Isian kosong dibuang saat simpan (`cleanList`). |
+| `MonthYearSelect` | `fieldset` + dua `select` berlabel "Bulan" dan "Tahun" seperti formulir lowongan kerja; `monthOptional` untuk prestasi. Dicek dengan `checkMonthYear` (setengah terisi → "Pilih tahunnya juga."). Disimpan sebagai tanggal 1 bulan itu. |
+| `ImageUpload`, `ImageField` | pratinjau, seret-lepas, "Pilih/Ganti gambar", "Batalkan pilihan", "Hapus gambar" untuk gambar tersimpan (+ "Batalkan hapus"), status "Mengecilkan gambar...", bentuk `wide` atau `square` (logo, ikon, foto profil). |
+| `PdfUpload` | nama file dan ukuran, "Pratinjau" (tab baru; file yang baru dipilih memakai object URL), "Ganti PDF", "Batalkan pilihan" / "Hapus PDF". |
+| `GalleryUpload` | gambar berurutan dengan keterangan (juga teks alternatif; bila kosong "Gambar 2 dari {judul}"), tambah beberapa sekaligus sampai batas, hapus, Naikkan/Turunkan; posisi baru diumumkan. |
+| `useAssetField`, `useGalleryField`, `prepareUploads`, `assetUrlsOf` | file disiapkan saat dipilih (gambar dikompres, PDF dicek) dan **baru diunggah saat simpan**. Gagal simpan → file baru dihapus lagi; berhasil → file lama yang diganti/dihapus dibersihkan. |
+| `ReorderButtons`, `useReorder`, `ReorderStatus` | Naikkan/Turunkan di baris daftar: urutan baru langsung tampil, baris yang berubah diberi `sort_order` 0..n-1, lalu data dimuat ulang. `aria-disabled` di ujung daftar dan saat pencarian aktif; fokus tetap di tombol; posisi diumumkan. |
+| `Thumb`, `DisplayBadges` | thumbnail daftar (logo memakai `contain`) atau ikon pengganti; badge "Unggulan" dan "Disembunyikan" (garis putus-putus, ikon mata dicoret). |
+| `Card`, `Badge`, `StatCard` | kartu modul, badge mono (netral, aksen, sukses, bahaya), kartu ringkasan berupa tautan. |
+| `DataList`, `DataListItem` | daftar yang menjadi baris di layar lebar dan kartu di HP. |
+| `SectionScreen`, `RowActions`, `SearchBox`, `NoMatches` | layar daftar ↔ form, skeleton, galat dengan "Coba lagi", empty state, dialog hapus; Ubah/Hapus berlabel unik; kolom cari. |
+| `Dialog`, `ConfirmDialog`, `ToastProvider`, `Alert`, `EmptyState`, `Skeleton` | seperti tahap 2. Toast naik di atas bar Batal/Simpan saat form terbuka (tidak menutupi tombol Simpan). |
+| `UnsavedChangesProvider`, `useUnsavedChanges`, `useFormScreen`, `useGuardedNav` | penjaga perubahan. `useFormScreen({ extraDirty })` ikut menghitung file yang dipilih; daftar dan objek dibandingkan isinya. |
+| `contentLabels.js`, `formValues.js`, `format.js`, `friendlyError.js` | daftar pilihan (status proyek, jenis, kategori sertifikat, jenis pengalaman, kategori keahlian, tingkat bahasa) dan `certificateValidity`; `nextSortOrder`, `bySortOrder`; `formatFileSize`, `formatMonthYear`, `formatPeriod`; pesan ramah untuk migrasi yang belum dijalankan, format dan ukuran file. |
+
+Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`), `pdfFile.js`
+(`checkPdfFile`), `storageUtils.js` (`extractStoragePath` untuk 7 folder, `uploadAsset`, `removeAssets`).
 
 **Dipakai ulang tanpa versi baru:** `Logo`, `RobotMascot`, `ViewfinderCursor`, `BlueprintBackground`
 (`calm`), `ShutterTransition`.
 
 ## 4. Pola halaman
 
-- **Daftar:** header (judul, deskripsi, "Muat ulang", tombol tambah) → ringkasan mono ("4 proyek · 2
-  unggulan") → penyaring/cari bila ada → daftar.
-- **Form:** panel penuh menggantikan daftar, jejak kembali ke daftar, kelompok kolom dengan judul mono, bar
-  aksi menempel. Simpan: "Menyimpan..." → "Tersimpan" (±0,7 detik, langsung saat reduced motion) → kembali ke
-  daftar + toast.
-- **Hapus:** `ConfirmDialog` dengan nama data: `Proyek "X" akan dihapus permanen. Tindakan ini tidak bisa
-  dibatalkan.` Fokus ke "Batal"; setelah berhasil, fokus ke `h1`.
-- **Logika data tidak berubah.** Hooks, query Supabase, payload, dan handler tetap; yang berubah hanya tampilan,
-  teks di layar, dan alur di layar. Rantai `supabase.…` setiap halaman dan form dibandingkan otomatis dengan
-  `main` dan identik.
+- **Daftar:** header (judul, deskripsi, "Muat ulang", tombol tambah) → sub-tab → ringkasan mono
+  ("4 proyek · 2 unggulan · 1 disembunyikan") → penyaring/cari bila ada → daftar.
+- **Baris daftar:** thumbnail (gambar, logo, atau ikon), judul `h3`, badge status (mis. "Produksi",
+  "Berlaku sampai 2028", "Kedaluwarsa dalam 2 bulan") + "Unggulan" + "Disembunyikan", subjudul, meta mono,
+  lalu Naikkan/Turunkan, Ubah, Hapus.
+- **Urutan:** ditentukan tombol Naikkan/Turunkan, tidak lagi lewat kotak angka "Urutan tampil" di form. Data
+  baru masuk di urutan terakhir; mengubah data tidak mengubah urutannya. Keahlian diurutkan per kategori.
+- **Form:** panel penuh, kelompok kolom bertajuk mono, blok "Tampilan di halaman publik" di akhir, bar aksi
+  menempel. Simpan: "Menyimpan..." → "Tersimpan" → kembali ke daftar + toast.
+- **Hapus:** `ConfirmDialog` menyebut nama data dan file yang ikut terhapus ("… beserta gambar sampul dan
+  screenshot-nya"). Semua file data itu dihapus dari Storage setelah barisnya terhapus.
+- **Data:** hooks dipanggil dengan `{ includeAdminFields: true }` (Profil: `includePrivateFields`), jadi query
+  halaman publik tetap sama persis. Admin mengurutkan daftar sendiri berdasarkan `sort_order`.
 
-## 5. Halaman
+## 5. Aturan unggah
 
-- **Beranda — "Selamat datang, Aldi":** robot a+ kecil (idle, berkedip sesekali). Kelompok Interaksi
-  (Pesan: "3 baru dari 12 pesan", Buku tamu: jumlah belum dibalas) dan Isi portofolio (9 kartu, mis. Profil
-  "6/7 data utama terisi", Proyek "2 unggulan"). Lalu 5 pesan dan 5 entri buku tamu terbaru. Semua lewat
-  hooks yang ada; daftar pesan dibagi dengan badge sidebar.
-- **Proyek:** gambar sampul, badge Unggulan/Urutan, tag teknologi, alamat, tautan demo/kode. Form: alamat
-  singkat otomatis dari judul, `ImageUpload` (2 MB).
-- **Keahlian:** penyaring kategori, pilihan cepat kategori dan tingkat.
-- **Pengalaman / Pendidikan:** Kerja/Magang/PKL sebagai grup radio; "Masih berjalan" / "Masih belajar di sini"
-  mengosongkan dan mengunci tanggal/tahun selesai.
-- **Sertifikat / Prestasi / Bahasa / Organisasi:** kolom cari berlabel; tingkat bahasa sebagai grup radio.
-- **Pesan:** penyaring Semua / Belum dibaca / Sudah dibaca, detail di dialog (otomatis ditandai dibaca),
-  "Tandai sudah/belum dibaca", "Balas lewat email", hapus (juga dari dialog detail). Badge sidebar ikut
-  diperbarui.
-- **Buku tamu:** balasan berlabel per entri (simpan hanya aktif bila teks berubah), penyaring dibalas/belum,
-  hapus lewat dialog (menggantikan `window.confirm`).
-- **Profil:** satu form tiga bagian dengan pratinjau langsung, sakelar ketersediaan (`role="switch"`) yang
-  menyebut teks publiknya, "Batalkan perubahan" bila ada perubahan.
+| Isi | Folder | Kompresi | Batas |
+|---|---|---|---|
+| Foto profil | `profile/` | WebP, sisi terpanjang 1.600 px | file asli ≤10 MB, hasil ≤2 MB |
+| Gambar sampul proyek | `projects/` | WebP, 1.600 px | sama |
+| Galeri proyek (5), foto pengalaman (3), foto prestasi | `gallery/` | WebP, 1.600 px | sama |
+| Logo pengalaman/pendidikan/organisasi, ikon keahlian | `logos/` | WebP, 400 px, transparansi terjaga | sama |
+| Gambar sertifikat | `certificates/` | WebP, 1.600 px | sama |
+| CV | `cv/` | – | PDF ≤5 MB, header `%PDF-` |
+| PDF sertifikat | `certificates/` | – | sama |
+| Dokumen prestasi | `documents/` | – | sama |
 
-## 6. Teks
+- Hanya PNG, JPG, dan WebP untuk gambar (SVG dan GIF ditolak); gambar selalu digambar ulang di canvas, jadi
+  data lokasi foto ikut hilang. Browser yang tidak bisa membuat WebP memakai JPEG (foto) atau PNG (logo).
+- Nama file acak (`{folder}/{uuid}.webp`), `contentType` dikirim eksplisit karena bucket membatasi MIME.
+- Bucket `portfolio-assets` menerima PNG, JPEG, WebP, dan PDF sampai 5 MB; policy admin per folder
+  memeriksa ekstensi (migrasi `20261016000000_admin_content_model.sql`). Batas 2 MB untuk gambar dijaga di
+  browser.
+
+## 6. Halaman
+
+- **Beranda — "Selamat datang, Aldi":** robot a+ kecil. Kartu **Perlu dilengkapi** berisi pengingat yang
+  dihitung dari data (hanya data yang tampil): foto profil, CV PDF, peran utama, kata berganti, LinkedIn,
+  username GitHub; proyek unggulan belum dipilih atau lebih dari 4, proyek tanpa sampul atau status;
+  sertifikat tanpa gambar, akan kedaluwarsa dalam 3 bulan (merah), sudah kedaluwarsa, belum ada yang
+  unggulan; pengalaman tanpa poin tugas atau belum ada yang unggulan. Setiap pengingat adalah tautan.
+  Lalu kartu ringkasan per kelompok menu (Tentang Saya, Karya & Keahlian, Rekam Jejak, Kotak Masuk) dan
+  5 pesan serta 5 entri buku tamu terbaru.
+- **Profil:** data utama; Foto dan CV (foto profil, CV PDF, tautan CV cadangan); Peran dan kata berganti
+  (peran utama ≤60 karakter, maks. 2 peran pendukung, maks. 8 kata berganti); status ketersediaan; tautan
+  (username GitHub otomatis dari tautan GitHub); pilihan topik pesan untuk formulir kontak.
+- **Proyek:** informasi utama; detail (status, jenis, tahun, klien, peran saya); studi kasus (masalah,
+  solusi, hasil; angka hanya dari data asli); teknologi sebagai daftar berurutan; tautan demo/kode dan
+  "Repo privat"; gambar sampul dan galeri 5 screenshot berketerangan; tampil/unggulan.
+- **Keahlian:** 7 kategori tetap sebagai chip, tingkat dalam kata (angka dan persen ditolak), ikon 400 px,
+  tampil/unggulan; daftar dikelompokkan per kategori dengan judul `h2`.
+- **Pengalaman:** jenis Magang/Kerja/Freelance/Organisasi; periode bulan/tahun + "Masih berjalan"; maks. 5 poin
+  tugas, maks. 12 tag; logo; maks. 3 foto; satu proyek terkait; tampil/unggulan.
+- **Pendidikan:** logo, IPK (0–4, koma atau titik), judul tugas akhir, tampil.
+- **Sertifikat:** kategori, terbit dan "Berlaku sampai" (bulan/tahun) atau "Tidak kedaluwarsa", nomor
+  kredensial, tautan verifikasi, skor, gambar dan PDF asli, tampil/unggulan.
+- **Prestasi:** nama pencapaian, penerbit/penyelenggara, bulan (opsional) dan tahun, keterangan, dokumen PDF,
+  foto, tampil/unggulan.
+- **Bahasa:** tingkat kemampuan berupa teks dengan pilihan cepat (Penutur asli, Aktif, Menengah, Dasar),
+  tampil.
+- **Organisasi:** periode bulan/tahun (selesai kosong = masih aktif), logo atau foto kecil, tampil.
+- **Pesan, Buku tamu:** seperti tahap 2; kini sub-halaman Kotak Masuk.
+
+## 7. Teks
 
 - Bahasa Indonesia sederhana; nama tabel, "database", dan istilah teknis tidak tampil di layar.
-- Contoh penggantian: Projects → Proyek, Edit → Ubah, Logout → Keluar, Situs Publik → Lihat situs,
-  Featured → Unggulan, Slug → Alamat singkat, Demo/GitHub URL → Tautan demo/kode, Tech stack → Teknologi
-  yang dipakai, Thumbnail → Gambar sampul, Segarkan Data → Muat ulang, "[DEV ALDI]" → tanda pemilik situs.
-- Pesan galat ramah (`toFriendlyError`):
-  - jaringan → "Tidak bisa terhubung ke server. Periksa koneksi internet, lalu coba lagi.";
-  - data kembar (23505) → "Sudah ada data dengan isian yang sama …"; untuk proyek: "Alamat singkat ini sudah
-    dipakai proyek lain.";
-  - izin RLS (42501) → "Anda tidak punya izin untuk menyimpan perubahan ini.";
-  - sesi berakhir → "Sesi Anda sudah berakhir. Silakan keluar, lalu masuk lagi.";
-  - teks teknis lain → kalimat cadangan per konteks, mis. "Proyek belum tersimpan. Periksa koneksi
-    internet, lalu coba lagi."
+- Contoh penggantian: Projects → Proyek, Edit → Ubah, Logout → Keluar, Featured → Unggulan, Slug → Alamat
+  singkat, Thumbnail → Gambar sampul, sort order → tombol Naikkan/Turunkan, is_visible → "Tampil di halaman
+  publik", expiry → "Berlaku sampai".
+- Petunjuk kolom memberi contoh nyata, mis. "Tulis pencapaian yang paling mewakili usaha atau prestasimu."
+- Pesan galat ramah (`toFriendlyError`), tambahan tahap 2B:
+  - kolom belum ada (migrasi belum dijalankan) → "Pembaruan database untuk panel admin belum dijalankan.
+    Jalankan file migrasi terbaru di Supabase, lalu muat ulang halaman.";
+  - format/ukuran file ditolak Storage → "Format file tidak didukung…", "Ukuran file terlalu besar…";
+  - data terhubung sudah hilang (23503) → "Data yang dihubungkan sudah tidak ada…".
 
-## 7. Motion
+## 8. Motion
 
-- Sedikit dan bermakna: laci (buka 260 ms, tutup 180 ms), dialog/toast masuk, rel fokus input, kunci bracket
-  + centang di tombol simpan, kedip robot Beranda, garis pindai calm di latar.
-- `prefers-reduced-motion`: semua animasi dan transisi admin dimatikan, form langsung tertutup setelah simpan,
-  robot tidak berkedip.
+- Sedikit dan bermakna: laci, dialog/toast masuk, rel fokus input, kunci bracket + centang di tombol simpan,
+  kedip robot Beranda, garis pindai calm. Sub-tab, sakelar, dan daftar hanya transisi warna/posisi singkat.
+- `prefers-reduced-motion`: semua animasi dan transisi admin dimatikan, form langsung tertutup setelah simpan.
 
-## 8. Aksesibilitas
+## 9. Aksesibilitas
 
-- Satu `h1` per halaman; `h2` untuk bagian dan judul kartu; `h3` untuk item daftar.
-- Landmark: `main#adm-main`, `nav` "Menu admin", `nav` "Jejak halaman"; tautan "Lewati ke konten".
-- Keyboard penuh, fokus 2 px di semua kontrol (jaring pengaman `:focus-visible`), fokus terkunci di
-  dialog/laci, target ≥44 px di layar sentuh (36–40 px di desktop, di atas batas 24 px WCAG 2.2).
-- Status: toast sukses `role="status"`, galat `role="alert"`, ringkasan daftar `aria-live="polite"`.
-- Warna tidak pernah satu-satunya penanda (badge "Baru", "Belum dibalas", "Masih berjalan" + rel kiri).
-- `forced-colors`: border dan outline pengganti untuk kartu, tombol, sakelar, dan menu aktif.
+- Satu `h1` per halaman; `h2` untuk bagian, judul kartu, dan kelompok (mis. kategori keahlian); `h3` untuk
+  item daftar.
+- Landmark: `main#adm-main`, `nav` "Menu admin", `nav` sub-tab bernama menu, `nav` "Jejak halaman".
+- Keyboard penuh: fokus 2 px di semua kontrol (di sub-tab dan pengingat Beranda outline digambar di dalam,
+  `-2px`); tombol Naikkan/Turunkan memakai `aria-disabled` sehingga fokus tidak hilang di ujung daftar.
+- Status: toast sukses `role="status"`, galat `role="alert"`; pemindahan urutan dan perubahan galeri/daftar
+  diumumkan lewat region `aria-live`.
+- Warna tidak pernah satu-satunya penanda: "Disembunyikan" punya ikon dan garis putus-putus; masa berlaku
+  ditulis sebagai teks.
 
-## 9. Hasil uji (16 Oktober 2026)
+## 10. Hasil uji (16 Oktober 2026)
 
-Diuji otomatis di Chrome headless dengan Supabase tiruan (data di memori; database asli tidak tersentuh).
+Diuji otomatis di Chrome headless dengan Supabase tiruan (data dan Storage di memori, dengan kolom, CHECK
+constraint, FK, batas MIME/ukuran bucket, dan policy folder yang sama dengan migrasi). Database asli tidak
+tersentuh. Migrasi diuji terpisah di PGlite (Postgres WASM) dengan tiruan skema Supabase.
 
 | Uji | Hasil |
 |---|---|
-| Kerangka: sidebar, laci HP (fokus terkunci, Esc, scrim, pilih menu), tautan lewati, sticky, Keluar, transisi jepret ke "Selamat datang, Aldi" | 36/36 |
-| Beranda: kartu ringkasan, urutan terbaru, robot berkedip (diam saat reduced motion), galat + "Muat ulang", kosong | 22/22 |
-| Proyek: tambah/ubah/hapus, validasi + fokus, unggah (> 2 MB ditolak, pratinjau), penjaga perubahan (jejak, Batal, sidebar, tutup tab), alamat kembar, galat hapus, kosong, reduced motion | 40/40 |
-| Keahlian, Pengalaman, Pendidikan (CRUD lengkap + aturan khusus tiap form) | 68/68 |
-| Sertifikat, Prestasi, Bahasa, Organisasi (CRUD lengkap + cari) | 91/91 |
-| Pesan dan Buku tamu (detail, tandai, badge, hapus bertumpuk, balasan, dialog pengganti `window.confirm`) | 32/32 |
-| Profil (pratinjau, sakelar, batalkan perubahan, simpan, galat) | 16/16 |
-| **Total** | **305/305** |
+| Migrasi: dijalankan 2×, PKL → Magang, tipe FK mengikuti `projects.id` (uuid dan bigint), 20 CHECK/FK menolak data salah, policy Storage (folder + ekstensi, non-admin ditolak) | 96/96 |
+| Navigasi: 5 menu dan sub-tab di 12 rute, klik sub-tab/sidebar, keyboard, penjaga perubahan, 375/768/1024/1440, baris sub-tab di 300 px, laci HP, reduced motion, kontras | 235/235 |
+| Profil: validasi gambar (SVG, GIF, teks, > 10 MB) dan PDF (palsu, > 5 MB, bukan PDF), kompresi 2400×1600 → 1600×1067 WebP, pratinjau PDF, daftar isian, username GitHub, simpan, ganti/hapus file lama, rollback saat unggah/simpan gagal, migrasi belum jalan | 110/110 |
+| Proyek: badge dan meta, Naik/Turun (layar, keyboard, gagal simpan), semua kolom baru, sampul + galeri (urutan, keterangan, batas 5), edit menghapus file yang diganti, slug kembar + rollback, hapus beserta file, FK proyek terkait | 99/99 |
+| Keahlian: kategori tetap + "(lama)", tingkat tanpa angka, ikon 400 px, urutan per kategori, pindah kategori | 49/49 |
+| Pengalaman: jenis, bulan/tahun + validasi, poin tugas/tag, logo, foto, proyek terkait (termasuk yang sudah dihapus), PKL lama | 52/52 |
+| Pendidikan, Bahasa, Organisasi: IPK, logo, sembunyikan, tingkat teks, urutan terkunci saat mencari, periode bulan/tahun | 80/80 |
+| Sertifikat, Prestasi: kategori, masa berlaku dan badge, PDF palsu ditolak, gambar + PDF, bulan opsional, hapus beserta file | 69/69 |
+| Beranda: kartu per kelompok, 10 pengingat dari data contoh, semua lengkap, unggulan terlalu banyak, kedaluwarsa, data kosong, migrasi belum jalan | 39/39 |
+| Regresi: login dan publik vs `main`, publik setelah membuka admin vs akhir tahap 2 | 35/35 |
+| **Total** | **864/864** |
 
-- **Query:** semua rantai `supabase.…` di 12 halaman dan 8 form identik dengan `main`.
-- **Lebar 375 / 768 / 1024 / 1440:** tanpa scroll horizontal di semua halaman (daftar dan form).
-- **Kontras** (dihitung dari computed style, termasuk dialog dan laci): 531 elemen teks, tidak ada yang di bawah
-  ambang; terendah 4,83:1 (teks putih di tombol "Ya, hapus").
-- **Login dan halaman publik tidak berubah:** build `main` dan build branch ini dibandingkan di 4 lebar
-  (computed style dan kotak setiap elemen, tinggi halaman; animasi dibekukan di kedua sisi) → identik. Juga
-  identik setelah membuka admin lebih dulu di tab yang sama (stylesheet admin sudah termuat).
+- **Lebar 375 / 768 / 1024 / 1440:** tanpa scroll horizontal di semua daftar dan form yang diuji.
+- **Kontras** dihitung dari computed style di setiap daftar dan form pada empat lebar: tidak ada teks di bawah
+  4,5:1.
+- **Login dan halaman publik tidak berubah:** build `main` dan build branch ini dibandingkan di 4 lebar (computed
+  style dan kotak setiap elemen, tinggi halaman, latar `<html>`; animasi dibekukan) → identik. Query Supabase
+  halaman publik sama persis. Setelah membuka admin lebih dulu di tab yang sama, halaman publik identik dengan
+  akhir tahap 2 (`main` masih berbeda karena stylesheet admin lama di `main` membocorkan `.form-label` ke
+  formulir kontak; bocoran itu sudah hilang sejak tahap 2).
+- **Query:** semua select publik/bawaan sama dengan `main`; admin hanya menambah kolom. Payload lama tetap
+  dikirim, ditambah kolom baru. `sort_order` kini hanya dikirim saat menambah data (urutan diubah lewat
+  Naikkan/Turunkan). Unggah/hapus file Proyek pindah ke `uploadAsset`/`removeAssets` (bucket sama,
+  ditambah `contentType`).
 - **`npm run lint`** 0 diagnostik; **`npm run build`** sukses (peringatan ukuran chunk utama > 500 kB sudah ada
   di `main`).
 
-## 10. Batasan yang diketahui
+## 11. Batasan yang diketahui
 
+- **Halaman publik belum membaca kolom baru** (tahap 3). Sakelar tampil/unggulan, CV PDF, galeri, dan lainnya
+  sudah tersimpan tetapi belum terlihat di situs.
+- **`is_visible` bukan privasi:** RLS SELECT tabel konten tetap terbuka dan bucket publik, jadi data/file yang
+  disembunyikan masih bisa dibaca lewat API atau URL-nya.
+- **Mengubah urutan tidak atomik:** satu langkah bisa memperbarui dua baris. Bila salah satu gagal, daftar
+  menampilkan urutan yang tersimpan (bisa campuran) dan langkah berikutnya menomori ulang semuanya.
+- **Tanggal lama dibulatkan ke tanggal 1** saat data disimpan ulang (form memakai bulan/tahun).
+- **Batas 2 MB gambar dijaga di browser**; batas bucket 5 MB (satu angka untuk semua file).
 - Tombol Back browser tidak memicu dialog "Tinggalkan perubahan?" (butuh data router, berarti mengubah
-  routing). Tutup/muat ulang tab, menu sidebar, jejak, Batal, Keluar, dan "Muat ulang" sudah dijaga.
-- Badge pesan memakai hook `useMessages` di kerangka, jadi ada satu permintaan tambahan per halaman admin
-  (Beranda memakai data yang sama, tanpa permintaan kedua).
-- Profil tidak punya kolom foto (`avatar_url`) sejak sebelum tahap 2; nilainya tetap disimpan apa adanya.
+  routing). Menu, sub-tab, jejak, Batal, Keluar, "Muat ulang", dan tutup/muat ulang tab sudah dijaga.
+- Badge pesan memakai `useMessages` di kerangka, jadi ada satu permintaan tambahan per halaman admin; halaman
+  Pengalaman juga memuat daftar proyek untuk pilihan "Proyek terkait".
 - Belum dikerjakan (tahap 3c): kolom versi bahasa Inggris, label fisika, angka studi kasus.

@@ -7,10 +7,10 @@
 ---
 
 **Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
-**Versi:** v1.1 · 16 Oktober 2026
+**Versi:** v1.2 · 16 Oktober 2026
 **Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode. Dipakai oleh
-`/admin/login` (tahap 1) dan seluruh panel admin `/admin/*` (tahap 2, lihat §14 dan `pages/admin.md`).
-Halaman publik (tahap 3) masih memakai token lama.
+`/admin/login` (tahap 1) dan seluruh panel admin `/admin/*` (tahap 2 dan 2B, lihat §14 dan
+`pages/admin.md`). Halaman publik (tahap 3) masih memakai token lama.
 **Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
 
 ### Asal-usul & kurasi
@@ -395,20 +395,33 @@ napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
   `role="status"` mengumumkan `message`. Overlay `aria-hidden` dan tidak mengambil fokus.
 - Reduced motion: tanpa overlay; navigasi langsung, fokus tetap dipindah ke `h1` tujuan.
 
-## 14. Panel admin (tahap 2)
+## 14. Panel admin (tahap 2 dan 2B)
 
-Detail lengkap: `pages/admin.md`. Ringkasnya:
+Detail lengkap: `pages/admin.md`. Strategi isi publik: `BRIEF.md` §9. Ringkasnya:
 
 - **Kerangka:** `AdminRoot` (tema, toast, penjaga perubahan, sesi, Keluar) + `AdminLayout` (sidebar gelap,
   laci di < 1024 px, area kerja terang dengan `BlueprintBackground variant="calm"` dan kursor viewfinder,
-  satu `h1` per halaman). Routing dan logika auth tidak berubah.
+  satu `h1` per halaman, sub-tab di bawah header). Routing dan logika auth tidak berubah.
+- **Navigasi (2B):** 5 menu — Beranda, Tentang Saya, Karya & Keahlian, Rekam Jejak, Kotak Masuk — dari
+  `adminNav.js`. Halaman dalam satu menu tampil sebagai sub-tab (`SubNav`: `<nav>` berisi tautan dengan
+  `aria-current="page"`, bukan tablist; baris tab digeser sendiri bila tidak muat). Menu induk tetap aktif di
+  semua sub-halamannya. Sidebar dan sub-tab memakai penjaga perubahan yang sama (`useGuardedNav`).
 - **Komponen bersama** di `src/components/admin/ui/`, satu stylesheet `admin-ui.css` + `admin-layout.css`,
   token komponen `--adm-*`. Semua aturan diawali `.adm` / `.adm-portal` / `html:has(.adm)`, jadi tidak bocor
   ke login atau halaman publik walau stylesheet admin sudah termuat di tab yang sama.
 - **Pola yang wajib diikuti halaman admin baru:** `SectionScreen` untuk daftar ↔ form, `FormPanel` +
   `useFormScreen` untuk form, `ConfirmDialog` untuk hapus, `useToast` untuk hasil, `toFriendlyError` untuk
-  pesan galat, `EmptyState`/`Skeleton` untuk keadaan kosong/memuat.
-- **Fokus:** dialog dan laci memakai `useFocusTrap` (bertumpuk; hanya yang teratas menangani Tab/Esc). Setelah
-  pindah halaman, ganti tampilan, atau hapus baris, fokus ke `h1`.
-- **Data:** hooks dan query Supabase tidak diubah. Setiap halaman yang dimigrasi dicek dengan membandingkan
-  semua rantai `supabase.…` terhadap `main`.
+  pesan galat, `EmptyState`/`Skeleton` untuk keadaan kosong/memuat. Tambahan 2B:
+  - kolom berulang → `ListInput`; bulan/tahun → `MonthYearSelect`; tampil/unggulan → `DisplaySettings`;
+  - gambar → `ImageField` / `GalleryUpload`, PDF → `PdfUpload`, semuanya lewat `useAssetField` /
+    `useGalleryField` dan `prepareUploads` (unggah saat simpan, bersihkan saat gagal, hapus file lama setelah
+    berhasil);
+  - urutan → `ReorderButtons` + `useReorder` di daftar (bukan kotak angka di form);
+  - baris daftar → `Thumb` + `DisplayBadges`.
+- **Unggahan:** gambar PNG/JPG/WebP ≤10 MB dikompres di canvas ke WebP (1.600 px; logo 400 px) dan hasilnya
+  ≤2 MB; PDF ≤5 MB dengan header `%PDF-`; 7 folder di bucket `portfolio-assets` (lihat `pages/admin.md` §5).
+- **Fokus:** dialog dan laci memakai `useFocusTrap`. Setelah pindah halaman, ganti tampilan, atau hapus baris,
+  fokus ke `h1`. Setelah Naikkan/Turunkan, fokus tetap di tombol yang ditekan.
+- **Data:** hooks menerima `{ includeAdminFields: true }` untuk kolom tahap 2B (Profil:
+  `includePrivateFields`); tanpa opsi itu query halaman publik sama persis dengan sebelumnya. Kolom baru
+  ditambahkan lewat migrasi `20261016000000_admin_content_model.sql`, yang dijalankan pemilik project.

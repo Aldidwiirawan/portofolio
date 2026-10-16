@@ -92,7 +92,7 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 8. Pendidikan, Bahasa, Organisasi
 - [x] 9. Sertifikat, Prestasi
 - [x] 10. Beranda (kartu per kelompok + pengingat kelengkapan)
-- [ ] 11. Dokumentasi (MASTER.md, `pages/admin.md`, BRIEF "Strategi konten") dan bagian "Uji manual"
+- [x] 11. Dokumentasi (MASTER.md, `pages/admin.md`, BRIEF "Strategi konten") dan bagian "Uji manual"
 
 ## 5. Pengujian
 
@@ -102,3 +102,80 @@ dijaga dialog "Tinggalkan perubahan?".
   motion; kontras ≥4,5:1; tanpa scroll horizontal.
 - Login dan halaman publik dibandingkan dengan `main` (computed style, kotak elemen, URL request Supabase).
 - `npm run lint` dan `npm run build`. Screenshot di `C:\Users\acer\portofolio-screenshots\tahap-2b\`.
+
+Hasil lengkap per bagian ada di `pages/admin.md` §10: **864/864** uji otomatis (termasuk migrasi di PGlite),
+lint 0 diagnostik, build sukses.
+
+## 6. Keputusan selama pengerjaan
+
+- **Urutan lewat tombol, bukan angka.** Kotak "Urutan tampil" di form diganti tombol Naikkan/Turunkan di
+  daftar. Data baru masuk di urutan terakhir dan `sort_order` hanya dikirim saat menambah data. Keahlian
+  diurutkan per kategori. Selama kolom cari terisi, tombol urutan dikunci.
+- **File diunggah saat simpan.** Memilih gambar/PDF hanya menyiapkan file (kompresi/cek). Bila simpan gagal, file
+  yang baru terunggah dihapus lagi; bila berhasil, file lama yang diganti atau dihapus dibersihkan.
+- **Status, jenis, dan kategori baru disimpan sebagai kode** (`production`, `web`, `competency`, …) supaya
+  terjemahan tahap 3 cukup lewat file terjemahan. Kolom pilihan lama (jenis pengalaman, kategori keahlian,
+  tingkat bahasa) tetap teks; nilai lama di luar daftar tetap bisa dipilih dengan label "(lama)".
+- **Toast naik di atas bar Batal/Simpan** saat form terbuka. Sebelumnya toast bisa menutupi tombol Simpan, dan
+  karena toast berhenti hilang saat disorot, tombolnya sulit diklik.
+- **Galeri:** file dibaca sebelum input dikosongkan (daftar file di input ikut kosong saat input direset).
+- **Organisasi:** logo atau foto kecil diperlakukan seperti logo (400 px).
+- **Beranda:** pengingat hanya menghitung data yang tampil di publik; galat memuat menyebut bila migrasi belum
+  dijalankan.
+
+## 7. Uji manual
+
+Pengujian otomatis memakai Supabase tiruan. Langkah berikut dilakukan pemilik dengan akun dan data asli.
+Pakai data yang mudah dikenali, misalnya judul berawalan **"UJI – "**, lalu hapus lagi di akhir. Bila ada yang
+tidak sesuai, catat halaman, langkah, dan teks pesan yang muncul.
+
+**A. Jalankan migrasi**
+1. (Disarankan) Buat cadangan: Supabase → Database → Backups, atau ekspor tabel konten.
+2. Buka **SQL Editor**, tempel seluruh isi `supabase/migrations/20261016000000_admin_content_model.sql`, lalu
+   **Run**. Hasilnya harus "Success. No rows returned".
+3. Jalankan sekali lagi. Hasilnya tetap sukses (migrasi aman dijalankan ulang).
+4. Cek hasilnya di SQL Editor:
+   - `select column_name, data_type from information_schema.columns where table_name = 'experiences' and column_name = 'related_project_id';`
+     → tipenya sama dengan kolom `id` di tabel `projects` (biasanya `uuid`).
+   - `select experience_type, count(*) from experiences group by 1;` → tidak ada lagi `PKL`.
+   - `select id, file_size_limit, allowed_mime_types from storage.buckets where id = 'portfolio-assets';`
+     → 5242880 dan empat tipe (png, jpeg, webp, pdf).
+   - `select policyname from pg_policies where tablename = 'objects';` → empat policy lama "… on
+     portfolio-assets" dan empat policy baru "… content folders on portfolio-assets".
+5. Buka halaman publik: masih tampil seperti biasa (halaman publik belum memakai kolom baru).
+
+**B. Navigasi**
+6. Jalankan `npm run dev`, masuk ke admin. Sidebar berisi 5 menu. Buka Karya & Keahlian → sub-tab Proyek,
+   Keahlian, Sertifikat; menu tetap aktif saat pindah sub-tab.
+7. Ketik sesuatu di form, lalu klik sub-tab lain: muncul "Tinggalkan perubahan?".
+8. Di ponsel (atau lebar 375 px): buka ☰, pilih Rekam Jejak, geser sub-tab bila perlu; halaman tidak bergeser ke
+   samping.
+
+**C. Unggahan setiap jenis** (cek setiap file di Storage → `portfolio-assets` → folder yang disebut)
+9. **Profil:** pilih foto dari HP (3–8 MB). Ukuran "asli … MB" dan ukuran baru tampil; simpan → file `.webp` di
+   `profile/`, di bawah 2 MB. Ganti foto dan simpan → file lama hilang dari `profile/`.
+10. **Profil, CV:** pilih PDF CV, klik "Pratinjau" (tab baru), simpan → file di `cv/`. Klik "Hapus PDF", simpan →
+    file hilang.
+11. **Proyek "UJI – …":** gambar sampul + 3 screenshot dengan keterangan, ubah urutan screenshot, simpan → file di
+    `projects/` dan `gallery/`. Ubah proyek, hapus satu screenshot, simpan → file itu hilang. Hapus proyek → semua
+    filenya hilang.
+12. **Keahlian:** ikon PNG berlatar transparan → file `.webp` 400 px di `logos/`, latar tetap transparan di daftar.
+13. **Pengalaman:** logo + 2 foto + proyek terkait; simpan → `logos/` dan `gallery/`.
+14. **Pendidikan** dan **Organisasi:** logo → `logos/`.
+15. **Sertifikat:** gambar + PDF asli, isi "Berlaku sampai" → keduanya di `certificates/`; badge "Berlaku sampai
+    …" tampil di daftar. Coba "Tidak kedaluwarsa".
+16. **Prestasi:** dokumen PDF → `documents/`, foto → `gallery/`.
+
+**D. File yang harus ditolak** (pesan muncul di bawah kolom, tidak ada yang terunggah)
+17. File SVG atau GIF sebagai gambar.
+18. Gambar di atas 10 MB.
+19. File teks yang namanya diubah menjadi `.pdf`, dan PDF di atas 5 MB.
+
+**E. Urutan, tampil, dan Beranda**
+20. Di Proyek, klik "Turunkan" pada proyek pertama, lalu muat ulang halaman: urutan baru tetap.
+21. Matikan "Tampil di halaman publik" pada satu data: badge "Disembunyikan" muncul di daftar.
+22. Buka Beranda: pengingat "Perlu dilengkapi" sesuai data (mis. foto profil, CV, proyek unggulan, gambar
+    sertifikat). Lengkapi satu, kembali ke Beranda, pengingat itu hilang.
+
+**F. Bersihkan**
+23. Hapus semua data "UJI – …" lewat admin, lalu pastikan folder di Storage tidak lagi berisi file uji.
