@@ -87,7 +87,7 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 3. Komponen bersama, util unggah/kompresi, opsi hooks
 - [x] 4. Profil
 - [x] 5. Proyek
-- [ ] 6. Keahlian
+- [x] 6. Keahlian
 - [ ] 7. Pengalaman
 - [ ] 8. Pendidikan, Bahasa, Organisasi
 - [ ] 9. Sertifikat, Prestasi

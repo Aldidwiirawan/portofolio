@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import { Field, FormSection, Input, QuickPicks } from './ui/Field'
+import { ImageField } from './ui/AssetUpload'
+import { nextSortOrder, SKILL_CATEGORIES } from './ui/contentLabels'
+import { ChoiceGroup, Field, FormSection, Input, QuickPicks } from './ui/Field'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
+import { DisplaySettings } from './ui/Switch'
+import { prepareUploads, useAssetField } from './ui/useAssetFields'
 import { useFormScreen } from './ui/useFormFeedback'
 
-const CATEGORY_PRESETS = ['Frontend', 'Backend', 'Database', 'Tools']
-const PROFICIENCY_PRESETS = ['Dasar', 'Menengah', 'Mahir', 'Dasar / Menengah']
+const PROFICIENCY_PRESETS = ['Dasar', 'Menengah', 'Mahir']
 
 /**
  * SkillForm Component
@@ -14,49 +17,44 @@ const PROFICIENCY_PRESETS = ['Dasar', 'Menengah', 'Mahir', 'Dasar / Menengah']
  *
  * @param {Object} props
  * @param {Object|null} [props.skill] - Existing skill object if in edit mode
+ * @param {Array<Object>} [props.skills] - All skills (a new or moved skill goes last in its category)
  * @param {(savedSkill: Object) => void} props.onSuccess - Callback upon successful save
  * @param {() => void} props.onCancel - Callback when cancel button is clicked
  */
-function SkillForm({ skill = null, onSuccess, onCancel }) {
+function SkillForm({ skill = null, skills = [], onSuccess, onCancel }) {
   const isEditMode = Boolean(skill)
 
   const [formData, setFormData] = useState({
     name: skill?.name || '',
-    category: skill?.category || 'Frontend',
-    proficiency: skill?.proficiency || 'Menengah',
-    sort_order: skill?.sort_order ?? 0,
+    category: skill?.category || '',
+    proficiency: skill?.proficiency || '',
+    is_visible: skill?.is_visible ?? true,
+    is_featured: Boolean(skill?.is_featured),
   })
+
+  // Optional icon (logos/, 400 px), uploaded when saving
+  const icon = useAssetField(skill?.icon_url, { folder: 'logos', imageKind: 'logo' })
 
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Screen only: feedback, unsaved-changes guard, guarded cancel
-  const screen = useFormScreen({ data: formData, generalError, onCancel })
+  const screen = useFormScreen({ data: formData, generalError, onCancel, extraDirty: icon.dirty })
   const { finish } = screen
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  // A category from before the fixed list stays selectable until it is changed
+  const categoryOptions = [
+    ...SKILL_CATEGORIES,
+    ...(skill?.category && !SKILL_CATEGORIES.includes(skill.category) ? [{ value: skill.category, label: `${skill.category} (lama)` }] : []),
+  ]
+
+  const set = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
-
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: null }))
-    }
-    if (generalError) {
-      setGeneralError(null)
-    }
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: null }))
+    if (generalError) setGeneralError(null)
   }
-
-  const handleSelectCategoryPreset = (preset) => {
-    setFormData((prev) => ({ ...prev, category: preset }))
-    if (fieldErrors.category) {
-      setFieldErrors((prev) => ({ ...prev, category: null }))
-    }
-  }
-
-  const handleSelectProficiencyPreset = (preset) => {
-    setFormData((prev) => ({ ...prev, proficiency: preset }))
-  }
+  const handleChange = (e) => set(e.target.name, e.target.value)
 
   const validate = () => {
     const errors = {}
@@ -68,12 +66,11 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
     }
 
     if (!formData.category.trim()) {
-      errors.category = 'Kategori wajib diisi. Pilih salah satu atau ketik sendiri.'
+      errors.category = 'Pilih salah satu kategori.'
     }
 
-    const sortOrderVal = Number(formData.sort_order)
-    if (isNaN(sortOrderVal) || !Number.isInteger(sortOrderVal) || sortOrderVal < 0) {
-      errors.sort_order = 'Urutan tampil harus berupa angka bulat 0 atau lebih.'
+    if (/[\d%]/.test(formData.proficiency)) {
+      errors.proficiency = 'Tulis tingkatnya dengan kata, tanpa angka atau persen.'
     }
 
     setFieldErrors(errors)
@@ -86,15 +83,35 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
     if (!validate()) {
       return
     }
+    if (icon.busy) {
+      setGeneralError('Tunggu sebentar, ikon yang dipilih masih diproses.')
+      return
+    }
 
     setIsSubmitting(true)
     setGeneralError(null)
 
+    let uploads
+    try {
+      uploads = await prepareUploads({ icon_url: icon })
+    } catch (err) {
+      setGeneralError(err instanceof Error ? err.message : 'Gagal mengunggah ikon.')
+      setIsSubmitting(false)
+      return
+    }
+
+    const category = formData.category.trim()
     const payload = {
       name: formData.name.trim(),
-      category: formData.category.trim(),
+      category,
       proficiency: formData.proficiency.trim() || null,
-      sort_order: parseInt(formData.sort_order, 10) || 0,
+      icon_url: uploads.values.icon_url,
+      is_visible: Boolean(formData.is_visible),
+      is_featured: Boolean(formData.is_featured),
+    }
+    // Order is per category: a new skill, or one moved to another category, goes last there
+    if (!isEditMode || category !== skill.category) {
+      payload.sort_order = nextSortOrder(skills.filter((s) => s.category === category && s.id !== skill?.id))
     }
 
     try {
@@ -110,6 +127,7 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
           throw new Error(dbError.message || 'Gagal memperbarui skill di database.')
         }
 
+        await uploads.cleanup()
         setIsSubmitting(false)
         finish(() => onSuccess(data))
       } else {
@@ -123,10 +141,12 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
           throw new Error(dbError.message || 'Gagal menambahkan skill baru ke database.')
         }
 
+        await uploads.cleanup()
         setIsSubmitting(false)
         finish(() => onSuccess(data))
       }
     } catch (err) {
+      await uploads.rollback()
       setGeneralError(
         err instanceof Error
           ? err.message
@@ -153,48 +173,66 @@ function SkillForm({ skill = null, onSuccess, onCancel }) {
           label="Nama keahlian"
           required
           error={fieldErrors.name}
-          hint="Nama teknologi, bahasa, atau alat kerja. Contoh: React, PostgreSQL, Figma."
+          hint="Nama teknologi, alat kerja, atau kemampuan. Contoh: Laravel, Mikrotik, Kerja tim."
         >
           <Input name="name" type="text" value={formData.name} onChange={handleChange} disabled={busy} />
         </Field>
-        <Field id="skill-sort-order" label="Urutan tampil" error={fieldErrors.sort_order} hint="Angka kecil tampil lebih dulu.">
-          <Input
-            name="sort_order"
-            type="number"
-            min="0"
-            step="1"
-            inputMode="numeric"
-            value={formData.sort_order}
-            onChange={handleChange}
-            disabled={busy}
-          />
-        </Field>
         <div>
-          <Field id="skill-category" label="Kategori" required error={fieldErrors.category} hint="Pilih salah satu, atau ketik sendiri.">
-            <Input name="category" type="text" value={formData.category} onChange={handleChange} disabled={busy} />
+          <Field
+            id="skill-proficiency"
+            label="Tingkat"
+            optional
+            error={fieldErrors.proficiency}
+            hint="Kata sederhana, tanpa angka atau persen."
+          >
+            <Input name="proficiency" type="text" value={formData.proficiency} onChange={handleChange} disabled={busy} />
           </Field>
           <QuickPicks
-            label="Pilihan kategori"
-            options={CATEGORY_PRESETS}
-            value={formData.category}
-            onPick={handleSelectCategoryPreset}
+            label="Pilihan tingkat"
+            options={PROFICIENCY_PRESETS}
+            value={formData.proficiency}
+            onPick={(value) => set('proficiency', value)}
             isSelected={(option, current) => current.toLowerCase() === option.toLowerCase()}
             disabled={busy}
           />
         </div>
-        <div>
-          <Field id="skill-proficiency" label="Tingkat kemahiran" optional hint="Pilih salah satu, atau ketik sendiri.">
-            <Input name="proficiency" type="text" value={formData.proficiency} onChange={handleChange} disabled={busy} />
-          </Field>
-          <QuickPicks
-            label="Pilihan tingkat kemahiran"
-            options={PROFICIENCY_PRESETS}
-            value={formData.proficiency}
-            onPick={handleSelectProficiencyPreset}
+        <div className="adm-span-2">
+          <ChoiceGroup
+            name="skill-category"
+            legend="Kategori"
+            required
+            options={categoryOptions}
+            value={formData.category}
+            onChange={(value) => set('category', value)}
+            error={fieldErrors.category}
+            hint="Keahlian dikelompokkan per kategori di halaman publik."
             disabled={busy}
           />
         </div>
       </FormSection>
+
+      <FormSection title="Ikon">
+        <ImageField
+          id="skill-icon"
+          label="Ikon atau logo"
+          field={icon}
+          shape="square"
+          imageKind="logo"
+          hint="Logo teknologi, sebaiknya berlatar transparan. PNG, JPG, atau WebP; otomatis dikecilkan menjadi 400 px."
+          disabled={busy}
+        />
+      </FormSection>
+
+      <DisplaySettings
+        idPrefix="skill"
+        visible={formData.is_visible}
+        onVisibleChange={(value) => set('is_visible', value)}
+        featured={formData.is_featured}
+        onFeaturedChange={(value) => set('is_featured', value)}
+        featuredLabel="Keahlian unggulan"
+        featuredDescription="Ditonjolkan di bagian keahlian halaman publik."
+        disabled={busy}
+      />
     </FormPanel>
   )
 }

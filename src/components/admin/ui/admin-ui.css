@@ -1301,6 +1301,11 @@ html:has(.adm) body {
   border-style: dashed;
 }
 
+/* Daftar yang dikelompokkan (mis. keahlian per kategori), tiap kelompok berjudul h2 */
+.adm-list-group + .adm-list-group {
+  margin-top: var(--space-6);
+}
+
 .adm-list-media img.is-contain {
   padding: var(--space-1);
   object-fit: contain;
