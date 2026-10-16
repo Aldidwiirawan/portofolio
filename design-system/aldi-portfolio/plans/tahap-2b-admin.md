@@ -90,7 +90,7 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 6. Keahlian
 - [x] 7. Pengalaman
 - [x] 8. Pendidikan, Bahasa, Organisasi
-- [ ] 9. Sertifikat, Prestasi
+- [x] 9. Sertifikat, Prestasi
 - [ ] 10. Beranda (kartu per kelompok + pengingat kelengkapan)
 - [ ] 11. Dokumentasi (MASTER.md, `pages/admin.md`, BRIEF "Strategi konten") dan bagian "Uji manual"
 

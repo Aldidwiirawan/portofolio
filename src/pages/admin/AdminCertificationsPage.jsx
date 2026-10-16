@@ -1,11 +1,17 @@
 import { useState, useMemo } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { removeAssets } from '../../lib/storageUtils'
 import { useCertifications } from '../../hooks/useCertifications'
 import CertificationForm from '../../components/admin/CertificationForm'
 import { AdminRoot } from '../../components/admin/ui/AdminLayout'
+import { Badge } from '../../components/admin/ui/Card'
+import { DisplayBadges, ReorderButtons, ReorderStatus, Thumb } from '../../components/admin/ui/ContentList'
+import { bySortOrder, CERTIFICATE_CATEGORIES, certificateValidity, labelOf, nextSortOrder } from '../../components/admin/ui/contentLabels'
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { IconAward } from '../../components/admin/ui/icons'
 import { NoMatches, RowActions, SearchBox, SectionScreen } from '../../components/admin/ui/SectionScreen'
+import { useReorder } from '../../components/admin/ui/useReorder'
 import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
 
 /**
@@ -21,7 +27,7 @@ function AdminCertificationsPage() {
 }
 
 function CertificationsScreen() {
-  const { certifications, isLoading, error, refetch } = useCertifications()
+  const { certifications, isLoading, error, refetch } = useCertifications({ includeAdminFields: true })
   // Screen only: toasts, focus after a delete, guarded breadcrumb (Escape is handled by ConfirmDialog)
   const { toast, headingRef, returnToHeading, setReturnToHeading, guarded } = useSectionScreen()
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -32,15 +38,24 @@ function CertificationsScreen() {
   const [searchQuery, setSearchQuery] = useState('')
 
   // Filtered certifications
+  // Display order: sort_order (Naik/Turun; not while searching), newest first among equals
+  const searching = Boolean(searchQuery.trim())
+  const reorder = useReorder({ table: 'certifications', onSaved: refetch, locked: searching })
+  const sorted = useMemo(
+    () => bySortOrder(certifications, (a, b) => String(b.issue_date || '').localeCompare(String(a.issue_date || ''))),
+    [certifications]
+  )
+  const ordered = reorder.arrange(sorted)
+
   const filteredCerts = useMemo(() => {
-    if (!searchQuery.trim()) return certifications
+    if (!searchQuery.trim()) return ordered
     const query = searchQuery.toLowerCase()
-    return certifications.filter(
+    return ordered.filter(
       (c) =>
         c.name?.toLowerCase().includes(query) ||
         c.issuer?.toLowerCase().includes(query)
     )
-  }, [certifications, searchQuery])
+  }, [ordered, searchQuery])
 
   const handleFormSuccess = (saved) => {
     const isEdit = Boolean(editingCert)
@@ -98,6 +113,9 @@ function CertificationsScreen() {
         throw new Error(dbError.message || 'Gagal menghapus sertifikasi dari database.')
       }
 
+      // Best-effort removal of the certificate image and PDF
+      await removeAssets([deletingCert.image_url, deletingCert.pdf_url])
+
       if (editingCert?.id === deletingCert.id) {
         setIsFormOpen(false)
         setEditingCert(null)
@@ -129,12 +147,14 @@ function CertificationsScreen() {
     }
   }
 
-  const withLink = certifications.filter((c) => Boolean(c.credential_url)).length
+  const featuredCount = certifications.filter((c) => c.is_featured).length
+  const hiddenCount = certifications.filter((c) => c.is_visible === false).length
+  const withoutImage = certifications.filter((c) => !c.image_url).length
 
   return (
     <SectionScreen
       title="Sertifikat"
-      description="Sertifikat, pelatihan, dan kursus yang tampil di halaman publik."
+      description="Sertifikat, pelatihan, dan kursus. Pilih 3–6 sertifikat unggulan untuk halaman publik; sisanya cukup di LinkedIn."
       addLabel="Tambah sertifikat"
       onAdd={handleOpenCreateForm}
       count={certifications.length}
@@ -145,8 +165,16 @@ function CertificationsScreen() {
       emptyTitle="Belum ada sertifikat"
       emptyText="Sertifikat, pelatihan, atau kursus yang Anda tambahkan akan tampil di halaman publik."
       emptyActionLabel="Tambah sertifikat pertama"
-      summary={`${certifications.length} sertifikat · ${withLink} punya tautan`}
-      toolbar={<SearchBox id="cert-search" label="Cari sertifikat" hint="Ketik nama sertifikat atau penerbitnya." value={searchQuery} onChange={setSearchQuery} />}
+      summary={`${certifications.length} sertifikat · ${featuredCount} unggulan${withoutImage > 0 ? ` · ${withoutImage} belum punya gambar` : ''}${hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}`}
+      toolbar={
+        <SearchBox
+          id="cert-search"
+          label="Cari sertifikat"
+          hint={searching ? 'Kosongkan pencarian untuk mengatur urutan.' : 'Ketik nama sertifikat atau penerbitnya.'}
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+      }
       headingRef={headingRef}
       form={{
         open: isFormOpen,
@@ -157,6 +185,7 @@ function CertificationsScreen() {
           <CertificationForm
             key={editingCert?.id || 'new-cert'}
             certification={editingCert}
+            nextSortOrder={nextSortOrder(certifications)}
             onSuccess={handleFormSuccess}
             onCancel={handleCancelForm}
           />
@@ -172,41 +201,61 @@ function CertificationsScreen() {
         onCancel: handleCloseDeleteModal,
         children: (
           <p>
-            Sertifikat <strong>"{deletingCert?.name}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+            Sertifikat <strong>"{deletingCert?.name}"</strong> akan dihapus permanen
+            {deletingCert?.image_url || deletingCert?.pdf_url ? ' beserta gambar dan PDF-nya' : ''}. Tindakan ini tidak bisa dibatalkan.
           </p>
         ),
       }}
     >
+      <ReorderStatus reorder={reorder} />
       {filteredCerts.length === 0 ? (
         <NoMatches>Tidak ada sertifikat yang cocok dengan "{searchQuery}".</NoMatches>
       ) : (
         <DataList label="Daftar sertifikat" aria-busy={isLoading || undefined}>
-          {filteredCerts.map((cert) => (
-            <DataListItem
-              key={cert.id}
-              title={cert.name}
-              subtitle={cert.issuer}
-              meta={
-                cert.issue_date || cert.credential_url ? (
+          {filteredCerts.map((cert, index) => {
+            const validity = certificateValidity(cert)
+            const category = labelOf(CERTIFICATE_CATEGORIES, cert.category)
+            const name = `sertifikat "${cert.name}"`
+            return (
+              <DataListItem
+                key={cert.id}
+                highlight={cert.is_featured}
+                media={<Thumb url={cert.image_url} icon={IconAward} />}
+                title={cert.name}
+                badges={
+                  <>
+                    {category && <Badge>{category}</Badge>}
+                    {validity.label && <Badge tone={validity.tone}>{validity.label}</Badge>}
+                    <DisplayBadges item={cert} />
+                  </>
+                }
+                subtitle={cert.issuer}
+                meta={
                   <>
                     {cert.issue_date && <span>Terbit {formatDate(cert.issue_date)}</span>}
+                    {cert.score && <span>Skor {cert.score}</span>}
+                    {cert.credential_id && <span>No. {cert.credential_id}</span>}
+                    {cert.pdf_url && (
+                      <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer">
+                        PDF<span className="adm-sr-only"> {cert.name} (tab baru)</span>
+                      </a>
+                    )}
                     {cert.credential_url && (
                       <a href={cert.credential_url} target="_blank" rel="noopener noreferrer">
-                        Lihat sertifikat<span className="adm-sr-only"> (tab baru)</span>
+                        Verifikasi<span className="adm-sr-only"> {cert.name} (tab baru)</span>
                       </a>
                     )}
                   </>
-                ) : null
-              }
-              actions={
-                <RowActions
-                  name={`sertifikat "${cert.name}"`}
-                  onEdit={() => handleOpenEditForm(cert)}
-                  onDelete={() => handleOpenDeleteModal(cert)}
-                />
-              }
-            />
-          ))}
+                }
+                actions={
+                  <>
+                    <ReorderButtons reorder={reorder} list={filteredCerts} index={index} name={name} />
+                    <RowActions name={name} onEdit={() => handleOpenEditForm(cert)} onDelete={() => handleOpenDeleteModal(cert)} />
+                  </>
+                }
+              />
+            )
+          })}
         </DataList>
       )}
     </SectionScreen>
