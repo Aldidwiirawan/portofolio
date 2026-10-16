@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
-import { useLeaveGuard } from './adminContexts'
-import { ADMIN_NAV } from './adminNav'
+import { ADMIN_NAV_GROUPS, ADMIN_SECTIONS, findAdminSection, normalizeAdminPath } from './adminNav'
 import { BrandLockup } from './BrandLockup'
 import { IconButton } from './Button'
 import { IconClose, IconExternal, IconLogout, IconMenu } from './icons'
 import { useFocusTrap } from './useFocusTrap'
+import { useGuardedNav } from './useGuardedNav'
 
 /**
- * Dark sidebar. From 1024 px it is always visible; below that it becomes a drawer opened from the
- * top bar's menu button: focus stays inside while open, Escape / the backdrop / choosing a menu
- * item closes it, and focus then returns to the menu button.
+ * Dark sidebar with the five admin sections. From 1024 px it is always visible; below that it
+ * becomes a drawer opened from the top bar's menu button: focus stays inside while open, Escape /
+ * the backdrop / choosing a menu item closes it, and focus then returns to the menu button.
+ * A section stays marked while any of its pages is open: aria-current="page" when its link is the
+ * open page, "true" on its other pages (their sub-tab carries "page").
  * Menu links ask before leaving a form with unsaved changes.
  */
 export function AdminSidebar({ email, unreadCount = 0, onLogout, isLoggingOut = false }) {
@@ -21,8 +23,10 @@ export function AdminSidebar({ email, unreadCount = 0, onLogout, isLoggingOut = 
   const panelRef = useRef(null)
   const closeRef = useRef(null)
   const panelId = useId()
-  const navigate = useNavigate()
-  const { isDirty, confirmLeave } = useLeaveGuard()
+  const guardedClick = useGuardedNav()
+  const { pathname } = useLocation()
+  const path = normalizeAdminPath(pathname)
+  const activeSection = findAdminSection(pathname)
 
   const close = useCallback(() => setOpen(false), [])
 
@@ -37,19 +41,6 @@ export function AdminSidebar({ email, unreadCount = 0, onLogout, isLoggingOut = 
       root.style.overflow = previous
     }
   }, [drawerOpen])
-
-  const handleNavClick = (to) => async (e) => {
-    // Let new-tab / new-window clicks through untouched
-    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
-    if (!isDirty()) {
-      setOpen(false)
-      return
-    }
-    e.preventDefault()
-    // Close the drawer first so the "Tinggalkan perubahan?" dialog is the only layer on screen
-    setOpen(false)
-    if (await confirmLeave()) navigate(to)
-  }
 
   const unreadLabel = unreadCount > 0 ? `, ${unreadCount} pesan belum dibaca` : ''
 
@@ -90,7 +81,7 @@ export function AdminSidebar({ email, unreadCount = 0, onLogout, isLoggingOut = 
         </div>
 
         <nav className="adm-nav" aria-label="Menu admin">
-          {ADMIN_NAV.map((group) => (
+          {ADMIN_NAV_GROUPS.map((group) => (
             <div key={group.id} className="adm-nav-group">
               {group.heading && (
                 <p className="adm-nav-heading" id={`${panelId}-${group.id}`}>
@@ -98,20 +89,28 @@ export function AdminSidebar({ email, unreadCount = 0, onLogout, isLoggingOut = 
                 </p>
               )}
               <ul className="adm-nav-list" aria-labelledby={group.heading ? `${panelId}-${group.id}` : undefined}>
-                {group.items.map(({ to, label, icon: Icon, end, count }) => {
+                {ADMIN_SECTIONS.filter((section) => group.sections.includes(section.id)).map((section) => {
+                  const { id, label, icon: Icon, count } = section
+                  const to = section.items[0].to
+                  const isActive = activeSection?.id === id
                   const showCount = count === 'unread' && unreadCount > 0
                   return (
-                    <li key={to}>
-                      <NavLink to={to} end={end} className="adm-nav-link" onClick={handleNavClick(to)}>
+                    <li key={id}>
+                      <Link
+                        to={to}
+                        className="adm-nav-link"
+                        aria-current={isActive ? (path === to ? 'page' : 'true') : undefined}
+                        onClick={guardedClick(to, close)}
+                      >
                         <Icon size={18} className="adm-nav-icon" />
                         <span className="adm-nav-label">{label}</span>
                         {showCount && (
                           <span className="adm-nav-count">
                             {unreadCount}
-                            <span className="adm-sr-only"> belum dibaca</span>
+                            <span className="adm-sr-only"> pesan belum dibaca</span>
                           </span>
                         )}
-                      </NavLink>
+                      </Link>
                     </li>
                   )
                 })}

@@ -378,14 +378,15 @@ html:has(.adm) {
   color: var(--ds-text-strong);
 }
 
-/* Halaman aktif: latar aksen samar + rel kiri (bahasa visual yang sama dengan input saat fokus) */
-.adm-nav-link[aria-current='page'] {
+/* Menu aktif (halamannya sendiri atau salah satu sub-halamannya): latar aksen samar + rel kiri
+   (bahasa visual yang sama dengan input saat fokus) */
+.adm-nav-link[aria-current] {
   background-color: color-mix(in srgb, var(--ds-accent) 20%, transparent);
   color: var(--ds-text-strong);
   font-weight: var(--ds-fw-semibold);
 }
 
-.adm-nav-link[aria-current='page']::before {
+.adm-nav-link[aria-current]::before {
   content: '';
   position: absolute;
   top: var(--space-2);
@@ -395,7 +396,7 @@ html:has(.adm) {
   background-color: var(--ds-accent-text);
 }
 
-.adm-nav-link[aria-current='page'] .adm-nav-icon {
+.adm-nav-link[aria-current] .adm-nav-icon {
   color: var(--ds-accent-text);
 }
 
@@ -635,6 +636,107 @@ html:has(.adm) {
 }
 
 /* --------------------------------------------------------------------------
+   Sub-tab: halaman-halaman dalam satu menu, di bawah header halaman
+   Navigasi tautan (setiap tab adalah rute). Bila tidak muat, hanya baris ini yang digeser ke
+   samping; tepi yang masih menyimpan tab memudar.
+   -------------------------------------------------------------------------- */
+
+.adm-page-header:has(+ .adm-subnav) {
+  margin-bottom: var(--space-4);
+}
+
+.adm-subnav {
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .adm-page-header:has(+ .adm-subnav) {
+    margin-bottom: var(--space-5);
+  }
+
+  .adm-subnav {
+    margin-bottom: var(--space-8);
+  }
+}
+
+.adm-subnav-list {
+  position: relative;
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  list-style: none;
+  /* Garis dasar baris; garis tab aktif digambar di atasnya */
+  box-shadow: inset 0 -1px 0 var(--adm-line);
+  scrollbar-width: none;
+}
+
+.adm-subnav-list::-webkit-scrollbar {
+  display: none;
+}
+
+.adm-subnav-list.has-more-end {
+  mask-image: linear-gradient(to right, black calc(100% - 2.5rem), transparent);
+}
+
+.adm-subnav-list.has-more-start {
+  mask-image: linear-gradient(to right, transparent, black 2.5rem);
+}
+
+.adm-subnav-list.has-more-start.has-more-end {
+  mask-image: linear-gradient(to right, transparent, black 2.5rem, black calc(100% - 2.5rem), transparent);
+}
+
+.adm-subnav-list > li {
+  flex-shrink: 0;
+}
+
+.adm-subnav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--ds-target-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--adm-radius-control) var(--adm-radius-control) 0 0;
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.25;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--ds-duration-fast) var(--ds-ease-out),
+    color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-subnav-link:hover {
+  background-color: color-mix(in srgb, var(--ds-text-strong) 6%, transparent);
+  color: var(--ds-text-strong);
+}
+
+.adm-subnav-link[aria-current='page'] {
+  color: var(--ds-text-strong);
+}
+
+.adm-subnav-link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: var(--ds-accent-text);
+}
+
+/* Baris sub-tab memotong luapan: outline fokus digambar di dalam tab */
+.adm .adm-subnav-link[href]:focus-visible {
+  outline-offset: -2px;
+}
+
+/* --------------------------------------------------------------------------
    Gerak dikurangi, warna paksa
    -------------------------------------------------------------------------- */
 
@@ -651,7 +753,8 @@ html:has(.adm) {
     border-color: CanvasText;
   }
 
-  .adm-nav-link[aria-current='page'] {
+  .adm-nav-link[aria-current],
+  .adm-subnav-link[aria-current='page'] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
   }

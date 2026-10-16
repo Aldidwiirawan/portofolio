@@ -109,6 +109,13 @@ export const IconMail = (p) => (
   </Svg>
 )
 
+export const IconInbox = (p) => (
+  <Svg {...p}>
+    <path d="M3 13.5h5l1.5 2.5h5l1.5-2.5h5" />
+    <path d="M6 5h12l3 8.5v5A1.5 1.5 0 0 1 19.5 20h-15A1.5 1.5 0 0 1 3 18.5v-5Z" />
+  </Svg>
+)
+
 export const IconMailOpen = (p) => (
   <Svg {...p}>
     <path d="m3 10 9-6 9 6v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19.5Z" />

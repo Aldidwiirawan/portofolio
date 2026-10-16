@@ -5,7 +5,7 @@ import { ConfirmDialog } from './Dialog'
 /**
  * Tracks forms with unsaved changes (useUnsavedChanges) and asks before leaving them:
  * - closing or reloading the tab → the browser's own warning (beforeunload)
- * - sidebar links, logout and "Batal" call confirmLeave() → "Tinggalkan perubahan?" dialog
+ * - sidebar links, sub-tabs, logout and "Batal" call confirmLeave() → "Tinggalkan perubahan?" dialog
  * The browser Back button is not intercepted (that would need a different router setup).
  */
 export function UnsavedChangesProvider({ children }) {

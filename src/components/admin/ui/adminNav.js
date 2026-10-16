@@ -1,48 +1,78 @@
-import {
-  IconAward,
-  IconBook,
-  IconBriefcase,
-  IconCap,
-  IconCode,
-  IconFolder,
-  IconGlobe,
-  IconHome,
-  IconMail,
-  IconTrophy,
-  IconUser,
-  IconUsers,
-} from './icons'
+import { IconBriefcase, IconFolder, IconHome, IconInbox, IconUser } from './icons'
 
 /**
- * Sidebar menu, in three groups. Paths are the existing routes in App.jsx (routing is unchanged).
+ * Admin menu: five sections in the sidebar; a section with several pages shows them as sub-tabs
+ * under the page header. Paths are the existing routes in App.jsx (routing is unchanged); a
+ * section's sidebar link goes to its first page.
  * `count: 'unread'` shows the unread-messages badge.
  */
-export const ADMIN_NAV = [
+export const ADMIN_SECTIONS = [
   {
     id: 'home',
-    items: [{ to: '/admin', label: 'Beranda', icon: IconHome, end: true }],
+    label: 'Beranda',
+    icon: IconHome,
+    items: [{ to: '/admin', label: 'Beranda' }],
   },
   {
-    id: 'content',
-    heading: 'Isi portofolio',
+    id: 'about',
+    label: 'Tentang Saya',
+    icon: IconUser,
+    group: 'content',
     items: [
-      { to: '/admin/profile', label: 'Profil', icon: IconUser },
-      { to: '/admin/projects', label: 'Proyek', icon: IconFolder },
-      { to: '/admin/skills', label: 'Keahlian', icon: IconCode },
-      { to: '/admin/experiences', label: 'Pengalaman', icon: IconBriefcase },
-      { to: '/admin/educations', label: 'Pendidikan', icon: IconCap },
-      { to: '/admin/certifications', label: 'Sertifikat', icon: IconAward },
-      { to: '/admin/achievements', label: 'Prestasi', icon: IconTrophy },
-      { to: '/admin/languages', label: 'Bahasa', icon: IconGlobe },
-      { to: '/admin/organizations', label: 'Organisasi', icon: IconUsers },
+      { to: '/admin/profile', label: 'Profil' },
+      { to: '/admin/educations', label: 'Pendidikan' },
+      { to: '/admin/languages', label: 'Bahasa' },
+    ],
+  },
+  {
+    id: 'work',
+    label: 'Karya & Keahlian',
+    icon: IconFolder,
+    group: 'content',
+    items: [
+      { to: '/admin/projects', label: 'Proyek' },
+      { to: '/admin/skills', label: 'Keahlian' },
+      { to: '/admin/certifications', label: 'Sertifikat' },
+    ],
+  },
+  {
+    id: 'track',
+    label: 'Rekam Jejak',
+    icon: IconBriefcase,
+    group: 'content',
+    items: [
+      { to: '/admin/experiences', label: 'Pengalaman' },
+      { to: '/admin/organizations', label: 'Organisasi' },
+      { to: '/admin/achievements', label: 'Prestasi' },
     ],
   },
   {
     id: 'inbox',
-    heading: 'Interaksi',
+    label: 'Kotak Masuk',
+    icon: IconInbox,
+    group: 'inbox',
+    count: 'unread',
     items: [
-      { to: '/admin/messages', label: 'Pesan', icon: IconMail, count: 'unread' },
-      { to: '/admin/guestbook', label: 'Buku tamu', icon: IconBook },
+      { to: '/admin/messages', label: 'Pesan', count: 'unread' },
+      { to: '/admin/guestbook', label: 'Buku tamu' },
     ],
   },
 ]
+
+/** Sidebar groups: headings above the sections that share a `group` (Beranda has none). */
+export const ADMIN_NAV_GROUPS = [
+  { id: 'home', sections: ['home'] },
+  { id: 'content', heading: 'Isi portofolio', sections: ['about', 'work', 'track'] },
+  { id: 'inbox', heading: 'Interaksi', sections: ['inbox'] },
+]
+
+/** '/admin/projects/' → '/admin/projects' */
+export function normalizeAdminPath(pathname) {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
+}
+
+/** The section the current page belongs to, or null. */
+export function findAdminSection(pathname) {
+  const path = normalizeAdminPath(pathname)
+  return ADMIN_SECTIONS.find((section) => section.items.some((item) => item.to === path)) ?? null
+}

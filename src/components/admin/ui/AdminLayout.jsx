@@ -7,6 +7,7 @@ import ViewfinderCursor from '../../effects/ViewfinderCursor'
 import { AdminShellContext, useAdminShell, useLeaveGuard } from './adminContexts'
 import { AdminSidebar } from './AdminSidebar'
 import { PageHeader } from './PageHeader'
+import { SubNav } from './SubNav'
 import { ToastProvider } from './Toast'
 import { UnsavedChangesProvider } from './UnsavedChangesProvider'
 import './admin-ui.css'
@@ -106,8 +107,8 @@ function AdminSession({ children }) {
 
 /**
  * Visible frame of an admin page (render inside AdminRoot): dark sidebar (drawer below 1024 px),
- * light work area with the calm blueprint backdrop and the viewfinder cursor, skip link, and the
- * page header with the page's only h1.
+ * light work area with the calm blueprint backdrop and the viewfinder cursor, skip link, the
+ * page header with the page's only h1, and the sub-tabs of the open section.
  *
  * - title / description / actions / breadcrumb / leading: see PageHeader
  * - docTitle: browser tab title (defaults to `title`)
@@ -165,6 +166,7 @@ export function AdminLayout({ title, description, actions, breadcrumb, leading, 
               leading={leading}
               headingRef={headingRef}
             />
+            <SubNav unreadCount={inbox?.unreadCount ?? 0} />
             {children}
           </main>
         </div>
