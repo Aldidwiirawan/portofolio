@@ -1,24 +1,36 @@
+BEGIN;
+
 -- ==============================================================================
 -- Migration: Admin content model (Tahap 2B)
 -- Date: 2026-10-16
 -- Description:
 -- 1. New content columns for profiles, projects, experiences, educations, certifications,
 --    achievements, skills, languages and organizations (visibility, featured flag, order,
---    images, PDF files and the details the admin forms collect).
--- 2. Storage: bucket portfolio-assets accepts only PNG, JPEG, WebP and PDF (no SVG), up to 5 MB,
+--    images, PDF files and the details the admin forms collect), plus messages.topic for the
+--    topic a visitor picks in the contact form.
+-- 2. Columns the admin already uses are guaranteed to exist (ADD COLUMN IF NOT EXISTS does
+--    nothing when they are there): profiles.avatar_url (profile photo), profiles.location and
+--    experiences.location (city name only), and sort_order (display order) on projects,
+--    experiences, educations and skills.
+-- 3. Storage: bucket portfolio-assets accepts only PNG, JPEG, WebP and PDF (no SVG), up to 5 MB,
 --    plus admin policies for the new folders profile/, logos/, gallery/, cv/, documents/ and
 --    certificates/.
 --
 -- Requires: private.is_admin() and the tables used by the earlier migrations.
--- Safe to run more than once. Table RLS policies and the existing projects/ storage policies are
--- not changed. New choice columns store codes (e.g. 'production'); the admin shows the labels.
+-- Runs as one transaction: when any statement fails, nothing is changed. Safe to run more than
+-- once. The query after COMMIT lists every added or guaranteed column per table.
+-- Table RLS policies and the existing projects/ storage policies are not changed. New choice
+-- columns store codes (e.g. 'production'); the admin shows the labels.
 -- ==============================================================================
 
 
 -- ==============================================================================
 -- 1. PROFILES
 -- ==============================================================================
+-- avatar_url (profile photo) and location (city) already exist; listed so they are guaranteed
 ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS avatar_url TEXT,
+  ADD COLUMN IF NOT EXISTS location TEXT,
   ADD COLUMN IF NOT EXISTS cv_file_url TEXT,
   ADD COLUMN IF NOT EXISTS primary_role TEXT,
   ADD COLUMN IF NOT EXISTS secondary_roles TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
@@ -59,7 +71,9 @@ ALTER TABLE public.profiles ADD CONSTRAINT profiles_github_username_format
 -- ==============================================================================
 -- 2. PROJECTS
 -- ==============================================================================
+-- sort_order (display order) already exists; listed so it is guaranteed
 ALTER TABLE public.projects
+  ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS gallery JSONB NOT NULL DEFAULT '[]'::JSONB,
   ADD COLUMN IF NOT EXISTS status TEXT,
   ADD COLUMN IF NOT EXISTS year SMALLINT,
@@ -100,7 +114,10 @@ ALTER TABLE public.projects ADD CONSTRAINT projects_year_range
 -- ==============================================================================
 -- 3. EXPERIENCES
 -- ==============================================================================
+-- location (city) and sort_order (display order) already exist; listed so they are guaranteed
 ALTER TABLE public.experiences
+  ADD COLUMN IF NOT EXISTS location TEXT,
+  ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS responsibilities TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
   ADD COLUMN IF NOT EXISTS skill_tags TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
   ADD COLUMN IF NOT EXISTS logo_url TEXT,
@@ -167,7 +184,9 @@ CREATE INDEX IF NOT EXISTS experiences_related_project_id_idx
 -- ==============================================================================
 -- 4. EDUCATIONS
 -- ==============================================================================
+-- sort_order (display order) already exists; listed so it is guaranteed
 ALTER TABLE public.educations
+  ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS logo_url TEXT,
   ADD COLUMN IF NOT EXISTS gpa NUMERIC(3, 2),
   ADD COLUMN IF NOT EXISTS thesis_title TEXT,
@@ -226,7 +245,9 @@ ALTER TABLE public.achievements ADD CONSTRAINT achievements_month_range
 -- ==============================================================================
 -- 7. SKILLS, LANGUAGES, ORGANIZATIONS
 -- ==============================================================================
+-- skills.sort_order (display order) already exists; listed so it is guaranteed
 ALTER TABLE public.skills
+  ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS icon_url TEXT,
   ADD COLUMN IF NOT EXISTS is_visible BOOLEAN NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS is_featured BOOLEAN NOT NULL DEFAULT false;
@@ -242,10 +263,23 @@ ALTER TABLE public.organizations
 
 
 -- ==============================================================================
--- 8. STORAGE: bucket portfolio-assets
+-- 8. MESSAGES
+-- ==============================================================================
+-- Topic the visitor picks in the contact form (one of profiles.contact_topics, at most 60
+-- characters in the admin). Optional: older messages and messages without a topic stay NULL.
+ALTER TABLE public.messages
+  ADD COLUMN IF NOT EXISTS topic TEXT;
+
+ALTER TABLE public.messages DROP CONSTRAINT IF EXISTS messages_topic_length;
+ALTER TABLE public.messages ADD CONSTRAINT messages_topic_length
+  CHECK (topic IS NULL OR char_length(topic) <= 60);
+
+
+-- ==============================================================================
+-- 9. STORAGE: bucket portfolio-assets
 -- ==============================================================================
 
--- 8.1 Only PNG, JPEG, WebP and PDF (no SVG). The bucket has a single size limit, so it is 5 MB
+-- 9.1 Only PNG, JPEG, WebP and PDF (no SVG). The bucket has a single size limit, so it is 5 MB
 --     (PDF); the admin keeps images at 2 MB or less (compressed in the browser before upload).
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
@@ -260,7 +294,7 @@ ON CONFLICT (id) DO UPDATE SET
   file_size_limit = EXCLUDED.file_size_limit,
   allowed_mime_types = EXCLUDED.allowed_mime_types;
 
--- 8.2 Admin policies for the content folders. The four policies for projects/ from
+-- 9.2 Admin policies for the content folders. The four policies for projects/ from
 --     20260928000000_storage_portfolio_assets.sql stay as they are; policies are combined with OR.
 --
 --     Folder         Content                                              Extensions
@@ -345,3 +379,95 @@ USING (
   AND (storage.foldername(name))[1] IN ('profile', 'logos', 'gallery', 'cv', 'documents', 'certificates')
   AND (select private.is_admin())
 );
+
+COMMIT;
+
+
+-- ==============================================================================
+-- CHECK (read only, runs after COMMIT): every column this migration adds or guarantees, per
+-- table. "BELUM ADA" in the tipe column means that column is missing.
+-- ==============================================================================
+SELECT
+  e.tabel,
+  e.kolom,
+  COALESCE(c.data_type, 'BELUM ADA') AS tipe,
+  c.is_nullable AS boleh_kosong,
+  c.column_default AS nilai_awal,
+  e.keterangan
+FROM (
+  VALUES
+    ('profiles', 'avatar_url', 'foto profil (sudah ada)'),
+    ('profiles', 'location', 'kota (sudah ada)'),
+    ('profiles', 'cv_file_url', 'baru'),
+    ('profiles', 'primary_role', 'baru'),
+    ('profiles', 'secondary_roles', 'baru'),
+    ('profiles', 'hero_keywords', 'baru'),
+    ('profiles', 'github_username', 'baru'),
+    ('profiles', 'contact_topics', 'baru'),
+
+    ('projects', 'sort_order', 'urutan tampil (sudah ada)'),
+    ('projects', 'gallery', 'baru'),
+    ('projects', 'status', 'baru'),
+    ('projects', 'year', 'baru'),
+    ('projects', 'project_type', 'baru'),
+    ('projects', 'client_name', 'baru'),
+    ('projects', 'my_role', 'baru'),
+    ('projects', 'problem', 'baru'),
+    ('projects', 'solution', 'baru'),
+    ('projects', 'outcome', 'baru'),
+    ('projects', 'is_repo_private', 'baru'),
+    ('projects', 'is_visible', 'baru'),
+
+    ('experiences', 'location', 'kota (sudah ada)'),
+    ('experiences', 'sort_order', 'urutan tampil (sudah ada)'),
+    ('experiences', 'responsibilities', 'baru'),
+    ('experiences', 'skill_tags', 'baru'),
+    ('experiences', 'logo_url', 'baru'),
+    ('experiences', 'photos', 'baru'),
+    ('experiences', 'related_project_id', 'baru'),
+    ('experiences', 'is_visible', 'baru'),
+    ('experiences', 'is_featured', 'baru'),
+
+    ('educations', 'sort_order', 'urutan tampil (sudah ada)'),
+    ('educations', 'logo_url', 'baru'),
+    ('educations', 'gpa', 'baru'),
+    ('educations', 'thesis_title', 'baru'),
+    ('educations', 'is_visible', 'baru'),
+
+    ('certifications', 'category', 'baru'),
+    ('certifications', 'expiry_date', 'baru'),
+    ('certifications', 'no_expiry', 'baru'),
+    ('certifications', 'credential_id', 'baru'),
+    ('certifications', 'score', 'baru'),
+    ('certifications', 'image_url', 'baru'),
+    ('certifications', 'pdf_url', 'baru'),
+    ('certifications', 'is_visible', 'baru'),
+    ('certifications', 'is_featured', 'baru'),
+    ('certifications', 'sort_order', 'baru'),
+
+    ('achievements', 'month', 'baru'),
+    ('achievements', 'document_url', 'baru'),
+    ('achievements', 'photo_url', 'baru'),
+    ('achievements', 'is_visible', 'baru'),
+    ('achievements', 'is_featured', 'baru'),
+    ('achievements', 'sort_order', 'baru'),
+
+    ('skills', 'sort_order', 'urutan tampil (sudah ada)'),
+    ('skills', 'icon_url', 'baru'),
+    ('skills', 'is_visible', 'baru'),
+    ('skills', 'is_featured', 'baru'),
+
+    ('languages', 'is_visible', 'baru'),
+    ('languages', 'sort_order', 'baru'),
+
+    ('organizations', 'logo_url', 'baru'),
+    ('organizations', 'is_visible', 'baru'),
+    ('organizations', 'sort_order', 'baru'),
+
+    ('messages', 'topic', 'baru')
+) AS e (tabel, kolom, keterangan)
+LEFT JOIN information_schema.columns AS c
+  ON c.table_schema = 'public'
+  AND c.table_name = e.tabel
+  AND c.column_name = e.kolom
+ORDER BY e.tabel, c.ordinal_position NULLS LAST, e.kolom;

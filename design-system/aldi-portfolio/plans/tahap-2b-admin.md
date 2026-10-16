@@ -49,6 +49,15 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 | skills | `icon_url`, `is_visible`, `is_featured` |
 | languages | `is_visible`, `sort_order` |
 | organizations | `logo_url`, `is_visible`, `sort_order` |
+| messages | `topic` (teks, boleh kosong, ≤60): topik pilihan pengunjung di form kontak (dipakai mulai tahap 3) |
+
+**Kolom lama yang dipastikan ada** (`ADD COLUMN IF NOT EXISTS`, tidak berubah bila sudah ada): foto profil
+`profiles.avatar_url`; kota `profiles.location` dan `experiences.location` (nama kota saja); urutan tampil
+`sort_order` di projects, experiences, educations, dan skills.
+
+Seluruh migrasi berjalan dalam satu transaksi (`BEGIN;` di baris pertama, `COMMIT;` di akhir): bila satu
+perintah gagal, tidak ada yang berubah. Setelah `COMMIT;` ada query cek dari `information_schema.columns` yang
+menampilkan 60 kolom di atas per tabel; kolom yang hilang tertulis **BELUM ADA**.
 
 ### Storage (`portfolio-assets`)
 
@@ -94,6 +103,11 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 10. Beranda (kartu per kelompok + pengingat kelengkapan)
 - [x] 11. Dokumentasi (MASTER.md, `pages/admin.md`, BRIEF "Strategi konten") dan bagian "Uji manual"
 
+**Koreksi pemilik (17 Oktober 2026)** — migrasi belum pernah dijalankan, jadi file migrasi diubah langsung.
+- [x] 12. Migrasi: satu transaksi + query cek, `messages.topic`, kolom foto profil/kota/urutan dipastikan ada
+- [ ] 13. Orientasi foto dari HP saat kompresi; petunjuk IPK (koma atau titik) dan kota
+- [ ] 14. Uji ulang (lint, uji otomatis, build) dan laporan akhir
+
 ## 5. Pengujian
 
 - CRUD otomatis untuk semua kolom baru dengan Supabase tiruan (Chrome headless, data di memori), termasuk
@@ -131,9 +145,14 @@ tidak sesuai, catat halaman, langkah, dan teks pesan yang muncul.
 
 **A. Jalankan migrasi**
 1. (Disarankan) Buat cadangan: Supabase → Database → Backups, atau ekspor tabel konten.
-2. Buka **SQL Editor**, tempel seluruh isi `supabase/migrations/20261016000000_admin_content_model.sql`, lalu
-   **Run**. Hasilnya harus "Success. No rows returned".
-3. Jalankan sekali lagi. Hasilnya tetap sukses (migrasi aman dijalankan ulang).
+2. Buka **SQL Editor** → **New query**, tempel seluruh isi
+   `supabase/migrations/20261016000000_admin_content_model.sql` (dari `BEGIN;` sampai query cek paling bawah),
+   lalu **Run**. Hasilnya tabel 60 baris (tabel, kolom, tipe, boleh_kosong, nilai_awal, keterangan) dari query
+   cek. Tidak boleh ada **BELUM ADA** di kolom tipe. Pastikan ada `profiles.avatar_url`, `profiles.location`,
+   `experiences.location`, `messages.topic`, dan `sort_order` di projects, experiences, educations, skills.
+   - Bila muncul pesan galat: tidak ada yang berubah karena semua perintah ada dalam satu transaksi. Jalankan
+     `ROLLBACK;` di query baru, catat pesannya, dan jangan lanjut ke langkah berikutnya.
+3. Jalankan sekali lagi. Hasilnya tetap tabel 60 baris yang sama (migrasi aman dijalankan ulang).
 4. Cek hasilnya di SQL Editor:
    - `select column_name, data_type from information_schema.columns where table_name = 'experiences' and column_name = 'related_project_id';`
      → tipenya sama dengan kolom `id` di tabel `projects` (biasanya `uuid`).
