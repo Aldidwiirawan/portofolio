@@ -85,7 +85,7 @@ dijaga dialog "Tinggalkan perubahan?".
 - [x] 1. Migrasi (`supabase/migrations/20261016000000_admin_content_model.sql`)
 - [x] 2. Navigasi 5 menu + sub-tab
 - [x] 3. Komponen bersama, util unggah/kompresi, opsi hooks
-- [ ] 4. Profil
+- [x] 4. Profil
 - [ ] 5. Proyek
 - [ ] 6. Keahlian
 - [ ] 7. Pengalaman

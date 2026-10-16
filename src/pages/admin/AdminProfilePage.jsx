@@ -5,15 +5,38 @@ import { prefersReducedMotion } from '../../lib/useMediaQuery'
 import { AdminLayout, AdminRoot } from '../../components/admin/ui/AdminLayout'
 import { useLeaveGuard, useToast } from '../../components/admin/ui/adminContexts'
 import { Alert } from '../../components/admin/ui/Alert'
+import { ImageField, PdfUpload } from '../../components/admin/ui/AssetUpload'
 import { Button } from '../../components/admin/ui/Button'
 import { Badge, Card } from '../../components/admin/ui/Card'
 import { Skeleton } from '../../components/admin/ui/Feedback'
 import { Field, FormSection, Input, Textarea } from '../../components/admin/ui/Field'
+import { cleanList } from '../../components/admin/ui/formValues'
 import { FormPanel } from '../../components/admin/ui/FormPanel'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
 import { IconRefresh } from '../../components/admin/ui/icons'
+import { ListInput } from '../../components/admin/ui/ListInput'
+import { Switch } from '../../components/admin/ui/Switch'
+import { prepareUploads, useAssetField } from '../../components/admin/ui/useAssetFields'
 import { useFormScreen } from '../../components/admin/ui/useFormFeedback'
 import './AdminProfilePage.css'
+
+const NAME_REQUIRED = 'Nama lengkap wajib diisi.'
+const GITHUB_USERNAME = /^[A-Za-z0-9-]{1,39}$/
+
+/** 'https://github.com/Aldidwiirawan/repo' → 'Aldidwiirawan' (or '' when it is not a GitHub URL) */
+function githubUsernameFromUrl(url) {
+  const match = String(url || '').match(/github\.com\/([A-Za-z0-9-]{1,39})(?:[/?#]|$)/i)
+  return match ? match[1] : ''
+}
+
+function checkGithubUsername(value) {
+  const name = value.trim()
+  if (!name) return null
+  if (!GITHUB_USERNAME.test(name) || /(^-|-$|--)/.test(name)) {
+    return 'Username GitHub hanya berisi huruf, angka, dan tanda hubung (maksimal 39 karakter), tanpa @ atau alamat lengkap.'
+  }
+  return null
+}
 
 /**
  * ProfileEditor Component
@@ -25,26 +48,35 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
   const [formData, setFormData] = useState(() => ({
     full_name: profile?.full_name || '',
     tagline: profile?.tagline || '',
+    primary_role: profile?.primary_role || '',
+    secondary_roles: Array.isArray(profile?.secondary_roles) ? profile.secondary_roles : [],
+    hero_keywords: Array.isArray(profile?.hero_keywords) ? profile.hero_keywords : [],
     bio: profile?.bio || '',
     location: profile?.location || '',
     full_address: profile?.full_address || '',
     phone_number: profile?.phone_number || '',
     email: profile?.email || '',
     github_url: profile?.github_url || '',
+    github_username: profile?.github_username || '',
     linkedin_url: profile?.linkedin_url || '',
     instagram_url: profile?.instagram_url || '',
     resume_url: profile?.resume_url || profile?.resume_link || '',
     resume_link: profile?.resume_link || profile?.resume_url || '',
     hobbies: Array.isArray(profile?.hobbies) ? profile.hobbies.join(', ') : '',
-    avatar_url: profile?.avatar_url || '',
+    contact_topics: Array.isArray(profile?.contact_topics) ? profile.contact_topics : [],
     is_available: profile?.is_available ?? true,
   }))
 
+  // Files: profile photo (profile/) and the CV as PDF (cv/); uploaded when saving
+  const avatar = useAssetField(profile?.avatar_url, { folder: 'profile' })
+  const cv = useAssetField(profile?.cv_file_url, { folder: 'cv', type: 'pdf' })
+
   const [isSaving, setIsSaving] = useState(false)
   const [generalError, setGeneralError] = useState(null)
+  const [fieldErrors, setFieldErrors] = useState({})
 
   // Screen only: feedback, unsaved-changes guard, "Batalkan perubahan"
-  const screen = useFormScreen({ data: formData, generalError, onCancel: onReset })
+  const screen = useFormScreen({ data: formData, generalError, onCancel: onReset, extraDirty: avatar.dirty || cv.dirty })
   const { finish } = screen
 
   const handleChange = (e) => {
@@ -54,20 +86,38 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
       [name]: type === 'checkbox' ? checked : value,
     }))
     if (generalError) setGeneralError(null)
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: null }))
   }
 
-  const handleToggleAvailable = () => {
-    setFormData((prev) => ({
-      ...prev,
-      is_available: !prev.is_available,
-    }))
+  const setList = (name) => (items) => setFormData((prev) => ({ ...prev, [name]: items }))
+
+  // Filling the GitHub link also suggests the username (only while that field is empty or was
+  // suggested from the link before)
+  const handleGithubUrlChange = (e) => {
+    const url = e.target.value
+    setFormData((prev) => {
+      const before = githubUsernameFromUrl(prev.github_url)
+      const suggested = githubUsernameFromUrl(url)
+      const keepTyped = prev.github_username && prev.github_username !== before
+      return { ...prev, github_url: url, github_username: keepTyped ? prev.github_username : suggested }
+    })
+    if (fieldErrors.github_username) setFieldErrors((prev) => ({ ...prev, github_username: null }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.full_name.trim()) {
-      setGeneralError('Nama lengkap wajib diisi.')
+    const errors = {}
+    if (!formData.full_name.trim()) errors.full_name = NAME_REQUIRED
+    const usernameProblem = checkGithubUsername(formData.github_username)
+    if (usernameProblem) errors.github_username = usernameProblem
+    setFieldErrors(errors)
+    if (Object.keys(errors).length > 0) {
+      setGeneralError(null)
+      return
+    }
+    if (avatar.busy || cv.busy) {
+      setGeneralError('Tunggu sebentar, file yang dipilih masih diproses.')
       return
     }
 
@@ -83,6 +133,15 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
 
     const resumeLinkVal = formData.resume_url.trim() || formData.resume_link.trim() || null
 
+    let uploads
+    try {
+      uploads = await prepareUploads({ avatar_url: avatar, cv_file_url: cv })
+    } catch (err) {
+      setGeneralError(err instanceof Error ? err.message : 'Gagal mengunggah file.')
+      setIsSaving(false)
+      return
+    }
+
     const payload = {
       full_name: formData.full_name.trim(),
       tagline: formData.tagline.trim() || null,
@@ -97,8 +156,14 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
       resume_url: resumeLinkVal,
       resume_link: resumeLinkVal,
       hobbies: hobbiesArray,
-      avatar_url: formData.avatar_url.trim() || null,
+      avatar_url: uploads.values.avatar_url,
       is_available: Boolean(formData.is_available),
+      cv_file_url: uploads.values.cv_file_url,
+      primary_role: formData.primary_role.trim() || null,
+      secondary_roles: cleanList(formData.secondary_roles),
+      hero_keywords: cleanList(formData.hero_keywords),
+      github_username: formData.github_username.trim() || null,
+      contact_topics: cleanList(formData.contact_topics),
       updated_at: new Date().toISOString(),
     }
 
@@ -122,8 +187,10 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
         }
       }
 
+      await uploads.cleanup()
       finish(() => onSaveSuccess())
     } catch (err) {
+      await uploads.rollback()
       setGeneralError(
         err instanceof Error
           ? err.message
@@ -145,13 +212,12 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
     : 'AD'
 
   const busy = isSaving || screen.saved
-  // "Nama lengkap wajib diisi." belongs under its field; other messages go on top of the form
-  const nameError = generalError === 'Nama lengkap wajib diisi.' ? generalError : null
-  const topError =
-    generalError && !nameError
-      ? toFriendlyError(generalError, 'Profil belum tersimpan. Periksa koneksi internet, lalu coba lagi.')
-      : ''
+  const topError = generalError
+    ? toFriendlyError(generalError, 'Profil belum tersimpan. Periksa koneksi internet, lalu coba lagi.')
+    : ''
   const field = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
+  const roles = [formData.primary_role.trim(), ...cleanList(formData.secondary_roles)].filter(Boolean)
+  const keywords = cleanList(formData.hero_keywords)
 
   return (
     <div className="adm-profile">
@@ -166,14 +232,14 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
         cancelOnlyWhenDirty
       >
         <FormSection title="Data utama" columns={2}>
-          <Field id="profile-full-name" label="Nama lengkap" required error={nameError}>
+          <Field id="profile-full-name" label="Nama lengkap" required error={fieldErrors.full_name}>
             <Input type="text" autoComplete="name" {...field('full_name')} />
           </Field>
           <Field id="profile-tagline" label="Profesi atau tagline" optional hint="Tampil di bawah nama, misalnya Web Developer.">
             <Input type="text" {...field('tagline')} />
           </Field>
-          <Field id="profile-location" label="Kota" optional hint="Misalnya Kediri, Jawa Timur.">
-            <Input type="text" {...field('location')} />
+          <Field id="profile-location" label="Kota" optional hint="Cukup nama kota, misalnya Kediri, Jawa Timur.">
+            <Input type="text" autoComplete="address-level2" {...field('location')} />
           </Field>
           <Field id="profile-email" label="Email kontak" optional>
             <Input type="email" inputMode="email" autoComplete="email" {...field('email')} />
@@ -198,51 +264,133 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
           </Field>
         </FormSection>
 
-        <FormSection title="Status ketersediaan">
-          <div className="adm-switch-row">
-            <div className="adm-switch-text">
-              <p id="profile-available-label" className="adm-switch-title">
-                Terbuka untuk tawaran kerja dan proyek
-              </p>
-              <p id="profile-available-desc" className="adm-switch-desc">
-                {formData.is_available
-                  ? 'Halaman publik menampilkan "Terbuka untuk Peluang Kerja & Kolaborasi Proyek".'
-                  : 'Halaman publik menampilkan "Sedang Tidak Tersedia untuk Proyek Baru".'}
-              </p>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={formData.is_available}
-              aria-labelledby="profile-available-label"
-              aria-describedby="profile-available-desc"
-              className="adm-switch"
-              onClick={handleToggleAvailable}
+        <FormSection title="Foto dan CV" columns={2}>
+          <ImageField
+            id="profile-avatar"
+            label="Foto profil"
+            field={avatar}
+            shape="square"
+            hint="Foto wajah yang jelas dengan latar rapi. PNG, JPG, atau WebP sampai 10 MB; otomatis dikecilkan sebelum diunggah."
+            disabled={busy}
+          />
+          <PdfUpload
+            id="profile-cv"
+            label="CV (PDF)"
+            field={cv}
+            hint="File PDF sampai 5 MB. Pengunjung bisa mengunduhnya dari halaman publik."
+            disabled={busy}
+          />
+          <Field
+            id="profile-resume"
+            label="Tautan CV cadangan"
+            optional
+            className="adm-span-2"
+            hint="Dipakai selama belum ada file CV yang diunggah, misalnya tautan Google Drive."
+          >
+            <Input type="url" inputMode="url" placeholder="https://" {...field('resume_url')} />
+          </Field>
+        </FormSection>
+
+        <FormSection title="Peran dan kata berganti" columns={2}>
+          <Field
+            id="profile-primary-role"
+            label="Peran utama"
+            optional
+            hint="Peran yang paling ingin Anda tonjolkan, misalnya Junior Programmer (Web & Mobile)."
+          >
+            <Input type="text" maxLength={60} {...field('primary_role')} />
+          </Field>
+          <ListInput
+            id="profile-secondary-roles"
+            label="Peran pendukung"
+            optional
+            value={formData.secondary_roles}
+            onChange={setList('secondary_roles')}
+            max={2}
+            itemLabel="Peran"
+            addLabel="Tambah peran"
+            placeholder="Contoh: IT Support"
+            maxLength={60}
+            hint="Peran lain yang juga Anda kuasai."
+            disabled={busy}
+          />
+          <div className="adm-span-2">
+            <ListInput
+              id="profile-hero-keywords"
+              label="Kata berganti di bagian pembuka"
+              optional
+              value={formData.hero_keywords}
+              onChange={setList('hero_keywords')}
+              max={8}
+              itemLabel="Kata"
+              addLabel="Tambah kata"
+              placeholder="Contoh: aplikasi web"
+              maxLength={40}
+              hint="Kata yang muncul bergantian, misalnya aplikasi web, aplikasi mobile, jaringan & IT support."
               disabled={busy}
-            >
-              <span className="adm-switch-track" aria-hidden="true">
-                <span className="adm-switch-thumb" />
-              </span>
-              <span className="adm-switch-state" aria-hidden="true">
-                {formData.is_available ? 'Ya' : 'Tidak'}
-              </span>
-            </button>
+            />
           </div>
+        </FormSection>
+
+        <FormSection title="Status ketersediaan">
+          <Switch
+            id="profile-available"
+            label="Terbuka untuk tawaran kerja dan proyek"
+            description={
+              formData.is_available
+                ? 'Halaman publik menampilkan "Terbuka untuk Peluang Kerja & Kolaborasi Proyek".'
+                : 'Halaman publik menampilkan "Sedang Tidak Tersedia untuk Proyek Baru".'
+            }
+            checked={formData.is_available}
+            onChange={(value) => setFormData((prev) => ({ ...prev, is_available: value }))}
+            disabled={busy}
+          />
         </FormSection>
 
         <FormSection title="Tautan" columns={2}>
           <Field id="profile-github" label="GitHub" optional>
-            <Input type="url" inputMode="url" placeholder="https://github.com/" {...field('github_url')} />
+            <Input
+              type="url"
+              inputMode="url"
+              placeholder="https://github.com/"
+              name="github_url"
+              value={formData.github_url}
+              onChange={handleGithubUrlChange}
+              disabled={busy}
+            />
           </Field>
-          <Field id="profile-linkedin" label="LinkedIn" optional>
+          <Field
+            id="profile-github-username"
+            label="Username GitHub"
+            optional
+            error={fieldErrors.github_username}
+            hint="Untuk grafik kontribusi GitHub di halaman publik. Terisi otomatis dari tautan GitHub."
+          >
+            <Input type="text" autoComplete="off" spellCheck={false} placeholder="Contoh: Aldidwiirawan" {...field('github_username')} />
+          </Field>
+          <Field id="profile-linkedin" label="LinkedIn" optional hint="Riwayat dan sertifikat lengkap diarahkan ke sini.">
             <Input type="url" inputMode="url" placeholder="https://linkedin.com/in/" {...field('linkedin_url')} />
           </Field>
           <Field id="profile-instagram" label="Instagram" optional>
             <Input type="url" inputMode="url" placeholder="https://instagram.com/" {...field('instagram_url')} />
           </Field>
-          <Field id="profile-resume" label="CV" optional hint="Tautan file CV, misalnya dari Google Drive.">
-            <Input type="url" inputMode="url" placeholder="https://" {...field('resume_url')} />
-          </Field>
+        </FormSection>
+
+        <FormSection title="Formulir kontak">
+          <ListInput
+            id="profile-contact-topics"
+            label="Pilihan topik pesan"
+            optional
+            value={formData.contact_topics}
+            onChange={setList('contact_topics')}
+            max={8}
+            itemLabel="Topik"
+            addLabel="Tambah topik"
+            placeholder="Contoh: Tawaran kerja"
+            maxLength={60}
+            hint="Pengunjung memilih salah satu topik ini saat mengirim pesan."
+            disabled={busy}
+          />
         </FormSection>
       </FormPanel>
 
@@ -250,19 +398,30 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
         <Card as="div" heading="Pratinjau" headingId="profile-preview-title">
           <div className="adm-preview">
             <div className="adm-preview-avatar">
-              {formData.avatar_url ? <img src={formData.avatar_url} alt="" /> : <span aria-hidden="true">{initials}</span>}
+              {avatar.url ? <img src={avatar.url} alt="" /> : <span aria-hidden="true">{initials}</span>}
             </div>
             <Badge tone={formData.is_available ? 'success' : 'neutral'} dot>
               {formData.is_available ? 'Terbuka untuk peluang kerja' : 'Sedang tidak tersedia'}
             </Badge>
             <div>
               <p className={`adm-preview-name${formData.full_name ? '' : ' is-placeholder'}`}>{formData.full_name || 'Nama lengkap'}</p>
-              <p className={`adm-preview-tagline${formData.tagline ? '' : ' is-placeholder'}`}>{formData.tagline || 'Profesi atau tagline'}</p>
+              <p className={`adm-preview-tagline${roles.length || formData.tagline ? '' : ' is-placeholder'}`}>
+                {roles.length ? roles.join(' · ') : formData.tagline || 'Peran utama'}
+              </p>
             </div>
+            {keywords.length > 0 && (
+              <ul className="adm-tags" aria-label="Kata berganti">
+                {keywords.map((word) => (
+                  <li key={word} className="adm-tag">
+                    {word}
+                  </li>
+                ))}
+              </ul>
+            )}
             <p className={`adm-preview-bio${formData.bio ? '' : ' is-placeholder'}`}>
               {formData.bio || 'Tulisan "Tentang saya" tampil di sini.'}
             </p>
-            {(formData.location || formData.email || formData.github_url || formData.linkedin_url) && (
+            {(formData.location || formData.email || formData.github_url || formData.linkedin_url || cv.hasFile) && (
               <dl className="adm-preview-facts">
                 {formData.location && (
                   <div>
@@ -279,13 +438,19 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
                 {formData.github_url && (
                   <div>
                     <dt>GitHub</dt>
-                    <dd>Terhubung</dd>
+                    <dd>{formData.github_username.trim() ? `@${formData.github_username.trim()}` : 'Terhubung'}</dd>
                   </div>
                 )}
                 {formData.linkedin_url && (
                   <div>
                     <dt>LinkedIn</dt>
                     <dd>Terhubung</dd>
+                  </div>
+                )}
+                {cv.hasFile && (
+                  <div>
+                    <dt>CV</dt>
+                    <dd>PDF {cv.next ? '(belum disimpan)' : 'tersimpan'}</dd>
                   </div>
                 )}
               </dl>
@@ -320,7 +485,7 @@ function ProfileScreen() {
   const [resetKey, setResetKey] = useState(0)
 
   const handleSaveSuccess = () => {
-    toast.success('Profil disimpan. Perubahan langsung tampil di halaman publik.')
+    toast.success('Profil disimpan.')
     savedRef.current = true
     refetch()
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
@@ -340,7 +505,7 @@ function ProfileScreen() {
   return (
     <AdminLayout
       title="Profil"
-      description="Data diri yang tampil di halaman publik: nama, perkenalan, status, dan tautan."
+      description="Data diri, foto, CV, peran, dan tautan untuk halaman publik."
       headingRef={headingRef}
       actions={
         <Button variant="secondary" icon={<IconRefresh size={18} />} onClick={reload} loading={isLoading} loadingText="Memuat...">
