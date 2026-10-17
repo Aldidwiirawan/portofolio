@@ -45,7 +45,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 10. **P3 · Nomor 12:** garis kiri aksen hanya untuk fokus kolom isian dan menu aktif.
 - [x] 11. **P3 · Nomor 16:** "Kembali ke beranda" → "Lihat situs" di halaman login.
 - [x] 12. `.impeccable/design.json` diperbarui lewat `/impeccable document`.
-- [ ] 13. Uji akhir dan hasilnya dicatat di bawah: CRUD admin, keyboard, kontras, forced-colors, reduced
+- [x] 13. Uji akhir dan hasilnya dicatat di bawah: CRUD admin, keyboard, kontras, forced-colors, reduced
   motion, lebar 375/768/1024/1440, login dan publik dibandingkan dengan `main`, lint dan build.
 
 ---
@@ -198,3 +198,25 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
 - **Nomor 8, susulan:** uji akhir menemukan bahwa tanpa migrasi 2B (kolom `topic` belum ada) Pesan dan badge
   belum dibaca ikut gagal dimuat. `useMessages` kini mencoba lagi tanpa `topic` bila kolom itu tidak ada, jadi
   Kotak Masuk tetap jalan seperti sebelumnya. Uji skema lama: 3 pesan tampil, badge 2, tanpa galat.
+
+### Uji akhir (17 Oktober 2026, build terakhir branch)
+
+Diuji dengan Supabase tiruan dan Chrome headless (skrip di luar repo, tidak di-commit).
+
+| Uji | Hasil |
+|---|---|
+| Nomor 1: kunci gulir (hapus dari dialog, pindah halaman, Keluar ke login, Batal/Escape, laci 375 px) | 19/19 (`main` 9/19) |
+| Nomor 2: nomor HP/alamat tidak di halaman publik, request publik, maupun bundle JS; admin tetap memuat dan menyimpan | 32/32 (`main` 17/32) |
+| Nomor 3: fokus saat form menyimpan (berhasil dan gagal), tombol balasan Buku tamu | 16/16 (`main` 8/16) |
+| Nomor 4–16: uji per butir, termasuk Pesan tanpa migrasi | 143/143 |
+| Suite admin lama (menu, Profil, Proyek, Keahlian, Pengalaman, Pendidikan/Bahasa/Organisasi, Sertifikat/Prestasi, Beranda): CRUD, unggah gambar/PDF, urutan, skema lama | 733/733 |
+| Sapuan akhir: 12 halaman + 8 form di 375, 768, 1024, 1440 px tanpa gulir samping dan kontras teks ≥ 4.5:1; Tab di 5 halaman (semua fokus terlihat, "Lewati ke konten" pertama); forced-colors; reduced motion (tanpa transisi/animasi) | 178/178 |
+| Login dan publik dibandingkan dengan `main` (4 lebar, publik juga setelah membuka admin): beda hanya di tautan "Lihat situs", dok sosial hero (tombol WhatsApp hilang) dan kartu Tentang (kota saja, tanpa nomor HP); request publik sama kecuali `phone_number` hilang | 37/37 |
+| `npm run lint` | exit 0; 0 temuan di `src` (112 peringatan hanya dari skrip `.claude/skills/impeccable`, sama dengan `main`) |
+| `npm run build` | berhasil; peringatan chunk > 500 kB sudah ada di `main` |
+
+Halaman publik di 375 px menjadi 24 px lebih pendek karena kartu "Lokasi" kini satu baris. Screenshot
+sebelum/sesudah ada di `C:\Users\acer\portofolio-screenshots\audit-admin\` (tidak di-commit).
+
+**Untuk pemilik:** jalankan migrasi 2B bila belum, supaya topik pesan ikut tersimpan dan tampil; hapus catatan
+sementara di blok "Tampilan di halaman publik" saat tahap 3 selesai.
