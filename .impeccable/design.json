@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T00:00:00+07:00",
+  "generatedAt": "2026-10-17T19:00:00+07:00",
   "title": "Design System: Blueprint (Aldi Portfolio)",
-  "source": "Ringkasan dari design-system/aldi-portfolio/MASTER.md v1.2. Bila berbeda, MASTER.md yang berlaku.",
+  "source": "Ringkasan dari design-system/aldi-portfolio/MASTER.md v1.2, diperbarui dari kode admin yang sudah jadi setelah perbaikan audit (17 Oktober 2026, plans/audit-admin.md). Bila berbeda, MASTER.md yang berlaku.",
   "extensions": {
     "colorMeta": {
       "accent": { "role": "primary", "displayName": "Biru Kerja", "canonical": "#2563EB", "tonalRamp": ["#172554", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE", "#EFF6FF"] },
@@ -14,14 +14,15 @@
       "text-strong-light": { "role": "neutral", "displayName": "Tinta Kuat", "canonical": "#0F172A" },
       "border-control-light": { "role": "neutral", "displayName": "Garis Kontrol", "canonical": "#808C9F" },
       "danger-border-light": { "role": "error", "displayName": "Merah Galat", "canonical": "#DC2626" },
-      "success-text-light": { "role": "success", "displayName": "Hijau Sukses", "canonical": "#047857" }
+      "success-text-light": { "role": "success", "displayName": "Hijau Sukses", "canonical": "#047857" },
+      "danger-text-light": { "role": "error", "displayName": "Merah Tua", "canonical": "#B91C1C" }
     },
     "typographyMeta": {
       "headline": { "displayName": "Judul besar", "purpose": "Judul besar admin; hero publik memakai clamp() sendiri." },
       "title": { "displayName": "Judul section", "purpose": "Judul section admin (24 px) dan judul halaman (30 px)." },
       "body": { "displayName": "Isi", "purpose": "Paragraf dan semua input (minimal 16 px)." },
-      "body-ui": { "displayName": "UI", "purpose": "Label, tombol, menu, sub-tab." },
-      "label": { "displayName": "Label teknis", "purpose": "Badge, bar judul kartu, kode; mono huruf besar." }
+      "body-ui": { "displayName": "UI", "purpose": "Label, tombol, menu, sub-tab; petunjuk dan galat di bawah kolom juga 14 px." },
+      "label": { "displayName": "Label teknis", "purpose": "Badge, bar judul kartu, kode; mono huruf besar, minimal 12 px." }
     },
     "shadows": [
       { "name": "ds-shadow-sm (terang)", "value": "0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08)", "purpose": "Tombol, kartu di HP, kartu admin." },
@@ -39,7 +40,7 @@
       { "name": "ds-duration-slow", "value": "320ms", "purpose": "Elemen masuk (kartu, panel)." },
       { "name": "ds-ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Elemen masuk dan umpan balik." },
       { "name": "ds-ease-in-out", "value": "cubic-bezier(0.65, 0, 0.35, 1)", "purpose": "Perpindahan posisi." },
-      { "name": "focus-rail", "value": "transform 180ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Garis kiri kolom isian tumbuh saat fokus (keputusan pemilik, dikunci)." }
+      { "name": "focus-rail", "value": "transform 180ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Garis kiri kolom isian tumbuh saat fokus (keputusan pemilik, dikunci). Satu-satunya garis kiri aksen selain menu aktif." }
     ],
     "breakpoints": [
       { "name": "mobile", "value": "375px" },
@@ -71,13 +72,13 @@
       "refersTo": "button-danger",
       "description": "Konfirmasi hapus di dialog.",
       "html": "<button class=\"ds-btn-danger\" type=\"button\">Hapus</button>",
-      "css": ".ds-btn-danger { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: 4px; background: #DC2626; color: #FFFFFF; font-family: 'Inter Variable', Inter, system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16, 1, 0.3, 1), transform 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-danger:hover { background: color-mix(in srgb, #DC2626 82%, black); transform: translateY(-1px); } .ds-btn-danger:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }"
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: 4px; background: #DC2626; color: #FFFFFF; font-family: 'Inter Variable', Inter, system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16, 1, 0.3, 1), transform 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-danger:hover { background: #B91C1C; transform: translateY(-1px); } .ds-btn-danger:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }"
     },
     {
       "name": "Kolom isian dengan garis fokus",
       "kind": "input",
       "refersTo": "input",
-      "description": "Label terlihat, petunjuk di bawah; garis kiri 3 px menyala saat fokus (keputusan pemilik, jangan diganti).",
+      "description": "Label terlihat, petunjuk 14 px di bawah; garis kiri 3 px menyala saat fokus (keputusan pemilik, jangan diganti). Saat form menyimpan kolom tidak di-disable: readOnly + aria-disabled supaya fokus tetap di tempat.",
       "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Kota <span class=\"ds-field-opt\">(opsional)</span></span><span class=\"ds-control\"><input class=\"ds-input\" type=\"text\" placeholder=\"Kediri\"></span><span class=\"ds-field-hint\">Cukup nama kota, misalnya Kediri.</span></label>",
       "css": ".ds-field { display: grid; gap: 6px; max-width: 320px; font-family: 'Inter Variable', Inter, system-ui, sans-serif; } .ds-field-label { color: #0F172A; font-size: 14px; font-weight: 600; } .ds-field-opt { color: #475569; font-weight: 400; } .ds-field-hint { color: #5B6B80; font-size: 14px; } .ds-control { position: relative; display: block; } .ds-control::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; z-index: 1; width: 3px; border-radius: 4px 0 0 4px; background: #2563EB; transform: scaleY(0); transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; } .ds-control:focus-within::before { transform: scaleY(1); } .ds-input { display: block; width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border: 1px solid #808C9F; border-radius: 4px; background: #FFFFFF; color: #0F172A; font: inherit; font-size: 16px; transition: border-color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-input::placeholder { color: #5B6B80; opacity: 1; } .ds-input:hover { border-color: #475569; } .ds-input:focus-visible { border-color: #2563EB; outline: 2px solid #2563EB; outline-offset: 1px; }"
     },
@@ -87,7 +88,7 @@
       "refersTo": "badge-accent",
       "description": "Label teknis mono huruf besar: Unggulan, status, jumlah.",
       "html": "<span class=\"ds-badge ds-badge--accent\">Unggulan</span> <span class=\"ds-badge ds-badge--neutral\">Draf</span> <span class=\"ds-badge ds-badge--hidden\">Disembunyikan</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 7px; border: 1px solid transparent; border-radius: 2px; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; line-height: 1.5; text-transform: uppercase; white-space: nowrap; } .ds-badge--accent { border-color: color-mix(in srgb, #2563EB 28%, transparent); background: #EFF6FF; color: #1D4ED8; } .ds-badge--neutral { border-color: #E2E8F0; background: #F1F5F9; color: #475569; } .ds-badge--hidden { border: 1px dashed #808C9F; background: transparent; color: #475569; }"
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 7px; border: 1px solid transparent; border-radius: 2px; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; line-height: 1.5; text-transform: uppercase; white-space: nowrap; } .ds-badge--accent { border-color: color-mix(in srgb, #2563EB 28%, transparent); background: #EFF6FF; color: #1D4ED8; } .ds-badge--neutral { border-color: #E2E8F0; background: #F1F5F9; color: #475569; } .ds-badge--hidden { border: 1px dashed #808C9F; background: transparent; color: #475569; }"
     },
     {
       "name": "Kartu bertanda bracket",
@@ -95,7 +96,23 @@
       "refersTo": "card",
       "description": "Kartu admin: bar judul mono dengan LED emerald, bracket sudut aksen, bayangan offset.",
       "html": "<div class=\"ds-card\"><div class=\"ds-card-bar\"><span class=\"ds-card-led\"></span>Ringkasan</div><div class=\"ds-card-body\">Proyek tampil: 3 dari 4</div><span class=\"ds-corner ds-corner--tl\"></span><span class=\"ds-corner ds-corner--br\"></span></div>",
-      "css": ".ds-card { position: relative; max-width: 360px; border: 1px solid color-mix(in srgb, #0F172A 14%, transparent); border-radius: 6px; background: #FFFFFF; box-shadow: 6px 6px 0 color-mix(in srgb, #2563EB 12%, transparent), 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08); font-family: 'Inter Variable', Inter, system-ui, sans-serif; color: #334155; } .ds-card-bar { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 16px; border-bottom: 1px solid #E2E8F0; border-radius: 5px 5px 0 0; background: #F1F5F9; color: #475569; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; } .ds-card-led { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 3px color-mix(in srgb, #34D399 22%, transparent); } .ds-card-body { padding: 20px; font-size: 16px; } .ds-corner { position: absolute; width: 12px; height: 12px; border-color: #2563EB; border-style: solid; pointer-events: none; } .ds-corner--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; } .ds-corner--br { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }"
+      "css": ".ds-card { position: relative; max-width: 360px; border: 1px solid color-mix(in srgb, #0F172A 14%, transparent); border-radius: 6px; background: #FFFFFF; box-shadow: 6px 6px 0 color-mix(in srgb, #2563EB 12%, transparent), 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08); font-family: 'Inter Variable', Inter, system-ui, sans-serif; color: #334155; } .ds-card-bar { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 16px; border-bottom: 1px solid #E2E8F0; border-radius: 5px 5px 0 0; background: #F1F5F9; color: #475569; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; } .ds-card-led { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 3px color-mix(in srgb, #34D399 22%, transparent); } .ds-card-body { padding: 20px; font-size: 16px; } .ds-corner { position: absolute; width: 12px; height: 12px; border-color: #2563EB; border-style: solid; pointer-events: none; } .ds-corner--tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; } .ds-corner--br { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }"
+    },
+    {
+      "name": "Chip pilihan",
+      "kind": "chip",
+      "refersTo": "choice-chip-selected",
+      "description": "Pilihan satu dari daftar pendek (radio) dan pilihan cepat. Terpilih: latar aksen muda dengan bingkai aksen ganda, bukan garis kiri. Di forced-colors: latar Highlight.",
+      "html": "<div class=\"ds-chips\" role=\"radiogroup\" aria-label=\"Kategori\"><label class=\"ds-chip\"><input type=\"radio\" name=\"ds-cat\"><span>Backend</span></label><label class=\"ds-chip\"><input type=\"radio\" name=\"ds-cat\" checked><span>Frontend</span></label><label class=\"ds-chip\"><input type=\"radio\" name=\"ds-cat\"><span>Mobile</span></label></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; font-family: 'Inter Variable', Inter, system-ui, sans-serif; } .ds-chip input { position: absolute; opacity: 0; pointer-events: none; } .ds-chip span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid #808C9F; border-radius: 4px; background: #FFFFFF; color: #0F172A; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 120ms cubic-bezier(0.16, 1, 0.3, 1), color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-chip span:hover { border-color: #2563EB; } .ds-chip input:checked + span { border-color: #2563EB; background: #EFF6FF; color: #1D4ED8; box-shadow: inset 0 0 0 1px #2563EB; } .ds-chip input:focus-visible + span { outline: 2px solid #2563EB; outline-offset: 2px; } @media (forced-colors: active) { .ds-chip input:checked + span { border: 2px solid Highlight; background: Highlight; color: HighlightText; box-shadow: none; forced-color-adjust: none; } }"
+    },
+    {
+      "name": "Baris daftar disorot",
+      "kind": "card",
+      "refersTo": "list-item-highlight",
+      "description": "Baris daftar konten; yang unggulan atau baru ditandai garis atas 2 px aksen plus badge (penanda utama), bukan garis kiri.",
+      "html": "<ul class=\"ds-list\"><li class=\"ds-row is-highlight\"><span class=\"ds-row-title\">Laravel</span><span class=\"ds-row-badge\">Unggulan</span></li><li class=\"ds-row\"><span class=\"ds-row-title\">PHP</span></li></ul>",
+      "css": ".ds-list { display: grid; gap: 12px; max-width: 420px; margin: 0; padding: 0; list-style: none; font-family: 'Inter Variable', Inter, system-ui, sans-serif; } .ds-row { display: flex; align-items: center; gap: 8px; padding: 16px; border: 1px solid color-mix(in srgb, #0F172A 14%, transparent); border-radius: 6px; background: #FFFFFF; box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08); transition: border-color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-row:hover { border-color: color-mix(in srgb, #0F172A 26%, transparent); } .ds-row.is-highlight { box-shadow: inset 0 2px 0 #2563EB, 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08); } .ds-row-title { color: #0F172A; font-size: 16px; font-weight: 600; } .ds-row-badge { padding: 2px 7px; border: 1px solid color-mix(in srgb, #2563EB 28%, transparent); border-radius: 2px; background: #EFF6FF; color: #1D4ED8; font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }"
     },
     {
       "name": "Menu sidebar",
@@ -131,23 +148,27 @@
       { "name": "The Inter Rule", "body": "Inter adalah keputusan pemilik yang dikunci (17 Oktober 2026). Jangan menggantinya dengan font lain, termasuk saat detektor menandai Inter sebagai font yang terlalu umum.", "section": "typography" },
       { "name": "The Wide Tracking Rule", "body": "Tracking lebar hanya untuk label kecil huruf besar; tracking teks isi tidak diubah.", "section": "typography" },
       { "name": "The Background-Only Glow Rule", "body": "Grid, jalur sirkuit, dan glow hanya di latar, `aria-hidden`, tidak menangkap klik atau fokus, dan diam saat reduced motion atau tab tersembunyi.", "section": "elevation" },
-      { "name": "The Focus Rail Rule", "body": "Garis kiri yang menyala saat fokus pada kolom isian adalah keputusan pemilik yang dikunci (17 Oktober 2026). Jangan dihapus atau diganti; outline 2 px tetap ada di sampingnya.", "section": "components" }
+      { "name": "The Focus Rail Rule", "body": "Garis kiri yang menyala saat fokus pada kolom isian adalah keputusan pemilik yang dikunci (17 Oktober 2026). Jangan dihapus atau diganti; outline 2 px tetap ada di sampingnya.", "section": "components" },
+      { "name": "The Left Line Rule", "body": "Garis kiri aksen hanya untuk fokus kolom isian dan menu aktif. Arti lain memakai penanda Blueprint lain: bingkai aksen ganda untuk pilihan terpilih, garis atas 2 px untuk baris/kartu disorot dan toast, titik LED untuk item baru di daftar ringkas (keputusan pemilik, 17 Oktober 2026).", "section": "components" },
+      { "name": "The 12 px Floor Rule", "body": "Tidak ada teks di bawah 12 px (`--ds-fs-xs`); teks pendukung, petunjuk dan galat memakai `--ds-fs-sm` (14 px). Ukuran di luar skala token tidak dipakai.", "section": "typography" }
     ],
     "dos": [
       "**Do** memakai token `--ds-*` (dan `--adm-*` di admin) di setiap komponen baru.",
       "**Do** memberi setiap kontrol outline `:focus-visible` asli 2 px, bukan hanya box-shadow.",
       "**Do** menjaga target sentuh ≥44 px dan input ≥16 px.",
+      "**Do** memberi keadaan terpilih penanda `Highlight` di mode kontras tinggi (`forced-colors`), karena latar dan bayangan hilang di sana.",
       "**Do** menganimasikan hanya `transform` dan `opacity` (120 / 200 / 320 ms, ease-out `cubic-bezier(0.16, 1, 0.3, 1)`), maksimal 1–2 elemen bergerak per layar, dan mematikan gerak saat reduced motion.",
       "**Do** memakai SVG inline satu gaya (stroke 1,8, ujung bulat) untuk ikon.",
       "**Do** mengikuti MASTER.md dan `pages/*.md` bila ada yang belum tercakup di sini."
     ],
     "donts": [
       "**Don't** mengganti font Inter atau menghapus garis fokus kiri pada kolom isian (keputusan pemilik).",
+      "**Don't** memakai garis kiri aksen untuk arti selain fokus kolom isian dan menu aktif.",
       "**Don't** memakai emoji sebagai ikon struktural.",
       "**Don't** memakai gradien brand untuk teks isi atau latar tombol.",
       "**Don't** membuat hover yang menggeser layout, atau menganimasikan `width`, `height`, `top`, `left`.",
       "**Don't** memakai placeholder sebagai pengganti label, atau memblokir paste di kolom kata sandi.",
-      "**Don't** memasang `disabled` pada tombol submit yang sedang fokus; pakai `aria-disabled` + guard.",
+      "**Don't** memasang `disabled` pada kontrol yang mungkin sedang fokus (tombol submit, kolom saat form menyimpan, tombol yang baru dipakai); pakai `aria-disabled` + `readOnly` atau guard.",
       "**Don't** memakai Tailwind atau framework UI, atau menambah library dan font tanpa persetujuan pemilik.",
       "**Don't** menyalin tata letak khas situs referensi (sidebar bernomor dan garis kontur; stiker pil miring dengan bayangan tegas dan karakter gumpalan hitam).",
       "**Don't** membuat efek dekoratif yang menangkap klik, mengambil fokus, terbaca screen reader, atau tetap bergerak saat reduced motion atau tab tersembunyi."

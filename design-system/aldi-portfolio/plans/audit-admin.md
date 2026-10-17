@@ -44,7 +44,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
   Uji ulang CRUD proyek.
 - [x] 10. **P3 · Nomor 12:** garis kiri aksen hanya untuk fokus kolom isian dan menu aktif.
 - [x] 11. **P3 · Nomor 16:** "Kembali ke beranda" → "Lihat situs" di halaman login.
-- [ ] 12. `.impeccable/design.json` diperbarui lewat `/impeccable document`.
+- [x] 12. `.impeccable/design.json` diperbarui lewat `/impeccable document`.
 - [ ] 13. Uji akhir dan hasilnya dicatat di bawah: CRUD admin, keyboard, kontras, forced-colors, reduced
   motion, lebar 375/768/1024/1440, login dan publik dibandingkan dengan `main`, lint dan build.
 
@@ -191,3 +191,7 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   `C:\Users\acer\portofolio-screenshots\audit-admin\12-*-before.png` dan `12-*-after.png`.
 - **Nomor 16:** di halaman Masuk, "Kembali ke beranda" → "Lihat situs" (sama dengan menu admin). Hanya
   teksnya; tautan, ikon dan gaya tetap.
+- **design.json:** sidecar diperbarui lewat `/impeccable document` (hanya sidecar): hover tombol bahaya
+  `#B91C1C`, badge dan bar kartu 12 px, komponen baru "Chip pilihan" dan "Baris daftar disorot", aturan
+  "The Left Line Rule" dan "The 12 px Floor Rule", serta do/don't soal `forced-colors` dan `aria-disabled`.
+  `DESIGN.md` dan `MASTER.md` tidak diubah.
