@@ -35,7 +35,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 3. **P2 · Nomor 3:** fokus tidak hilang saat tombol/kolom terkunci ketika menyimpan.
 - [x] 4. **P2 · Nomor 4:** catatan sementara di sakelar tampilan ("Berlaku setelah halaman publik
   diperbarui") sampai tahap 3 selesai.
-- [ ] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
+- [x] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
 - [ ] 6. **P2 · Nomor 6 dan 7:** keadaan terpilih terlihat di mode kontras tinggi; target sentuh 44 px.
 - [ ] 7. **P2 · Nomor 8:** topik pesan diambil dan ditampilkan di daftar dan detail Pesan.
 - [ ] 8. **P3 · Nomor 9, 10, 14, 15:** galat ListInput, gulir halus dihapus, tahun Pendidikan pakai pilihan,
@@ -152,3 +152,8 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   publik diperbarui. Sampai saat itu, semua data masih tampil seperti biasa." (kotak garis putus), terhubung
   ke kedua sakelar lewat `aria-describedby`. Kalimat "Proyek langsung tampil di halaman publik." di form
   Proyek dihapus. **Hapus catatan ini saat tahap 3 selesai** (`DisplaySettings` di `Switch.jsx`). Uji 18/18.
+- **Nomor 5 dan 13:** 8 label 11 px → `--ds-fs-xs` (12 px); 10 ukuran 13 px (petunjuk, galat, keterangan)
+  → `--ds-fs-sm` (14 px, ukuran MASTER untuk teks pendukung); hover tombol bahaya memakai
+  `--ds-danger-text` (merah tua yang sama, red-700) pengganti `black`. Laci menu HP 18rem → 19rem supaya
+  subjudul lockup 12 px muat di samping tombol tutup. Uji 75/75: teks terkecil ≥ 12 px di 12 halaman pada
+  1440 dan 375 px, tanpa gulir samping, label kecil tidak terpotong.

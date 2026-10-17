@@ -145,10 +145,10 @@ html:has(.adm) {
   margin: 0;
   color: var(--ds-text-muted);
   font-family: var(--ds-font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--ds-fs-xs);
   font-weight: var(--ds-fw-medium);
   letter-spacing: 0.16em;
-  line-height: 0.8125rem;
+  line-height: 1rem;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -241,7 +241,8 @@ html:has(.adm) {
   z-index: 600;
   display: flex;
   flex-direction: column;
-  width: min(18rem, calc(100vw - var(--space-12)));
+  /* 19rem: subjudul lockup 12 px muat di samping tombol tutup */
+  width: min(19rem, calc(100vw - var(--space-12)));
   height: 100vh;
   height: 100dvh;
   overflow-y: auto;
@@ -324,7 +325,7 @@ html:has(.adm) {
   padding: 0 var(--space-3);
   color: var(--ds-text-subtle);
   font-family: var(--ds-font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--ds-fs-xs);
   font-weight: var(--ds-fw-medium);
   letter-spacing: 0.16em;
   line-height: 1.5rem;
@@ -440,7 +441,7 @@ html:has(.adm) {
 .adm-sidebar-user-label {
   color: var(--ds-text-subtle);
   font-family: var(--ds-font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--ds-fs-xs);
   font-weight: var(--ds-fw-medium);
   letter-spacing: 0.16em;
   line-height: 1rem;
