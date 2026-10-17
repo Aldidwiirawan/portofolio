@@ -40,7 +40,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 7. **P2 · Nomor 8:** topik pesan diambil dan ditampilkan di daftar dan detail Pesan.
 - [x] 8. **P3 · Nomor 9, 10, 14, 15:** galat ListInput, gulir halus dihapus, tahun Pendidikan pakai pilihan,
   Beranda (h3, pengingat merah paling atas).
-- [ ] 9. **P3 · Nomor 11:** halaman Proyek memakai `SectionScreen` (galeri, urutan, penjaga perubahan tetap).
+- [x] 9. **P3 · Nomor 11:** halaman Proyek memakai `SectionScreen` (galeri, urutan, penjaga perubahan tetap).
   Uji ulang CRUD proyek.
 - [ ] 10. **P3 · Nomor 12:** garis kiri aksen hanya untuk fokus kolom isian dan menu aktif.
 - [ ] 11. **P3 · Nomor 16:** "Kembali ke beranda" → "Lihat situs" di halaman login.
@@ -178,3 +178,8 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
 - **Nomor 15:** `Card` mendapat `headingLevel`; dua kartu di bawah "Terbaru" menjadi h3. Pengingat merah
   (sertifikat kedaluwarsa atau hampir kedaluwarsa) diurutkan paling atas. Uji 9/10/14/15: 18/18 (di
   `main` nomor 10 dan 15 gagal seperti yang diharapkan).
+- **Nomor 11:** halaman Proyek memakai `SectionScreen`, `RowActions` dan `useSectionScreen` seperti 8 halaman
+  lain; logika simpan/hapus/urutan/galeri tidak berubah (galeri ada di `ProjectForm`). HTML daftar, keadaan
+  kosong, galat muat, dialog hapus, form ubah dan form tambah sama persis dengan `main` (12/13; satu-satunya
+  beda adalah kalimat yang dihapus di nomor 4). Uji ulang CRUD proyek 99/99 (tambah lengkap, ubah sampul dan
+  galeri, hapus beserta file, urutan, gagal simpan, skema lama, lebar layar) dan penjaga di jejak halaman 6/6.

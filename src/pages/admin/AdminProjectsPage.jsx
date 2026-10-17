@@ -1,23 +1,19 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { removeAssets } from '../../lib/storageUtils'
 import { useProjects } from '../../hooks/useProjects'
 import ProjectForm from '../../components/admin/ProjectForm'
-import { AdminLayout, AdminRoot } from '../../components/admin/ui/AdminLayout'
-import { useLeaveGuard, useToast } from '../../components/admin/ui/adminContexts'
-import { Alert } from '../../components/admin/ui/Alert'
-import { Button } from '../../components/admin/ui/Button'
+import { AdminRoot } from '../../components/admin/ui/AdminLayout'
 import { Badge } from '../../components/admin/ui/Card'
 import { DisplayBadges, ReorderButtons, ReorderStatus, Thumb } from '../../components/admin/ui/ContentList'
 import { PROJECT_STATUSES, PROJECT_TYPES, bySortOrder, labelOf, nextSortOrder } from '../../components/admin/ui/contentLabels'
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
-import { ConfirmDialog } from '../../components/admin/ui/Dialog'
-import { EmptyState, Skeleton } from '../../components/admin/ui/Feedback'
 import { formatDateTime } from '../../components/admin/ui/format'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
-import { IconPencil, IconPlus, IconRefresh, IconTrash } from '../../components/admin/ui/icons'
+import { RowActions, SectionScreen } from '../../components/admin/ui/SectionScreen'
 import { assetUrlsOf, normalizeGallery } from '../../components/admin/ui/useAssetFields'
 import { useReorder } from '../../components/admin/ui/useReorder'
+import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
 
 // Status badges: finished work in green, work in progress in blue, ideas neutral
 const STATUS_TONE = { production: 'success', completed: 'success', final_project: 'accent', in_development: 'accent', concept: 'neutral' }
@@ -28,7 +24,7 @@ const STATUS_TONE = { production: 'success', completed: 'success', final_project
  * 1. Fetches projects from public.projects via Supabase client.
  * 2. Allows inserting and updating projects via controlled ProjectForm with validation.
  * 3. Supports safe deletion of projects with custom confirmation modal and thumbnail cleanup.
- * Screen: admin layout; the form replaces the list as a full panel ("Proyek / Tambah proyek").
+ * Screen: SectionScreen; the form replaces the list as a full panel ("Proyek / Tambah proyek").
  */
 function AdminProjectsPage() {
   return (
@@ -40,6 +36,8 @@ function AdminProjectsPage() {
 
 function ProjectsScreen() {
   const { projects, isLoading, error, refetch } = useProjects({ includeAdminFields: true })
+  // Screen only: toasts, focus after a delete, guarded breadcrumb (Escape is handled by ConfirmDialog)
+  const { toast, headingRef, returnToHeading, setReturnToHeading, guarded } = useSectionScreen()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
@@ -56,13 +54,6 @@ function ProjectsScreen() {
     [projects]
   )
   const ordered = reorder.arrange(sorted)
-
-  // Screen only: toasts, unsaved-changes guard for the breadcrumb, focus target after a delete
-  // (Escape on the delete dialog is handled by ConfirmDialog)
-  const toast = useToast()
-  const { confirmLeave } = useLeaveGuard()
-  const headingRef = useRef(null)
-  const [returnToHeading, setReturnToHeading] = useState(false)
 
   const handleFormSuccess = (savedProject) => {
     const isEdit = Boolean(editingProject)
@@ -144,197 +135,128 @@ function ProjectsScreen() {
     }
   }
 
-  const backToList = async () => {
-    if (await confirmLeave()) handleCancelForm()
-  }
-
-  if (isFormOpen) {
-    const isEdit = Boolean(editingProject)
-    return (
-      <AdminLayout
-        title={isEdit ? 'Ubah proyek' : 'Tambah proyek'}
-        description={
-          isEdit
-            ? `Perbarui isi proyek "${editingProject.title}", lalu simpan.`
-            : 'Isi data proyek, lalu simpan.'
-        }
-        breadcrumb={[{ label: 'Proyek', onClick: backToList }]}
-        headingRef={headingRef}
-      >
-        <ProjectForm
-          key={editingProject?.id || 'new-project'}
-          project={editingProject}
-          nextSortOrder={nextSortOrder(projects)}
-          onSuccess={handleFormSuccess}
-          onCancel={handleCancelForm}
-        />
-      </AdminLayout>
-    )
-  }
-
-  // While reloading after a save or delete, keep the list on screen instead of the skeleton
-  const showSkeleton = isLoading && projects.length === 0
-
   return (
-    <AdminLayout
+    <SectionScreen
       title="Proyek"
       description="Proyek untuk halaman publik. Pilih 3–4 proyek unggulan sebagai studi kasus, lalu atur urutannya dengan Naik dan Turun."
+      addLabel="Tambah proyek"
+      onAdd={handleOpenCreateForm}
+      count={projects.length}
+      isLoading={isLoading}
+      error={error}
+      onReload={refetch}
+      loadErrorTitle="Proyek belum bisa dimuat."
+      emptyTitle="Belum ada proyek"
+      emptyText="Proyek yang Anda tambahkan akan tampil di halaman publik."
+      emptyActionLabel="Tambah proyek pertama"
+      summary={`${projects.length} proyek · ${featuredCount} unggulan${hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}`}
       headingRef={headingRef}
-      actions={
-        <>
-          <Button variant="secondary" icon={<IconRefresh size={18} />} onClick={refetch} loading={isLoading} loadingText="Memuat...">
-            Muat ulang
-          </Button>
-          <Button icon={<IconPlus size={18} />} onClick={handleOpenCreateForm}>
-            Tambah proyek
-          </Button>
-        </>
-      }
-    >
-      {showSkeleton && <Skeleton rows={3} label="Memuat daftar proyek..." />}
-
-      {!isLoading && error && (
-        <Alert
-          tone="danger"
-          title="Proyek belum bisa dimuat."
-          action={
-            <Button size="sm" variant="secondary" icon={<IconRefresh size={16} />} onClick={refetch}>
-              Coba lagi
-            </Button>
-          }
-        >
-          {toFriendlyError(error, 'Periksa koneksi internet, lalu coba lagi.')}
-        </Alert>
-      )}
-
-      {!isLoading && !error && projects.length === 0 && (
-        <EmptyState
-          title="Belum ada proyek"
-          action={
-            <Button icon={<IconPlus size={18} />} onClick={handleOpenCreateForm}>
-              Tambah proyek pertama
-            </Button>
-          }
-        >
-          Proyek yang Anda tambahkan akan tampil di halaman publik.
-        </EmptyState>
-      )}
-
-      {!showSkeleton && !error && projects.length > 0 && (
-        <>
-          <p className="adm-list-summary" aria-live="polite">
-            {projects.length} proyek · {featuredCount} unggulan
-            {hiddenCount > 0 ? ` · ${hiddenCount} disembunyikan` : ''}
+      form={{
+        open: isFormOpen,
+        title: editingProject ? 'Ubah proyek' : 'Tambah proyek',
+        description: editingProject ? `Perbarui isi proyek "${editingProject.title}", lalu simpan.` : 'Isi data proyek, lalu simpan.',
+        onBack: guarded(handleCancelForm),
+        children: (
+          <ProjectForm
+            key={editingProject?.id || 'new-project'}
+            project={editingProject}
+            nextSortOrder={nextSortOrder(projects)}
+            onSuccess={handleFormSuccess}
+            onCancel={handleCancelForm}
+          />
+        ),
+      }}
+      deleteDialog={{
+        open: Boolean(deletingProject),
+        title: 'Hapus proyek?',
+        busy: isDeleting,
+        error: deleteError ? toFriendlyError(deleteError, 'Proyek belum bisa dihapus. Periksa koneksi internet, lalu coba lagi.') : null,
+        returnFocusRef: returnToHeading ? headingRef : undefined,
+        onConfirm: handleConfirmDelete,
+        onCancel: handleCloseDeleteModal,
+        children: (
+          <p>
+            Proyek <strong>"{deletingProject?.title}"</strong> akan dihapus permanen
+            {deletingProject && assetUrlsOf(deletingProject, ['thumbnail_url'], ['gallery']).length > 0
+              ? ' beserta gambar sampul dan screenshot-nya'
+              : ''}
+            . Tindakan ini tidak bisa dibatalkan.
           </p>
-          <ReorderStatus reorder={reorder} />
-          <DataList label="Daftar proyek" aria-busy={isLoading || undefined}>
-            {ordered.map((project, index) => {
-              const techList = Array.isArray(project.tech_stack) ? project.tech_stack : []
-              const shots = normalizeGallery(project.gallery).length
-              const status = labelOf(PROJECT_STATUSES, project.status)
+        ),
+      }}
+    >
+      <ReorderStatus reorder={reorder} />
+      <DataList label="Daftar proyek" aria-busy={isLoading || undefined}>
+        {ordered.map((project, index) => {
+          const techList = Array.isArray(project.tech_stack) ? project.tech_stack : []
+          const shots = normalizeGallery(project.gallery).length
+          const status = labelOf(PROJECT_STATUSES, project.status)
+          const name = `proyek "${project.title}"`
 
-              return (
-                <DataListItem
-                  key={project.id}
-                  highlight={project.is_featured}
-                  media={<Thumb url={project.thumbnail_url} />}
-                  title={project.title}
-                  badges={
-                    <>
-                      {status && <Badge tone={STATUS_TONE[project.status]}>{status}</Badge>}
-                      <DisplayBadges item={project} />
-                    </>
-                  }
-                  subtitle={project.description || 'Belum ada deskripsi singkat.'}
-                  meta={
-                    <>
-                      {project.year && <span>{project.year}</span>}
-                      {project.project_type && <span>{labelOf(PROJECT_TYPES, project.project_type)}</span>}
-                      {project.client_name && <span>{project.client_name}</span>}
-                      {shots > 0 && <span>{shots} screenshot</span>}
-                      {project.slug && <span>/projects/{project.slug}</span>}
-                      {project.demo_url && (
-                        <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
-                          Demo<span className="adm-sr-only"> (tab baru)</span>
-                        </a>
-                      )}
-                      {project.github_url && (
-                        <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                          Kode<span className="adm-sr-only"> (tab baru)</span>
-                        </a>
-                      )}
-                      {project.is_repo_private && <span>Repo privat</span>}
-                      {project.created_at && (
-                        <time dateTime={project.created_at} title={formatDateTime(project.created_at)}>
-                          Ditambahkan{' '}
-                          {new Date(project.created_at).toLocaleDateString('id-ID', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </time>
-                      )}
-                    </>
-                  }
-                  actions={
-                    <>
-                      <ReorderButtons reorder={reorder} list={ordered} index={index} name={`proyek "${project.title}"`} />
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        icon={<IconPencil size={16} />}
-                        onClick={() => handleOpenEditForm(project)}
-                        aria-label={`Ubah proyek "${project.title}"`}
-                      >
-                        Ubah
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="adm-btn--danger-text"
-                        icon={<IconTrash size={16} />}
-                        onClick={() => handleOpenDeleteModal(project)}
-                        aria-label={`Hapus proyek "${project.title}"`}
-                      >
-                        Hapus
-                      </Button>
-                    </>
-                  }
-                >
-                  {techList.length > 0 && (
-                    <ul className="adm-tags" aria-label="Teknologi">
-                      {techList.map((tech) => (
-                        <li key={tech} className="adm-tag">
-                          {tech}
-                        </li>
-                      ))}
-                    </ul>
+          return (
+            <DataListItem
+              key={project.id}
+              highlight={project.is_featured}
+              media={<Thumb url={project.thumbnail_url} />}
+              title={project.title}
+              badges={
+                <>
+                  {status && <Badge tone={STATUS_TONE[project.status]}>{status}</Badge>}
+                  <DisplayBadges item={project} />
+                </>
+              }
+              subtitle={project.description || 'Belum ada deskripsi singkat.'}
+              meta={
+                <>
+                  {project.year && <span>{project.year}</span>}
+                  {project.project_type && <span>{labelOf(PROJECT_TYPES, project.project_type)}</span>}
+                  {project.client_name && <span>{project.client_name}</span>}
+                  {shots > 0 && <span>{shots} screenshot</span>}
+                  {project.slug && <span>/projects/{project.slug}</span>}
+                  {project.demo_url && (
+                    <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
+                      Demo<span className="adm-sr-only"> (tab baru)</span>
+                    </a>
                   )}
-                </DataListItem>
-              )
-            })}
-          </DataList>
-        </>
-      )}
-
-      <ConfirmDialog
-        open={Boolean(deletingProject)}
-        title="Hapus proyek?"
-        busy={isDeleting}
-        error={deleteError ? toFriendlyError(deleteError, 'Proyek belum bisa dihapus. Periksa koneksi internet, lalu coba lagi.') : null}
-        returnFocusRef={returnToHeading ? headingRef : undefined}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCloseDeleteModal}
-      >
-        <p>
-          Proyek <strong>"{deletingProject?.title}"</strong> akan dihapus permanen
-          {deletingProject && assetUrlsOf(deletingProject, ['thumbnail_url'], ['gallery']).length > 0
-            ? ' beserta gambar sampul dan screenshot-nya'
-            : ''}
-          . Tindakan ini tidak bisa dibatalkan.
-        </p>
-      </ConfirmDialog>
-    </AdminLayout>
+                  {project.github_url && (
+                    <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                      Kode<span className="adm-sr-only"> (tab baru)</span>
+                    </a>
+                  )}
+                  {project.is_repo_private && <span>Repo privat</span>}
+                  {project.created_at && (
+                    <time dateTime={project.created_at} title={formatDateTime(project.created_at)}>
+                      Ditambahkan{' '}
+                      {new Date(project.created_at).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </time>
+                  )}
+                </>
+              }
+              actions={
+                <>
+                  <ReorderButtons reorder={reorder} list={ordered} index={index} name={name} />
+                  <RowActions name={name} onEdit={() => handleOpenEditForm(project)} onDelete={() => handleOpenDeleteModal(project)} />
+                </>
+              }
+            >
+              {techList.length > 0 && (
+                <ul className="adm-tags" aria-label="Teknologi">
+                  {techList.map((tech) => (
+                    <li key={tech} className="adm-tag">
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </DataListItem>
+          )
+        })}
+      </DataList>
+    </SectionScreen>
   )
 }
 
