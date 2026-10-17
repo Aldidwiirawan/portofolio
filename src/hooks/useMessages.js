@@ -33,7 +33,8 @@ export function useMessages() {
       try {
         const { data, error: queryError } = await supabase
           .from('messages')
-          .select('id, name, email, subject, message, is_read, created_at')
+          // topic: the visitor's choice from the contact form (migration 20261016000000)
+          .select('id, name, email, subject, topic, message, is_read, created_at')
           .order('created_at', { ascending: false })
 
         if (!isMounted) return

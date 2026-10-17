@@ -237,10 +237,20 @@ function MessagesScreen() {
                   highlight={!msg.is_read}
                   title={msg.name}
                   badges={
-                    !msg.is_read && (
-                      <Badge tone="accent" dot>
-                        Baru
-                      </Badge>
+                    (!msg.is_read || msg.topic) && (
+                      <>
+                        {!msg.is_read && (
+                          <Badge tone="accent" dot>
+                            Baru
+                          </Badge>
+                        )}
+                        {msg.topic && (
+                          <Badge>
+                            <span className="adm-sr-only">Topik: </span>
+                            {msg.topic}
+                          </Badge>
+                        )}
+                      </>
                     )
                   }
                   subtitle={msg.subject || '(Tanpa subjek)'}
@@ -328,6 +338,12 @@ function MessagesScreen() {
                 <dt>Pengirim</dt>
                 <dd>{viewingMessage.name}</dd>
               </div>
+              {viewingMessage.topic && (
+                <div>
+                  <dt>Topik</dt>
+                  <dd>{viewingMessage.topic}</dd>
+                </div>
+              )}
               <div>
                 <dt>Email</dt>
                 <dd>

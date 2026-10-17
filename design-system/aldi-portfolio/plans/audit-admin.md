@@ -37,7 +37,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
   diperbarui") sampai tahap 3 selesai.
 - [x] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
 - [x] 6. **P2 · Nomor 6 dan 7:** keadaan terpilih terlihat di mode kontras tinggi; target sentuh 44 px.
-- [ ] 7. **P2 · Nomor 8:** topik pesan diambil dan ditampilkan di daftar dan detail Pesan.
+- [x] 7. **P2 · Nomor 8:** topik pesan diambil dan ditampilkan di daftar dan detail Pesan.
 - [ ] 8. **P3 · Nomor 9, 10, 14, 15:** galat ListInput, gulir halus dihapus, tahun Pendidikan pakai pilihan,
   Beranda (h3, pengingat merah paling atas).
 - [ ] 9. **P3 · Nomor 11:** halaman Proyek memakai `SectionScreen` (galeri, urutan, penjaga perubahan tetap).
@@ -164,3 +164,6 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   toast tetap), tautan jejak halaman dan "Batalkan hapus" mendapat area sentuh 44 px yang tidak terlihat.
   Uji nomor 6–7: di `main` 6/13, di branch 13/13 (termasuk ketukan 20 px dari tengah tetap mengenai
   tombol).
+- **Nomor 8:** `useMessages` mengambil `topic` (kolom dari migrasi 2B, jadi Pesan butuh migrasi itu seperti
+  halaman admin lain). Daftar Pesan menampilkan topik sebagai badge netral, detail menampilkan baris
+  "Topik"; keduanya tidak tampil bila topik kosong. Uji 8/8, termasuk 375 px tanpa gulir samping.
