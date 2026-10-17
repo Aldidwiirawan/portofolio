@@ -110,6 +110,19 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
   baik, ya!" dan matanya melirik ke tulisan. Saat pesan terkirim: melompat senang dan
   berkata "Terkirim, makasih!". Kalau pesan kosong, ikut mengingatkan.
 
+### Tampilan keahlian
+- **Gaya:** baris berjalan per kategori (seperti referensi irfansabrian.vercel.app/skills).
+  Setiap kategori punya judul dan satu kalimat penjelasan. Item memakai logo teknologi;
+  keahlian tanpa logo (misalnya soft skill, Troubleshooting) memakai ikon umum.
+- **Keahlian unggulan** (`is_featured`) ditonjolkan.
+- **Pengaman:**
+  - gerak pelan, berhenti saat hover, fokus, atau disentuh;
+  - diam total saat `prefers-reduced-motion`;
+  - salinan duplikat untuk efek berjalan diberi `aria-hidden`, sehingga pembaca layar hanya
+    membaca satu daftar statis;
+  - tanpa scroll horizontal di halaman.
+- **Sumber logo** diputuskan di tahap 3. Tanyakan dulu sebelum menambah library atau CDN baru.
+
 ## 6. Ayam dan bebek
 
 ### Kepribadian
