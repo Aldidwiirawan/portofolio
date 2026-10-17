@@ -32,7 +32,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 2. **P1 · Nomor 2:** petunjuk jujur di form Profil (nomor HP dan alamat). `useProfile` publik tidak
   mengambil nomor HP dan alamat lengkap; `AboutSection` tidak menampilkannya. Uji: tidak muncul di halaman
   publik maupun di request publik ke Supabase.
-- [ ] 3. **P2 · Nomor 3:** fokus tidak hilang saat tombol/kolom terkunci ketika menyimpan.
+- [x] 3. **P2 · Nomor 3:** fokus tidak hilang saat tombol/kolom terkunci ketika menyimpan.
 - [ ] 4. **P2 · Nomor 4:** catatan sementara di sakelar tampilan ("Berlaku setelah halaman publik
   diperbarui") sampai tahap 3 selesai.
 - [ ] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
@@ -143,3 +143,8 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   dihapus dari `portfolioData.js` dan dari penggabungan cadangan di `PublicPortfolioPage`, jadi tombol
   WhatsApp di hero ikut hilang. Uji: di `main` 17/32 (nomor, alamat statis, tautan wa.me, kolom di request,
   isi bundle); di branch 32/32, admin tetap memuat dan menyimpan kedua kolom.
+- **Nomor 3:** `FormPanel` memberi tahu kontrol bahwa form sedang menyimpan (`FormBusyContext`). Selama itu
+  kolom teks, pilihan, kotak centang, sakelar, pilihan cepat dan tombol tetap bisa difokus:
+  `aria-disabled` plus `readOnly` atau penjaga, bukan `disabled`. Di luar penyimpanan `disabled` tetap
+  biasa. Tombol balasan Buku tamu memakai `softDisabled`. Uji: di `main` 8/16 (fokus jatuh ke `body`);
+  di branch 16/16, termasuk simpan gagal (fokus tetap di kolom, kolom bisa diisi lagi).

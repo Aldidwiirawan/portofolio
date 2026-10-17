@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { useLock } from './adminContexts'
 import { FormSection } from './Field'
 
 /**
@@ -10,6 +11,7 @@ export function Switch({ id, label, description, checked, onChange, disabled = f
   const base = id || autoId
   const labelId = `${base}-label`
   const descId = description ? `${base}-desc` : undefined
+  const lock = useLock(disabled)
 
   return (
     <div className="adm-switch-row">
@@ -31,8 +33,9 @@ export function Switch({ id, label, description, checked, onChange, disabled = f
         aria-labelledby={labelId}
         aria-describedby={descId}
         className="adm-switch"
-        onClick={() => onChange(!checked)}
-        disabled={disabled}
+        onClick={() => !lock.soft && onChange(!checked)}
+        disabled={lock.hard || undefined}
+        aria-disabled={lock.soft || undefined}
       >
         <span className="adm-switch-track" aria-hidden="true">
           <span className="adm-switch-thumb" />

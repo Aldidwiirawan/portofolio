@@ -1,3 +1,4 @@
+import { FormBusyContext } from './adminContexts'
 import { Alert } from './Alert'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -47,25 +48,27 @@ export function FormPanel({
           Kolom bertanda <span aria-hidden="true">*</span>
           <span className="adm-sr-only">bintang</span> wajib diisi.
         </p>
-        {children}
-        <div className="adm-form-actions">
-          {isDirty && !saved && <p className="adm-form-actions-note">Ada perubahan yang belum disimpan</p>}
-          {(!cancelOnlyWhenDirty || (isDirty && !saved)) && (
-            <Button variant="secondary" onClick={cancel} disabled={busy}>
-              {cancelLabel}
+        <FormBusyContext.Provider value={busy}>
+          {children}
+          <div className="adm-form-actions">
+            {isDirty && !saved && <p className="adm-form-actions-note">Ada perubahan yang belum disimpan</p>}
+            {(!cancelOnlyWhenDirty || (isDirty && !saved)) && (
+              <Button variant="secondary" onClick={cancel} disabled={busy}>
+                {cancelLabel}
+              </Button>
+            )}
+            <Button
+              type="submit"
+              loading={isSubmitting}
+              loadingText="Menyimpan..."
+              status={saved ? 'success' : undefined}
+              successText="Tersimpan"
+              aria-disabled={busy || undefined}
+            >
+              {submitLabel}
             </Button>
-          )}
-          <Button
-            type="submit"
-            loading={isSubmitting}
-            loadingText="Menyimpan..."
-            status={saved ? 'success' : undefined}
-            successText="Tersimpan"
-            aria-disabled={busy || undefined}
-          >
-            {submitLabel}
-          </Button>
-        </div>
+          </div>
+        </FormBusyContext.Provider>
       </form>
     </Card>
   )

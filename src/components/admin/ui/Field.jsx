@@ -1,5 +1,9 @@
 import { Children, cloneElement, isValidElement } from 'react'
+import { useLock } from './adminContexts'
 import { IconAlert, IconCheck, IconChevronDown } from './icons'
+
+// A locked select, checkbox or radio keeps its value: React puts the controlled value back.
+const ignoreChange = () => {}
 
 /**
  * Label + control + hint + error. The control (a single element) receives `id`, `aria-describedby`
@@ -46,26 +50,49 @@ export function Field({ id, label, hint, error, required = false, optional = fal
   )
 }
 
-export function Input({ className = '', ...props }) {
+/** Text input. `disabled` while its form saves locks it softly (see useLock). */
+export function Input({ className = '', disabled, readOnly, ...props }) {
+  const lock = useLock(disabled)
   return (
     <span className="adm-control">
-      <input className={`adm-input ${className}`.trim()} {...props} />
+      <input
+        className={`adm-input ${className}`.trim()}
+        {...props}
+        disabled={lock.hard || undefined}
+        readOnly={lock.soft || readOnly}
+        aria-disabled={lock.soft || undefined}
+      />
     </span>
   )
 }
 
-export function Textarea({ className = '', rows = 4, ...props }) {
+export function Textarea({ className = '', rows = 4, disabled, readOnly, ...props }) {
+  const lock = useLock(disabled)
   return (
     <span className="adm-control">
-      <textarea className={`adm-input adm-textarea ${className}`.trim()} rows={rows} {...props} />
+      <textarea
+        className={`adm-input adm-textarea ${className}`.trim()}
+        rows={rows}
+        {...props}
+        disabled={lock.hard || undefined}
+        readOnly={lock.soft || readOnly}
+        aria-disabled={lock.soft || undefined}
+      />
     </span>
   )
 }
 
-export function Select({ className = '', children, ...props }) {
+export function Select({ className = '', children, disabled, onChange, ...props }) {
+  const lock = useLock(disabled)
   return (
     <span className="adm-control adm-control--select">
-      <select className={`adm-input adm-select ${className}`.trim()} {...props}>
+      <select
+        className={`adm-input adm-select ${className}`.trim()}
+        {...props}
+        onChange={lock.soft ? ignoreChange : onChange}
+        disabled={lock.hard || undefined}
+        aria-disabled={lock.soft || undefined}
+      >
         {children}
       </select>
       <IconChevronDown className="adm-select-chevron" size={18} />
@@ -74,11 +101,21 @@ export function Select({ className = '', children, ...props }) {
 }
 
 /** Checkbox with its own visible label (and optional description). */
-export function Checkbox({ id, label, description, className = '', ...props }) {
+export function Checkbox({ id, label, description, className = '', disabled, onChange, ...props }) {
   const descId = description ? `${id}-desc` : undefined
+  const lock = useLock(disabled)
   return (
     <div className={`adm-check ${className}`.trim()}>
-      <input id={id} type="checkbox" className="adm-check-input" aria-describedby={descId} {...props} />
+      <input
+        id={id}
+        type="checkbox"
+        className="adm-check-input"
+        aria-describedby={descId}
+        {...props}
+        onChange={lock.soft ? ignoreChange : onChange}
+        disabled={lock.hard || undefined}
+        aria-disabled={lock.soft || undefined}
+      />
       <label htmlFor={id} className="adm-check-label">
         <span className="adm-check-box" aria-hidden="true">
           <IconCheck size={14} />
@@ -101,6 +138,7 @@ export function Checkbox({ id, label, description, className = '', ...props }) {
 export function ChoiceGroup({ name, legend, options, value, onChange, hint, error, disabled = false, required = false }) {
   const hintId = hint ? `${name}-hint` : undefined
   const errorId = error ? `${name}-error` : undefined
+  const lock = useLock(disabled)
   return (
     <fieldset
       className={['adm-field', 'adm-choices', error && 'is-invalid'].filter(Boolean).join(' ')}
@@ -126,8 +164,9 @@ export function ChoiceGroup({ name, legend, options, value, onChange, hint, erro
                 name={name}
                 value={opt.value}
                 checked={value === opt.value}
-                onChange={() => onChange(opt.value)}
-                disabled={disabled}
+                onChange={lock.soft ? ignoreChange : () => onChange(opt.value)}
+                disabled={lock.hard || undefined}
+                aria-disabled={lock.soft || undefined}
                 className="adm-choice-input"
               />
               <label htmlFor={optId} className="adm-choice-label">
@@ -168,6 +207,7 @@ export function FormSection({ title, description, children, columns = 1 }) {
  * Toggle buttons with aria-pressed; `label` names the group for screen readers.
  */
 export function QuickPicks({ label, options, value, onPick, disabled = false, isSelected = (option, current) => option === current }) {
+  const lock = useLock(disabled)
   return (
     <div className="adm-quickpicks" role="group" aria-label={label}>
       {options.map((option) => {
@@ -178,8 +218,9 @@ export function QuickPicks({ label, options, value, onPick, disabled = false, is
             type="button"
             className="adm-quickpick"
             aria-pressed={isSelected(opt.value, value)}
-            onClick={() => onPick(opt.value)}
-            disabled={disabled}
+            onClick={() => !lock.soft && onPick(opt.value)}
+            disabled={lock.hard || undefined}
+            aria-disabled={lock.soft || undefined}
           >
             {opt.label}
           </button>

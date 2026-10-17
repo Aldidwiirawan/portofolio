@@ -222,7 +222,8 @@ html:has(.adm) body {
   box-shadow: none;
 }
 
-.adm-btn:disabled {
+.adm-btn:disabled,
+.adm-btn.is-unavailable {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
@@ -232,6 +233,29 @@ html:has(.adm) body {
 .adm-btn[aria-disabled='true'] {
   cursor: progress;
   transform: none;
+}
+
+/* Tidak bisa dipakai tapi tetap bisa difokus (softDisabled, atau saat form menyimpan) */
+.adm-btn.is-unavailable {
+  cursor: not-allowed;
+}
+
+.adm-btn--primary.is-unavailable:hover {
+  background-color: var(--ds-accent);
+}
+
+.adm-btn--secondary.is-unavailable:hover {
+  background-color: var(--ds-surface);
+  border-color: var(--ds-border-control);
+  color: var(--ds-text-strong);
+}
+
+.adm-btn--danger.is-unavailable:hover {
+  background-color: var(--ds-danger-border);
+}
+
+.adm-btn--ghost.is-unavailable:hover {
+  background-color: transparent;
 }
 
 /* Tersimpan: bracket mengunci tombol, lalu tanda centang muncul */
@@ -440,7 +464,8 @@ html:has(.adm) body {
   outline-offset: 1px;
 }
 
-.adm-input:disabled {
+.adm-input:disabled,
+.adm-input[aria-disabled='true'] {
   background-color: var(--ds-inset);
   color: var(--ds-text-muted);
   cursor: not-allowed;
@@ -535,7 +560,8 @@ html:has(.adm) body {
   outline-offset: 2px;
 }
 
-.adm-check-input:disabled + .adm-check-label {
+.adm-check-input:disabled + .adm-check-label,
+.adm-check-input[aria-disabled='true'] + .adm-check-label {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -599,7 +625,8 @@ html:has(.adm) body {
   outline-offset: 2px;
 }
 
-.adm-choice-input:disabled + .adm-choice-label {
+.adm-choice-input:disabled + .adm-choice-label,
+.adm-choice-input[aria-disabled='true'] + .adm-choice-label {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -641,7 +668,8 @@ html:has(.adm) body {
   box-shadow: inset 3px 0 0 var(--ds-accent);
 }
 
-.adm-quickpick:disabled {
+.adm-quickpick:disabled,
+.adm-quickpick[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -977,7 +1005,8 @@ html:has(.adm) body {
   text-align: left;
 }
 
-.adm-switch:disabled {
+.adm-switch:disabled,
+.adm-switch[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.6;
 }

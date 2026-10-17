@@ -244,7 +244,7 @@ function GuestbookScreen() {
                           onClick={() => handleSaveReply(entry.id)}
                           loading={isSaving}
                           loadingText="Menyimpan..."
-                          disabled={!currentReplyVal.trim() || currentReplyVal === (entry.admin_reply || '')}
+                          softDisabled={!currentReplyVal.trim() || currentReplyVal === (entry.admin_reply || '')}
                           aria-label={`${entry.admin_reply ? 'Perbarui' : 'Simpan'} balasan untuk ${entry.name}`}
                         >
                           {entry.admin_reply ? 'Perbarui balasan' : 'Simpan balasan'}

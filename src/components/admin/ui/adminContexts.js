@@ -61,3 +61,21 @@ export const AdminShellContext = createContext({
 export function useAdminShell() {
   return useContext(AdminShellContext)
 }
+
+// ---- Form saving ----------------------------------------------------------
+
+/** True while the surrounding FormPanel saves (and while it shows "Tersimpan"). */
+export const FormBusyContext = createContext(false)
+
+/**
+ * How a control is locked. While its form saves, a native `disabled` would drop keyboard focus to
+ * <body> (e.g. from the field the user pressed Enter in), so the control is locked softly instead:
+ * it stays focusable, gets aria-disabled, and is made readOnly or ignores changes. Outside a save,
+ * `disabled` stays native.
+ * @returns {{ hard: boolean, soft: boolean }}
+ */
+export function useLock(disabled) {
+  const saving = useContext(FormBusyContext)
+  const on = Boolean(disabled)
+  return { hard: on && !saving, soft: on && saving }
+}

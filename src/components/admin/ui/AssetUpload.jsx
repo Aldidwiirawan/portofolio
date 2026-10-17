@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { IMAGE_ACCEPT, IMAGE_MAX_SIDE } from '../../../lib/imageCompression'
 import { PDF_ACCEPT } from '../../../lib/pdfFile'
+import { useLock } from './adminContexts'
 import { IconButton } from './Button'
 import { formatFileSize } from './format'
 import { ImageUpload } from './ImageUpload'
@@ -190,6 +191,7 @@ export function GalleryUpload({ field, id, label, hint, altName = '', captionPla
   const count = field.items.length
   const full = count >= field.max
   const locked = disabled || field.busy
+  const captionLock = useLock(disabled)
   const hintId = `${id}-hint`
   const errorId = field.error ? `${id}-error` : undefined
 
@@ -251,7 +253,9 @@ export function GalleryUpload({ field, id, label, hint, altName = '', captionPla
                       value={item.caption}
                       maxLength={120}
                       placeholder={captionPlaceholder}
-                      disabled={disabled}
+                      disabled={captionLock.hard || undefined}
+                      readOnly={captionLock.soft || undefined}
+                      aria-disabled={captionLock.soft || undefined}
                       onChange={(e) => field.setCaption(item.key, e.target.value)}
                     />
                   </span>

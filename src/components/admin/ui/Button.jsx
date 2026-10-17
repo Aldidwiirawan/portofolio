@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useLock } from './adminContexts'
 import { IconCheck } from './icons'
 
 function classes({ variant, size, block, className, status }) {
@@ -20,6 +21,9 @@ function classes({ variant, size, block, className, status }) {
  * - loading: shows a spinner and `loadingText` (e.g. "Menyimpan..."); uses aria-disabled so keyboard
  *   focus stays on the button, and clicks are ignored meanwhile
  * - status="success": brackets lock onto the button and a check mark appears (`successText`)
+ * - disabled: native, except while its form saves (see useLock) or with `softDisabled`, which
+ *   keeps the button focusable: it looks unavailable, has aria-disabled and ignores clicks. Use
+ *   softDisabled when the button itself may have focus at the moment it becomes unavailable.
  */
 export function Button({
   variant = 'primary',
@@ -32,13 +36,17 @@ export function Button({
   successText = 'Tersimpan',
   block = false,
   className = '',
+  disabled = false,
+  softDisabled = false,
   onClick,
   children,
   ...rest
 }) {
   const success = status === 'success' && !loading
+  const lock = useLock(disabled)
+  const unavailable = softDisabled || lock.soft
   const handleClick = (e) => {
-    if (loading) {
+    if (loading || unavailable) {
       e.preventDefault()
       return
     }
@@ -48,8 +56,9 @@ export function Button({
   return (
     <button
       type={type}
-      className={classes({ variant, size, block, className, status: success ? 'success' : undefined })}
-      aria-disabled={loading || undefined}
+      className={classes({ variant, size, block, className: [className, unavailable && !loading && 'is-unavailable'].filter(Boolean).join(' '), status: success ? 'success' : undefined })}
+      aria-disabled={loading || unavailable || undefined}
+      disabled={lock.hard || undefined}
       onClick={handleClick}
       {...rest}
     >

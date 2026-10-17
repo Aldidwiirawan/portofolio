@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import { useLock } from './adminContexts'
 import { Button, IconButton } from './Button'
 import { IconAlert, IconArrowDown, IconArrowUp, IconPlus, IconTrash } from './icons'
 
@@ -36,6 +37,7 @@ export function ListInput({
   const [keys, setKeys] = useState(() => items.map(newKey))
   const [announcement, setAnnouncement] = useState('')
   const focusNext = useRef(null)
+  const lock = useLock(disabled)
 
   // Value replaced from outside (e.g. form reset): new keys for the new rows
   const rowKeys = keys.length === items.length ? keys : items.map((_, i) => keys[i] ?? `${id}-x${i}`)
@@ -128,7 +130,9 @@ export function ListInput({
                     maxLength={maxLength}
                     aria-label={`${itemLabel} ${n}`}
                     aria-invalid={error ? true : undefined}
-                    disabled={disabled}
+                    disabled={lock.hard || undefined}
+                    readOnly={lock.soft || undefined}
+                    aria-disabled={lock.soft || undefined}
                     onChange={(e) => change(index, e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
