@@ -18,10 +18,10 @@
   box-shadow: var(--ds-shadow-sm);
 }
 
-/* Belum dibalas: rel kiri aksen (selain badge "Belum dibalas") */
+/* Belum dibalas: garis atas aksen (selain badge "Belum dibalas") */
 .adm-gb-item.is-unreplied {
   box-shadow:
-    inset 3px 0 0 var(--ds-accent),
+    inset 0 2px 0 var(--ds-accent),
     var(--ds-shadow-sm);
 }
 

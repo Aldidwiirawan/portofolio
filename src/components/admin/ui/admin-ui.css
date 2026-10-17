@@ -614,11 +614,12 @@ html:has(.adm) body {
   border-color: var(--ds-accent);
 }
 
+/* Terpilih: bingkai aksen ganda (garis kiri aksen hanya untuk fokus kolom isian dan menu aktif) */
 .adm-choice-input:checked + .adm-choice-label {
   border-color: var(--ds-accent);
   background-color: var(--ds-accent-subtle);
   color: var(--ds-accent-text);
-  box-shadow: inset 3px 0 0 var(--ds-accent);
+  box-shadow: inset 0 0 0 1px var(--ds-accent);
 }
 
 .adm-choice-input:focus-visible + .adm-choice-label {
@@ -666,7 +667,7 @@ html:has(.adm) body {
   border-color: var(--ds-accent);
   background-color: var(--ds-accent-subtle);
   color: var(--ds-accent-text);
-  box-shadow: inset 3px 0 0 var(--ds-accent);
+  box-shadow: inset 0 0 0 1px var(--ds-accent);
 }
 
 .adm-quickpick:disabled,
@@ -1498,13 +1499,14 @@ html:has(.adm) body {
   transform: translateY(-1px);
 }
 
+/* Disorot (ada yang baru): garis atas aksen, seperti bar judul kartu modul */
 .adm-stat--highlight {
-  box-shadow: inset 3px 0 0 var(--ds-accent), var(--ds-shadow-sm);
+  box-shadow: inset 0 2px 0 var(--ds-accent), var(--ds-shadow-sm);
 }
 
 .adm-stat--highlight:hover {
   box-shadow:
-    inset 3px 0 0 var(--ds-accent),
+    inset 0 2px 0 var(--ds-accent),
     4px 4px 0 var(--adm-offset);
 }
 
@@ -1576,8 +1578,9 @@ html:has(.adm) body {
   grid-template-columns: 4rem minmax(0, 1fr);
 }
 
+/* Unggulan / baru: garis atas aksen (badge di judul tetap jadi penanda utama) */
 .adm-list-item.is-highlight {
-  box-shadow: inset 3px 0 0 var(--ds-accent), var(--ds-shadow-sm);
+  box-shadow: inset 0 2px 0 var(--ds-accent), var(--ds-shadow-sm);
 }
 
 .adm-list-media {
@@ -1934,7 +1937,7 @@ html:has(.adm-form-actions) .adm-toasts {
   border-radius: var(--adm-radius-control);
   background-color: var(--ds-surface);
   box-shadow:
-    inset 3px 0 0 var(--adm-toast-tone, var(--ds-accent)),
+    inset 0 2px 0 var(--adm-toast-tone, var(--ds-accent)),
     var(--ds-shadow-md);
   pointer-events: auto;
   animation: adm-rise-in 200ms var(--ds-ease-out) both;

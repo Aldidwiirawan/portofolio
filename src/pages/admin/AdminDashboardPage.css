@@ -95,14 +95,14 @@
   border-top: 1px solid var(--ds-border);
 }
 
-/* Pesan belum dibaca: rel kiri aksen (warna bukan satu-satunya penanda; ada badge "Baru") */
+/* Pesan belum dibaca: titik LED aksen sejajar nama (warna bukan satu-satunya penanda; ada badge "Baru") */
 .adm-feed-item.is-unread::before {
   content: '';
   position: absolute;
-  top: var(--space-3);
-  bottom: var(--space-3);
-  left: 0;
-  width: 2px;
+  top: calc(var(--space-3) + 0.5rem);
+  left: 0.3125rem;
+  width: 6px;
+  height: 6px;
   background-color: var(--ds-accent);
 }
 

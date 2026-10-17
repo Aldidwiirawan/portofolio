@@ -42,7 +42,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
   Beranda (h3, pengingat merah paling atas).
 - [x] 9. **P3 · Nomor 11:** halaman Proyek memakai `SectionScreen` (galeri, urutan, penjaga perubahan tetap).
   Uji ulang CRUD proyek.
-- [ ] 10. **P3 · Nomor 12:** garis kiri aksen hanya untuk fokus kolom isian dan menu aktif.
+- [x] 10. **P3 · Nomor 12:** garis kiri aksen hanya untuk fokus kolom isian dan menu aktif.
 - [ ] 11. **P3 · Nomor 16:** "Kembali ke beranda" → "Lihat situs" di halaman login.
 - [ ] 12. `.impeccable/design.json` diperbarui lewat `/impeccable document`.
 - [ ] 13. Uji akhir dan hasilnya dicatat di bawah: CRUD admin, keyboard, kontras, forced-colors, reduced
@@ -183,3 +183,9 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   kosong, galat muat, dialog hapus, form ubah dan form tambah sama persis dengan `main` (12/13; satu-satunya
   beda adalah kalimat yang dihapus di nomor 4). Uji ulang CRUD proyek 99/99 (tambah lengkap, ubah sampul dan
   galeri, hapus beserta file, urutan, gagal simpan, skema lama, lebar layar) dan penjaga di jejak halaman 6/6.
+- **Nomor 12:** garis kiri aksen kini hanya untuk fokus kolom isian dan menu aktif. Pengganti (perubahan
+  kecil, tidak perlu persetujuan dulu): chip terpilih dan pilihan cepat aktif → bingkai aksen ganda
+  (`inset 0 0 0 1px`); baris daftar disorot (unggulan, pesan baru), kartu Beranda disorot, entri buku tamu
+  belum dibalas dan toast → garis atas 2 px; pesan baru di "Pesan terbaru" Beranda → titik LED 6 px sejajar
+  nama. Uji 9/9 di 6 halaman (sebelum perubahan: 3/9). Screenshot sebelum/sesudah (tidak di-commit):
+  `C:\Users\acer\portofolio-screenshots\audit-admin\12-*-before.png` dan `12-*-after.png`.
