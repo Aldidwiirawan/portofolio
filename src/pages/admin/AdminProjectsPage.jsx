@@ -10,6 +10,7 @@ import { PROJECT_STATUSES, PROJECT_TYPES, bySortOrder, labelOf, nextSortOrder } 
 import { DataList, DataListItem } from '../../components/admin/ui/DataList'
 import { formatDateTime } from '../../components/admin/ui/format'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { linkSummary } from '../../components/admin/ui/projectLinks'
 import { RowActions, SectionScreen } from '../../components/admin/ui/SectionScreen'
 import { assetUrlsOf, normalizeGallery } from '../../components/admin/ui/useAssetFields'
 import { useReorder } from '../../components/admin/ui/useReorder'
@@ -190,6 +191,7 @@ function ProjectsScreen() {
         {ordered.map((project, index) => {
           const techList = Array.isArray(project.tech_stack) ? project.tech_stack : []
           const shots = normalizeGallery(project.gallery).length
+          const links = linkSummary(project.links)
           const status = labelOf(PROJECT_STATUSES, project.status)
           const name = `proyek "${project.title}"`
 
@@ -213,16 +215,7 @@ function ProjectsScreen() {
                   {project.client_name && <span>{project.client_name}</span>}
                   {shots > 0 && <span>{shots} screenshot</span>}
                   {project.slug && <span>/projects/{project.slug}</span>}
-                  {project.demo_url && (
-                    <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
-                      Demo<span className="adm-sr-only"> (tab baru)</span>
-                    </a>
-                  )}
-                  {project.github_url && (
-                    <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                      Kode<span className="adm-sr-only"> (tab baru)</span>
-                    </a>
-                  )}
+                  {links && <span>{links}</span>}
                   {project.is_repo_private && <span>Repo privat</span>}
                   {project.created_at && (
                     <time dateTime={project.created_at} title={formatDateTime(project.created_at)}>

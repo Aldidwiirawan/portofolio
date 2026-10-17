@@ -6,14 +6,16 @@ import { Checkbox, Field, FormSection, Input, Select, Textarea } from './ui/Fiel
 import { cleanList } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
+import { LinkListInput } from './ui/LinkListInput'
 import { ListInput } from './ui/ListInput'
+import { allCodePrivate, initialLinks, legacyUrls, prepareLinks } from './ui/projectLinks'
 import { DisplaySettings } from './ui/Switch'
 import { prepareUploads, useAssetField, useGalleryField } from './ui/useAssetFields'
 import { useFormScreen } from './ui/useFormFeedback'
 
 // Columns returned after saving (same as the admin list reads)
 const PROJECT_COLUMNS =
-  'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible'
+  'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible, links'
 
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: THIS_YEAR + 1 - 2010 + 1 }, (_, i) => String(THIS_YEAR + 1 - i))
@@ -33,24 +35,12 @@ function slugify(text) {
 }
 
 /**
- * Helper: Checks if a string is a valid web URL
- * @param {string} string
- * @returns {boolean}
- */
-function isValidUrl(string) {
-  if (!string || string.trim() === '') return true
-  try {
-    const url = new URL(string.trim())
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
-/**
  * ProjectForm Component
  * Input validation, cover image and gallery uploads, and explicit INSERT or UPDATE into
  * public.projects. Supports both CREATE and UPDATE modes.
+ * Links: a list of up to 6 (projects.links). The first public code and demo link are also saved to
+ * github_url and demo_url, which the current public page reads; "Repo privat" turns on by itself
+ * when every code link is private.
  * Screen: admin form panel (sections, visible labels, errors under each field, unsaved-changes
  * guard, "Menyimpan..." and a short success state on the save button).
  *
@@ -77,9 +67,9 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
     solution: project?.solution || '',
     outcome: project?.outcome || '',
     tech_stack: Array.isArray(project?.tech_stack) ? project.tech_stack : [],
-    demo_url: project?.demo_url || '',
-    github_url: project?.github_url || '',
-    is_repo_private: Boolean(project?.is_repo_private),
+    links: initialLinks(project),
+    // The checkbox value chosen by hand; while every code link is private it shows on by itself
+    is_repo_private: Boolean(project?.is_repo_private) && !allCodePrivate(initialLinks(project)),
     is_visible: project?.is_visible ?? true,
     is_featured: Boolean(project?.is_featured),
   }))
@@ -137,11 +127,9 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
       errors.description = 'Deskripsi singkat wajib diisi.'
     }
 
-    if (formData.demo_url.trim() && !isValidUrl(formData.demo_url)) {
-      errors.demo_url = 'Tautan demo harus diawali http:// atau https://.'
-    }
-    if (formData.github_url.trim() && !isValidUrl(formData.github_url)) {
-      errors.github_url = 'Tautan kode harus diawali http:// atau https://.'
+    const links = prepareLinks(formData.links)
+    if (!links.valid) {
+      errors.links = links.errors
     }
 
     setFieldErrors(errors)
@@ -173,14 +161,17 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
     }
 
     // 2. Prepare controlled and explicit payload (no id, no timestamps)
+    const { links } = prepareLinks(formData.links)
+    // The public page reads the old single-link columns until stage 3
+    const { github_url, demo_url } = legacyUrls(links)
     const payload = {
       title: formData.title.trim(),
       slug: formData.slug.trim(),
       description: formData.description.trim(),
       content: formData.content.trim() ? formData.content.trim() : null,
       thumbnail_url: uploads.values.thumbnail_url,
-      demo_url: formData.demo_url.trim() ? formData.demo_url.trim() : null,
-      github_url: formData.github_url.trim() ? formData.github_url.trim() : null,
+      demo_url,
+      github_url,
       tech_stack: cleanList(formData.tech_stack),
       is_featured: Boolean(formData.is_featured),
       gallery: uploads.values.gallery,
@@ -192,8 +183,9 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
       problem: formData.problem.trim() || null,
       solution: formData.solution.trim() || null,
       outcome: formData.outcome.trim() || null,
-      is_repo_private: Boolean(formData.is_repo_private),
+      is_repo_private: allCodePrivate(links) || Boolean(formData.is_repo_private),
       is_visible: Boolean(formData.is_visible),
+      links,
     }
     // A new project goes to the end of the list; the order is changed with Naik/Turun in the list
     if (!isEditMode) payload.sort_order = nextSortOrder
@@ -250,6 +242,7 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
     : ''
   const busy = isSubmitting || screen.saved
   const input = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
+  const codePrivate = allCodePrivate(formData.links)
 
   return (
     <FormPanel
@@ -343,37 +336,47 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
         </Field>
       </FormSection>
 
-      <FormSection title="Teknologi dan tautan" columns={2}>
-        <div className="adm-span-2">
-          <ListInput
-            id="project-tech"
-            label="Teknologi yang dipakai"
-            optional
-            value={formData.tech_stack}
-            onChange={(items) => set('tech_stack', items)}
-            max={15}
-            itemLabel="Teknologi"
-            addLabel="Tambah teknologi"
-            placeholder="Contoh: Laravel"
-            maxLength={40}
-            hint="Urutkan dari yang paling utama."
-            disabled={busy}
-          />
-        </div>
-        <Field id="project-demo" label="Tautan demo" optional error={fieldErrors.demo_url}>
-          <Input type="url" inputMode="url" placeholder="https://" {...input('demo_url')} />
-        </Field>
-        <Field id="project-github" label="Tautan kode" optional error={fieldErrors.github_url} hint="Misalnya halaman GitHub proyek.">
-          <Input type="url" inputMode="url" placeholder="https://github.com/" {...input('github_url')} />
-        </Field>
+      <FormSection title="Teknologi">
+        <ListInput
+          id="project-tech"
+          label="Teknologi yang dipakai"
+          optional
+          value={formData.tech_stack}
+          onChange={(items) => set('tech_stack', items)}
+          max={15}
+          itemLabel="Teknologi"
+          addLabel="Tambah teknologi"
+          placeholder="Contoh: Laravel"
+          maxLength={40}
+          hint="Urutkan dari yang paling utama."
+          disabled={busy}
+        />
+      </FormSection>
+
+      <FormSection
+        title="Tautan proyek"
+        description="Repo kode, demo, dokumentasi, atau video. Satu proyek boleh punya beberapa, misalnya repo konsol web dan repo aplikasi mobile."
+      >
+        <LinkListInput
+          id="project-links"
+          label="Daftar tautan"
+          value={formData.links}
+          onChange={(links) => set('links', links)}
+          errors={fieldErrors.links || []}
+          hint="Urutan di sini menjadi urutan tampil."
+          disabled={busy}
+        />
         <Checkbox
           id="project-private"
-          className="adm-span-2"
           label="Repo privat"
-          description="Kodenya tidak bisa dibuka publik. Halaman publik menampilkan keterangan “Repo privat”, bukan tombol kode."
-          checked={formData.is_repo_private}
+          description={
+            codePrivate
+              ? 'Nyala otomatis karena semua tautan kode bersifat privat.'
+              : 'Kodenya tidak bisa dibuka publik. Halaman publik menampilkan keterangan “Repo privat”, bukan tombol kode.'
+          }
+          checked={codePrivate || formData.is_repo_private}
           onChange={(e) => set('is_repo_private', e.target.checked)}
-          disabled={busy}
+          disabled={busy || codePrivate}
         />
       </FormSection>
 

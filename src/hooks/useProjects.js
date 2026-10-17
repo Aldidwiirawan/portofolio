@@ -5,8 +5,9 @@ import { supabase } from '../lib/supabaseClient'
 const PUBLIC_COLUMNS =
   'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at'
 
-// The admin also reads the content columns added in stage 2B (migration 20261016000000).
-const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible`
+// The admin also reads the content columns added in stage 2B (migration 20261016000000) and the
+// project links (migration 20261018000000).
+const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible, links`
 
 /**
  * Custom Hook: useProjects
