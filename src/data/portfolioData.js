@@ -10,8 +10,6 @@ export const profileData = {
   tagline: 'Lulusan D3 Manajemen Informatika (IPK 3,54) berfokus pada Web Development, IT Support, & Jaringan Komputer.',
   bio: 'Saya adalah lulusan D3 Manajemen Informatika Politeknik Negeri Malang (IPK 3,54) dengan fondasi kuat di bidang IT, tersertifikasi MikroTik (MTCNA) dan Kompetensi Pemrograman Software. Berpengalaman praktis membangun solusi IT, di antaranya Sistem Informasi Pengelolaan Data Produk Berbasis Website di Dinas Kominfo Kab. Kediri dan Sistem Monitoring Pengiriman Barang berbasis Barcode di CV. Adisatya IT Consultant. Menguasai manajemen basis data, desain antarmuka responsif, dan operasional jaringan komputer. Siap berkontribusi nyata pada posisi IT Support, Junior Programmer, maupun Staff IT Administrasi.',
   location: 'Kediri, Jawa Timur, Indonesia',
-  address: 'Bandar Lor Gg. IX No. 69, Kab. Kediri, Jawa Timur',
-  phone: '082331318598',
   status: 'Terbuka untuk Peluang Kerja (IT Support / Junior Programmer / Web Developer)',
   social_links: {
     github: 'https://github.com/Aldidwiirawan',

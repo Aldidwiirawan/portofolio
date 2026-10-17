@@ -59,8 +59,6 @@ function PublicPortfolioPage() {
         title: dbProfile.tagline || profileData.title,
         bio: dbProfile.bio || profileData.bio,
         location: dbProfile.location || profileData.location,
-        full_address: dbProfile.full_address || profileData.address,
-        phone_number: dbProfile.phone_number || profileData.phone,
         resume_link: dbProfile.resume_link || dbProfile.resume_url,
         resume_url: dbProfile.resume_url || dbProfile.resume_link,
         hobbies:

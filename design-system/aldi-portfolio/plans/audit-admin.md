@@ -29,7 +29,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 1. **P1 · Nomor 1:** kunci gulir memakai penghitung bersama, dilepas saat dialog terakhir tertutup.
   Uji otomatis: buka pesan → Hapus → Ya, hapus → halaman bisa digulir, juga setelah pindah halaman admin
   dan setelah Keluar ke halaman login.
-- [ ] 2. **P1 · Nomor 2:** petunjuk jujur di form Profil (nomor HP dan alamat). `useProfile` publik tidak
+- [x] 2. **P1 · Nomor 2:** petunjuk jujur di form Profil (nomor HP dan alamat). `useProfile` publik tidak
   mengambil nomor HP dan alamat lengkap; `AboutSection` tidak menampilkannya. Uji: tidak muncul di halaman
   publik maupun di request publik ke Supabase.
 - [ ] 3. **P2 · Nomor 3:** fokus tidak hilang saat tombol/kolom terkunci ketika menyimpan.
@@ -137,3 +137,9 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
 - **Nomor 1:** `useScrollLock` (penghitung bersama) dipakai `Dialog` dan laci menu. Uji otomatis: di `main` 9/19
   lulus (halaman terkunci setelah hapus, pindah halaman, dan di halaman login); di branch 19/19, termasuk
   Batal + Tutup, Escape dua kali, dan laci menu di 375 px.
+- **Nomor 2:** petunjuk nomor HP dan alamat: "Tidak tampil di halaman publik, tapi jangan isi data rahasia."
+  `useProfile` publik tidak lagi mengambil `phone_number`; `AboutSection` hanya menampilkan kota (judul
+  kartu "Lokasi & Alamat" → "Lokasi") dan email. Atas keputusan pemilik (17 Okt), nomor HP dan alamat juga
+  dihapus dari `portfolioData.js` dan dari penggabungan cadangan di `PublicPortfolioPage`, jadi tombol
+  WhatsApp di hero ikut hilang. Uji: di `main` 17/32 (nomor, alamat statis, tautan wa.me, kolom di request,
+  isi bundle); di branch 32/32, admin tetap memuat dan menyimpan kedua kolom.

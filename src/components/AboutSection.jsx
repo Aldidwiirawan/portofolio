@@ -103,16 +103,15 @@ function AboutSection({ profile, languages = [] }) {
             </div>
 
             <div className="about-info-card">
-              <h3 className="about-card-title">Lokasi & Alamat</h3>
+              <h3 className="about-card-title">Lokasi</h3>
               <p className="about-card-desc">
-                {profile.full_address || profile.location || 'Kediri, Jawa Timur, Indonesia'}
+                {profile.location || 'Kediri, Jawa Timur, Indonesia'}
               </p>
             </div>
 
             <div className="about-info-card">
               <h3 className="about-card-title">Kontak Langsung</h3>
               <p className="about-card-desc">
-                {profile.phone_number && <span>{profile.phone_number} &bull; </span>}
                 <span>{profile.email || profile.social_links?.email || 'aldidwiirawan2004@gmail.com'}</span>
               </p>
             </div>

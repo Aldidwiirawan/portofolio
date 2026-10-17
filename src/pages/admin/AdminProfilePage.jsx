@@ -244,10 +244,10 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
           <Field id="profile-email" label="Email kontak" optional>
             <Input type="email" inputMode="email" autoComplete="email" {...field('email')} />
           </Field>
-          <Field id="profile-phone" label="Nomor telepon atau WhatsApp" optional>
+          <Field id="profile-phone" label="Nomor telepon atau WhatsApp" optional hint="Tidak tampil di halaman publik, tapi jangan isi data rahasia.">
             <Input type="tel" inputMode="tel" autoComplete="tel" {...field('phone_number')} />
           </Field>
-          <Field id="profile-address" label="Alamat lengkap" optional hint="Hanya tersimpan di sini, tidak tampil di halaman publik.">
+          <Field id="profile-address" label="Alamat lengkap" optional hint="Tidak tampil di halaman publik, tapi jangan isi data rahasia.">
             <Input type="text" autoComplete="street-address" {...field('full_address')} />
           </Field>
           <Field id="profile-bio" label="Tentang saya" optional className="adm-span-2" hint="Tampil di bagian perkenalan halaman publik.">
