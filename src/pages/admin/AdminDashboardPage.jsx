@@ -57,7 +57,8 @@ const visibleOnly = (list) => (list ?? []).filter((item) => item.is_visible !== 
 
 /**
  * Completeness reminders computed from the data (only for parts that loaded):
- * [{ id, text, to, tone }] — tone 'danger' for something already wrong (e.g. expired).
+ * [{ id, text, to, tone }] — tone 'danger' for something already wrong or about to be (e.g. an
+ * expired certificate); those come first.
  */
 function buildReminders({ profile, projects, certifications, experiences }) {
   const out = []
@@ -105,7 +106,7 @@ function buildReminders({ profile, projects, certifications, experiences }) {
     if (shown.length > 0 && !shown.some((x) => x.is_featured)) add('exp-featured', 'Pengalaman unggulan belum dipilih', '/admin/experiences')
   }
 
-  return out
+  return [...out.filter((x) => x.tone === 'danger'), ...out.filter((x) => x.tone !== 'danger')]
 }
 
 /** Beranda admin: ringkasan setiap bagian, pesan dan buku tamu terbaru. Data lewat hooks yang ada. */
@@ -313,6 +314,7 @@ function DashboardScreen() {
           <Card
             heading="Pesan terbaru"
             headingId="home-latest-messages"
+            headingLevel={3}
             barAside={unread > 0 ? <Badge tone="accent" dot>{unread} baru</Badge> : null}
             flush
             className="adm-home-panel"
@@ -352,6 +354,7 @@ function DashboardScreen() {
           <Card
             heading="Buku tamu terbaru"
             headingId="home-latest-guestbook"
+            headingLevel={3}
             barAside={unreplied > 0 ? <Badge tone="neutral">{unreplied} belum dibalas</Badge> : null}
             flush
             className="adm-home-panel"

@@ -130,6 +130,8 @@ export function ListInput({
                     maxLength={maxLength}
                     aria-label={`${itemLabel} ${n}`}
                     aria-invalid={error ? true : undefined}
+                    // The form moves focus to the first invalid row; the error is read out with it
+                    aria-describedby={errorId}
                     disabled={lock.hard || undefined}
                     readOnly={lock.soft || undefined}
                     aria-disabled={lock.soft || undefined}

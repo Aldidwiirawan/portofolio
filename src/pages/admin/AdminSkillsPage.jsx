@@ -86,7 +86,6 @@ function SkillsScreen() {
   const handleOpenEditForm = (skill) => {
     setEditingSkill(skill)
     setIsFormOpen(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleCancelForm = () => {

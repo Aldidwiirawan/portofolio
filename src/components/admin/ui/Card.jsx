@@ -4,14 +4,16 @@ import { Link } from 'react-router-dom'
  * Blueprint Module Card: 6 px corners, 1 px border, optional thin header bar with a monospace label
  * and corner brackets (`corners`, for important blocks such as forms).
  * - label: decorative bar text (hidden from screen readers)
- * - heading + headingId: the bar holds the card's real h2 instead (the card is labelled by it);
+ * - heading + headingId: the bar holds the card's real heading instead (the card is labelled by it);
  *   barAside goes on the right of that bar (e.g. a count badge)
+ * - headingLevel: 2 by default; 3 for cards grouped under a section h2
  */
 export function Card({
   as: Tag = 'section',
   label,
   heading,
   headingId,
+  headingLevel = 2,
   barAside,
   labelledBy,
   corners = false,
@@ -20,6 +22,7 @@ export function Card({
   children,
   ...rest
 }) {
+  const Heading = `h${headingLevel}`
   return (
     <Tag
       className={['adm-card', corners && 'adm-card--corners adm-corners', flush && 'adm-card--flush', className].filter(Boolean).join(' ')}
@@ -29,9 +32,9 @@ export function Card({
       {heading ? (
         <div className="adm-card-bar">
           <span className="adm-card-led" aria-hidden="true" />
-          <h2 id={headingId} className="adm-card-bar-title">
+          <Heading id={headingId} className="adm-card-bar-title">
             {heading}
-          </h2>
+          </Heading>
           {barAside && <span className="adm-card-bar-aside">{barAside}</span>}
         </div>
       ) : (

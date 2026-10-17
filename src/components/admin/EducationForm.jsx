@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageField } from './ui/AssetUpload'
-import { Checkbox, Field, FormSection, Input, QuickPicks, Textarea } from './ui/Field'
+import { Checkbox, Field, FormSection, Input, QuickPicks, Select, Textarea } from './ui/Field'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { DisplaySettings } from './ui/Switch'
@@ -9,6 +9,17 @@ import { prepareUploads, useAssetField } from './ui/useAssetFields'
 import { useFormScreen } from './ui/useFormFeedback'
 
 const DEGREE_PRESETS = ['Diploma III (D3)', 'Sarjana (S1)', 'Magister (S2)', 'SMK / SMA']
+
+const THIS_YEAR = new Date().getFullYear()
+
+/** Years from `max` down to 1980 for a select (no scroll-wheel changes like a number field); a stored
+ *  year outside that range still shows. */
+function yearOptions(max, current) {
+  const years = []
+  for (let y = max; y >= 1980; y -= 1) years.push(String(y))
+  if (current && !years.includes(String(current))) years.push(String(current))
+  return years
+}
 
 /** '3,62' or '3.62' → 3.62 (0–4, at most two decimals); null when it is not a valid GPA */
 function parseGpa(text) {
@@ -243,34 +254,30 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
 
       <FormSection title="Waktu" columns={2}>
         <Field id="edu-start-year" label="Tahun masuk" required error={fieldErrors.start_year}>
-          <Input
-            name="start_year"
-            type="number"
-            min="1950"
-            max="2100"
-            inputMode="numeric"
-            value={formData.start_year}
-            onChange={handleChange}
-            disabled={busy}
-          />
+          <Select name="start_year" value={formData.start_year} onChange={handleChange} disabled={busy}>
+            <option value="">Pilih tahun</option>
+            {yearOptions(THIS_YEAR + 1, formData.start_year).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Select>
         </Field>
         <Field
           id="edu-end-year"
           label="Tahun lulus"
           optional
           error={fieldErrors.end_year}
-          hint={formData.is_current ? 'Tidak perlu diisi karena masih belajar di sini.' : 'Kosongkan bila belum lulus.'}
+          hint={formData.is_current ? 'Tidak perlu diisi karena masih belajar di sini.' : 'Pilih "Belum lulus" bila belum selesai.'}
         >
-          <Input
-            name="end_year"
-            type="number"
-            min="1950"
-            max="2100"
-            inputMode="numeric"
-            value={formData.end_year}
-            onChange={handleChange}
-            disabled={busy || formData.is_current}
-          />
+          <Select name="end_year" value={formData.end_year} onChange={handleChange} disabled={busy || formData.is_current}>
+            <option value="">Belum lulus</option>
+            {yearOptions(THIS_YEAR + 6, formData.end_year).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Select>
         </Field>
         <div className="adm-span-2">
           <Checkbox

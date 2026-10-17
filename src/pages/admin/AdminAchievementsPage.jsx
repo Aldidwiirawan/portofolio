@@ -80,7 +80,6 @@ function AchievementsScreen() {
   const handleOpenEditForm = (item) => {
     setEditingAchieve(item)
     setIsFormOpen(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleCancelForm = () => {

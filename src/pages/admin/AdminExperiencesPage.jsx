@@ -78,7 +78,6 @@ function ExperiencesScreen() {
   const handleOpenEditForm = (exp) => {
     setEditingExp(exp)
     setIsFormOpen(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleCancelForm = () => {

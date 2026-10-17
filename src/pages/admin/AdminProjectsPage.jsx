@@ -84,7 +84,6 @@ function ProjectsScreen() {
   const handleOpenEditForm = (project) => {
     setEditingProject(project)
     setIsFormOpen(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleCancelForm = () => {

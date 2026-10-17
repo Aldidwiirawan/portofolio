@@ -38,7 +38,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
 - [x] 6. **P2 · Nomor 6 dan 7:** keadaan terpilih terlihat di mode kontras tinggi; target sentuh 44 px.
 - [x] 7. **P2 · Nomor 8:** topik pesan diambil dan ditampilkan di daftar dan detail Pesan.
-- [ ] 8. **P3 · Nomor 9, 10, 14, 15:** galat ListInput, gulir halus dihapus, tahun Pendidikan pakai pilihan,
+- [x] 8. **P3 · Nomor 9, 10, 14, 15:** galat ListInput, gulir halus dihapus, tahun Pendidikan pakai pilihan,
   Beranda (h3, pengingat merah paling atas).
 - [ ] 9. **P3 · Nomor 11:** halaman Proyek memakai `SectionScreen` (galeri, urutan, penjaga perubahan tetap).
   Uji ulang CRUD proyek.
@@ -167,3 +167,14 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
 - **Nomor 8:** `useMessages` mengambil `topic` (kolom dari migrasi 2B, jadi Pesan butuh migrasi itu seperti
   halaman admin lain). Daftar Pesan menampilkan topik sebagai badge netral, detail menampilkan baris
   "Topik"; keduanya tidak tampil bila topik kosong. Uji 8/8, termasuk 375 px tanpa gulir samping.
+- **Nomor 9:** setiap baris `ListInput` diberi `aria-describedby` ke pesan galat, jadi galat dibacakan saat
+  fokus pindah ke baris. Saat ini belum ada form yang mengirim galat ke `ListInput`; diuji di halaman
+  terpisah (deskripsi aksesibilitas baris = pesan galat).
+- **Nomor 10:** `scrollTo({ behavior: 'smooth' })` dihapus dari 8 halaman (Profil tetap, karena sudah
+  menghormati reduced motion dan judulnya tidak berubah). Halaman tetap langsung ke atas dan h1 difokus.
+- **Nomor 14:** tahun masuk dan tahun lulus Pendidikan memakai `Select` (tahun lulus punya pilihan
+  "Belum lulus", sampai 6 tahun ke depan); tahun tersimpan di luar rentang tetap muncul. Roda mouse tidak
+  mengubah nilai.
+- **Nomor 15:** `Card` mendapat `headingLevel`; dua kartu di bawah "Terbaru" menjadi h3. Pengingat merah
+  (sertifikat kedaluwarsa atau hampir kedaluwarsa) diurutkan paling atas. Uji 9/10/14/15: 18/18 (di
+  `main` nomor 10 dan 15 gagal seperti yang diharapkan).

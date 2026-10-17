@@ -75,7 +75,6 @@ function LanguagesScreen() {
   const handleOpenEditForm = (item) => {
     setEditingLang(item)
     setIsFormOpen(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleCancelForm = () => {

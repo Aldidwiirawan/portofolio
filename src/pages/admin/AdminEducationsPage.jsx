@@ -68,7 +68,6 @@ function EducationsScreen() {
   const handleOpenEditForm = (edu) => {
     setEditingEdu(edu)
     setIsFormOpen(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleCancelForm = () => {
