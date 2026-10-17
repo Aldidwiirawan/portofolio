@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
 import { ADMIN_NAV_GROUPS, ADMIN_SECTIONS, findAdminSection, normalizeAdminPath } from './adminNav'
@@ -6,6 +6,7 @@ import { BrandLockup } from './BrandLockup'
 import { IconButton } from './Button'
 import { IconClose, IconExternal, IconLogout, IconMenu } from './icons'
 import { useFocusTrap } from './useFocusTrap'
+import { useScrollLock } from './useScrollLock'
 import { useGuardedNav } from './useGuardedNav'
 
 /**
@@ -32,15 +33,7 @@ export function AdminSidebar({ email, unreadCount = 0, onLogout, isLoggingOut = 
 
   useFocusTrap(panelRef, drawerOpen, { onEscape: close, initialFocusRef: closeRef })
 
-  useEffect(() => {
-    if (!drawerOpen) return undefined
-    const root = document.documentElement
-    const previous = root.style.overflow
-    root.style.overflow = 'hidden'
-    return () => {
-      root.style.overflow = previous
-    }
-  }, [drawerOpen])
+  useScrollLock(drawerOpen)
 
   const unreadLabel = unreadCount > 0 ? `, ${unreadCount} pesan belum dibaca` : ''
 

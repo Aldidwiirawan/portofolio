@@ -1,9 +1,10 @@
-import { useEffect, useId, useRef } from 'react'
+import { useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Button, IconButton } from './Button'
 import { Alert } from './Alert'
 import { IconAlert, IconClose } from './icons'
 import { useFocusTrap } from './useFocusTrap'
+import { useScrollLock } from './useScrollLock'
 
 /**
  * Modal dialog: rendered in a light-themed portal, focus trapped inside, Escape and the backdrop
@@ -16,15 +17,7 @@ export function Dialog({ open, onClose, title, description, icon, tone, size = '
 
   useFocusTrap(panelRef, open, { onEscape: () => !busy && onClose?.(), initialFocusRef, returnFocusRef })
 
-  useEffect(() => {
-    if (!open) return undefined
-    const root = document.documentElement
-    const previous = root.style.overflow
-    root.style.overflow = 'hidden'
-    return () => {
-      root.style.overflow = previous
-    }
-  }, [open])
+  useScrollLock(open)
 
   if (!open) return null
 

@@ -26,7 +26,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 ## Urutan commit
 
 - [x] 0. Daftar periksa ini.
-- [ ] 1. **P1 · Nomor 1:** kunci gulir memakai penghitung bersama, dilepas saat dialog terakhir tertutup.
+- [x] 1. **P1 · Nomor 1:** kunci gulir memakai penghitung bersama, dilepas saat dialog terakhir tertutup.
   Uji otomatis: buka pesan → Hapus → Ya, hapus → halaman bisa digulir, juga setelah pindah halaman admin
   dan setelah Keluar ke halaman login.
 - [ ] 2. **P1 · Nomor 2:** petunjuk jujur di form Profil (nomor HP dan alamat). `useProfile` publik tidak
@@ -134,4 +134,6 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
 
 ## Hasil
 
-_(diisi per butir saat commit)_
+- **Nomor 1:** `useScrollLock` (penghitung bersama) dipakai `Dialog` dan laci menu. Uji otomatis: di `main` 9/19
+  lulus (halaman terkunci setelah hapus, pindah halaman, dan di halaman login); di branch 19/19, termasuk
+  Batal + Tutup, Escape dua kali, dan laci menu di 375 px.
