@@ -1,6 +1,6 @@
 # Override Halaman: Panel Admin (`/admin/*`)
 
-> **PROJECT:** Aldi Portfolio · **Diperbarui:** 16 Oktober 2026 (tahap 2B)
+> **PROJECT:** Aldi Portfolio · **Diperbarui:** 18 Oktober 2026 (tautan proyek; tahap 2B: 16 Oktober)
 > ⚠️ Aturan di file ini **menimpa** `design-system/aldi-portfolio/MASTER.md`. Bila bertentangan dengan
 > `BRIEF.md`, brief yang dipakai.
 > **Status:** diterapkan di tahap 2 dan 2B (branch `feat/ui-admin`). Rencana dan urutan kerjanya:
@@ -98,6 +98,7 @@ Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2 ma
 | `Checkbox`, `ChoiceGroup`, `QuickPicks` | kotak centang; grup radio berbentuk chip (jenis pengalaman, kategori keahlian); pilihan cepat `aria-pressed`. Nilai lama di luar daftar tetap bisa dipilih dengan label "(lama)". |
 | `Switch`, `DisplaySettings` | sakelar `role="switch"` (tombol asli, Space/Enter) dengan deskripsi yang mengikuti keadaan; blok "Tampilan di halaman publik" berisi "Tampil di halaman publik" dan (bila ada) "Unggulan". |
 | `ListInput` | daftar isian pendek (poin tugas, teknologi, tag, kata berganti, topik pesan, peran pendukung): tambah, hapus, Naikkan/Turunkan dengan tombol berlabel unik; Enter di satu baris menambah baris berikutnya; batas jumlah ("Sudah 5 dari 5"); fokus mengikuti baris yang dipindah dan posisinya diumumkan. Isian kosong dibuang saat simpan (`cleanList`). |
+| `LinkListInput` | daftar tautan proyek (maks. 6) dengan pola `ListInput`: setiap baris berisi nama tautan (≤60 karakter), jenis (Kode, Demo, Dokumentasi, Video, Lainnya), alamat, dan sakelar "Privat"; "Tambah tautan", hapus, Naikkan/Turunkan dengan label unik ("Hapus tautan 2"); fokus mengikuti baris dan perubahan diumumkan. Alamat wajib dan diawali `https://`, kecuali tautan privat (boleh kosong). Baris kosong dibuang saat simpan (`prepareLinks` di `projectLinks.js`). |
 | `MonthYearSelect` | `fieldset` + dua `select` berlabel "Bulan" dan "Tahun" seperti formulir lowongan kerja; `monthOptional` untuk prestasi. Dicek dengan `checkMonthYear` (setengah terisi → "Pilih tahunnya juga."). Disimpan sebagai tanggal 1 bulan itu. |
 | `ImageUpload`, `ImageField` | pratinjau, seret-lepas, "Pilih/Ganti gambar", "Batalkan pilihan", "Hapus gambar" untuk gambar tersimpan (+ "Batalkan hapus"), status "Mengecilkan gambar...", bentuk `wide` atau `square` (logo, ikon, foto profil). |
 | `PdfUpload` | nama file dan ukuran, "Pratinjau" (tab baru; file yang baru dipilih memakai object URL), "Ganti PDF", "Batalkan pilihan" / "Hapus PDF". |
@@ -110,7 +111,7 @@ Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2 ma
 | `SectionScreen`, `RowActions`, `SearchBox`, `NoMatches` | layar daftar ↔ form, skeleton, galat dengan "Coba lagi", empty state, dialog hapus; Ubah/Hapus berlabel unik; kolom cari. |
 | `Dialog`, `ConfirmDialog`, `ToastProvider`, `Alert`, `EmptyState`, `Skeleton` | seperti tahap 2. Toast naik di atas bar Batal/Simpan saat form terbuka (tidak menutupi tombol Simpan). |
 | `UnsavedChangesProvider`, `useUnsavedChanges`, `useFormScreen`, `useGuardedNav` | penjaga perubahan. `useFormScreen({ extraDirty })` ikut menghitung file yang dipilih; daftar dan objek dibandingkan isinya. |
-| `contentLabels.js`, `formValues.js`, `format.js`, `friendlyError.js` | daftar pilihan (status proyek, jenis, kategori sertifikat, jenis pengalaman, kategori keahlian, tingkat bahasa) dan `certificateValidity`; `nextSortOrder`, `bySortOrder`; `formatFileSize`, `formatMonthYear`, `formatPeriod`; pesan ramah untuk migrasi yang belum dijalankan, format dan ukuran file. |
+| `contentLabels.js`, `formValues.js`, `format.js`, `friendlyError.js`, `projectLinks.js` | daftar pilihan (status proyek, jenis proyek, jenis tautan, kategori sertifikat, jenis pengalaman, kategori keahlian, tingkat bahasa) dan `certificateValidity`; `nextSortOrder`, `bySortOrder`; `formatFileSize`, `formatMonthYear`, `formatPeriod`; pesan ramah untuk migrasi yang belum dijalankan, format dan ukuran file; tautan proyek: cek alamat, kolom lama, "Repo privat" otomatis, ringkasan daftar. |
 
 Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`), `pdfFile.js`
 (`checkPdfFile`), `storageUtils.js` (`extractStoragePath` untuk 7 folder, `uploadAsset`, `removeAssets`).
@@ -170,8 +171,21 @@ Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`
   (peran utama ≤60 karakter, maks. 2 peran pendukung, maks. 8 kata berganti); status ketersediaan; tautan
   (username GitHub otomatis dari tautan GitHub); pilihan topik pesan untuk formulir kontak.
 - **Proyek:** informasi utama; detail (status, jenis, tahun, klien, peran saya); studi kasus (masalah,
-  solusi, hasil; angka hanya dari data asli); teknologi sebagai daftar berurutan; tautan demo/kode dan
+  solusi, hasil; angka hanya dari data asli); teknologi sebagai daftar berurutan; **tautan proyek** dan
   "Repo privat"; gambar sampul dan galeri 5 screenshot berketerangan; tampil/unggulan.
+  - **Tautan proyek** (sejak 18 Oktober 2026, migrasi `20261018000000_project_links.sql`, kolom
+    `projects.links`): maks. 6 tautan lewat `LinkListInput`, mis. repo konsol web dan repo aplikasi mobile.
+    Menggantikan kolom tunggal "Tautan demo" dan "Tautan kode".
+  - **Kolom lama tetap diisi:** saat simpan, tautan pertama berjenis Kode yang tidak privat ditulis ke
+    `github_url`, dan tautan pertama berjenis Demo yang tidak privat ke `demo_url`; bila tidak ada, kolom itu
+    dikosongkan. Halaman publik sekarang masih membaca kedua kolom itu (sampai tahap 3).
+  - **"Repo privat"** tetap ada. Bila proyek punya tautan kode dan semuanya privat, kotak itu tercentang
+    otomatis dan terkunci ("Nyala otomatis karena semua tautan kode bersifat privat."); selain itu diatur
+    manual.
+  - Proyek yang belum punya `links` tetapi masih punya `github_url`/`demo_url` (mis. alamat `http://` yang
+    tidak disalin migrasi) dibuka dengan baris "Kode"/"Demo" dari kolom lama, jadi alamatnya tidak hilang
+    diam-diam; simpan meminta alamat `https://`.
+  - Daftar proyek menampilkan ringkasan "2 tautan · 2 privat" (menggantikan tautan Demo/Kode di meta).
 - **Keahlian:** 7 kategori tetap sebagai chip, tingkat dalam kata (angka dan persen ditolak), ikon 400 px,
   tampil/unggulan; daftar dikelompokkan per kategori dengan judul `h2`.
 - **Pengalaman:** jenis Magang/Kerja/Freelance/Organisasi; periode bulan/tahun + "Masih berjalan"; maks. 5 poin
@@ -198,6 +212,10 @@ Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`
     Jalankan file migrasi terbaru di Supabase, lalu muat ulang halaman.";
   - format/ukuran file ditolak Storage → "Format file tidak didukung…", "Ukuran file terlalu besar…";
   - data terhubung sudah hilang (23503) → "Data yang dihubungkan sudah tidak ada…".
+- Pesan galat tautan proyek (di bawah kolomnya): "Tulis nama tautan, misalnya Kode konsol web."; "Isi alamat
+  tautan, atau nyalakan Privat bila tautan ini tidak boleh dibuka publik."; "Pakai alamat yang diawali https://
+  (bukan http://)."; "Alamat tautan harus diawali https://, misalnya https://github.com/nama/proyek.";
+  "Alamat tautan tidak boleh berisi spasi."; "Alamat tautan belum lengkap. Contoh: https://github.com/nama/proyek."
 
 ## 8. Motion
 
@@ -265,10 +283,28 @@ Uji orientasi juga dijalankan pada kode sebelum koreksi: 16 kasus gagal di Chrom
 tersimpan miring), jadi uji ini memang menangkap masalahnya. Regresi login/publik tidak diulang karena koreksi
 hanya menyentuh admin dan migrasi. `npm run lint` 0 diagnostik, `npm run build` sukses.
 
+### Uji tautan proyek (18 Oktober 2026)
+
+| Uji | Hasil |
+|---|---|
+| Migrasi `20261018000000_project_links.sql` di PGlite: `BEGIN;` di baris pertama, hanya query cek setelah `COMMIT;`, tanpa RLS/policy, kolom lama tidak dihapus; salin `github_url`/`demo_url` (Kode lalu Demo, spasi dipangkas, alamat `http://` atau berspasi tidak disalin dan muncul di "catatan", proyek "Repo privat" → tautan kode privat); dijalankan 2× tanpa menyalin ulang atau menimpa tautan yang sudah diubah; 11 bentuk tautan diterima dan 24 ditolak (mis. 7 tautan, nama kosong/61 karakter, jenis lain, `http://`, tautan publik tanpa alamat); satu perintah gagal → tidak ada kolom atau constraint; tanpa migrasi 2B gagal tanpa perubahan | 61/61 |
+| Tautan proyek di admin (Supabase tiruan dengan aturan yang sama): ringkasan daftar, isi form dari data tersimpan, tambah (fokus ke nama, diumumkan), 6 alamat salah + nama kosong dengan pesan masing-masing dan fokus ke kolomnya, tautan privat tanpa alamat, sakelar dengan Space, urutkan (klik dan Enter, fokus tetap), hapus, baris kosong dibuang, sinkron `github_url`/`demo_url`, "Repo privat" otomatis lalu lepas lagi, hapus semua, batas 6, alamat lama dari kolom lama, proyek baru, gagal simpan, 4 lebar tanpa scroll samping, kontras, migrasi belum dijalankan | 97/97 |
+| Suite admin lama diulang (Navigasi, Profil, Proyek, Keahlian, Pengalaman, Pendidikan/Bahasa/Organisasi, Sertifikat/Prestasi, Beranda); suite Proyek kini mengisi tautan demo lewat daftar tautan | 734/734 |
+| Login dan publik vs `main` di 375/768/1024/1440 (publik juga setelah membuka admin): setiap elemen (computed style, teks, atribut, posisi, ukuran), teks halaman, tinggi, dan query Supabase identik | 61/61 |
+
+`npm run lint`: 0 diagnostik di `src/` (112 peringatan berasal dari skrip skill di `.claude/skills/impeccable/scripts`,
+sudah ada di `main`). `npm run build` sukses (peringatan ukuran chunk utama sudah ada di `main`).
+
 ## 11. Batasan yang diketahui
 
 - **Halaman publik belum membaca kolom baru** (tahap 3). Sakelar tampil/unggulan, CV PDF, galeri, dan lainnya
   sudah tersimpan tetapi belum terlihat di situs.
+- **Tautan proyek di situs:** sampai tahap 3 situs hanya menampilkan tautan kode dan demo publik pertama
+  (lewat `github_url`/`demo_url`). Tautan lain dan label tautan privat baru tampil setelah halaman publik
+  membaca `links`.
+- **Tautan privat bukan rahasia:** alamat tautan privat (bila diisi) tetap tersimpan di `links`, yang bisa
+  dibaca lewat API publik seperti kolom konten lain. Jangan isi alamat yang benar-benar rahasia.
+- **"Repo privat" manual** masih bisa dinyalakan walau ada tautan kode yang publik (tidak dicegah).
 - **`is_visible` bukan privasi:** RLS SELECT tabel konten tetap terbuka dan bucket publik, jadi data/file yang
   disembunyikan masih bisa dibaca lewat API atau URL-nya.
 - **Mengubah urutan tidak atomik:** satu langkah bisa memperbarui dua baris. Bila salah satu gagal, daftar

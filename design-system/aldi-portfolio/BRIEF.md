@@ -123,6 +123,15 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
   - tanpa scroll horizontal di halaman.
 - **Sumber logo** diputuskan di tahap 3. Tanyakan dulu sebelum menambah library atau CDN baru.
 
+### Tautan proyek
+- Satu proyek bisa punya beberapa tautan (maks. 6, kolom `projects.links`), misalnya repo konsol web
+  dan repo aplikasi mobile. Jenisnya: Kode, Demo, Dokumentasi, Video, Lainnya. Urutannya mengikuti
+  admin.
+- Tautan publik bisa diklik.
+- **Tautan privat tampil sebagai label yang tidak bisa diklik**, misalnya "Konsol web · repo privat".
+- Halaman publik tahap 3 membaca `links`. Kolom lama `github_url` dan `demo_url` hanya diisi admin
+  supaya halaman publik yang sekarang tetap bekerja.
+
 ## 6. Ayam dan bebek
 
 ### Kepribadian
