@@ -712,7 +712,7 @@ function AdminLoginPage() {
         <div className="admin-login-footer">
           <Link to="/" className="admin-login-back">
             <ArrowLeftIcon />
-            <span>Kembali ke beranda</span>
+            <span>Lihat situs</span>
           </Link>
         </div>
       </LoginCard>
