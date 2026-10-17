@@ -195,3 +195,6 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   `#B91C1C`, badge dan bar kartu 12 px, komponen baru "Chip pilihan" dan "Baris daftar disorot", aturan
   "The Left Line Rule" dan "The 12 px Floor Rule", serta do/don't soal `forced-colors` dan `aria-disabled`.
   `DESIGN.md` dan `MASTER.md` tidak diubah.
+- **Nomor 8, susulan:** uji akhir menemukan bahwa tanpa migrasi 2B (kolom `topic` belum ada) Pesan dan badge
+  belum dibaca ikut gagal dimuat. `useMessages` kini mencoba lagi tanpa `topic` bila kolom itu tidak ada, jadi
+  Kotak Masuk tetap jalan seperti sebelumnya. Uji skema lama: 3 pesan tampil, badge 2, tanpa galat.

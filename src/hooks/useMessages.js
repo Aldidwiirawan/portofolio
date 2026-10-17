@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
+const MESSAGE_COLUMNS = 'id, name, email, subject, message, is_read, created_at'
+
+const fetchMessages = (columns) =>
+  supabase.from('messages').select(columns).order('created_at', { ascending: false })
+
 /**
  * Custom Hook: useMessages
  * Provides access to public.messages table for authenticated admin.
@@ -31,11 +36,13 @@ export function useMessages() {
 
     async function loadMessages() {
       try {
-        const { data, error: queryError } = await supabase
-          .from('messages')
-          // topic: the visitor's choice from the contact form (migration 20261016000000)
-          .select('id, name, email, subject, topic, message, is_read, created_at')
-          .order('created_at', { ascending: false })
+        // topic: the visitor's choice from the contact form (migration 20261016000000). Until that
+        // migration has run the column is missing; the inbox then loads without it.
+        let result = await fetchMessages(`${MESSAGE_COLUMNS}, topic`)
+        if (result.error && /topic/.test(result.error.message || '')) {
+          result = await fetchMessages(MESSAGE_COLUMNS)
+        }
+        const { data, error: queryError } = result
 
         if (!isMounted) return
 
