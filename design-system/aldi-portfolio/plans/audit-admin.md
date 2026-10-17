@@ -36,7 +36,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
 - [x] 4. **P2 · Nomor 4:** catatan sementara di sakelar tampilan ("Berlaku setelah halaman publik
   diperbarui") sampai tahap 3 selesai.
 - [x] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
-- [ ] 6. **P2 · Nomor 6 dan 7:** keadaan terpilih terlihat di mode kontras tinggi; target sentuh 44 px.
+- [x] 6. **P2 · Nomor 6 dan 7:** keadaan terpilih terlihat di mode kontras tinggi; target sentuh 44 px.
 - [ ] 7. **P2 · Nomor 8:** topik pesan diambil dan ditampilkan di daftar dan detail Pesan.
 - [ ] 8. **P3 · Nomor 9, 10, 14, 15:** galat ListInput, gulir halus dihapus, tahun Pendidikan pakai pilihan,
   Beranda (h3, pengingat merah paling atas).
@@ -157,3 +157,10 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   `--ds-danger-text` (merah tua yang sama, red-700) pengganti `black`. Laci menu HP 18rem → 19rem supaya
   subjudul lockup 12 px muat di samping tombol tutup. Uji 75/75: teks terkecil ≥ 12 px di 12 halaman pada
   1440 dan 375 px, tanpa gulir samping, label kecil tidak terpotong.
+- **Nomor 6:** di `forced-colors` chip terpilih dan pilihan cepat yang aktif memakai latar `Highlight`, teks
+  `HighlightText` dan garis 2 px `Highlight` (`forced-color-adjust: none` supaya teksnya tidak tertutup
+  latar Canvas dari browser); garis fokus tetap terlihat (`CanvasText`).
+- **Nomor 7:** pada `pointer: coarse` tombol tutup toast/peringatan menjadi 44 × 44 px (margin negatif, tinggi
+  toast tetap), tautan jejak halaman dan "Batalkan hapus" mendapat area sentuh 44 px yang tidak terlihat.
+  Uji nomor 6–7: di `main` 6/13, di branch 13/13 (termasuk ketukan 20 px dari tengah tetap mengenai
+  tombol).

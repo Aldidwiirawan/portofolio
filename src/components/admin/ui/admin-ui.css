@@ -2175,6 +2175,32 @@ html:has(.adm-form-actions) .adm-toasts {
   .adm-icon-btn--sm {
     width: var(--ds-target-min);
   }
+
+  /* Tutup toast/peringatan: 44 px, margin negatif supaya tinggi toast tidak berubah */
+  .adm-toast-close,
+  .adm-alert-close {
+    width: var(--ds-target-min);
+    height: var(--ds-target-min);
+    margin: -0.625rem -0.5rem -0.625rem 0;
+  }
+
+  /* Tautan di dalam teks (jejak halaman, "Batalkan hapus"): area sentuh 44 px yang tidak terlihat */
+  .adm-breadcrumb-link,
+  .adm-link-btn {
+    position: relative;
+  }
+
+  .adm-breadcrumb-link::after,
+  .adm-link-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -0.25rem;
+    left: -0.25rem;
+    min-width: var(--ds-target-min);
+    height: var(--ds-target-min);
+    transform: translateY(-50%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2215,5 +2241,21 @@ html:has(.adm-form-actions) .adm-toasts {
   .adm-control::before,
   .adm-btn.is-success::before {
     display: none;
+  }
+
+  /* Pilihan terpilih: latar dan bayangan hilang di mode ini, jadi pakai warna sistem Highlight.
+     forced-color-adjust: none supaya browser tidak menaruh latar Canvas di belakang teksnya. */
+  .adm-choice-input:checked + .adm-choice-label,
+  .adm-quickpick[aria-pressed='true'] {
+    border: 2px solid Highlight;
+    background-color: Highlight;
+    color: HighlightText;
+    box-shadow: none;
+    forced-color-adjust: none;
+  }
+
+  .adm-choice-input:checked:focus-visible + .adm-choice-label,
+  .adm-quickpick[aria-pressed='true']:focus-visible {
+    outline-color: CanvasText;
   }
 }
