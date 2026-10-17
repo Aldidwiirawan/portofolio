@@ -157,7 +157,7 @@ function ProjectsScreen() {
         description={
           isEdit
             ? `Perbarui isi proyek "${editingProject.title}", lalu simpan.`
-            : 'Isi data proyek, lalu simpan. Proyek langsung tampil di halaman publik.'
+            : 'Isi data proyek, lalu simpan.'
         }
         breadcrumb={[{ label: 'Proyek', onClick: backToList }]}
         headingRef={headingRef}

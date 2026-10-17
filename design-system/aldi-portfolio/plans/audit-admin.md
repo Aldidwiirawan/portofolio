@@ -33,7 +33,7 @@ sama dengan pekerjaannya. Jangan mengulang pekerjaan yang sudah di-commit.
   mengambil nomor HP dan alamat lengkap; `AboutSection` tidak menampilkannya. Uji: tidak muncul di halaman
   publik maupun di request publik ke Supabase.
 - [x] 3. **P2 · Nomor 3:** fokus tidak hilang saat tombol/kolom terkunci ketika menyimpan.
-- [ ] 4. **P2 · Nomor 4:** catatan sementara di sakelar tampilan ("Berlaku setelah halaman publik
+- [x] 4. **P2 · Nomor 4:** catatan sementara di sakelar tampilan ("Berlaku setelah halaman publik
   diperbarui") sampai tahap 3 selesai.
 - [ ] 5. **P2 · Nomor 5 + P3 · Nomor 13:** teks minimal 12 px; ukuran 13 px dan `black` mentah diganti token.
 - [ ] 6. **P2 · Nomor 6 dan 7:** keadaan terpilih terlihat di mode kontras tinggi; target sentuh 44 px.
@@ -148,3 +148,7 @@ motion, menu 36 px di desktop, primitive `--palette-*` yang tercatat, tinta gela
   `aria-disabled` plus `readOnly` atau penjaga, bukan `disabled`. Di luar penyimpanan `disabled` tetap
   biasa. Tombol balasan Buku tamu memakai `softDisabled`. Uji: di `main` 8/16 (fokus jatuh ke `body`);
   di branch 16/16, termasuk simpan gagal (fokus tetap di kolom, kolom bisa diisi lagi).
+- **Nomor 4:** blok "Tampilan di halaman publik" di 8 form diberi catatan sementara "Berlaku setelah halaman
+  publik diperbarui. Sampai saat itu, semua data masih tampil seperti biasa." (kotak garis putus), terhubung
+  ke kedua sakelar lewat `aria-describedby`. Kalimat "Proyek langsung tampil di halaman publik." di form
+  Proyek dihapus. **Hapus catatan ini saat tahap 3 selesai** (`DisplaySettings` di `Switch.jsx`). Uji 18/18.

@@ -4,9 +4,9 @@ import { FormSection } from './Field'
 
 /**
  * On/off switch (role="switch", a native button: Space and Enter toggle it) with a visible title
- * and a description that can follow the state.
+ * and a description that can follow the state. `describedBy` adds the id of a note shown elsewhere.
  */
-export function Switch({ id, label, description, checked, onChange, disabled = false, onText = 'Ya', offText = 'Tidak' }) {
+export function Switch({ id, label, description, describedBy, checked, onChange, disabled = false, onText = 'Ya', offText = 'Tidak' }) {
   const autoId = useId()
   const base = id || autoId
   const labelId = `${base}-label`
@@ -31,7 +31,7 @@ export function Switch({ id, label, description, checked, onChange, disabled = f
         role="switch"
         aria-checked={Boolean(checked)}
         aria-labelledby={labelId}
-        aria-describedby={descId}
+        aria-describedby={[descId, describedBy].filter(Boolean).join(' ') || undefined}
         className="adm-switch"
         onClick={() => !lock.soft && onChange(!checked)}
         disabled={lock.hard || undefined}
@@ -51,6 +51,8 @@ export function Switch({ id, label, description, checked, onChange, disabled = f
 /**
  * "Tampilan di halaman publik" block of a content form: show/hide on the public site and, when the
  * content has it, the featured flag. Order is set with the Naik/Turun buttons in the list.
+ * Until stage 3 the public page does not read these switches yet, so a temporary note says so
+ * (remove it when stage 3 ships).
  */
 export function DisplaySettings({
   idPrefix,
@@ -62,10 +64,15 @@ export function DisplaySettings({
   featuredDescription,
   disabled = false,
 }) {
+  const noteId = `${idPrefix}-display-note`
   return (
     <FormSection title="Tampilan di halaman publik">
+      <p id={noteId} className="adm-display-note">
+        Berlaku setelah halaman publik diperbarui. Sampai saat itu, semua data masih tampil seperti biasa.
+      </p>
       <Switch
         id={`${idPrefix}-visible`}
+        describedBy={noteId}
         label="Tampil di halaman publik"
         description={
           visible
@@ -81,6 +88,7 @@ export function DisplaySettings({
           id={`${idPrefix}-featured`}
           label={featuredLabel}
           description={featuredDescription}
+          describedBy={noteId}
           checked={featured}
           onChange={onFeaturedChange}
           disabled={disabled}
