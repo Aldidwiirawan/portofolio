@@ -20,6 +20,15 @@ export const PROJECT_TYPES = [
   { value: 'other', label: 'Lainnya' },
 ]
 
+// Type of a project link (projects.links[].type)
+export const PROJECT_LINK_TYPES = [
+  { value: 'code', label: 'Kode' },
+  { value: 'demo', label: 'Demo' },
+  { value: 'docs', label: 'Dokumentasi' },
+  { value: 'video', label: 'Video' },
+  { value: 'other', label: 'Lainnya' },
+]
+
 export const CERTIFICATE_CATEGORIES = [
   { value: 'competency', label: 'Kompetensi' },
   { value: 'network', label: 'Jaringan' },

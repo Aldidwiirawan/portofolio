@@ -1154,6 +1154,68 @@ html:has(.adm) body {
   font-size: var(--ds-fs-xs);
 }
 
+/* Tautan proyek: setiap baris berisi nama, jenis, alamat, dan sakelar Privat */
+.adm-linklist-rows {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-linklist-row {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-4);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--adm-radius-control);
+  background-color: var(--ds-surface);
+}
+
+.adm-linklist-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.adm-linklist-title {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.adm-linklist-actions {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.adm-linklist-fields {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media (min-width: 640px) {
+  .adm-linklist-fields {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+
+  .adm-linklist-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.adm-linklist-private .adm-switch-row {
+  padding: var(--space-3);
+}
+
 /* Bentuk area unggah: kotak untuk logo, ikon, dan foto profil */
 @media (min-width: 640px) {
   .adm-upload--square.has-image {
