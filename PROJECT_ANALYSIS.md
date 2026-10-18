@@ -2,6 +2,10 @@
 
 Tanggal analisa: 14 Oktober 2026 · Branch: `chore/cleanup-analysis`
 
+> **Catatan 18 Oktober 2026:** halaman publik dibangun ulang di tahap 3A. Bagian dokumen ini tentang komponen
+> publik lama dan data cadangan `src/data/portfolioData.js` sudah tidak berlaku (keduanya dihapus); lihat
+> `design-system/aldi-portfolio/pages/public.md`.
+
 ## 1. Ringkasan project
 
 Website portofolio pribadi Aldi Dwi Irawan berupa SPA satu halaman untuk publik, ditambah panel admin

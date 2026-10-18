@@ -9,8 +9,8 @@
 **Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
 **Versi:** v1.2 · 16 Oktober 2026
 **Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode. Dipakai oleh
-`/admin/login` (tahap 1) dan seluruh panel admin `/admin/*` (tahap 2 dan 2B, lihat §14 dan
-`pages/admin.md`). Halaman publik (tahap 3) masih memakai token lama.
+`/admin/login` (tahap 1), seluruh panel admin `/admin/*` (tahap 2 dan 2B, lihat §14 dan
+`pages/admin.md`), dan halaman publik sejak tahap 3A (18 Oktober 2026, lihat §15 dan `pages/public.md`).
 **Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
 
 ### Asal-usul & kurasi
@@ -33,9 +33,9 @@ Dua arah ditawarkan: A "Blueprint" dan B "Studio" (teal + Space Grotesk/DM Sans)
 
 ## 1. Prinsip
 
-1. **Satu identitas, dua tema.** Halaman publik tetap gelap dan berkarakter (navy, gradien sky→emerald,
-   judul besar, aksen monospace). Login dan admin memakai tema **terang** untuk kerja yang tenang. Keduanya
-   memakai token yang sama.
+1. **Satu identitas, dua tema.** Halaman publik berkarakter (navy, gradien sky→emerald, judul besar, aksen
+   monospace) dan sejak tahap 3A mengikuti tema perangkat dengan tombol gelap/terang. Login dan admin memakai
+   tema **terang** untuk kerja yang tenang. Semuanya memakai token yang sama.
 2. **Token dulu.** Komponen hanya memakai token semantic `--ds-*`. Hex mentah dan `--palette-*` tidak dipakai
    langsung di komponen. Pengecualian yang terdokumentasi: warna latar `<html>` di halaman login.
 3. **Presisi, bukan dekorasi.** Grid titik/garis "blueprint" dan glow hanya di latar. Konten tetap bersih:
@@ -58,10 +58,12 @@ Component  --login-*, --adm-*  khusus komponen/halaman        → didefinisikan 
   - `[data-theme="light"]` → nilai terang.
 - **Tema boleh bersarang.** Contoh: panel brand gelap (`data-theme="dark"`) di dalam halaman login terang.
   Token semantic dideklarasikan ulang pada elemen ber-`data-theme`, jadi nilainya benar di setiap sub-pohon.
-- `color-scheme` hanya di-set pada `[data-theme]`, bukan di `:root`. Tujuannya agar scrollbar/kontrol
-  native halaman publik tidak berubah sebelum tahap 3.
-- **Token lama tetap hidup.** `--color-*`, `--shadow-*`, `--transition-*`, `--font-*` masih dipakai publik
-  dan admin. **Jangan hapus atau ganti namanya** sampai halaman yang memakainya dimigrasikan (lihat §9).
+- `color-scheme` hanya di-set pada `[data-theme]`, bukan di `:root`. Halaman publik mengatur latar dan
+  `color-scheme` `<html>` lewat `html[data-pub-theme]` (lihat `pages/public.md` §1).
+- **Token lama tetap hidup.** `--color-*`, `--shadow-*`, `--transition-*`, `--font-*` sejak tahap 3A hanya
+  dipakai gaya dasar global di `src/index.css` (`html`, `body`, `h1–h6`, `p`, `a`, `.btn`, `.badge`,
+  `.container`), yang masih menjadi dasar login/admin. **Jangan hapus atau ganti namanya** sebelum gaya dasar itu
+  dirapikan di akhir tahap 3 (lihat §9).
 
 ## 3. Warna
 
@@ -425,3 +427,22 @@ Detail lengkap: `pages/admin.md`. Strategi isi publik: `BRIEF.md` §9. Ringkasny
 - **Data:** hooks menerima `{ includeAdminFields: true }` untuk kolom tahap 2B (Profil:
   `includePrivateFields`); tanpa opsi itu query halaman publik sama persis dengan sebelumnya. Kolom baru
   ditambahkan lewat migrasi `20261016000000_admin_content_model.sql`, yang dijalankan pemilik project.
+
+## 15. Halaman publik (tahap 3A)
+
+Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3a-publik.md`. Ringkasnya:
+
+- **Kerangka:** `PublicLayout` (rute `/`, `/projects/:slug`, `*`) memasang `ThemeProvider`, `I18nProvider`, data
+  publik yang dimuat sekali (`usePublicPortfolio`), akar `.pub` ber-`data-theme`, tautan "Lewati ke konten",
+  kursor viewfinder, navbar, dan footer. Halaman detail, lightbox, panel buku tamu, dan logo teknologi dimuat saat
+  dibutuhkan.
+- **Tema:** mengikuti perangkat sampai pengunjung memilih (disimpan); skrip di `index.html` memasang
+  `data-pub-theme` sebelum render pertama hanya di luar `/admin`. **Bahasa:** ID bawaan, US sekali klik
+  (disimpan), kamus `src/i18n/`.
+- **CSS:** `src/components/public/public.css` (dimuat di `main.jsx` setelah `index.css`) + CSS per komponen,
+  semua diawali `.pub-*` / `:where(.pub)` / `html[data-pub-theme]` / `html:has(.pub)`. Token komponen `--pub-*`.
+  Pengecualian primitive: latar `<html>` per tema dan `--pub-logo-plate`.
+- **Komponen identitas yang dipakai:** `Logo`, `ViewfinderCursor`, `BlueprintBackground variant="busy"` (hero,
+  detail, 404). Komponen admin yang dipakai ulang tanpa diubah: `useFocusTrap`, `useScrollLock`.
+- **Data:** hook publik baru (kolom eksplisit, `is_visible = true`, `sort_order`); hook lama untuk admin tidak
+  berubah. Data cadangan `portfolioData.js` dihapus.

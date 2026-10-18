@@ -1,6 +1,6 @@
 # Rencana Tahap 3A — Halaman publik: struktur dan isi
 
-> **Status:** disetujui pemilik project 18 Oktober 2026 (K1–K10, dengan catatan di §6a); Langkah 2 berjalan ·
+> **Status:** selesai 18 Oktober 2026 (butir 1–15, hasil di §10), menunggu uji manual dan merge oleh pemilik ·
 > **Branch:** `feat/public-3a` (dari `main` 24d387f) · **Tanggal:** 18 Oktober 2026. Acuan: `BRIEF.md` (utama),
 > `MASTER.md`, `pages/public.md`, `DESIGN.md` (ringkasan), `PRODUCT.md`.
 
@@ -425,4 +425,52 @@ Semua usulan K1–K10 disetujui, dengan catatan:
 - [x] 12. Halaman detail proyek + 404
 - [x] 13. Bersihkan komponen dan CSS lama
 - [x] 14. Uji otomatis + perbaikan
-- [ ] 15. Dokumentasi (`pages/public.md`, `MASTER.md`, `PRODUCT.md`), uji manual, laporan
+- [x] 15. Dokumentasi (`pages/public.md`, `MASTER.md`, `PRODUCT.md`), uji manual, laporan
+
+---
+
+## 10. Hasil (18 Oktober 2026)
+
+**Uji otomatis** (Supabase tiruan berisi salinan data asli dari API publik, Chrome headless; skrip di scratchpad,
+tidak di-commit):
+
+| Suite | Hasil | Isi |
+|---|---|---|
+| Data | 41/41 | Semua query publik: kolom eksplisit, `is_visible = true`, `sort_order` lebih dulu; nomor HP, alamat, `user_id` tidak ada di query maupun DOM |
+| Sertifikat | 20/20 | Unggulan + "Lihat semua" (fokus ke sertifikat baru), skor/PDF/verifikasi, lightbox (fokus kembali, scroll terkunci), Prestasi/Organisasi hanya bila ada |
+| Kontak | 21/21 | Validasi per kolom + fokus, topik tersimpan di `messages.topic`, gagal kirim (isian tetap), CV di navbar/hero/kontak (K2), cadangan `resume_link` |
+| Buku tamu | 30/30 | Jumlah pesan, disematkan dulu, balasan, kirim, fokus terkunci, Esc kembali ke tombol (1440 dan 375) |
+| Detail | 33/33 | URL tautan privat tidak ada di DOM, `javascript:` dibuang, "Detail teknis" tertutup, galeri + lightbox, slug tidak ada / proyek tersembunyi → 404, kembali ke `/#proyek` |
+| Interaksi | 57/57 | Tema (ikut perangkat, tombol, tersimpan, tanpa kilatan), bahasa (teks, tanggal, label tersimpan diterjemahkan, isi DB tetap ID), tautan lewati, menu HP dengan keyboard, kata berganti + reduced motion, tabel kosong, tanpa profil, profil/proyek gagal + "Coba lagi", login tanpa `data-pub-theme` |
+| Baris keahlian | lulus | 56 keahlian terbaca sekali, salinan `aria-hidden`, baris di luar layar berhenti, tombol jeda, reduced motion diam tanpa salinan |
+| Sapuan | 496/496 | 375/768/1024/1440 × terang/gelap × ID/EN untuk beranda, 2 detail, 404: tanpa scroll samping, kontras teks ≥4,5:1 (terendah 5,11), satu h1, landmark, sampul tidak menimpa teks, tanpa galat |
+| Regresi login + admin | 149/149 | Dibandingkan dengan `main` per elemen (computed style, posisi, ukuran, teks, query): identik; satu-satunya beda adalah catatan sementara di blok "Tampilan di halaman publik" yang memang dihapus |
+
+Juga: `npm run lint` 0 diagnostik, `npm run build` berhasil. Bundle awal 546 → 565 kB (+5 kB gzip); halaman detail,
+lightbox, panel buku tamu, dan logo teknologi (23 kB gzip) dimuat terpisah. Tanpa scroll samping juga di 320 px.
+
+**Ditemukan dan diperbaiki saat uji:** tombol CV di navbar 1024 px (bahasa Inggris) melewati tepi kontainer;
+sampul kartu proyek di layar lebar melebar melewati kolomnya dan menutupi awal teks.
+
+**Screenshot** sebelum/sesudah: `C:\Users\acer\portofolio-screenshots\tahap-3a\` (tidak di-commit).
+
+### Uji manual untuk pemilik project
+
+Jalankan server Anda seperti biasa (`npm run dev`, port 5173), lalu:
+
+1. Buka `/` di HP dan komputer. Tema mengikuti perangkat; tombol matahari/bulan menggantinya dan pilihan tetap
+   setelah muat ulang. Tombol `ID | US` mengganti teks tampilan (isi dari admin tetap bahasa Indonesia).
+2. Menu HP (☰): buka, pilih "Keahlian", halaman turun ke bagian itu dan menu tertutup.
+3. **Unggah CV PDF** di Admin → Profil. Setelah itu "Unduh CV" muncul di navbar, hero, dan Kontak.
+4. Isi **Kata berganti** di Profil (mis. aplikasi web, aplikasi mobile, sistem informasi): baris "Membangun ▸ …"
+   muncul di hero.
+5. Isi **deskripsi singkat** Madura Mart dan Website Portofolio; unggah gambar sampul proyek bila ada.
+6. Klik kartu AyamBebek: tautan konsol web dan aplikasi mobile tampil sebagai label "repo privat" tanpa bisa
+   diklik. Buka SI-Arsip: galeri bisa diperbesar, "Detail teknis" tertutup dan bisa dibuka.
+7. Kirim pesan lewat formulir Kontak dengan topik, lalu cek Admin → Kotak Masuk (topik tampil).
+8. Isi buku tamu lewat tombol mengambang, lalu balas dari Admin → Buku tamu.
+9. Buka alamat yang tidak ada (mis. `/projects/tidak-ada`): muncul halaman 404.
+10. Sembunyikan satu proyek di admin: proyek itu hilang dari beranda dan alamat detailnya menjadi 404.
+11. Nyalakan "Kurangi gerakan" (reduce motion) di pengaturan perangkat: baris keahlian diam dan tersusun rapi.
+12. Login dan admin: tampilan sama seperti sebelumnya; blok "Tampilan di halaman publik" tidak lagi berisi
+    catatan sementara.

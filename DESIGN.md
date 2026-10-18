@@ -185,11 +185,11 @@ cetak biru, jalur sirkuit, bracket sudut, kursor viewfinder), sementara konten d
 berhierarki jelas, dan punya satu aksi utama per layar. Dekorasi tinggal di latar dan tidak pernah
 mengganggu isi, keyboard, atau pengguna yang mengurangi gerak.
 
-**Satu identitas, dua tema.** Halaman publik gelap dan berkarakter (navy, gradien sky ke emerald, judul besar,
+**Satu identitas, dua tema.** Halaman publik berkarakter (navy, gradien sky ke emerald, judul besar,
 aksen monospace). Login dan admin memakai tema terang untuk kerja yang tenang. Keduanya memakai token semantic
 yang sama (`--ds-*`), dipilih lewat atribut `data-theme` yang boleh bersarang (mis. sidebar admin dan panel
-brand login gelap di dalam halaman terang). Status saat ini: login dan seluruh admin sudah memakai Blueprint;
-halaman publik masih memakai token lama sampai tahap 3.
+brand login gelap di dalam halaman terang). Status saat ini: login, seluruh admin, dan halaman publik (sejak tahap 3A,
+mengikuti tema perangkat dengan tombol gelap/terang) memakai Blueprint.
 
 Identitasnya khas dan punya kepribadian: logo monogram stensil yang merakit diri, maskot robot **a+**, karakter
 ayam dan bebek, dan transisi jepret kamera. Semuanya diperlakukan sebagai komponen brand yang bisa dipakai ulang,

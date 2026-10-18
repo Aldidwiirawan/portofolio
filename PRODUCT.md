@@ -66,9 +66,10 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   Profil) dan buku tamu (tombol mengambang dengan jumlah pesan).
 - **Kerja admin:** 5 menu (Beranda; Tentang Saya; Karya & Keahlian; Rekam Jejak; Kotak Masuk) dengan sub-tab.
   Beranda memberi pengingat bila sesuatu yang dibutuhkan strategi isi belum ada.
-- **Status tahapan (17 Okt 2026):** tahap 1 (login) dan tahap 2/2B (admin) selesai. Pemilik masih harus
-  menjalankan migrasi `supabase/migrations/20261016000000_admin_content_model.sql` dan uji manual. Tahap 3
-  (publik, dipecah 3a/3b/3c) belum dikerjakan; halaman publik masih memakai token dan tampilan lama.
+- **Status tahapan (18 Okt 2026):** tahap 1 (login), 2/2B (admin), dan 3A (struktur dan isi halaman publik:
+  tema gelap/terang, ID/US, bar status, kata berganti, keahlian berjalan, detail proyek, buku tamu mengambang)
+  selesai di branch masing-masing; uji manual dan merge oleh pemilik. Tahap 3B (label fisika, suara, ayam dan
+  bebek, layar pembuka, robot a+) dan 3C (kolom versi Inggris, pengaturan label dari admin) belum dikerjakan.
 
 ## Capabilities and Constraints
 
@@ -89,7 +90,8 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 - **Layar uji wajib:** 375, 768, 1024, dan 1440 px tanpa scroll horizontal.
 - **Privasi:** alamat lengkap dan nomor HP tidak ditampilkan di publik, cukup kota (Kediri). `is_visible` hanya
   mengatur tampilan, **bukan privasi**: data dan file tetap terbaca lewat API dan URL publik.
-- **Data cadangan:** bila tabel di database kosong, halaman publik memakai `src/data/portfolioData.js`.
+- **Tanpa data cadangan (sejak 3A):** halaman publik hanya menampilkan data asli dari admin; bagian yang datanya
+  kosong disembunyikan, dan tabel yang gagal dimuat menampilkan pesan dengan "Coba lagi".
 - **Istilah:** bahasa sederhana tanpa istilah teknis. Contoh: Masuk (bukan Admin Login), Beranda (bukan
   Dashboard), Kelola isi (bukan CMS), Buku tamu (bukan Guestbook), Kata sandi (bukan Password), Ubah, Keluar,
   Unggulan, Gambar sampul.
@@ -97,7 +99,6 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   - background `calm` untuk admin masih bisa berubah;
   - transisi jepret setelah login masih bisa diganti;
   - robot a+ di footer dan panel buku tamu publik masih percobaan, bisa dihapus;
-  - tautan admin (ikon gembok) di footer publik belum diputuskan tetap ada atau tidak;
   - pemasangan Matter.js menunggu persetujuan.
 
 ## Brand Commitments
@@ -129,14 +130,14 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 - **Sertifikat:** TOEIC (berlaku Mei 2026–Mei 2028); Kompetensi Pemrograman Software Komputer, LSP Politeknik
   Negeri Malang (Okt 2025–Okt 2028); MikroTik MTCNA (Okt 2024–Okt 2027). **Pelatihan:** Cisco Networking Academy
   (Python Essentials, Operating Systems Basics, 2024).
-- **Sumber data:** Supabase (isi dari admin) dan cadangan statis `src/data/portfolioData.js`.
+- **Sumber data:** Supabase (isi dari admin). Data cadangan statis sudah dihapus di tahap 3A.
 - **Aset file:** `public/logo.svg`, `public/favicon.svg`, `apple-touch-icon.png`, `icon-512.png`,
   `design-system/aldi-portfolio/source/logo.jpeg`, pemeriksaan logo di
   `design-system/aldi-portfolio/screenshots/logo-check/`.
 - **Yang belum ada, jangan dikarang:**
   - angka hasil studi kasus: hanya dari data asli yang diisi pemilik; bila kosong, bagian angka tidak tampil;
-  - screenshot/gambar sampul proyek di data cadangan (`thumbnail_url` kosong) dan tautan demo (`#`);
-  - tautan LinkedIn asli di data cadangan (masih `https://linkedin.com`);
+  - per 18 Okt 2026 belum diisi di admin: file CV, kata berganti hero, deskripsi singkat Madura Mart dan Website
+    Portofolio, gambar sampul (hanya SI-Arsip), ikon keahlian, gambar sertifikat, dan logo pengalaman;
   - testimoni, klien tambahan, atau metrik pengunjung.
 
 ## Product Principles

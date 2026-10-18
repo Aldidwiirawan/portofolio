@@ -121,7 +121,9 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
   - salinan duplikat untuk efek berjalan diberi `aria-hidden`, sehingga pembaca layar hanya
     membaca satu daftar statis;
   - tanpa scroll horizontal di halaman.
-- **Sumber logo** diputuskan di tahap 3. Tanyakan dulu sebelum menambah library atau CDN baru.
+- **Sumber logo** (diputuskan pemilik 18 Oktober 2026, tahap 3A): ikon yang diunggah di admin lebih dulu,
+  lalu subset Simple Icons (CC0) yang disalin ke repo, lalu ikon umum per kategori. Tanpa library dan tanpa CDN.
+  Tanyakan dulu sebelum menambah library atau CDN baru.
 
 ### Tautan proyek
 - Satu proyek bisa punya beberapa tautan (maks. 6, kolom `projects.links`), misalnya repo konsol web
@@ -129,8 +131,8 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
   admin.
 - Tautan publik bisa diklik.
 - **Tautan privat tampil sebagai label yang tidak bisa diklik**, misalnya "Konsol web · repo privat".
-- Halaman publik tahap 3 membaca `links`. Kolom lama `github_url` dan `demo_url` hanya diisi admin
-  supaya halaman publik yang sekarang tetap bekerja.
+- Sejak tahap 3A halaman publik membaca `links`. Kolom lama `github_url` dan `demo_url` masih diisi admin,
+  tetapi tidak lagi dibaca halaman publik.
 
 ## 6. Ayam dan bebek
 
