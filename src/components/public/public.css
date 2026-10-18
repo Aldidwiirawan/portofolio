@@ -1,0 +1,533 @@
+/* ==========================================================================
+   HALAMAN PUBLIK — akar .pub, reset lokal, tata letak, dan komponen dasar
+   Acuan: design-system/aldi-portfolio/pages/public.md dan MASTER.md. Semua aturan diawali .pub /
+   :where(.pub) / html[data-pub-theme] / html:has(.pub), jadi tidak bocor ke login atau admin
+   walau stylesheet ini termuat di tab yang sama. Hanya token --ds-* (dan --pub-* di bawah).
+   ========================================================================== */
+
+/* Latar <html> dan scrollbar mengikuti tema publik. data-pub-theme dipasang skrip kecil di
+   index.html sebelum render pertama (mencegah kilatan) dan oleh ThemeProvider; dilepas saat keluar
+   dari halaman publik. Pengecualian terdokumentasi seperti latar login: <html> berada di luar
+   elemen ber-data-theme, jadi memakai primitive. */
+html[data-pub-theme='dark'] {
+  color-scheme: dark;
+  background-color: var(--palette-navy-950);
+}
+
+html[data-pub-theme='light'] {
+  color-scheme: light;
+  background-color: var(--palette-slate-75);
+}
+
+html[data-pub-theme] body {
+  background-color: transparent;
+}
+
+/* index.css memberi body dan #root overflow-x: hidden, yang membuat navbar sticky tidak menempel.
+   clip tetap memotong luapan horizontal tanpa membuat scroll container (pola yang sama di admin). */
+html:has(.pub) body,
+html:has(.pub) #root {
+  overflow-x: clip;
+}
+
+/* Navbar 64 px + jarak: section yang dituju tidak tertutup navbar */
+html:has(.pub) {
+  scroll-padding-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.pub) {
+    scroll-behavior: auto;
+  }
+}
+
+/* --- Akar dan token komponen ------------------------------------------- */
+
+.pub {
+  --pub-max: 75rem; /* 1200px */
+  --pub-gutter: var(--space-4);
+  --pub-nav-h: 4rem;
+  --pub-section-y: var(--space-16);
+  --pub-radius: 4px;
+  --pub-radius-card: var(--radius-sm);
+  --pub-tag-radius: 2px;
+  /* Bracket sudut (tag blueprint): 4 sudut dari 8 gradien, warna dari --pub-bracket */
+  --pub-bracket: currentColor;
+  --pub-bracket-len: 6px;
+  --pub-bracket-w: 1.5px;
+  --pub-brackets:
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) top left / var(--pub-bracket-len) var(--pub-bracket-w),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) top left / var(--pub-bracket-w) var(--pub-bracket-len),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) top right / var(--pub-bracket-len) var(--pub-bracket-w),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) top right / var(--pub-bracket-w) var(--pub-bracket-len),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom left / var(--pub-bracket-len) var(--pub-bracket-w),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom left / var(--pub-bracket-w) var(--pub-bracket-len),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom right / var(--pub-bracket-len) var(--pub-bracket-w),
+    linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom right / var(--pub-bracket-w) var(--pub-bracket-len);
+  /* Gradien nama di hero: sky → emerald di tema gelap; versi tinta (≥4.5:1) di tema terang */
+  --pub-name-from: var(--ds-brand-from);
+  --pub-name-to: var(--ds-brand-to);
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  background-color: var(--ds-canvas);
+  color: var(--ds-text);
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-fs-md);
+  line-height: var(--ds-lh-normal);
+}
+
+.pub[data-theme='light'] {
+  --pub-name-from: var(--ds-accent-text);
+  --pub-name-to: var(--ds-success-text);
+}
+
+@media (min-width: 768px) {
+  .pub {
+    --pub-gutter: var(--space-6);
+    --pub-section-y: var(--space-20);
+  }
+}
+
+@media (min-width: 1024px) {
+  .pub {
+    --pub-gutter: var(--space-8);
+    --pub-section-y: var(--space-24);
+  }
+}
+
+/* Reset lokal: aturan global index.css (h1–h6, p, a) memakai token lama. :where() menjaga
+   spesifisitas tetap rendah, jadi kelas komponen selalu menang. Setiap <a> publik memakai kelas
+   yang menetapkan warna dasar dan :hover-nya sendiri. */
+:where(.pub) :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  color: var(--ds-text-strong);
+  font-weight: var(--ds-fw-bold);
+  line-height: var(--ds-lh-tight);
+  letter-spacing: var(--ds-tracking-tight);
+  text-wrap: balance;
+}
+
+:where(.pub) p {
+  margin: 0;
+  color: inherit;
+}
+
+:where(.pub) a {
+  color: inherit;
+  text-decoration: none;
+  transition: none;
+}
+
+:where(.pub) a:hover {
+  color: inherit;
+}
+
+:where(.pub) :is(ul, ol) {
+  margin: 0;
+  padding: 0;
+}
+
+:where(.pub) :is(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+:where(.pub) img {
+  display: block;
+  max-width: 100%;
+}
+
+:where(.pub) ::selection {
+  background-color: var(--ds-accent);
+  color: var(--ds-on-accent);
+}
+
+/* Fokus keyboard: outline asli (terlihat juga di forced-colors) */
+.pub :focus-visible {
+  outline: var(--ds-focus-ring-width) solid var(--ds-focus-ring);
+  outline-offset: var(--ds-focus-ring-offset);
+}
+
+.pub :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Elemen yang difokuskan lewat kode (judul section, h1) tidak perlu cincin fokus */
+.pub [tabindex='-1']:focus {
+  outline: none;
+}
+
+/* --- Tata letak ---------------------------------------------------------- */
+
+.pub-main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.pub-container {
+  width: 100%;
+  max-width: calc(var(--pub-max) + var(--pub-gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--pub-gutter);
+}
+
+.pub-section {
+  padding-block: var(--pub-section-y);
+}
+
+.pub-section + .pub-section {
+  border-top: 1px solid var(--ds-border);
+}
+
+.pub-section-head {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 44rem;
+  margin-bottom: var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .pub-section-head {
+    margin-bottom: var(--space-12);
+  }
+}
+
+.pub-h2 {
+  font-size: clamp(1.875rem, 1.25rem + 2.2vw, 2.75rem);
+  font-weight: var(--ds-fw-heavy);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.pub-lead {
+  max-width: 62ch;
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-lg);
+  line-height: var(--ds-lh-relaxed);
+}
+
+/* --- Tag blueprint (label section, badge kecil) ---------------------------- */
+
+.pub-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  width: fit-content;
+  padding: 0.3rem 0.65rem;
+  background: var(--pub-brackets);
+  background-repeat: no-repeat;
+  color: var(--ds-accent-text);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.4;
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.45rem;
+  border-radius: var(--pub-tag-radius);
+  background-color: var(--ds-inset);
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pub[data-theme='dark'] .pub-badge {
+  background-color: var(--ds-surface-raised);
+}
+
+.pub .pub-badge--accent {
+  background-color: var(--ds-accent-subtle);
+  color: var(--ds-accent-text);
+}
+
+.pub .pub-badge--success {
+  background-color: var(--ds-success-bg);
+  color: var(--ds-success-text);
+}
+
+.pub .pub-badge--danger {
+  background-color: var(--ds-danger-bg);
+  color: var(--ds-danger-text);
+}
+
+/* Tag teknologi */
+.pub-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.pub-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0.125rem 0.55rem;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-tag-radius);
+  background-color: var(--ds-surface);
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  line-height: 1.4;
+}
+
+.pub-chip--more {
+  border-style: dashed;
+}
+
+/* --- Tombol dan tautan ---------------------------------------------------- */
+
+.pub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--ds-control-height);
+  padding: 0 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--pub-radius);
+  font-size: var(--ds-fs-md);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--ds-duration-fast) ease,
+    border-color var(--ds-duration-fast) ease,
+    color var(--ds-duration-fast) ease;
+}
+
+.pub-btn svg {
+  flex-shrink: 0;
+}
+
+.pub-btn--primary,
+.pub-btn--primary:hover {
+  color: var(--ds-on-accent);
+}
+
+.pub-btn--primary {
+  background-color: var(--ds-accent);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+.pub-btn--primary:hover {
+  background-color: var(--ds-accent-hover);
+}
+
+.pub-btn--secondary,
+.pub-btn--secondary:hover {
+  color: var(--ds-text-strong);
+}
+
+.pub-btn--secondary {
+  border-color: var(--ds-border-control);
+  background-color: color-mix(in srgb, var(--ds-surface) 70%, transparent);
+}
+
+.pub-btn--secondary:hover {
+  border-color: var(--ds-text-muted);
+  background-color: var(--ds-surface-raised);
+}
+
+.pub-btn--ghost,
+.pub-btn--ghost:hover {
+  color: var(--ds-text-strong);
+}
+
+.pub-btn--ghost:hover {
+  background-color: var(--ds-inset);
+}
+
+.pub-btn--sm {
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-btn:active {
+  transform: translateY(1px);
+}
+
+.pub-btn[aria-disabled='true'] {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+/* Tombol ikon 44 × 44 */
+.pub-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: var(--ds-target-min);
+  height: var(--ds-target-min);
+  padding: 0;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius);
+  background-color: transparent;
+  color: var(--ds-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--ds-duration-fast) ease,
+    border-color var(--ds-duration-fast) ease,
+    color var(--ds-duration-fast) ease;
+}
+
+.pub-icon-btn:hover {
+  border-color: var(--ds-border-control);
+  background-color: var(--ds-inset);
+  color: var(--ds-text-strong);
+}
+
+/* Tautan teks beraksen */
+.pub-link,
+.pub-link:hover {
+  color: var(--ds-accent-text);
+}
+
+.pub-link {
+  font-weight: var(--ds-fw-medium);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.pub-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Tautan dengan panah: garis bawah muncul saat hover */
+.pub-arrow-link,
+.pub-arrow-link:hover {
+  color: var(--ds-accent-text);
+}
+
+.pub-arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--ds-target-min);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-arrow-link svg {
+  transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.pub-arrow-link:hover span {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.pub-arrow-link:hover svg {
+  transform: translateX(3px);
+}
+
+/* --- Bantuan aksesibilitas ------------------------------------------------ */
+
+.pub-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pub-skip,
+.pub-skip:hover {
+  color: var(--ds-on-accent);
+}
+
+.pub-skip {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 300;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-accent);
+  font-weight: var(--ds-fw-semibold);
+  transform: translateY(-200%);
+}
+
+.pub-skip:focus-visible {
+  transform: none;
+}
+
+/* --- Keadaan memuat dan galat --------------------------------------------- */
+
+.pub-skeleton {
+  display: block;
+  border-radius: var(--pub-tag-radius);
+  background-color: var(--ds-border);
+  animation: pub-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pub-skeleton-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.pub-page-skeleton {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+  padding-block: var(--space-16);
+}
+
+.pub-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--ds-danger-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-danger-bg);
+  color: var(--ds-danger-text);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-notice > svg {
+  flex-shrink: 0;
+}
+
+.pub-notice p {
+  flex: 1 1 14rem;
+}
+
+/* Gerak dekoratif berhenti total saat reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .pub-skeleton {
+    animation: none;
+  }
+
+  .pub-btn:active {
+    transform: none;
+  }
+}

@@ -1007,17 +1007,6 @@ html:has(.adm) body {
   text-align: left;
 }
 
-/* Catatan sementara di blok tampilan (sampai halaman publik tahap 3 membaca sakelar) */
-.adm-display-note {
-  margin: 0;
-  padding: var(--space-2) var(--space-3);
-  border: 1px dashed var(--ds-border-control);
-  border-radius: var(--adm-radius);
-  color: var(--ds-text-muted);
-  font-size: var(--ds-fs-sm);
-  line-height: var(--ds-lh-normal);
-}
-
 .adm-switch:disabled,
 .adm-switch[aria-disabled='true'] {
   cursor: not-allowed;

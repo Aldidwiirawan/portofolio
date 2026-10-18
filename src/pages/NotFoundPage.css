@@ -1,0 +1,30 @@
+/* Halaman 404 (alamat tidak dikenal dan proyek yang tidak ada / disembunyikan) */
+
+.pub-notfound {
+  position: relative;
+  isolation: isolate;
+  flex: 1 0 auto;
+  display: grid;
+  align-items: center;
+  min-height: min(40rem, 80vh);
+  padding-block: var(--space-16);
+  overflow: hidden;
+}
+
+.pub-notfound-inner {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-5);
+}
+
+.pub-notfound-title {
+  max-width: 18ch;
+  font-size: clamp(2.25rem, 1.5rem + 3vw, 4rem);
+  font-weight: var(--ds-fw-heavy);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.pub-notfound .pub-btn {
+  margin-top: var(--space-3);
+}

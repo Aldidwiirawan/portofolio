@@ -1,8 +1,8 @@
 # Rencana Tahap 3A — Halaman publik: struktur dan isi
 
-> **Status:** menunggu persetujuan pemilik project (Langkah 1) · **Branch:** `feat/public-3a` (dari `main`
-> 24d387f) · **Tanggal:** 18 Oktober 2026. Acuan: `BRIEF.md` (utama), `MASTER.md`, `pages/public.md`,
-> `DESIGN.md` (ringkasan), `PRODUCT.md`.
+> **Status:** disetujui pemilik project 18 Oktober 2026 (K1–K10, dengan catatan di §6a); Langkah 2 berjalan ·
+> **Branch:** `feat/public-3a` (dari `main` 24d387f) · **Tanggal:** 18 Oktober 2026. Acuan: `BRIEF.md` (utama),
+> `MASTER.md`, `pages/public.md`, `DESIGN.md` (ringkasan), `PRODUCT.md`.
 
 **Cara melanjutkan bila konteks terputus:** baca file ini, cek `git status` dan `git log --oneline -5`, lalu
 kerjakan butir pertama yang belum dicentang di §9 "Urutan commit". Setiap butir dicentang di commit yang sama
@@ -283,7 +283,7 @@ Isi konten dari database tetap bahasa Indonesia sampai 3c. Daftar lengkap ada di
 | `status.location` / `status.today` | Lokasi / Hari ini | Location / Today |
 | `about.title` · `about.education` · `about.languages` · `about.basedIn` · `about.hobbies` · `about.gpa` · `about.photoAlt` | Tentang saya · Pendidikan · Bahasa · Domisili · Hobi · IPK {gpa} · Foto {name} | About me · Education · Languages · Based in · Hobbies · GPA {gpa} · Photo of {name} |
 | `projects.title` · `projects.intro` · `projects.others` · `projects.detail` · `projects.moreTech` · `projects.client` | Proyek unggulan · Studi kasus dari pekerjaan nyata. · Proyek lainnya · Lihat detail · +{n} · Klien | Featured projects · Case studies from real work. · Other projects · View details · +{n} · Client |
-| `detail.back` · `detail.myRole` · `detail.problem` · `detail.solution` · `detail.outcome` · `detail.gallery` · `detail.tech` · `detail.links` · `detail.fullStory` | Kembali ke proyek · Peran saya · Masalah · Solusi · Hasil · Galeri · Teknologi · Tautan proyek · Penjelasan lengkap | Back to projects · My role · Problem · Solution · Outcome · Gallery · Technologies · Project links · Full write-up |
+| `detail.back` · `detail.myRole` · `detail.problem` · `detail.solution` · `detail.outcome` · `detail.gallery` · `detail.tech` · `detail.links` · `detail.technical` | Kembali ke proyek · Peran saya · Masalah · Solusi · Hasil · Galeri · Teknologi · Tautan proyek · Detail teknis | Back to projects · My role · Problem · Solution · Outcome · Gallery · Technologies · Project links · Technical details |
 | `detail.repoPrivate` / `detail.private` / `detail.builtDuring` | repo privat / privat / Dikerjakan saat {jenis} di {instansi} | private repo / private / Built during my {type} at {company} |
 | `lightbox.label` · `lightbox.counter` · `lightbox.prev` · `lightbox.next` · `lightbox.open` | Penampil gambar · {n} dari {total} · Sebelumnya · Berikutnya · Perbesar gambar | Image viewer · {n} of {total} · Previous · Next · Enlarge image |
 | `skills.title` · `skills.intro` · `skills.pause` · `skills.play` · `skills.featured` · `skills.count` | Keahlian · … · Hentikan gerak · Jalankan lagi · unggulan · {n} keahlian | Skills · … · Pause motion · Resume motion · featured · {n} skills |
@@ -360,6 +360,16 @@ dipertahankan.
 **K10. Bahasa bawaan Indonesia** (tidak mengikuti bahasa browser); format tanggal EN gaya US. Hobi tetap tampil
 kecil di Tentang. Navbar desktop punya tombol "Unduh CV" (bila CV ada).
 
+## 6a. Jawaban pemilik project (18 Oktober 2026)
+
+Semua usulan K1–K10 disetujui, dengan catatan:
+
+- **K1:** pilihan A (subset Simple Icons di repo). Ikon yang diunggah di admin (`icon_url`) tetap dipakai lebih
+  dulu daripada logo bawaan.
+- **K2:** selain di hero dan navbar, tombol "Unduh CV" juga muncul di section Kontak begitu CV diunggah.
+- **K8:** bagian `content` di halaman detail berjudul **"Detail teknis"** (EN "Technical details") dan
+  **tertutup secara bawaan**. Kunci `detail.fullStory` diganti `detail.technical`.
+
 ---
 
 ## 7. Hal teknis yang sudah diputuskan
@@ -399,7 +409,7 @@ kecil di Tentang. Navbar desktop punya tombol "Unduh CV" (bila CV ada).
 ## 9. Urutan commit
 
 - [x] 0. Rencana ini (`plans/tahap-3a-publik.md`)
-- [ ] 1. Fondasi: lint abaikan `.claude/`, hapus catatan sementara `DisplaySettings`, akar `.pub` + tema
+- [x] 1. Fondasi: lint abaikan `.claude/`, hapus catatan sementara `DisplaySettings`, akar `.pub` + tema
       (provider, tombol, skrip anti-kilatan), i18n (provider, kamus ID/EN, format tanggal), rute
       `/projects/:slug` dan 404 (kerangka)
 - [ ] 2. Data: `usePublicPortfolio` + `usePublicProject`; hapus `portfolioData.js` dan logika cadangan

@@ -1,9 +1,14 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import PublicPortfolioPage from './pages/PublicPortfolioPage'
+import NotFoundPage from './pages/NotFoundPage'
+import PublicLayout from './components/public/PublicLayout'
 import AdminRoute from './components/admin/AdminRoute'
 import ShutterProvider from './components/effects/ShutterTransition'
 import './App.css'
+
+// Public pages loaded on demand (inside PublicLayout, which shows its own loading state)
+const ProjectDetailPage = lazy(() => import('./pages/ProjectDetailPage'))
 
 // Lazy load admin pages for clean code splitting and smaller initial bundle size
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'))
@@ -172,8 +177,11 @@ function App() {
             }
           />
 
-          {/* Fallback Catch-All Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Public pages sharing one frame: project detail and the 404 page for unknown addresses */}
+          <Route element={<PublicLayout />}>
+            <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Routes>
       </Suspense>
       </ShutterProvider>

@@ -6,7 +6,28 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aldi Dwi Irawan | Portfolio</title>
+    <meta name="description" content="Portofolio Aldi Dwi Irawan: proyek, keahlian, pengalaman, dan kontak." />
+    <title>Aldi Dwi Irawan · Portofolio</title>
+    <script>
+      // Public pages only: apply the saved (or device) theme and language before the first render, so
+      // the page does not flash in the wrong theme. Login and admin (/admin…) are left untouched.
+      // Keys: THEME_STORAGE_KEY (ThemeProvider.jsx) and LANGUAGE_STORAGE_KEY (I18nProvider.jsx).
+      (function () {
+        if (/^\/admin(\/|$)/.test(location.pathname)) return
+        var root = document.documentElement
+        var theme = null
+        var lang = null
+        try {
+          theme = localStorage.getItem('aldi-portfolio-theme')
+          lang = localStorage.getItem('aldi-portfolio-lang')
+        } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        root.setAttribute('data-pub-theme', theme)
+        if (lang === 'en') root.lang = 'en'
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
