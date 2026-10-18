@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Logo from '../../brand/Logo'
 import { prefersReducedMotion } from '../../../lib/useMediaQuery'
 import { readStorage, writeStorage } from '../../../lib/safeStorage'
@@ -7,10 +7,13 @@ import './IntroScreen.css'
 
 const INTRO_STORAGE_KEY = 'aldi-portfolio-intro'
 const LOGO_SIZE = 116 // trimmed logo: a multiple of 58 px is sharp, and 116 → 29 (navbar) is exactly ¼
-const ASSEMBLE_MS = 720 // Logo assemble is 600 ms + 7 × 25 ms stagger; the last piece is nearly home by then
-const FLY_MS = 260
+// The timeline itself is CSS (IntroScreen.css): assemble 0–720 ms, fly and fade 720–980 ms
+const TOTAL_MS = 980
 const LEAVE_MS = 160
 const SKIP_EVENTS = ['pointerdown', 'keydown', 'wheel', 'touchstart']
+// A page that took this long to show up (slow phone or connection) goes straight to the content: the
+// visitor has waited enough
+const LATE_START_MS = 1500
 const CORNERS = [
   ['tl', -1, -1],
   ['tr', 1, -1],
@@ -18,9 +21,13 @@ const CORNERS = [
   ['br', 1, 1],
 ]
 
-/** First public page of this browser session, motion allowed and the tab visible (not a background tab). */
+/**
+ * First public page of this browser session, motion allowed, the tab visible (not a background tab) and
+ * the page ready quickly enough.
+ */
 function shouldPlay() {
   if (typeof document === 'undefined' || document.visibilityState !== 'visible') return false
+  if (performance.now() > LATE_START_MS) return false
   if (prefersReducedMotion()) return false
   return readStorage(INTRO_STORAGE_KEY, 'session') !== '1'
 }
@@ -28,16 +35,34 @@ function shouldPlay() {
 /**
  * Opening screen (BRIEF §5): the logo assembles itself in the middle of the screen while brackets close
  * in from the corners, then it flies into the navbar logo as the screen fades (about 1 s). Only on the
- * first public page of a browser session; skipped with reduced motion or in a background tab. The page
- * loads and renders underneath the whole time; a click, tap, key or wheel ends the intro at once (Tab
- * still moves focus). Decorative: aria-hidden and never focusable.
+ * first public page of a browser session; skipped with reduced motion, in a background tab, or when the
+ * page took more than 1.5 s to show up (slow device or connection). The page loads and renders
+ * underneath the whole time. The timeline runs as CSS animations of transform and opacity, so the
+ * screen clears on time even while the device is busy rendering the page. A click, tap, key or wheel
+ * ends it at once (Tab still moves focus). Decorative: aria-hidden and never focusable.
  */
 function IntroScreen() {
-  const [phase, setPhase] = useState(() => (shouldPlay() ? 'assemble' : 'done')) // assemble | fly | leave | done
-  const [fly, setFly] = useState(null)
+  const [phase, setPhase] = useState(() => (shouldPlay() ? 'play' : 'done')) // play | leave | done
+  const rootRef = useRef(null)
   const logoRef = useRef(null)
   const playedRef = useRef(phase !== 'done')
   const playing = phase !== 'done'
+
+  // Where the navbar logo is, measured once before the first paint: the CSS fly lands there
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    const from = logoRef.current?.getBoundingClientRect()
+    const to = document.querySelector('.pub-nav-brand .brand-logo')?.getBoundingClientRect()
+    if (!root || !from || !to || to.width === 0) return
+    root.style.setProperty('--fly-x', `${to.left + to.width / 2 - (from.left + from.width / 2)}px`)
+    root.style.setProperty('--fly-y', `${to.top + to.height / 2 - (from.top + from.height / 2)}px`)
+    root.style.setProperty('--fly-s', String(to.width / from.width))
+  }, [])
+
+  // Remember for this session as soon as it starts (a reload during the intro does not replay it)
+  useEffect(() => {
+    if (playing) writeStorage(INTRO_STORAGE_KEY, '1', 'session')
+  }, [playing])
 
   // Tell the decorative pieces waiting for the intro (physics labels) that the page is now in view
   useEffect(() => {
@@ -47,41 +72,16 @@ function IntroScreen() {
     }
   }, [phase])
 
-  // Remember for this session as soon as it starts (a reload during the intro does not replay it)
+  // The fly ends on animationend (below); these timers are the fallback and the end of a skip
   useEffect(() => {
-    if (playing) writeStorage(INTRO_STORAGE_KEY, '1', 'session')
-  }, [playing])
-
-  // Timeline: assemble → fly into the navbar logo → done
-  useEffect(() => {
-    if (phase === 'assemble') {
-      const timer = setTimeout(() => {
-        const from = logoRef.current?.getBoundingClientRect()
-        const to = document.querySelector('.pub-nav-brand .brand-logo')?.getBoundingClientRect()
-        if (from && to && to.width > 0) {
-          setFly({
-            x: to.left + to.width / 2 - (from.left + from.width / 2),
-            y: to.top + to.height / 2 - (from.top + from.height / 2),
-            scale: to.width / from.width,
-          })
-          setPhase('fly')
-        } else {
-          setPhase('leave')
-        }
-      }, ASSEMBLE_MS)
-      return () => clearTimeout(timer)
-    }
-    if (phase === 'fly' || phase === 'leave') {
-      // The fly ends on transitionend (below); this is only the fallback
-      const timer = setTimeout(() => setPhase('done'), phase === 'fly' ? FLY_MS + 200 : LEAVE_MS)
-      return () => clearTimeout(timer)
-    }
-    return undefined
+    if (phase === 'done') return undefined
+    const timer = setTimeout(() => setPhase('done'), phase === 'play' ? TOTAL_MS + 400 : LEAVE_MS)
+    return () => clearTimeout(timer)
   }, [phase])
 
   // Any click, tap, key or wheel skips it; a tab switch ends it
   useEffect(() => {
-    if (phase !== 'assemble') return undefined
+    if (phase !== 'play') return undefined
     const skip = () => setPhase('leave')
     const onVisibility = () => {
       if (document.hidden) setPhase('done')
@@ -97,15 +97,14 @@ function IntroScreen() {
   if (!playing) return null
 
   return (
-    <div className="pub-intro" data-phase={phase} aria-hidden="true">
+    <div ref={rootRef} className="pub-intro" data-phase={phase} aria-hidden="true">
       <div className="pub-intro-backdrop" />
       <div
         ref={logoRef}
         className="pub-intro-logo"
-        style={fly ? { transform: `translate(${fly.x}px, ${fly.y}px) scale(${fly.scale})` } : undefined}
-        onTransitionEnd={(event) => {
-          // Landed exactly on the navbar logo: the overlay goes, the navbar logo stays
-          if (phase === 'fly' && event.target === event.currentTarget && event.propertyName === 'transform') setPhase('done')
+        onAnimationEnd={(event) => {
+          // Landed on the navbar logo: the overlay goes, the navbar logo stays
+          if (event.target === event.currentTarget && event.animationName === 'pub-intro-fly') setPhase('done')
         }}
       >
         <Logo size={LOGO_SIZE} trim assemble />

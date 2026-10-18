@@ -1,37 +1,55 @@
-/* Layar pembuka (3B): logo merakit diri lalu terbang ke logo navbar. Hanya transform dan opacity. */
+/* Layar pembuka (3B): logo merakit diri (0–720 ms), lalu terbang ke logo navbar sambil layar memudar
+   (720–980 ms). Lini waktunya animasi CSS transform/opacity pada elemen HTML, jadi tetap tepat waktu
+   walaupun perangkat sedang sibuk merender halaman. --fly-x/--fly-y/--fly-s diisi IntroScreen.jsx. */
 
 .pub-intro {
   --pub-intro-gap: 78px; /* setengah logo (58 px) + 20 px udara */
+  --pub-intro-hold: 720ms;
+  --pub-intro-fly: 260ms;
   position: fixed;
   inset: 0;
   z-index: 400;
   display: grid;
   place-items: center;
+  /* Menangkap klik selama logo merakit (klik = lewati); setelah itu halaman langsung bisa dipakai */
+  animation: pub-intro-release 1ms linear var(--pub-intro-hold) both;
 }
 
-.pub-intro[data-phase='fly'],
-.pub-intro[data-phase='leave'] {
-  pointer-events: none;
+@keyframes pub-intro-release {
+  to {
+    pointer-events: none;
+  }
 }
 
 .pub-intro-backdrop {
   position: absolute;
   inset: 0;
   background-color: var(--ds-canvas);
-  transition: opacity 260ms var(--ds-ease-in-out);
+  animation: pub-intro-fade var(--pub-intro-fly) var(--ds-ease-in-out) var(--pub-intro-hold) both;
 }
 
-.pub-intro[data-phase='fly'] .pub-intro-backdrop {
-  opacity: 0;
+@keyframes pub-intro-fade {
+  to {
+    opacity: 0;
+  }
 }
 
 .pub-intro-logo {
   position: relative;
   color: var(--ds-accent-text);
   transform-origin: center;
-  transition:
-    transform 260ms var(--ds-ease-in-out),
-    opacity 160ms linear;
+  animation: pub-intro-fly var(--pub-intro-fly) var(--ds-ease-in-out) var(--pub-intro-hold) both;
+}
+
+/* Mendarat tepat di logo navbar (warna sama), lalu memudar sehingga yang tersisa logo navbar asli */
+@keyframes pub-intro-fly {
+  80% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--fly-x, 0px), var(--fly-y, 0px)) scale(var(--fly-s, 0.6));
+  }
 }
 
 /* Bracket dari sudut layar menyempit ke sekitar logo, seperti jendela bidik */
@@ -43,8 +61,9 @@
   height: 16px;
   margin: -8px 0 0 -8px;
   border: 0 solid var(--ds-accent-text);
-  animation: pub-intro-close 460ms var(--ds-ease-out) both;
-  transition: opacity 160ms linear;
+  animation:
+    pub-intro-close 460ms var(--ds-ease-out) both,
+    pub-intro-fade 160ms linear var(--pub-intro-hold) forwards;
 }
 
 .pub-intro-corner--tl { border-top-width: 2px; border-left-width: 2px; }
@@ -63,14 +82,10 @@
   }
 }
 
-.pub-intro[data-phase='fly'] .pub-intro-corner,
-.pub-intro[data-phase='leave'] .pub-intro-corner {
-  opacity: 0;
-}
-
 /* Dilewati (klik, tombol, roda): semuanya memudar cepat */
 .pub-intro[data-phase='leave'] {
   opacity: 0;
+  pointer-events: none;
   transition: opacity 160ms linear;
 }
 
