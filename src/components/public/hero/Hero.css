@@ -1,0 +1,366 @@
+/* Hero beranda, panggung label (ruang label fisika 3B) dan bar status */
+
+.pub-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--pub-nav-h));
+  min-height: calc(100svh - var(--pub-nav-h));
+  overflow: hidden;
+}
+
+@media (min-height: 1100px) {
+  .pub-hero {
+    min-height: 60rem;
+  }
+}
+
+.pub-hero-grid {
+  flex: 1 0 auto;
+  display: grid;
+  align-items: center;
+  gap: var(--space-10);
+  padding-block: var(--space-10) var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .pub-hero-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: var(--space-16);
+    padding-block: var(--space-16);
+  }
+}
+
+.pub-hero-copy {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.pub .pub-hero-available {
+  color: var(--ds-success-text);
+}
+
+/* Nama raksasa: gradien sky → emerald (gelap) / tinta biru → hijau (terang), keduanya ≥4.5:1 */
+.pub-hero-name {
+  max-width: 100%;
+  margin-block: var(--space-1);
+  padding-bottom: 0.04em;
+  background-image: linear-gradient(100deg, var(--pub-name-from) 10%, var(--pub-name-to) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(3.25rem, 1rem + 6.6vw, 7rem);
+  font-weight: var(--ds-fw-heavy);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.pub-hero-role {
+  color: var(--ds-text-strong);
+  font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+  font-weight: var(--ds-fw-semibold);
+  letter-spacing: -0.01em;
+  line-height: var(--ds-lh-snug);
+}
+
+.pub-hero-also {
+  margin-top: calc(var(--space-3) * -1);
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-hero-also span {
+  color: var(--ds-text-subtle);
+}
+
+/* Kata berganti */
+.pub-hero-keywords {
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-md);
+}
+
+.pub-hero-keywords-visual {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+}
+
+.pub-hero-keywords-lead {
+  color: var(--ds-text-muted);
+}
+
+.pub-hero-keywords-caret {
+  color: var(--ds-accent-text);
+}
+
+.pub-hero-keywords-word {
+  color: var(--ds-text-strong);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-hero-keywords-word--enter {
+  display: inline-block;
+  animation: pub-keyword-in var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+@keyframes pub-keyword-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+  }
+}
+
+.pub-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 479px) {
+  .pub-hero-actions {
+    display: grid;
+    width: 100%;
+  }
+}
+
+.pub-hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+  list-style: none;
+}
+
+.pub-hero-link,
+.pub-hero-link:hover {
+  color: var(--ds-text-strong);
+}
+
+.pub-hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--ds-target-min);
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+  transition: color var(--ds-duration-fast) ease;
+}
+
+.pub-hero-link:hover span:first-of-type {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.pub-hero-skeleton {
+  display: grid;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+/* Titik status "Siap bekerja": cincin yang membesar dan memudar (transform + opacity) */
+.pub-dot {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--ds-success-text);
+}
+
+.pub-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: var(--ds-success-text);
+  animation: pub-dot-ping 2.4s var(--ds-ease-out) infinite;
+}
+
+@keyframes pub-dot-ping {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+/* --- Panggung label -------------------------------------------------------- */
+
+.pub-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 13rem;
+  padding: var(--space-4);
+  border: 1px solid var(--ds-border);
+  background-color: color-mix(in srgb, var(--ds-surface) 55%, transparent);
+}
+
+.pub-stage::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  --pub-bracket: var(--ds-accent-text);
+  --pub-bracket-len: 14px;
+  --pub-bracket-w: 2px;
+  background: var(--pub-brackets);
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .pub-stage {
+    min-height: 26rem;
+    padding: var(--space-5);
+  }
+}
+
+.pub-stage-caption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pub-stage-caption::before {
+  content: '';
+  width: 0.375rem;
+  height: 0.375rem;
+  background-color: var(--ds-accent-text);
+}
+
+/* Tumpukan label: baris disusun dari bawah (wrap-reverse), seperti label yang jatuh */
+.pub-stage-pile {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-top: var(--space-6);
+}
+
+.pub-stage-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--ds-border-control);
+  background-color: var(--ds-surface);
+  box-shadow: var(--ds-shadow-sm);
+  color: var(--ds-text-strong);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+  white-space: nowrap;
+  transform: rotate(var(--tilt, 0deg));
+}
+
+.pub-stage-label::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  --pub-bracket: var(--ds-accent-text);
+  --pub-bracket-len: 5px;
+  --pub-bracket-w: 1.5px;
+  background: var(--pub-brackets);
+  background-repeat: no-repeat;
+}
+
+.pub-stage-orb {
+  display: inline-grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1.5px solid var(--ds-accent-text);
+  border-radius: 50%;
+  background-color: var(--ds-accent-subtle);
+  color: var(--ds-accent-text);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-lg);
+  font-weight: var(--ds-fw-bold);
+  transform: rotate(var(--tilt, 0deg));
+}
+
+@media (min-width: 1024px) {
+  .pub-stage-pile {
+    gap: var(--space-3) var(--space-2);
+  }
+
+  .pub-stage-label {
+    min-height: 3rem;
+    padding: 0 var(--space-5);
+    font-size: var(--ds-fs-md);
+  }
+
+  .pub-stage-orb {
+    width: 4rem;
+    height: 4rem;
+    font-size: var(--ds-fs-xl);
+  }
+}
+
+/* HP: paling banyak 6 label */
+@media (max-width: 767px) {
+  .pub-stage-label[data-extra='true'] {
+    display: none;
+  }
+}
+
+/* --- Bar status ------------------------------------------------------------- */
+
+.pub-statusbar {
+  border-top: 1px solid var(--ds-border);
+  background-color: color-mix(in srgb, var(--ds-canvas) 75%, transparent);
+}
+
+.pub-statusbar-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  min-height: 3.5rem;
+  padding-block: var(--space-3);
+  list-style: none;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-statusbar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pub-statusbar-item svg {
+  color: var(--ds-text-subtle);
+}
+
+.pub-statusbar-item--available {
+  color: var(--ds-success-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-dot::after,
+  .pub-hero-keywords-word--enter {
+    animation: none;
+  }
+}

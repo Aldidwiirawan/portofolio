@@ -414,7 +414,7 @@ Semua usulan K1–K10 disetujui, dengan catatan:
       `/projects/:slug` dan 404 (kerangka)
 - [x] 2. Data: `usePublicPortfolio` + `usePublicProject`; hapus `portfolioData.js` dan logika cadangan
 - [x] 3. Kerangka: navbar (menu HP, tema, bahasa, CV), footer, `ViewfinderCursor` (hapus `CustomCursor`), skeleton
-- [ ] 4. Hero + bar status + panggung 3B
+- [x] 4. Hero + bar status + panggung 3B
 - [ ] 5. Tentang
 - [ ] 6. Proyek (kartu studi kasus + daftar ringkas)
 - [ ] 7. Keahlian (baris berjalan + logo sesuai K1)

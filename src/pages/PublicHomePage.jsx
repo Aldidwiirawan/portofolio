@@ -1,3 +1,4 @@
+import HeroSection from '../components/public/hero/HeroSection'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
@@ -18,9 +19,9 @@ function PublicHomePage() {
   useHashScroll(settled)
 
   return (
-    <div className="pub-container pub-section">
-      <h1 className="pub-h2">{name}</h1>
-    </div>
+    <>
+      <HeroSection />
+    </>
   )
 }
 
