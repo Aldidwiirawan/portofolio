@@ -5,7 +5,6 @@ import NotFoundPage from './pages/NotFoundPage'
 import PublicLayout from './components/public/PublicLayout'
 import AdminRoute from './components/admin/AdminRoute'
 import ShutterProvider from './components/effects/ShutterTransition'
-import './App.css'
 
 // Public pages loaded on demand (inside PublicLayout, which shows its own loading state)
 const ProjectDetailPage = lazy(() => import('./pages/ProjectDetailPage'))

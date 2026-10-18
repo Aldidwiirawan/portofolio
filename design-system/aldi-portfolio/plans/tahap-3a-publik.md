@@ -423,6 +423,6 @@ Semua usulan K1–K10 disetujui, dengan catatan:
 - [x] 10. Kontak (formulir + topik)
 - [x] 11. Buku tamu (tombol + panel Blueprint, lazy)
 - [x] 12. Halaman detail proyek + 404
-- [ ] 13. Bersihkan komponen dan CSS lama
+- [x] 13. Bersihkan komponen dan CSS lama
 - [ ] 14. Uji otomatis + perbaikan
 - [ ] 15. Dokumentasi (`pages/public.md`, `MASTER.md`, `PRODUCT.md`), uji manual, laporan
