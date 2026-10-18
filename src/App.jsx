@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import PublicPortfolioPage from './pages/PublicPortfolioPage'
+import PublicHomePage from './pages/PublicHomePage'
 import NotFoundPage from './pages/NotFoundPage'
 import PublicLayout from './components/public/PublicLayout'
 import AdminRoute from './components/admin/AdminRoute'
@@ -51,9 +51,6 @@ function App() {
       <ShutterProvider>
       <Suspense fallback={<PageFallback />}>
         <Routes>
-          {/* Public Portfolio Route */}
-          <Route path="/" element={<PublicPortfolioPage />} />
-
           {/* Admin Authentication Route */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
@@ -177,8 +174,10 @@ function App() {
             }
           />
 
-          {/* Public pages sharing one frame: project detail and the 404 page for unknown addresses */}
+          {/* Public pages sharing one frame (theme, language, data): the portfolio, project detail
+              and the 404 page for unknown addresses */}
           <Route element={<PublicLayout />}>
+            <Route path="/" element={<PublicHomePage />} />
             <Route path="/projects/:slug" element={<ProjectDetailPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
