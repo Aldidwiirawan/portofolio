@@ -1,0 +1,145 @@
+/* Section Kontak dan formulir pesan */
+
+.pub-contact-grid {
+  display: grid;
+  gap: var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .pub-contact-grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+    gap: var(--space-16);
+  }
+}
+
+.pub-contact-intro {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-6);
+}
+
+.pub-contact-intro .pub-section-head {
+  margin-bottom: 0;
+}
+
+.pub-channels {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  list-style: none;
+}
+
+.pub-channel,
+.pub-channel:hover {
+  color: var(--ds-text-strong);
+}
+
+.pub-channel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 4rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-surface);
+  transition: border-color var(--ds-duration-fast) ease;
+}
+
+.pub-channel:hover {
+  border-color: var(--ds-border-control);
+}
+
+.pub-channel-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-accent-subtle);
+  color: var(--ds-accent-text);
+}
+
+.pub-channel-text {
+  display: grid;
+  min-width: 0;
+}
+
+.pub-channel-label {
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pub-channel-value {
+  overflow-wrap: anywhere;
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-channel:hover .pub-channel-value {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* Formulir: kartu dengan bracket sudut */
+.pub-contact-form {
+  position: relative;
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--ds-border);
+  border-radius: 2px;
+  background-color: var(--ds-surface);
+}
+
+.pub-contact-form::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  --pub-bracket: var(--ds-accent-text);
+  --pub-bracket-len: 14px;
+  --pub-bracket-w: 2px;
+  background: var(--pub-brackets);
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .pub-contact-form {
+    padding: var(--space-8);
+  }
+}
+
+.pub-contact-form-head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.pub-contact-form-title {
+  font-size: var(--ds-fs-xl);
+}
+
+.pub-contact-form-row {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .pub-contact-form-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pub-contact-form-foot .pub-btn {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .pub-contact-form-foot .pub-btn {
+    width: auto;
+  }
+}

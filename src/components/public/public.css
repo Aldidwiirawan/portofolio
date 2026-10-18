@@ -564,3 +564,180 @@ html:has(.pub) {
     transform: none;
   }
 }
+
+/* --- Kolom isian (formulir kontak dan buku tamu) ---------------------------
+   Rel fokus di sisi kiri seperti admin (.adm-control::before): menyala saat kolom fokus. */
+
+.pub-field {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.pub-label {
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pub-hint {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+}
+
+.pub-control {
+  position: relative;
+  display: block;
+}
+
+.pub-control::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: 3px;
+  border-radius: var(--pub-radius) 0 0 var(--pub-radius);
+  background-color: var(--ds-accent);
+  transform: scaleY(0);
+  transition: transform 180ms var(--ds-ease-out);
+  pointer-events: none;
+}
+
+.pub-control:focus-within::before {
+  transform: scaleY(1);
+}
+
+.pub-field[data-invalid] .pub-control::before {
+  background-color: var(--ds-danger-border);
+}
+
+.pub-input {
+  display: block;
+  width: 100%;
+  min-height: var(--ds-control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--ds-border-control);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-surface);
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-md);
+  transition: border-color var(--ds-duration-fast) ease;
+}
+
+.pub-input::placeholder {
+  color: var(--ds-text-subtle);
+  opacity: 1;
+}
+
+.pub-input:hover {
+  border-color: var(--ds-text-muted);
+}
+
+.pub-input:focus-visible {
+  border-color: var(--ds-accent);
+  outline: var(--ds-focus-ring-width) solid var(--ds-focus-ring);
+  outline-offset: 1px;
+}
+
+.pub-field[data-invalid] .pub-input {
+  border-color: var(--ds-danger-border);
+}
+
+.pub-textarea {
+  min-height: 8.5rem;
+  padding: var(--space-3);
+  line-height: var(--ds-lh-relaxed);
+  resize: vertical;
+}
+
+select.pub-input {
+  padding-right: var(--space-10);
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 50%,
+    calc(100% - 0.8rem) 50%;
+  background-size: 0.35rem 0.35rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.pub-field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--ds-danger-text);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-field-error svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Pesan hasil kirim: region (role status/alert) selalu ada di DOM tanpa ukuran; kotak ini baru
+   dirender di dalamnya saat ada pesan */
+.pub-form-status {
+  margin-top: var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid;
+  border-radius: var(--pub-radius);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-form-status svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.pub-form-status--success {
+  border-color: var(--ds-success-text);
+  background-color: var(--ds-success-bg);
+  color: var(--ds-success-text);
+}
+
+.pub-form-status--error {
+  border-color: var(--ds-danger-border);
+  background-color: var(--ds-danger-bg);
+  color: var(--ds-danger-text);
+}
+
+.pub-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: pub-spin 0.8s linear infinite;
+}
+
+@keyframes pub-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-control::before {
+    transition: none;
+  }
+
+  .pub-spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}

@@ -420,7 +420,7 @@ Semua usulan K1–K10 disetujui, dengan catatan:
 - [x] 7. Keahlian (baris berjalan + logo sesuai K1)
 - [x] 8. Pengalaman + Pendidikan
 - [x] 9. Sertifikat (+ lightbox) + Prestasi + Organisasi
-- [ ] 10. Kontak (formulir + topik)
+- [x] 10. Kontak (formulir + topik)
 - [ ] 11. Buku tamu (tombol + panel Blueprint, lazy)
 - [ ] 12. Halaman detail proyek + 404
 - [ ] 13. Bersihkan komponen dan CSS lama
