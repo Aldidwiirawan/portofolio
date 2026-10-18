@@ -1,5 +1,24 @@
 /* Section Proyek: kartu studi kasus, sampul/placeholder, daftar ringkas */
 
+/* Ruang ayam (cameo 3B) di kanan kepala section, yang lebarnya maks. 44rem: hanya ≥1024 px, di mana
+   sisa ruang di kanan judul ≥256 px. Tidak menangkap klik. */
+.pub-cameo-slot {
+  position: absolute;
+  top: 0;
+  right: var(--pub-gutter);
+  display: none;
+  width: 16rem;
+  height: 9.5rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .pub-cameo-slot {
+    display: block;
+  }
+}
+
 .pub-cases {
   display: grid;
   gap: var(--space-8);

@@ -177,6 +177,11 @@ html:has(.pub) {
   padding-block: var(--pub-section-y);
 }
 
+/* Kontainer section dengan elemen dekoratif (Section decor) */
+.pub-container--decor {
+  position: relative;
+}
+
 .pub-section + .pub-section {
   border-top: 1px solid var(--ds-border);
 }

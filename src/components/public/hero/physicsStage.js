@@ -19,7 +19,7 @@ const TAP_MOVE = 10 // px a tap may move (touch) before it is a scroll
 const CLICK_MOVE = 5 // px a mouse click may move before it is a drag
 const SETTLE_MS = 6000 // after this long without touching, a pile that only jitters is put to sleep
 const SOUND_MIN_SPEED = 1.2 // impact speed (px per step) below which a collision is silent
-const FLOOR_IMPACT_SPEED = 5 // a landing this hard is reported to the characters
+const LANDING_SPEED = 5 // a landing this hard (on the floor or on the pile) is reported to the characters
 
 const rand = (min, max) => min + Math.random() * (max - min)
 
@@ -211,14 +211,15 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
   Events.on(engine, 'collisionStart', (event) => {
     for (const pair of event.pairs) {
       const { bodyA, bodyB } = pair
-      const moving = bodyA.isStatic ? bodyB : bodyA
+      // The body that hit (the faster one; a wall or the floor never moves)
+      const moving = bodyA.isStatic ? bodyB : bodyB.isStatic ? bodyA : bodyA.speed >= bodyB.speed ? bodyA : bodyB
       const other = moving === bodyA ? bodyB : bodyA
       const speed = Math.abs(Vector.dot(Vector.sub(bodyA.velocity, bodyB.velocity), pair.collision.normal))
       if (speed < SOUND_MIN_SPEED) continue
       const item = items.find((entry) => entry.body === moving)
       const pitch = item?.round ? 1.2 : Math.min(1.15, Math.max(0.8, 1.15 - ((item?.w ?? 90) - 70) / 300))
       onImpact?.({ strength: Math.min(1, (speed - 1) / 8), pitch, source: moving.id })
-      if (other.label === 'floor' && speed > FLOOR_IMPACT_SPEED) {
+      if ((other.label === 'floor' || !other.isStatic) && moving.velocity.y > 0 && speed > LANDING_SPEED) {
         const box = world.getBoundingClientRect()
         emitInteraction('label-impact', { x: box.left + moving.position.x, y: box.top + moving.position.y, strength: Math.min(1, speed / 14) })
       }

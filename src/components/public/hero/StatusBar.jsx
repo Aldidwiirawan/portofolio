@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { CalendarIcon, MapPinIcon } from '../icons'
+import CharacterLaneSlot from './CharacterLaneSlot'
 
 /** Today's date, refreshed when the tab comes back (a page left open overnight shows the new day). */
 function useToday() {
@@ -24,7 +25,7 @@ const isoDay = (date) =>
 
 /**
  * Status bar under the hero (BRIEF §5): "Siap bekerja" with a green dot, the city and today's date.
- * The strip also leaves room for the chicken and duck of stage 3B.
+ * The chicken and the duck walk on its top line (CharacterLaneSlot, stage 3B).
  */
 function StatusBar({ available, location }) {
   const { t, formatDate } = useI18n()
@@ -32,7 +33,8 @@ function StatusBar({ available, location }) {
 
   return (
     <div className="pub-statusbar" data-stage="characters">
-      <div className="pub-container">
+      <div className="pub-container pub-statusbar-inner">
+        <CharacterLaneSlot />
         <ul className="pub-statusbar-list" aria-label={t('status.label')}>
           {available && (
             <li className="pub-statusbar-item pub-statusbar-item--available">

@@ -465,7 +465,7 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
 - [x] 2. Suara: konteks + tombol (navbar ≥1024, menu <1024) + bunyi "tok" Web Audio dengan batas frekuensi
 - [x] 3. Label fisika: pasang matter-js, panggung fisika lazy (jatuh, seret/lempar, ketuk di HP, bunyi tabrakan,
       berhenti saat diam/di luar layar/tab tidak aktif, reduced motion statis)
-- [ ] 4. Ayam dan bebek: SVG, `characterLines.js`, jalur di bar status, perilaku (jalan, sapa, obrol, kabur, lompat,
+- [x] 4. Ayam dan bebek: SVG, `characterLines.js`, jalur di bar status, perilaku (jalan, sapa, obrol, kabur, lompat,
       easter egg, diam/tidur, sesuai jam, reaksi) + reaksi proyek sesuai K4
 - [ ] 5. Footer: tombol Buku tamu berhenti di atas footer (K5) + robot kembali ke atas
 - [ ] 6. Robot di panel buku tamu

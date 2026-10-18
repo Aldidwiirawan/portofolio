@@ -1,6 +1,8 @@
 /* Hero beranda, panggung label (ruang label fisika 3B) dan bar status */
 
 .pub-hero {
+  /* Jalur ayam dan bebek di atas garis bar status: karakter + gelembung dua baris (3B) */
+  --pub-lane-h: 90px;
   position: relative;
   isolation: isolate;
   display: flex;
@@ -22,14 +24,19 @@
   display: grid;
   align-items: center;
   gap: var(--space-10);
-  padding-block: var(--space-10) var(--space-10);
+  /* Ruang bawah = jalur karakter, jadi karakter dan gelembung tidak pernah menimpa isi hero */
+  padding-block: var(--space-10) var(--pub-lane-h);
 }
 
 @media (min-width: 1024px) {
+  .pub-hero {
+    --pub-lane-h: 100px;
+  }
+
   .pub-hero-grid {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
     gap: var(--space-16);
-    padding-block: var(--space-16);
+    padding-block: var(--space-16) var(--pub-lane-h);
   }
 }
 
@@ -362,6 +369,20 @@
 .pub-statusbar {
   border-top: 1px solid var(--ds-border);
   background-color: color-mix(in srgb, var(--ds-canvas) 75%, transparent);
+}
+
+.pub-statusbar-inner {
+  position: relative;
+}
+
+/* Jalur ayam dan bebek: berdiri tepat di garis atas bar status, selebar isi kontainer */
+.pub-lane {
+  position: absolute;
+  right: var(--pub-gutter);
+  bottom: calc(100% + 1px);
+  left: var(--pub-gutter);
+  height: var(--pub-lane-h);
+  pointer-events: none;
 }
 
 .pub-statusbar-list {

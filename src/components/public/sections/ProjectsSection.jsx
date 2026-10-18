@@ -4,6 +4,7 @@ import { ArrowRightIcon } from '../icons'
 import { usePublicData } from '../publicContexts'
 import { Section, SectionError, SkeletonBlock } from '../Section'
 import ProjectCover from './ProjectCover'
+import ProjectsCameoSlot from './ProjectsCameoSlot'
 import TechList from './TechList'
 import './ProjectsSection.css'
 
@@ -46,7 +47,13 @@ function ProjectsSection() {
   const others = projects.filter((project) => !cards.includes(project))
 
   return (
-    <Section id="proyek" tag={t('projects.tag')} title={t('projects.title')} intro={t('projects.intro')}>
+    <Section
+      id="proyek"
+      tag={t('projects.tag')}
+      title={t('projects.title')}
+      intro={t('projects.intro')}
+      decor={status === 'ready' && <ProjectsCameoSlot />}
+    >
       {status === 'loading' && <ProjectsSkeleton />}
       {status === 'error' && <SectionError onRetry={() => reload('projects')} />}
       {status === 'ready' && (
