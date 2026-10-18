@@ -4,6 +4,9 @@ import ProjectsSection from '../components/public/sections/ProjectsSection'
 import SkillsSection from '../components/public/skills/SkillsSection'
 import ExperienceSection from '../components/public/sections/ExperienceSection'
 import EducationSection from '../components/public/sections/EducationSection'
+import CertificatesSection from '../components/public/sections/CertificatesSection'
+import AchievementsSection from '../components/public/sections/AchievementsSection'
+import OrganizationsSection from '../components/public/sections/OrganizationsSection'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
@@ -31,6 +34,9 @@ function PublicHomePage() {
       <ExperienceSection />
       <SkillsSection />
       <EducationSection />
+      <CertificatesSection />
+      <AchievementsSection />
+      <OrganizationsSection />
     </>
   )
 }

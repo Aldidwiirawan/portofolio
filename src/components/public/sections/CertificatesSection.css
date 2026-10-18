@@ -1,0 +1,228 @@
+/* Section Sertifikat, Prestasi, Organisasi */
+
+.pub-certs {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .pub-certs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .pub-certs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+.pub-certs > li {
+  display: grid;
+}
+
+.pub-cert {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-surface);
+}
+
+.pub-cert-image {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  border-bottom: 1px solid var(--ds-border);
+  background-color: var(--ds-inset);
+  cursor: zoom-in;
+}
+
+.pub-cert-image:focus-visible {
+  outline-offset: -2px;
+}
+
+.pub-cert-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+.pub-cert-image:hover img {
+  transform: scale(1.03);
+}
+
+.pub-cert-body {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.pub-cert-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pub-cert-icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-inset);
+  color: var(--ds-accent-text);
+}
+
+.pub-cert-name {
+  font-size: var(--ds-fs-lg);
+  line-height: var(--ds-lh-snug);
+  letter-spacing: -0.01em;
+}
+
+.pub-cert-issuer {
+  color: var(--ds-text);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-cert-facts {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  line-height: 1.6;
+}
+
+.pub-cert-facts [data-expired] {
+  color: var(--ds-danger-text);
+}
+
+.pub-cert-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-5);
+  margin-top: auto;
+}
+
+.pub-cert-links .pub-arrow-link {
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-certs-more {
+  margin-top: var(--space-6);
+}
+
+.pub-flip {
+  transform: rotate(180deg);
+}
+
+/* Prestasi dan Organisasi: kartu sederhana */
+.pub-cards {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .pub-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pub-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-4);
+  height: 100%;
+  padding: var(--space-5);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-surface);
+}
+
+.pub-card-media {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-inset);
+  color: var(--ds-accent-text);
+}
+
+button.pub-card-media {
+  width: 4.5rem;
+  height: 4.5rem;
+  cursor: zoom-in;
+}
+
+.pub-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pub-card-media--logo img {
+  object-fit: contain;
+  background-color: var(--pub-logo-plate);
+}
+
+.pub-card-body {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.pub-card-title {
+  font-size: var(--ds-fs-lg);
+  line-height: var(--ds-lh-snug);
+  letter-spacing: -0.01em;
+}
+
+.pub-card-sub {
+  color: var(--ds-text);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-card-meta {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+}
+
+.pub-card-text {
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+  line-height: var(--ds-lh-relaxed);
+  white-space: pre-line;
+}
+
+.pub-card .pub-arrow-link {
+  font-size: var(--ds-fs-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-cert-image img {
+    transition: none;
+  }
+
+  .pub-cert-image:hover img {
+    transform: none;
+  }
+}
