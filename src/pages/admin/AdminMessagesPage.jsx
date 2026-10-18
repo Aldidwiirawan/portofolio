@@ -253,7 +253,7 @@ function MessagesScreen() {
                       </>
                     )
                   }
-                  subtitle={msg.subject || '(Tanpa subjek)'}
+                  subtitle={msg.subject || undefined}
                   meta={
                     <>
                       <span>{msg.email}</span>
@@ -307,8 +307,8 @@ function MessagesScreen() {
         open={Boolean(viewingMessage)}
         onClose={() => setViewingMessage(null)}
         size="md"
-        title={viewingMessage?.subject || '(Tanpa subjek)'}
-        description={viewingMessage ? `Dari ${viewingMessage.name}` : ''}
+        title={viewingMessage?.subject || (viewingMessage ? `Pesan dari ${viewingMessage.name}` : '')}
+        description={viewingMessage?.subject ? `Dari ${viewingMessage.name}` : ''}
         returnFocusRef={returnToHeading ? headingRef : undefined}
         footer={
           viewingMessage && (
