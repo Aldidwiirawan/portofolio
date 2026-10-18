@@ -60,10 +60,14 @@ Prestasi (bila ada) · Organisasi (bila ada) · Kontak · Footer · tombol Buku 
   `techLogoKeys.js`) → ikon umum per kategori (UI/UX, REST API, soft skill, dll.). Untuk menambah logo: salin
   path dari paket `simple-icons` lalu tambahkan alias namanya.
 - Unggulan: bingkai dan logo beraksen + bintang, dengan teks "(unggulan)" untuk pembaca layar.
-- Daftar asli dibaca sekali; salinan untuk efek berjalan `aria-hidden` dan jumlahnya menyesuaikan lebar. Gerak
-  36 px/detik, hanya `transform`. Berhenti saat hover, disentuh (lanjut 2,5 dtk setelah dilepas), di luar layar,
-  tab tersembunyi, dan dengan tombol **"Hentikan gerak"** (K6, diingat selama kunjungan di `sessionStorage`).
-- Reduced motion: tanpa salinan, daftar dibungkus dan diam, tombol jeda tidak tampil.
+- **Baris hanya bergerak bila isinya lebih lebar dari wadahnya** (`data-moving`). Baris yang muat (mis. Mobile
+  dengan 4 keahlian di layar lebar) tampil diam tanpa salinan. Diukur ulang setiap kali ukuran baris atau daftar
+  berubah (ResizeObserver: jendela diubah, logo selesai dimuat).
+- Baris yang bergerak memudar di tepi kiri dan kanan (`mask-image`, 2,5rem), juga saat dijeda.
+- Daftar asli dibaca sekali; salinan untuk efek berjalan `aria-hidden`. Gerak 36 px/detik, hanya `transform`.
+  Berhenti saat hover, disentuh (lanjut 2,5 dtk setelah dilepas), di luar layar, tab tersembunyi, dan dengan
+  tombol **"Hentikan gerak"** (K6, diingat selama kunjungan di `sessionStorage`).
+- Reduced motion: semua baris diam, dibungkus, tanpa salinan dan tanpa tepi memudar; tombol jeda tidak tampil.
 
 ## 5. Halaman detail proyek
 

@@ -38,18 +38,23 @@
   font-size: var(--ds-fs-sm);
 }
 
-/* Baris berjalan: hanya transform; tepi kiri/kanan memudar */
+/* Baris berjalan: hanya transform. Baris yang isinya muat tetap diam (data-moving=false). */
 .pub-marquee {
   --marquee-gap: var(--space-2);
+  --marquee-fade: 2.5rem;
   position: relative;
   overflow: hidden;
   padding-block: 2px;
-  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+
+/* Tepi kiri/kanan memudar hanya pada baris yang bergerak (juga saat dijeda: isinya tetap lebih lebar) */
+.pub-marquee[data-moving='true'] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--marquee-fade), #000 calc(100% - var(--marquee-fade)), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 var(--marquee-fade), #000 calc(100% - var(--marquee-fade)), transparent);
 }
 
 .pub-marquee[data-still='true'] {
   overflow: visible;
-  mask-image: none;
 }
 
 .pub-marquee-track {
@@ -132,7 +137,8 @@
 }
 
 @media (forced-colors: active) {
-  .pub-marquee {
+  .pub-marquee[data-moving='true'] {
+    -webkit-mask-image: none;
     mask-image: none;
   }
 }

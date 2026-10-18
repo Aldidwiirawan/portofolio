@@ -25,9 +25,10 @@ function SkillItems({ skills, paths }) {
 
 /**
  * One row of skills that slowly runs sideways (BRIEF §5 "Tampilan keahlian").
- * - The first list is the real one; the copies needed for a seamless loop are aria-hidden, so screen
- *   readers read every skill once.
- * - Enough copies are made to fill the row at any width, and every row moves at the same speed.
+ * - It only moves when the skills are wider than the row; a row that fits stays still, without copies.
+ *   This is measured again whenever the row or the list changes size (window resize, logos loading).
+ * - The first list is the real one; the copy needed for a seamless loop is aria-hidden, so screen
+ *   readers read every skill once. Every moving row has the same speed and fades out at both edges.
  * - Stops on hover, while touched, when `paused` (the section's "Hentikan gerak" button), while the
  *   tab is hidden and while the row is off screen. With `still` (reduced motion) there are no copies:
  *   the list wraps and does not move.
@@ -35,7 +36,7 @@ function SkillItems({ skills, paths }) {
 function SkillMarquee({ skills, paths, reverse = false, paused = false, still = false, label }) {
   const viewportRef = useRef(null)
   const listRef = useRef(null)
-  const [metrics, setMetrics] = useState(null) // { copies, shift }
+  const [metrics, setMetrics] = useState(null) // { moving: false } | { moving: true, copies, shift }
   const [onScreen, setOnScreen] = useState(false)
   const [touched, setTouched] = useState(false)
   const touchTimer = useRef(0)
@@ -47,11 +48,18 @@ function SkillMarquee({ skills, paths, reverse = false, paused = false, still = 
     const list = listRef.current
     if (!viewport || !list || typeof ResizeObserver === 'undefined') return undefined
     const measure = () => {
-      const gap = parseFloat(getComputedStyle(list).columnGap) || 0
-      const shift = list.getBoundingClientRect().width + gap
-      if (shift <= gap) return
-      const copies = Math.max(1, Math.ceil(viewport.clientWidth / shift))
-      setMetrics((prev) => (prev && prev.copies === copies && Math.abs(prev.shift - shift) < 0.5 ? prev : { copies, shift }))
+      const width = list.getBoundingClientRect().width
+      if (width <= 0) return
+      const available = viewport.clientWidth
+      if (width <= available + 0.5) {
+        setMetrics((prev) => (prev && !prev.moving ? prev : { moving: false }))
+        return
+      }
+      const shift = width + (parseFloat(getComputedStyle(list).columnGap) || 0)
+      const copies = Math.max(1, Math.ceil(available / shift))
+      setMetrics((prev) =>
+        prev?.moving && prev.copies === copies && Math.abs(prev.shift - shift) < 0.5 ? prev : { moving: true, copies, shift }
+      )
     }
     measure()
     const observer = new ResizeObserver(measure)
@@ -91,8 +99,9 @@ function SkillMarquee({ skills, paths, reverse = false, paused = false, still = 
     )
   }
 
-  const running = Boolean(metrics) && onScreen && !paused && !touched && !pageHidden
-  const style = metrics
+  const moving = Boolean(metrics?.moving)
+  const running = moving && onScreen && !paused && !touched && !pageHidden
+  const style = moving
     ? { '--marquee-shift': `${-metrics.shift}px`, '--marquee-duration': `${(metrics.shift / SPEED).toFixed(2)}s` }
     : undefined
 
@@ -100,6 +109,7 @@ function SkillMarquee({ skills, paths, reverse = false, paused = false, still = 
     <div
       ref={viewportRef}
       className="pub-marquee"
+      data-moving={moving}
       data-running={running}
       data-reverse={reverse || undefined}
       onPointerDown={onPointerDown}
@@ -110,7 +120,7 @@ function SkillMarquee({ skills, paths, reverse = false, paused = false, still = 
         <ul ref={listRef} className="pub-marquee-list" aria-label={label}>
           <SkillItems skills={skills} paths={paths} />
         </ul>
-        {metrics &&
+        {moving &&
           Array.from({ length: metrics.copies }, (_, copy) => (
             <ul key={copy} className="pub-marquee-list" aria-hidden="true">
               <SkillItems skills={skills} paths={paths} />
