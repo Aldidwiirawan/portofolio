@@ -83,7 +83,7 @@ function HeroSection() {
           )}
         </div>
 
-        <HeroStage skills={skills} />
+        <HeroStage skills={skills} ready={data.skills.status !== 'loading'} />
       </div>
 
       <StatusBar available={Boolean(profile?.is_available)} location={profile?.location} />

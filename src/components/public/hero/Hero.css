@@ -322,6 +322,41 @@
   }
 }
 
+/* Label fisika (3B): tumpukan statis tetap ada (tidak terlihat) sebagai penjaga tinggi panggung;
+   salinannya di lapisan ini digeser physicsStage.js dengan transform */
+.pub-stage[data-physics='on'] .pub-stage-pile {
+  visibility: hidden;
+}
+
+.pub-stage-world {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.pub-stage-world > .pub-stage-label,
+.pub-stage-world > .pub-stage-orb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: none;
+  /* Jari tetap bisa menggulir halaman walau sentuhan dimulai di label (ketuk = lempar) */
+  touch-action: manipulation;
+  cursor: grab;
+  will-change: transform;
+}
+
+.pub-stage-world > [data-waiting] {
+  visibility: hidden;
+}
+
+.pub-stage-world > [data-dragging] {
+  cursor: grabbing;
+}
+
 /* --- Bar status ------------------------------------------------------------- */
 
 .pub-statusbar {

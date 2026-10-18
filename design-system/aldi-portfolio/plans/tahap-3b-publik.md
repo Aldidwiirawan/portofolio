@@ -449,7 +449,7 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
 - [x] 0. Rencana ini (`plans/tahap-3b-publik.md`)
 - [x] 1. Kursor viewfinder: cek ulang target di bawah mouse yang diam (+ uji login/admin)
 - [x] 2. Suara: konteks + tombol (navbar ≥1024, menu <1024) + bunyi "tok" Web Audio dengan batas frekuensi
-- [ ] 3. Label fisika: pasang matter-js, panggung fisika lazy (jatuh, seret/lempar, ketuk di HP, bunyi tabrakan,
+- [x] 3. Label fisika: pasang matter-js, panggung fisika lazy (jatuh, seret/lempar, ketuk di HP, bunyi tabrakan,
       berhenti saat diam/di luar layar/tab tidak aktif, reduced motion statis)
 - [ ] 4. Ayam dan bebek: SVG, `characterLines.js`, jalur di bar status, perilaku (jalan, sapa, obrol, kabur, lompat,
       easter egg, diam/tidur, sesuai jam, reaksi) + reaksi proyek sesuai K4
