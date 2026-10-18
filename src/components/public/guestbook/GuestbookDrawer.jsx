@@ -5,6 +5,7 @@ import { useI18n } from '../../../i18n/i18nContext'
 import { AlertIcon, CheckIcon, CloseIcon, SendIcon } from '../icons'
 import { usePublicData } from '../publicContexts'
 import { firstName } from '../publicFormat'
+import GuestbookRobot from '../robot/GuestbookRobot'
 
 // Same limits as the guestbook table (CHECK constraints) and useGuestbook
 const NAME_MAX = 100
@@ -27,6 +28,11 @@ function GuestbookDrawer({ guestbook, onClose }) {
   const [message, setMessage] = useState('')
   const [errors, setErrors] = useState({})
   const [state, setState] = useState('idle') // idle | sending | sent | failed
+  // Robot a+ on the form: which field it watches, and the last thing that happened (3B)
+  const [watching, setWatching] = useState(null) // null | 'name' | 'message'
+  const [robotEvent, setRobotEvent] = useState(null)
+  const typedRef = useRef(false)
+  const tellRobot = (kind) => setRobotEvent((previous) => ({ kind, key: (previous?.key ?? 0) + 1 }))
 
   useFocusTrap(panelRef, true, { onEscape: onClose, initialFocusRef: nameRef })
   useScrollLock(true)
@@ -41,6 +47,8 @@ function GuestbookDrawer({ guestbook, onClose }) {
     else if (message.trim().length > MESSAGE_MAX) found.message = t('form.tooLong', { field: t('guestbook.message'), n: MESSAGE_MAX })
     setErrors(found)
     if (found.name || found.message) {
+      if (!name.trim()) tellRobot('emptyName')
+      else if (!message.trim()) tellRobot('emptyMessage')
       ;(found.name ? nameRef : messageRef).current?.focus()
       return
     }
@@ -50,13 +58,19 @@ function GuestbookDrawer({ guestbook, onClose }) {
       setName('')
       setMessage('')
       setState('sent')
+      tellRobot('sent')
     } catch {
       setState('failed')
+      tellRobot('failed')
     }
   }
 
   const left = MESSAGE_MAX - message.length
   const sending = state === 'sending'
+  // The robot sits to the right of the form: its eyes go from the start of the text (left) towards the
+  // right as the text grows
+  const typed = watching === 'name' ? name.length / 40 : watching === 'message' ? message.length / 120 : 0
+  const lookAt = watching ? -1 + Math.min(1, typed) * 1.2 : 0
 
   return (
     <div className="pub-gb-layer">
@@ -77,6 +91,8 @@ function GuestbookDrawer({ guestbook, onClose }) {
         <div className="pub-gb-body">
           <p className="pub-gb-intro">{t('guestbook.intro')}</p>
 
+          <GuestbookRobot watching={Boolean(watching)} lookAt={lookAt} event={robotEvent} />
+
           <form className="pub-gb-form" onSubmit={onSubmit} noValidate>
             <div className="pub-field" data-invalid={errors.name ? '' : undefined}>
               <label className="pub-label" htmlFor={`${id}-name`}>
@@ -95,6 +111,8 @@ function GuestbookDrawer({ guestbook, onClose }) {
                     setName(event.target.value)
                     if (state !== 'sending') setState('idle')
                   }}
+                  onFocus={() => setWatching('name')}
+                  onBlur={() => setWatching(null)}
                   aria-invalid={errors.name ? true : undefined}
                   aria-describedby={errors.name ? `${id}-name-error` : undefined}
                   aria-required="true"
@@ -128,7 +146,14 @@ function GuestbookDrawer({ guestbook, onClose }) {
                   onChange={(event) => {
                     setMessage(event.target.value)
                     if (state !== 'sending') setState('idle')
+                    // "Tulis yang baik, ya!" once per opening of the panel
+                    if (!typedRef.current && event.target.value.trim()) {
+                      typedRef.current = true
+                      tellRobot('typing')
+                    }
                   }}
+                  onFocus={() => setWatching('message')}
+                  onBlur={() => setWatching(null)}
                   aria-invalid={errors.message ? true : undefined}
                   aria-describedby={[errors.message && `${id}-message-error`, `${id}-left`].filter(Boolean).join(' ')}
                   aria-required="true"

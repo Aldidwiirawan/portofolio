@@ -468,7 +468,7 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
 - [x] 4. Ayam dan bebek: SVG, `characterLines.js`, jalur di bar status, perilaku (jalan, sapa, obrol, kabur, lompat,
       easter egg, diam/tidur, sesuai jam, reaksi) + reaksi proyek sesuai K4
 - [x] 5. Footer: tombol Buku tamu berhenti di atas footer (K5) + robot kembali ke atas
-- [ ] 6. Robot di panel buku tamu
+- [x] 6. Robot di panel buku tamu
 - [x] 7. Layar pembuka
 - [ ] 8. Uji otomatis + perbaikan
 - [ ] 9. Dokumentasi (`pages/public.md`, `MASTER.md` §13/§15, `PRODUCT.md`, `BRIEF.md` bila ada keputusan baru),

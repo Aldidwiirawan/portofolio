@@ -34,6 +34,44 @@
   left: auto;
 }
 
+/* --- Robot a+ duduk di tepi atas formulir buku tamu --------------------------------------------------
+   Jalur khusus 52 px di antara teks pengantar dan formulir; kaki robot tersembunyi di balik tepi kotak
+   formulir (formulir di atas robot). Gelembung di kiri robot, ekornya menunjuk ke kanan. */
+.pub-gb-robot {
+  position: relative;
+  height: 52px;
+  margin-bottom: calc(-1 * var(--space-6) - 10px);
+  pointer-events: none;
+}
+
+/* Bawah robot tepat di bawah jalur; jalur menumpuk 10 px ke formulir, jadi kaki robot ada di balik tepinya */
+.pub-gb-robot-figure {
+  position: absolute;
+  right: var(--space-4);
+  bottom: 0;
+  width: 52px;
+}
+
+.pub-gb-body .pub-gb-form {
+  position: relative;
+  z-index: 1;
+}
+
+.pub-gb-robot-bubble {
+  right: calc(52px + var(--space-4) + var(--space-3));
+  bottom: 14px;
+  left: auto;
+}
+
+.pub-gb-robot-bubble::after {
+  right: -5px;
+  bottom: 50%;
+  left: auto;
+  margin: 0 0 -4px;
+  border-top: 1px solid var(--ds-border-control);
+  border-bottom: 0;
+}
+
 /* Footer di luar layar: napas dan kedip robot berhenti */
 .pub-top-robot-inner[data-paused] .robot,
 .pub-top-robot-inner[data-paused] .robot * {
