@@ -1,0 +1,285 @@
+/* Section Proyek: kartu studi kasus, sampul/placeholder, daftar ringkas */
+
+.pub-cases {
+  display: grid;
+  gap: var(--space-8);
+  list-style: none;
+}
+
+@media (min-width: 1024px) {
+  .pub-cases {
+    gap: var(--space-10);
+  }
+}
+
+.pub-case {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-surface);
+  transition: border-color var(--ds-duration-base) ease;
+}
+
+.pub-case[data-linked='true']:hover {
+  border-color: var(--ds-border-control);
+}
+
+@media (min-width: 768px) {
+  .pub-case {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: stretch;
+  }
+
+  .pub-case[data-flip='true'] .pub-case-cover {
+    order: 2;
+  }
+}
+
+.pub-case-body {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .pub-case-body {
+    padding: var(--space-10);
+  }
+}
+
+.pub-case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.pub-case-facts {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  line-height: 1.5;
+}
+
+.pub-case-title {
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  line-height: 1.2;
+}
+
+.pub-case-link,
+.pub-case-link:hover {
+  color: var(--ds-text-strong);
+}
+
+/* Seluruh kartu bisa diklik lewat satu tautan (judul) yang diperluas */
+.pub-case-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.pub-case-link:focus-visible {
+  outline: none;
+}
+
+.pub-case-link:focus-visible::after {
+  outline: var(--ds-focus-ring-width) solid var(--ds-focus-ring);
+  outline-offset: -2px;
+  border-radius: var(--pub-radius-card);
+}
+
+.pub-case-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  max-width: 60ch;
+  color: var(--ds-text-muted);
+  line-height: var(--ds-lh-relaxed);
+}
+
+.pub-case-more {
+  min-height: 0;
+  margin-top: var(--space-1);
+}
+
+.pub-case[data-linked='true']:hover .pub-case-more span {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.pub-case[data-linked='true']:hover .pub-case-more svg {
+  transform: translateX(3px);
+}
+
+/* Sampul 16:10 */
+.pub-cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background-color: var(--ds-inset);
+}
+
+.pub-case .pub-cover {
+  border-bottom: 1px solid var(--ds-border);
+}
+
+@media (min-width: 768px) {
+  .pub-case .pub-cover {
+    height: 100%;
+    min-height: 100%;
+    border-bottom: 0;
+    border-right: 1px solid var(--ds-border);
+  }
+
+  .pub-case[data-flip='true'] .pub-cover {
+    border-right: 0;
+    border-left: 1px solid var(--ds-border);
+  }
+}
+
+.pub-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+.pub-case[data-linked='true']:hover .pub-cover img {
+  transform: scale(1.03);
+}
+
+/* Placeholder: sub-grid blueprint + logo + jenis proyek */
+.pub-cover-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-3);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ds-text-strong) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ds-text-strong) 7%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: center;
+  color: var(--ds-accent-text);
+}
+
+.pub-cover-placeholder .brand-logo {
+  opacity: 0.85;
+}
+
+.pub-cover-caption {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pub-case--skeleton .pub-case-cover {
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: 0;
+}
+
+/* Daftar ringkas "Proyek lainnya" */
+.pub-others {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-12);
+}
+
+.pub-others-title {
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pub-others-list {
+  list-style: none;
+  border-top: 1px solid var(--ds-border);
+}
+
+.pub-row {
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.pub-row-link,
+.pub-row-link:hover {
+  color: var(--ds-text-strong);
+}
+
+.pub-row-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  min-height: 4rem;
+  padding: var(--space-3) var(--space-2);
+}
+
+a.pub-row-link:hover {
+  background-color: var(--ds-surface);
+}
+
+.pub-row-title {
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-row-facts {
+  grid-column: 1;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+}
+
+.pub-row-arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--ds-accent-text);
+  transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.pub-row-link:hover .pub-row-arrow {
+  transform: translateX(3px);
+}
+
+@media (min-width: 768px) {
+  .pub-row-link {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    padding-inline: var(--space-3);
+  }
+
+  .pub-row-facts {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .pub-row-arrow {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-cover img,
+  .pub-row-arrow {
+    transition: none;
+  }
+
+  .pub-case[data-linked='true']:hover .pub-cover img {
+    transform: none;
+  }
+}
