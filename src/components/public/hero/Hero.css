@@ -8,6 +8,7 @@
   min-height: calc(100vh - var(--pub-nav-h));
   min-height: calc(100svh - var(--pub-nav-h));
   overflow: hidden;
+  border-bottom: 1px solid var(--ds-border);
 }
 
 @media (min-height: 1100px) {

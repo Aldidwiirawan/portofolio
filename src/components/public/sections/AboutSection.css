@@ -1,0 +1,162 @@
+/* Section Tentang */
+
+.pub-about-grid {
+  display: grid;
+  gap: var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .pub-about-grid {
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-16);
+  }
+}
+
+/* Foto berbingkai bracket (rasio 4:5, ukuran tetap supaya tata letak tidak bergeser) */
+.pub-about-photo {
+  position: relative;
+  width: min(100%, 15rem);
+  margin: 0;
+  padding: var(--space-3);
+}
+
+.pub-about-photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  --pub-bracket: var(--ds-accent-text);
+  --pub-bracket-len: 18px;
+  --pub-bracket-w: 2px;
+  background: var(--pub-brackets);
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.pub-about-photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 2px;
+  background-color: var(--ds-inset);
+}
+
+@media (min-width: 1024px) {
+  .pub-about-photo {
+    position: sticky;
+    top: calc(var(--pub-nav-h) + var(--space-8));
+    width: 100%;
+  }
+}
+
+.pub-about-photo-skeleton {
+  width: min(100%, 15rem);
+  aspect-ratio: 4 / 5;
+}
+
+.pub-about-body {
+  display: grid;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.pub-about-body .pub-section-head {
+  margin-bottom: 0;
+}
+
+.pub-about-bio {
+  max-width: 68ch;
+  color: var(--ds-text);
+  font-size: var(--ds-fs-lg);
+  line-height: var(--ds-lh-relaxed);
+  white-space: pre-line;
+}
+
+/* Tiga fakta: kotak bergaris tipis seperti tabel judul gambar kerja */
+.pub-about-facts {
+  display: grid;
+  margin: 0;
+  border: 1px solid var(--ds-border);
+  background-color: var(--ds-surface);
+}
+
+@media (min-width: 768px) {
+  .pub-about-facts {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  }
+}
+
+.pub-about-fact {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.pub-about-fact:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .pub-about-fact {
+    border-bottom: 0;
+    border-right: 1px solid var(--ds-border);
+  }
+
+  .pub-about-fact:last-child {
+    border-right: 0;
+  }
+}
+
+.pub-about-fact-label {
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
+
+.pub-about-fact dd {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+  line-height: var(--ds-lh-normal);
+}
+
+.pub-about-fact-main {
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-md);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-about-fact-note {
+  color: var(--ds-accent-text);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-about-langs {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+}
+
+.pub-about-hobbies {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pub-about-hobbies-title {
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}
