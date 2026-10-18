@@ -184,6 +184,7 @@ const en = {
   'guestbook.open': 'Guestbook',
   'guestbook.openLabel': 'Open the guestbook, {n} messages',
   'guestbook.count': '{n} messages',
+  'guestbook.path': '~/guestbook',
   'guestbook.title': 'Guestbook',
   'guestbook.intro': 'Leave a short hello or impression. Messages appear for every visitor right away.',
   'guestbook.name': 'Name',

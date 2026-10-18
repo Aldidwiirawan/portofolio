@@ -421,7 +421,7 @@ Semua usulan K1–K10 disetujui, dengan catatan:
 - [x] 8. Pengalaman + Pendidikan
 - [x] 9. Sertifikat (+ lightbox) + Prestasi + Organisasi
 - [x] 10. Kontak (formulir + topik)
-- [ ] 11. Buku tamu (tombol + panel Blueprint, lazy)
+- [x] 11. Buku tamu (tombol + panel Blueprint, lazy)
 - [ ] 12. Halaman detail proyek + 404
 - [ ] 13. Bersihkan komponen dan CSS lama
 - [ ] 14. Uji otomatis + perbaikan

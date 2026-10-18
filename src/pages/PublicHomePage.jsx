@@ -8,6 +8,7 @@ import CertificatesSection from '../components/public/sections/CertificatesSecti
 import AchievementsSection from '../components/public/sections/AchievementsSection'
 import OrganizationsSection from '../components/public/sections/OrganizationsSection'
 import ContactSection from '../components/public/contact/ContactSection'
+import GuestbookButton from '../components/public/guestbook/GuestbookButton'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
@@ -39,6 +40,7 @@ function PublicHomePage() {
       <AchievementsSection />
       <OrganizationsSection />
       <ContactSection />
+      <GuestbookButton />
     </>
   )
 }

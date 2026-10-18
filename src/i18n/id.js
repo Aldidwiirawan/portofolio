@@ -185,6 +185,7 @@ const id = {
   'guestbook.open': 'Buku tamu',
   'guestbook.openLabel': 'Buka buku tamu, {n} pesan',
   'guestbook.count': '{n} pesan',
+  'guestbook.path': '~/buku-tamu',
   'guestbook.title': 'Buku tamu',
   'guestbook.intro': 'Tinggalkan salam atau kesan singkat. Pesan langsung tampil untuk semua pengunjung.',
   'guestbook.name': 'Nama',
