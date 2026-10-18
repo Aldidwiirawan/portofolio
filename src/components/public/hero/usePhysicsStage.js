@@ -1,6 +1,23 @@
 import { useEffect, useRef } from 'react'
+import { onInteraction } from '../interactionBus'
+import { isIntroPlaying } from '../intro/introState'
 
 const loadPhysics = () => import('./physicsStage')
+const INTRO_WAIT_MAX_MS = 2000
+
+/** Resolves when the opening screen is gone (at once when there is none). */
+function afterIntro() {
+  if (!isIntroPlaying()) return Promise.resolve()
+  return new Promise((resolve) => {
+    const timer = setTimeout(done, INTRO_WAIT_MAX_MS)
+    const off = onInteraction('intro-done', done)
+    function done() {
+      clearTimeout(timer)
+      off()
+      resolve()
+    }
+  })
+}
 
 // After the page has painted: when the browser is idle (at most 1.2 s later)
 function whenIdle(callback) {
@@ -14,9 +31,10 @@ function whenIdle(callback) {
 
 /**
  * Turns the static label pile of the hero stage into physics labels once the stage is on screen and
- * the page has painted. matter-js is only downloaded then (its own chunk). The loop pauses while the
- * stage is off screen or `paused` (hidden tab). Nothing happens while `enabled` is false (reduced
- * motion, data still loading); if loading fails the static pile simply stays.
+ * the page has painted. matter-js is only downloaded then (its own chunk); the labels drop once the
+ * opening screen is gone. The loop pauses while the stage is off screen or `paused` (hidden tab).
+ * Nothing happens while `enabled` is false (reduced motion, data still loading); if loading fails the
+ * static pile simply stays.
  * @param {React.RefObject<HTMLElement>} stageRef the `.pub-stage` element
  * @param {{ enabled: boolean, rebuildKey: string, paused: boolean, onImpact: Function }} options
  */
@@ -44,8 +62,9 @@ export function usePhysicsStage(stageRef, { enabled, rebuildKey, paused, onImpac
 
     const start = () => {
       cancelIdle = null
-      loadPhysics()
-        .then(({ createPhysicsStage }) => {
+      // matter-js downloads during the opening screen; the labels drop once it is gone
+      Promise.all([loadPhysics(), afterIntro()])
+        .then(([{ createPhysicsStage }]) => {
           if (cancelled) return
           controllerRef.current = createPhysicsStage(stage, { onImpact: (impact) => impactRef.current?.(impact) })
           controllerRef.current.setPaused(pausedRef.current || !visibleRef.current)

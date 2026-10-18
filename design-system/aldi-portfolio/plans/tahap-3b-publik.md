@@ -455,7 +455,7 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
       easter egg, diam/tidur, sesuai jam, reaksi) + reaksi proyek sesuai K4
 - [ ] 5. Footer: tombol Buku tamu berhenti di atas footer (K5) + robot kembali ke atas
 - [ ] 6. Robot di panel buku tamu
-- [ ] 7. Layar pembuka
+- [x] 7. Layar pembuka
 - [ ] 8. Uji otomatis + perbaikan
 - [ ] 9. Dokumentasi (`pages/public.md`, `MASTER.md` §13/§15, `PRODUCT.md`, `BRIEF.md` bila ada keputusan baru),
       laporan dan uji manual

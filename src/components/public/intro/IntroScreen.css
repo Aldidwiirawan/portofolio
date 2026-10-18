@@ -1,0 +1,81 @@
+/* Layar pembuka (3B): logo merakit diri lalu terbang ke logo navbar. Hanya transform dan opacity. */
+
+.pub-intro {
+  --pub-intro-gap: 78px; /* setengah logo (58 px) + 20 px udara */
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: grid;
+  place-items: center;
+}
+
+.pub-intro[data-phase='fly'],
+.pub-intro[data-phase='leave'] {
+  pointer-events: none;
+}
+
+.pub-intro-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--ds-canvas);
+  transition: opacity 260ms var(--ds-ease-in-out);
+}
+
+.pub-intro[data-phase='fly'] .pub-intro-backdrop {
+  opacity: 0;
+}
+
+.pub-intro-logo {
+  position: relative;
+  color: var(--ds-accent-text);
+  transform-origin: center;
+  transition:
+    transform 260ms var(--ds-ease-in-out),
+    opacity 160ms linear;
+}
+
+/* Bracket dari sudut layar menyempit ke sekitar logo, seperti jendela bidik */
+.pub-intro-corner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 0 solid var(--ds-accent-text);
+  animation: pub-intro-close 460ms var(--ds-ease-out) both;
+  transition: opacity 160ms linear;
+}
+
+.pub-intro-corner--tl { border-top-width: 2px; border-left-width: 2px; }
+.pub-intro-corner--tr { border-top-width: 2px; border-right-width: 2px; }
+.pub-intro-corner--bl { border-bottom-width: 2px; border-left-width: 2px; }
+.pub-intro-corner--br { border-bottom-width: 2px; border-right-width: 2px; }
+
+@keyframes pub-intro-close {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--x) * (50vw - 32px)), calc(var(--y) * (50vh - 32px)));
+  }
+  to {
+    opacity: 1;
+    transform: translate(calc(var(--x) * var(--pub-intro-gap)), calc(var(--y) * var(--pub-intro-gap)));
+  }
+}
+
+.pub-intro[data-phase='fly'] .pub-intro-corner,
+.pub-intro[data-phase='leave'] .pub-intro-corner {
+  opacity: 0;
+}
+
+/* Dilewati (klik, tombol, roda): semuanya memudar cepat */
+.pub-intro[data-phase='leave'] {
+  opacity: 0;
+  transition: opacity 160ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-intro {
+    display: none;
+  }
+}
