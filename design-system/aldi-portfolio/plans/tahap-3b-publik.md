@@ -447,7 +447,7 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
 ## 13. Urutan commit
 
 - [x] 0. Rencana ini (`plans/tahap-3b-publik.md`)
-- [ ] 1. Kursor viewfinder: cek ulang target di bawah mouse yang diam (+ uji login/admin)
+- [x] 1. Kursor viewfinder: cek ulang target di bawah mouse yang diam (+ uji login/admin)
 - [ ] 2. Suara: konteks + tombol (navbar ≥1024, menu <1024) + bunyi "tok" Web Audio dengan batas frekuensi
 - [ ] 3. Label fisika: pasang matter-js, panggung fisika lazy (jatuh, seret/lempar, ketuk di HP, bunyi tabrakan,
       berhenti saat diam/di luar layar/tab tidak aktif, reduced motion statis)

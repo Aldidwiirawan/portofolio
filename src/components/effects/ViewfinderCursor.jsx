@@ -10,6 +10,7 @@ const NAV_KEYS = new Set(['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRigh
 const LOCK_PAD = 6 // px of air between the element and its brackets
 const CORNER = 10 // bracket arm length in px (matches the CSS)
 const FREE_BOX = 10 // half size of the hidden bracket box around the pointer
+const CLICK_RECHECK_MS = 450 // after a click, keep checking what is under the pointer (panels open late)
 const ACTIVE_CLASS = 'vf-cursor-active'
 const REDUCED_CLASS = 'vf-cursor-reduced'
 
@@ -46,6 +47,9 @@ function ViewfinderLayer({ reducedMotion }) {
       modality: 'pointer',
       hoverTarget: null,
       focusTarget: null,
+      // true right after pointermove: its target is fresh, so render does not need to hit-test
+      hoverFresh: false,
+      recheckUntil: 0,
       frame: 0,
       box: '',
       theme: null,
@@ -64,8 +68,19 @@ function ViewfinderLayer({ reducedMotion }) {
       br.style.transform = `translate3d(${right - CORNER}px, ${bottom - CORNER}px, 0)`
     }
 
-    const render = () => {
+    // What lies under a pointer that has not moved can still change: a click opens a panel over the
+    // element, the page scrolls under the wheel, a dialog appears. Ask the browser again instead of
+    // keeping the element from the last pointermove (the brackets would stay on a covered button).
+    const hitTest = () => {
+      const el = document.elementFromPoint(state.x, state.y)
+      state.hoverTarget = el?.closest(LOCK_SELECTOR) ?? null
+      state.overText = Boolean(el?.closest(TEXT_SELECTOR))
+    }
+
+    const render = (now) => {
       state.frame = 0
+      if (state.modality === 'pointer' && state.pointerInside && !state.hoverFresh) hitTest()
+      state.hoverFresh = false
       const candidate = state.modality === 'keyboard' ? state.focusTarget : state.hoverTarget
       const target = candidate && candidate.isConnected ? candidate : null
 
@@ -98,6 +113,8 @@ function ViewfinderLayer({ reducedMotion }) {
       } else {
         place(state.x - FREE_BOX, state.y - FREE_BOX, state.x + FREE_BOX, state.y + FREE_BOX)
         lock.dataset.state = 'free'
+        // Shortly after a click, something lockable may still appear under the pointer
+        if (now < state.recheckUntil) state.frame = requestAnimationFrame(render)
       }
     }
 
@@ -117,7 +134,13 @@ function ViewfinderLayer({ reducedMotion }) {
         state.modality = 'pointer'
         state.hoverTarget = el?.closest(LOCK_SELECTOR) ?? null
         state.overText = Boolean(el?.closest(TEXT_SELECTOR))
+        state.hoverFresh = true
       }
+      schedule()
+    }
+
+    const onClick = () => {
+      state.recheckUntil = performance.now() + CLICK_RECHECK_MS
       schedule()
     }
 
@@ -155,6 +178,7 @@ function ViewfinderLayer({ reducedMotion }) {
 
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     document.addEventListener('pointerout', onPointerOut, { passive: true })
+    document.addEventListener('click', onClick, { passive: true, capture: true })
     window.addEventListener('keydown', onKeyDown, true)
     document.addEventListener('focusin', onFocusIn)
     document.addEventListener('focusout', onFocusOut)
@@ -173,6 +197,7 @@ function ViewfinderLayer({ reducedMotion }) {
       cancelAnimationFrame(state.frame)
       window.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('pointerout', onPointerOut)
+      document.removeEventListener('click', onClick, { capture: true })
       window.removeEventListener('keydown', onKeyDown, true)
       document.removeEventListener('focusin', onFocusIn)
       document.removeEventListener('focusout', onFocusOut)
