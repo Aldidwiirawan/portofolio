@@ -292,7 +292,7 @@ Gelembung robot memakai gaya gelembung yang sama dengan ayam dan bebek.
 Disimpan di `src/i18n/characterLines.js`, ikut bahasa yang dipilih. `{name}` = nama depan dari profil ("Aldi").
 Kolom **Sumber**: BRIEF = dari BRIEF §6; **baru** = usulan saya, mohon disetujui atau diubah (K9).
 
-**Aturan bicara:** satu gelembung pada satu waktu; jeda acak 6–10 dtk; gelembung tampil 2–3 dtk (sesuai panjang
+**Aturan bicara:** satu gelembung pada satu waktu; jeda acak 10–15 dtk (keputusan pemilik 19 Okt, §11a); gelembung tampil 2–3 dtk (sesuai panjang
 kalimat); kalimat yang sama tidak muncul dua kali berturut-turut; ayam bicara ±2× lebih sering daripada bebek.
 
 | Situasi | Siapa | Indonesia | English | Sumber |
@@ -303,13 +303,13 @@ kalimat); kalimat yang sama tidak muncul dua kali berturut-turut; ayam bicara ±
 | Sesuai jam — pagi 04.00–10.59 | Ayam | Kukuruyuk! Selamat pagi! | Cock-a-doodle-doo! Morning! | BRIEF |
 | siang 11.00–14.59 | Ayam | Selamat siang! Jangan lupa makan. | Good afternoon! Don't skip lunch. | baru |
 | sore 15.00–17.59 | Bebek | Sore-sore begini enaknya santai... | Afternoons are for chilling... | baru |
-| malam 18.00–21.59 | Ayam | Selamat malam! Masih semangat? | Good evening! Still going? | baru |
+| malam 18.00–21.59 | Ayam | Selamat malam! Masih semangat? | Good evening! Still going strong? | baru |
 | larut 22.00–03.59 | Bebek | Begadang, ya? Aku juga. | Up late? Me too. | BRIEF |
 | Iseng | Ayam | Sudah lihat proyeknya? Keren, lho. | Seen the projects? They're cool. | BRIEF |
 | | Bebek | Aku lupa mau ke mana. | I forgot where I was going. | BRIEF |
 | | Ayam | Jangan lupa isi buku tamu! | Don't forget the guestbook! | BRIEF |
 | | Bebek | Kwek. | Quack. | BRIEF |
-| | Ayam (hanya bila ada CV) | CV-nya bisa diunduh, lho! | You can download the CV, you know! | baru |
+| | Ayam (hanya bila ada CV) | CV-nya bisa diunduh, lho! | Psst, the CV is ready to download! | baru |
 | | Bebek | Aku bebek. Itu saja. | I'm a duck. That's all. | baru |
 | Kabur dari kursor (desktop) | Ayam | Petok! Kaget! | Bawk! You scared me! | BRIEF |
 | | Bebek | Kweeek! Lari! | Quaaack! Run! | BRIEF |
@@ -320,16 +320,16 @@ kalimat); kalimat yang sama tidak muncul dua kali berturut-turut; ayam bicara ±
 | | Bebek | Wiii! | Wheee! | BRIEF |
 | | Ayam | Lagi, lagi! | Again! | BRIEF |
 | Saling mengobrol 1 | Ayam → Bebek | Siapa yang bikin web ini? | Who built this site? | BRIEF |
-| | Bebek → Ayam | {name}, dong. | {name}, duh. | BRIEF |
+| | Bebek → Ayam | {name}, dong. | {name}, of course. | BRIEF |
 | Saling mengobrol 2 | Bebek → Ayam | Kenapa kita di sini? | Why are we here? | BRIEF |
-| | Ayam → Bebek | Jaga portofolio {name}, dong. | Guarding {name}'s portfolio, duh. | BRIEF |
+| | Ayam → Bebek | Jaga portofolio {name}, dong. | Guarding {name}'s portfolio, of course. | BRIEF |
 | Saling mengobrol 3 | Ayam → Bebek | Kamu sudah baca proyeknya? | Did you read the projects? | baru |
 | | Bebek → Ayam | Sudah... yang mana, ya? | I did... which one was it? | baru |
 | Mode gelap dinyalakan | Ayam | Eh, sudah malam? | Wait, is it night already? | BRIEF |
 | Mode terang dinyalakan | Bebek | Silau... | So bright... | baru |
 | Bahasa diganti ke English | Bebek | — | Quack! Switching to English! | BRIEF |
-| Bahasa diganti ke Indonesia | Bebek | Kwek! Ganti ke Indonesia! | — | BRIEF |
-| Gulir ke proyek (K4) | Ayam | Ini proyek favoritku! | This one's my favorite! | BRIEF |
+| Bahasa diganti ke Indonesia | Bebek | Kwek! Ganti ke bahasa Indonesia! | — | BRIEF |
+| Gulir ke proyek (K4) | Ayam | Nah, ini proyek-proyek {name}! | Here are {name}'s projects! | BRIEF (diubah) |
 | Label jatuh di dekat | Bebek | Aduh, kepalaku! | Ouch, my head! | BRIEF |
 | | Ayam | Hei, hati-hati! | Hey, watch it! | baru |
 | Pengunjung diam ±40 dtk | Bebek | Masih di situ? | Still there? | BRIEF |
@@ -408,6 +408,20 @@ berbunyi satu "tok" sebagai tanda. Setuju?
 - **K9:** kalimat di §10 sedang dicek pemilik dan akan dikirim balik. Sampai saat itu hanya butir yang tidak memakai
   kalimat karakter yang dikerjakan: 1 (kursor), 2 (suara), 3 (label fisika), 7 (layar pembuka). Butir 4 (ayam dan
   bebek), 5 (robot footer), dan 6 (robot buku tamu) menunggu kalimat final.
+
+**Kalimat final (19 Oktober 2026).** Semua kalimat §10 disetujui (termasuk yang bertanda "baru" dan kalimat robot),
+dengan perubahan berikut (tabel §10 sudah diperbarui):
+
+- EN obrolan 1: "{name}, duh." → **"{name}, of course."**
+- EN obrolan 2: "Guarding {name}'s portfolio, duh." → **"Guarding {name}'s portfolio, of course."**
+- EN iseng CV: "You can download the CV, you know!" → **"Psst, the CV is ready to download!"**
+- Gulir ke proyek (K4): ID "Ini proyek favoritku!" → **"Nah, ini proyek-proyek {name}!"**; EN "This one's my
+  favorite!" → **"Here are {name}'s projects!"**
+- Ganti bahasa ke Indonesia: "Kwek! Ganti ke Indonesia!" → **"Kwek! Ganti ke bahasa Indonesia!"**
+- EN malam: "Good evening! Still going?" → **"Good evening! Still going strong?"**
+- **Jeda acak antar kalimat 10–15 detik** (bukan 6–10 detik seperti BRIEF §6; BRIEF diperbarui di butir 9).
+
+Butir 4, 5, dan 6 dilanjutkan.
 
 ---
 
