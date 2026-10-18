@@ -294,6 +294,19 @@ Bisa diubah kapan saja lewat `VITE_SITE_URL`.
 **K11. Pratinjau tautan per proyek.** Tanpa server rendering, WhatsApp/LinkedIn melihat judul dan gambar OG situs untuk
 semua alamat (termasuk `/projects/:slug`). Usulan: diterima untuk sekarang.
 
+## 8a. Jawaban pemilik project (19 Oktober 2026)
+
+Semua usulan K1–K11 disetujui, dengan catatan:
+
+- **K5:** fungsi Vercel + API resmi GitHub. Token **fine-grained**, hanya membaca data publik (tanpa izin repo), masa
+  berlaku 1 tahun. `DEPLOY.md` menjelaskan cara membuat dan memperbarui token. Saat dev lokal tanpa token, atau saat
+  fungsi gagal, grafik disembunyikan dengan rapi.
+- **K9:** CSP ketat, tetapi semua fitur diuji di build produksi: login, unggah gambar dan PDF di admin, pratinjau PDF,
+  lightbox, buku tamu, formulir kontak, label fisika, dan suara. Bila ada yang berisiko rusak, pakai
+  `Content-Security-Policy-Report-Only` dulu dan laporkan.
+- **K10:** `aldidwiirawan.vercel.app`; cadangan bila sudah dipakai: `aldidwiirawan-portfolio.vercel.app`.
+- **K7:** `DEPLOY.md` juga menjelaskan cara redeploy manual supaya proyek baru masuk sitemap.
+
 ---
 
 ## 9. Urutan commit
