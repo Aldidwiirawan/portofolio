@@ -25,27 +25,22 @@ const EVENTS = {
  */
 function GuestbookRobot({ watching, lookAt, event }) {
   const { lang } = useI18n()
-  const [shown, setShown] = useState(null) // { kind, key } still on screen
-  const [moodEvent, setMoodEvent] = useState(null)
+  // Keys of the last event whose bubble / mood has run out; the newest event shows until then
+  const [bubbleDone, setBubbleDone] = useState(0)
+  const [moodDone, setMoodDone] = useState(0)
+  const config = event ? EVENTS[event.kind] : null
 
-  // A new event: show its line and mood for a moment (timers only, from the event that caused it)
   useEffect(() => {
-    if (!event) return undefined
-    const config = EVENTS[event.kind]
-    if (!config) return undefined
-    const timers = [
-      setTimeout(() => setShown(event), 0),
-      setTimeout(() => setShown((current) => (current?.key === event.key ? null : current)), BUBBLE_MS),
-    ]
-    if (config.mood) {
-      timers.push(setTimeout(() => setMoodEvent(event), 0))
-      timers.push(setTimeout(() => setMoodEvent((current) => (current?.key === event.key ? null : current)), MOOD_MS[config.mood]))
-    }
+    if (!event || !config) return undefined
+    const timers = [setTimeout(() => setBubbleDone(event.key), BUBBLE_MS)]
+    if (config.mood) timers.push(setTimeout(() => setMoodDone(event.key), MOOD_MS[config.mood]))
     return () => timers.forEach(clearTimeout)
-  }, [event])
+  }, [event, config])
 
-  const mood = moodEvent ? EVENTS[moodEvent.kind].mood : watching ? 'watching' : 'idle'
-  const line = shown ? EVENTS[shown.kind].line : null
+  const shown = config && event.key > bubbleDone ? event : null
+  const moodEvent = config?.mood && event.key > moodDone ? event : null
+  const mood = moodEvent ? config.mood : watching ? 'watching' : 'idle'
+  const line = shown ? config.line : null
 
   return (
     <div className="pub-gb-robot" aria-hidden="true">

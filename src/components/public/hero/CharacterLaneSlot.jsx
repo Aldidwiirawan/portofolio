@@ -1,7 +1,7 @@
-import { lazy, Suspense, useRef } from 'react'
-import { useNearViewport } from '../useNearViewport'
+import { Suspense, useRef } from 'react'
+import { lazyDecor, useNearViewport } from '../useNearViewport'
 
-const CharacterLane = lazy(() => import('../characters/CharacterLane'))
+const CharacterLane = lazyDecor(() => import('../characters/CharacterLane'))
 
 /**
  * The lane above the status bar line where the chicken and the duck walk (stage 3B). The characters,

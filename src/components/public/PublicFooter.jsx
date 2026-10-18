@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef } from 'react'
+import { Suspense, useRef } from 'react'
 import Logo from '../brand/Logo'
 import { prefersReducedMotion } from '../../lib/useMediaQuery'
 import { useI18n } from '../../i18n/i18nContext'
@@ -7,10 +7,10 @@ import { emitInteraction } from './interactionBus'
 import { usePublicData } from './publicContexts'
 import { SITE_NAME } from './publicFormat'
 import SocialLinks from './SocialLinks'
-import { useNearViewport } from './useNearViewport'
+import { lazyDecor, useNearViewport } from './useNearViewport'
 import './PublicFooter.css'
 
-const FooterRobot = lazy(() => import('./robot/FooterRobot'))
+const FooterRobot = lazyDecor(() => import('./robot/FooterRobot'))
 
 /**
  * Footer: logo and name, copyright, social links and "Kembali ke atas" (scrolls up and moves focus

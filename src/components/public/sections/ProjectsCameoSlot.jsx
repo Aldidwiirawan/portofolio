@@ -1,10 +1,10 @@
-import { lazy, Suspense, useRef, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import { useMediaQuery, usePrefersReducedMotion } from '../../../lib/useMediaQuery'
 import { readStorage } from '../../../lib/safeStorage'
 import { CAMEO_STORAGE_KEY } from '../characters/cameoKey'
-import { useNearViewport } from '../useNearViewport'
+import { lazyDecor, useNearViewport } from '../useNearViewport'
 
-const ProjectsCameo = lazy(() => import('../characters/ProjectsCameo'))
+const ProjectsCameo = lazyDecor(() => import('../characters/ProjectsCameo'))
 
 /**
  * Room next to the "Proyek" heading where the chicken shows up once per visit (stage 3B, owner K4):
