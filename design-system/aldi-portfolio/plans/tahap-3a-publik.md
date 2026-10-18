@@ -413,7 +413,7 @@ Semua usulan K1–K10 disetujui, dengan catatan:
       (provider, tombol, skrip anti-kilatan), i18n (provider, kamus ID/EN, format tanggal), rute
       `/projects/:slug` dan 404 (kerangka)
 - [x] 2. Data: `usePublicPortfolio` + `usePublicProject`; hapus `portfolioData.js` dan logika cadangan
-- [ ] 3. Kerangka: navbar (menu HP, tema, bahasa, CV), footer, `ViewfinderCursor` (hapus `CustomCursor`), skeleton
+- [x] 3. Kerangka: navbar (menu HP, tema, bahasa, CV), footer, `ViewfinderCursor` (hapus `CustomCursor`), skeleton
 - [ ] 4. Hero + bar status + panggung 3B
 - [ ] 5. Tentang
 - [ ] 6. Proyek (kartu studi kasus + daftar ringkas)

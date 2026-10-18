@@ -5,6 +5,9 @@ import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/inter'
 import '@fontsource-variable/jetbrains-mono'
 import './index.css'
+// Base styles of the public pages right after the global ones, so every component stylesheet (loaded
+// later) can override them at equal specificity
+import './components/public/public.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(

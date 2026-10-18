@@ -7,7 +7,8 @@ import { usePublicPortfolio } from '../../hooks/usePublicPortfolio'
 import ThemeProvider from './ThemeProvider'
 import { PublicDataContext, useTheme } from './publicContexts'
 import { PageSkeleton } from './Skeletons'
-import './public.css'
+import PublicFooter from './PublicFooter'
+import PublicNavbar from './PublicNavbar'
 
 /**
  * Frame of every public page (home, project detail, 404): theme and language providers, the public
@@ -37,11 +38,13 @@ function PublicShell() {
         {t('common.skip')}
       </a>
       <ViewfinderCursor />
+      <PublicNavbar />
       <main id="konten" className="pub-main" tabIndex={-1}>
         <Suspense fallback={<PageSkeleton />}>
           <Outlet />
         </Suspense>
       </main>
+      <PublicFooter />
     </div>
   )
 }

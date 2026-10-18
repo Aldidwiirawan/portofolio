@@ -1,0 +1,81 @@
+/* Footer publik dan daftar tautan sosial (dipakai juga di hero dan kontak) */
+
+.pub-footer {
+  border-top: 1px solid var(--ds-border);
+  background-color: var(--ds-surface);
+}
+
+.pub[data-theme='dark'] .pub-footer {
+  background-color: color-mix(in srgb, var(--ds-surface) 60%, var(--ds-canvas));
+}
+
+.pub-footer-inner {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-10) var(--space-8);
+}
+
+.pub-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pub-footer-brand .brand-logo {
+  color: var(--ds-accent-text);
+}
+
+.pub-footer-name {
+  color: var(--ds-text-strong);
+  font-weight: var(--ds-fw-bold);
+}
+
+.pub-footer-role {
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--ds-border);
+}
+
+.pub-footer-rights {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 768px) {
+  .pub-footer-inner {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .pub-footer-bottom {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Daftar ikon sosial */
+.pub-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.pub-social-link {
+  color: var(--ds-text-muted);
+}
+
+/* Teks tombol "Kembali ke atas" sejajar dengan tepi kanan konten */
+.pub-footer-bottom .pub-btn {
+  margin-right: -0.875rem;
+}

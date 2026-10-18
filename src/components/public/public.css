@@ -306,6 +306,7 @@ html:has(.pub) {
   padding: 0 1.25rem;
   border: 1px solid transparent;
   border-radius: var(--pub-radius);
+  background-color: transparent;
   font-size: var(--ds-fs-md);
   font-weight: var(--ds-fw-semibold);
   line-height: 1.2;
