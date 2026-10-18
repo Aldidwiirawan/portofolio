@@ -417,7 +417,7 @@ Semua usulan K1–K10 disetujui, dengan catatan:
 - [x] 4. Hero + bar status + panggung 3B
 - [x] 5. Tentang
 - [x] 6. Proyek (kartu studi kasus + daftar ringkas)
-- [ ] 7. Keahlian (baris berjalan + logo sesuai K1)
+- [x] 7. Keahlian (baris berjalan + logo sesuai K1)
 - [ ] 8. Pengalaman + Pendidikan
 - [ ] 9. Sertifikat (+ lightbox) + Prestasi + Organisasi
 - [ ] 10. Kontak (formulir + topik)

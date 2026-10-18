@@ -199,6 +199,34 @@ html:has(.pub) {
   }
 }
 
+/* Kepala section dengan tombol di kanan (Section actions) */
+.pub-section-head--actions {
+  max-width: none;
+}
+
+.pub-section-actions {
+  display: flex;
+  margin-top: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .pub-section-head--actions {
+    grid-template-columns: minmax(0, 44rem) auto;
+    justify-content: space-between;
+  }
+
+  .pub-section-head--actions > :not(.pub-section-actions) {
+    grid-column: 1;
+  }
+
+  .pub-section-actions {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: end;
+    margin-top: 0;
+  }
+}
+
 .pub-h2 {
   font-size: clamp(1.875rem, 1.25rem + 2.2vw, 2.75rem);
   font-weight: var(--ds-fw-heavy);

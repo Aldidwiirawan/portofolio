@@ -1,6 +1,7 @@
 import HeroSection from '../components/public/hero/HeroSection'
 import AboutSection from '../components/public/sections/AboutSection'
 import ProjectsSection from '../components/public/sections/ProjectsSection'
+import SkillsSection from '../components/public/skills/SkillsSection'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
@@ -25,6 +26,7 @@ function PublicHomePage() {
       <HeroSection />
       <AboutSection />
       <ProjectsSection />
+      <SkillsSection />
     </>
   )
 }
