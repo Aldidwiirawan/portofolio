@@ -1,14 +1,18 @@
 /* Tombol buku tamu mengambang dan panel buku tamu */
 
+/* Menempel di bawah layar selama menggulir, lalu berhenti di atas footer (3B, K5) supaya tidak menutupi
+   "Kembali ke atas" dan robot a+. Tombol ini anak terakhir <main> (kolom flex): sticky di dalam <main>,
+   dengan margin yang membuat tingginya di alur halaman nol (48 px naik, 16/24 px turun). */
 .pub-gb-fab {
-  position: fixed;
-  right: var(--space-4);
+  position: sticky;
   bottom: var(--space-4);
   z-index: 90;
+  align-self: flex-end;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 3rem;
+  height: 3rem;
+  margin: calc(-3rem - var(--space-4)) var(--space-4) var(--space-4) 0;
   padding: 0 var(--space-3) 0 var(--space-4);
   border: 1px solid var(--ds-border-control);
   border-radius: var(--pub-radius);
@@ -44,8 +48,8 @@
 
 @media (min-width: 768px) {
   .pub-gb-fab {
-    right: var(--space-6);
     bottom: var(--space-6);
+    margin: calc(-3rem - var(--space-6)) var(--space-6) var(--space-6) 0;
   }
 }
 

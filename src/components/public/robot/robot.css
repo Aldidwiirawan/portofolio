@@ -1,0 +1,47 @@
+/* Robot a+ di halaman publik (3B): pojok kanan bawah footer. Bentuk dan suasana hati dari RobotMascot
+   (tidak diubah); file ini hanya mengatur posisi: tersembunyi di bawah tepi halaman, mengintip, berdiri. */
+
+.pub-top-robot-inner {
+  position: absolute;
+  inset: 0;
+}
+
+.pub-top-robot-figure {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 52px;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translateY(100%);
+  transition: transform 320ms var(--ds-ease-out);
+}
+
+/* Mengintip: antena dan mata saja di atas tepi */
+.pub-top-robot-inner[data-pose='peek'] .pub-top-robot-figure {
+  transform: translateY(58%);
+}
+
+.pub-top-robot-inner[data-pose='up'] .pub-top-robot-figure {
+  transform: none;
+}
+
+/* Gelembung di atas robot, rata kanan, tidak turun ke baris tombol */
+.pub-top-robot-bubble {
+  --tail: calc(100% - 26px);
+  right: 0;
+  bottom: 80px;
+  left: auto;
+}
+
+/* Footer di luar layar: napas dan kedip robot berhenti */
+.pub-top-robot-inner[data-paused] .robot,
+.pub-top-robot-inner[data-paused] .robot * {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-top-robot-figure {
+    transition: none;
+  }
+}

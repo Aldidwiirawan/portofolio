@@ -1,23 +1,34 @@
+import { lazy, Suspense, useRef } from 'react'
 import Logo from '../brand/Logo'
 import { prefersReducedMotion } from '../../lib/useMediaQuery'
 import { useI18n } from '../../i18n/i18nContext'
 import { ArrowUpIcon } from './icons'
+import { emitInteraction } from './interactionBus'
 import { usePublicData } from './publicContexts'
 import { SITE_NAME } from './publicFormat'
 import SocialLinks from './SocialLinks'
+import { useNearViewport } from './useNearViewport'
 import './PublicFooter.css'
+
+const FooterRobot = lazy(() => import('./robot/FooterRobot'))
 
 /**
  * Footer: logo and name, copyright, social links and "Kembali ke atas" (scrolls up and moves focus
- * to the top of the content). No admin link: the admin stays at /admin/login.
+ * to the top of the content). Robot a+ stands next to that button (stage 3B, loaded when the footer
+ * comes near): a decorative, pointer-only twin of the button. No admin link: the admin stays at
+ * /admin/login.
  */
 function PublicFooter() {
   const { t } = useI18n()
   const profile = usePublicData().profile.data
   const name = profile?.full_name || SITE_NAME
   const role = profile?.primary_role
+  const buttonRef = useRef(null)
+  const robotSlotRef = useRef(null)
+  const robotNear = useNearViewport(robotSlotRef, '600px')
 
   const backToTop = () => {
+    emitInteraction('back-to-top')
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
     document.getElementById('konten')?.focus({ preventScroll: true })
   }
@@ -37,10 +48,17 @@ function PublicFooter() {
 
         <div className="pub-footer-bottom">
           <p className="pub-footer-rights">{t('footer.rights', { year: new Date().getFullYear(), name })}</p>
-          <button type="button" className="pub-btn pub-btn--ghost pub-btn--sm" onClick={backToTop}>
+          <button ref={buttonRef} type="button" className="pub-btn pub-btn--ghost pub-btn--sm pub-top-btn" onClick={backToTop}>
             <ArrowUpIcon size={16} />
             <span>{t('common.backToTop')}</span>
           </button>
+          <div ref={robotSlotRef} className="pub-top-robot" aria-hidden="true">
+            {robotNear && (
+              <Suspense fallback={null}>
+                <FooterRobot slotRef={robotSlotRef} buttonRef={buttonRef} onActivate={backToTop} />
+              </Suspense>
+            )}
+          </div>
         </div>
       </div>
     </footer>

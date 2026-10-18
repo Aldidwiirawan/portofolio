@@ -1,6 +1,9 @@
 /* Footer publik dan daftar tautan sosial (dipakai juga di hero dan kontak) */
 
 .pub-footer {
+  position: relative;
+  /* Robot a+ bersembunyi di bawah tepi halaman: dipotong di sini, tanpa menambah ruang gulir */
+  overflow: clip;
   border-top: 1px solid var(--ds-border);
   background-color: var(--ds-surface);
 }
@@ -36,12 +39,15 @@
 }
 
 .pub-footer-bottom {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   padding-top: var(--space-5);
+  /* Ruang robot a+ di kanan tombol (52 px + celah) */
+  padding-right: calc(52px + var(--space-3));
   border-top: 1px solid var(--ds-border);
 }
 
@@ -75,7 +81,17 @@
   color: var(--ds-text-muted);
 }
 
-/* Teks tombol "Kembali ke atas" sejajar dengan tepi kanan konten */
-.pub-footer-bottom .pub-btn {
-  margin-right: -0.875rem;
+/* "Kembali ke atas" tetap rata kanan (juga saat baris turun di HP), di sebelah robot */
+.pub-footer-bottom .pub-top-btn {
+  margin-left: auto;
+}
+
+/* Pojok robot a+ (3B): dari tepi bawah footer, setinggi robot */
+.pub-top-robot {
+  position: absolute;
+  right: 0;
+  bottom: calc(-1 * var(--space-8));
+  width: 52px;
+  height: 63px;
+  pointer-events: none;
 }

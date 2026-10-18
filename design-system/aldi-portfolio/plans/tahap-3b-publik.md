@@ -467,7 +467,7 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
       berhenti saat diam/di luar layar/tab tidak aktif, reduced motion statis)
 - [x] 4. Ayam dan bebek: SVG, `characterLines.js`, jalur di bar status, perilaku (jalan, sapa, obrol, kabur, lompat,
       easter egg, diam/tidur, sesuai jam, reaksi) + reaksi proyek sesuai K4
-- [ ] 5. Footer: tombol Buku tamu berhenti di atas footer (K5) + robot kembali ke atas
+- [x] 5. Footer: tombol Buku tamu berhenti di atas footer (K5) + robot kembali ke atas
 - [ ] 6. Robot di panel buku tamu
 - [x] 7. Layar pembuka
 - [ ] 8. Uji otomatis + perbaikan
