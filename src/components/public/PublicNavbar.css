@@ -162,6 +162,22 @@
   }
 }
 
+/* Layar 1024–1279 px: menu sedikit dirapatkan supaya muat bersama tombol bahasa, tema, dan CV */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .pub-nav-bar {
+    gap: var(--space-3);
+  }
+
+  .pub-nav-link {
+    padding: 0 var(--space-2);
+  }
+
+  .pub-nav-link::after {
+    left: var(--space-2);
+    right: var(--space-2);
+  }
+}
+
 /* Nama di samping logo disembunyikan di layar sangat sempit supaya tombol tidak terdesak */
 @media (max-width: 359px) {
   .pub-nav-name {
