@@ -16,8 +16,8 @@
 - **Tanpa kilatan tema:** skrip kecil di `index.html` memasang `data-pub-theme` di `<html>` sebelum render
   pertama, **hanya bila alamat bukan `/admin…`**. `ThemeProvider` memperbarui atribut itu dan melepasnya saat
   halaman publik ditinggalkan, jadi login dan admin tidak pernah melihatnya.
-- **Identitas yang dipertahankan:** nama raksasa uppercase dengan gradien (gelap: `--ds-brand-from` →
-  `--ds-brand-to`; terang: `--ds-accent-text` → `--ds-success-text`, keduanya ≥4,5:1), grid blueprint `busy`
+- **Identitas yang dipertahankan:** nama raksasa uppercase **satu warna** `--ds-text-strong` (keputusan pemilik
+  18 Oktober 2026, menggantikan gradien; 18,57:1 gelap / 16,78:1 terang), grid blueprint `busy`
   dengan jalur sirkuit di hero/404/detail, aksen monospace (`~/buku-tamu`), label bergaya tag blueprint
   (bracket di 4 sudut, `.pub-tag`), logo monogram, kursor viewfinder.
 - **Dibuang dari tampilan lama:** kartu ID 3D, spotlight mouse, `CustomCursor`, emoji sebagai ikon, angka hero
@@ -96,7 +96,7 @@ Prestasi (bila ada) · Organisasi (bila ada) · Kontak · Footer · tombol Buku 
   diawali `.pub-*`, `:where(.pub)`, `html[data-pub-theme]`, atau `html:has(.pub)`. Reset lokal menetralkan aturan
   global `h1–h6`, `p`, `a` lama; setiap `<a>` publik memakai kelas yang menetapkan warna dasar dan `:hover`-nya.
 - Token komponen: `--pub-max` 1200 px, `--pub-gutter`, `--pub-nav-h` 64 px, `--pub-section-y`, `--pub-radius`
-  4 px, `--pub-brackets` (bracket sudut), `--pub-name-from/to`, `--pub-logo-plate`.
+  4 px, `--pub-brackets` (bracket sudut), `--pub-logo-plate`.
 - **Pengecualian primitive yang terdokumentasi:** latar `<html>` per tema (`--palette-navy-950` /
   `--palette-slate-75`, seperti login) dan `--pub-logo-plate` (`--palette-white`, pelat di balik logo instansi).
 - Kolom isian publik memakai rel fokus kiri yang sama dengan admin (`.pub-control::before`).

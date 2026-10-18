@@ -185,7 +185,7 @@ cetak biru, jalur sirkuit, bracket sudut, kursor viewfinder), sementara konten d
 berhierarki jelas, dan punya satu aksi utama per layar. Dekorasi tinggal di latar dan tidak pernah
 mengganggu isi, keyboard, atau pengguna yang mengurangi gerak.
 
-**Satu identitas, dua tema.** Halaman publik berkarakter (navy, gradien sky ke emerald, judul besar,
+**Satu identitas, dua tema.** Halaman publik berkarakter (navy, nama raksasa satu warna, grid blueprint,
 aksen monospace). Login dan admin memakai tema terang untuk kerja yang tenang. Keduanya memakai token semantic
 yang sama (`--ds-*`), dipilih lewat atribut `data-theme` yang boleh bersarang (mis. sidebar admin dan panel
 brand login gelap di dalam halaman terang). Status saat ini: login, seluruh admin, dan halaman publik (sejak tahap 3A,

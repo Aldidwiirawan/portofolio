@@ -33,7 +33,7 @@ Dua arah ditawarkan: A "Blueprint" dan B "Studio" (teal + Space Grotesk/DM Sans)
 
 ## 1. Prinsip
 
-1. **Satu identitas, dua tema.** Halaman publik berkarakter (navy, gradien sky→emerald, judul besar, aksen
+1. **Satu identitas, dua tema.** Halaman publik berkarakter (navy, nama raksasa satu warna, grid blueprint, aksen
    monospace) dan sejak tahap 3A mengikuti tema perangkat dengan tombol gelap/terang. Login dan admin memakai
    tema **terang** untuk kerja yang tenang. Semuanya memakai token yang sama.
 2. **Token dulu.** Komponen hanya memakai token semantic `--ds-*`. Hex mentah dan `--palette-*` tidak dipakai

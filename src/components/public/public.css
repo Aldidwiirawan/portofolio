@@ -67,9 +67,6 @@ html:has(.pub) {
     linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom left / var(--pub-bracket-w) var(--pub-bracket-len),
     linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom right / var(--pub-bracket-len) var(--pub-bracket-w),
     linear-gradient(var(--pub-bracket), var(--pub-bracket)) bottom right / var(--pub-bracket-w) var(--pub-bracket-len);
-  /* Gradien nama di hero: sky → emerald di tema gelap; versi tinta (≥4.5:1) di tema terang */
-  --pub-name-from: var(--ds-brand-from);
-  --pub-name-to: var(--ds-brand-to);
 
   position: relative;
   isolation: isolate;
@@ -82,11 +79,6 @@ html:has(.pub) {
   font-family: var(--ds-font-sans);
   font-size: var(--ds-fs-md);
   line-height: var(--ds-lh-normal);
-}
-
-.pub[data-theme='light'] {
-  --pub-name-from: var(--ds-accent-text);
-  --pub-name-to: var(--ds-success-text);
 }
 
 @media (min-width: 768px) {
