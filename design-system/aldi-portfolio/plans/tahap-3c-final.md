@@ -313,8 +313,9 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 
 **Bagian A**
 - [x] 0. Rencana ini (`plans/tahap-3c-final.md`)
-- [ ] A1. Migrasi `supabase/migrations/20261019000000_english_content.sql` (kolom `_en`, `profiles.hero_labels`,
-      CHECK `label_en`) + uji PGlite
+- [x] A1. Migrasi `supabase/migrations/20261019000000_english_content.sql` (kolom `_en`, `profiles.hero_labels`,
+      CHECK `label_en`) + uji PGlite (56 cek lulus: 2× jalan, data lama utuh, CHECK, gagal di tengah, tanpa migrasi
+      tautan)
 - [ ] A2. Publik: pilih versi Inggris dengan cadangan Indonesia (semua section, detail, kontak, `lang="id"`), tampilkan
       Ringkasan pengalaman (K3)
 - [ ] A3. Admin: bagian "Versi Inggris (opsional)" di semua form (+ daftar sejajar, galeri, tautan)
