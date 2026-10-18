@@ -51,6 +51,9 @@ html:has(.pub) {
   --pub-radius: 4px;
   --pub-radius-card: var(--radius-sm);
   --pub-tag-radius: 2px;
+  /* Pelat putih di balik logo instansi yang diunggah (logo biasanya dibuat untuk latar putih), sama
+     di kedua tema. Pengecualian terdokumentasi: primitive di token komponen. */
+  --pub-logo-plate: var(--palette-white);
   /* Bracket sudut (tag blueprint): 4 sudut dari 8 gradien, warna dari --pub-bracket */
   --pub-bracket: currentColor;
   --pub-bracket-len: 6px;
@@ -460,6 +463,7 @@ html:has(.pub) {
 }
 
 .pub-arrow-link svg {
+  flex-shrink: 0;
   transition: transform var(--ds-duration-base) var(--ds-ease-out);
 }
 

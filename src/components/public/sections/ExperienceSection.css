@@ -1,0 +1,280 @@
+/* Section Pengalaman (linimasa) dan Pendidikan */
+
+.pub-timeline {
+  position: relative;
+  display: grid;
+  gap: var(--space-8);
+  list-style: none;
+  padding-left: var(--space-8);
+}
+
+/* Rel linimasa: node belah ketupat per item, garis tegak dari node ke node berikutnya */
+.pub-tl-item {
+  --pub-tl-x: calc(var(--space-8) * -1 + 0.4375rem);
+}
+
+.pub-tl-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: calc(var(--space-8) * -1 - 0.5rem);
+  left: var(--pub-tl-x);
+  width: 1px;
+  background-color: var(--ds-border-control);
+}
+
+.pub-tl-item {
+  position: relative;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pub-tl-item::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0.35rem;
+  left: calc(var(--space-8) * -1 + 0.125rem);
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 2px solid var(--ds-accent-text);
+  background-color: var(--ds-canvas);
+  transform: rotate(45deg);
+}
+
+.pub-tl-period {
+  color: var(--ds-accent-text);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-semibold);
+  line-height: 1.4;
+}
+
+@media (min-width: 1024px) {
+  .pub-timeline {
+    padding-left: 0;
+  }
+
+  .pub-tl-item {
+    --pub-tl-x: calc(11rem + var(--space-6) + 0.3125rem);
+  }
+
+  .pub-tl-item {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    column-gap: calc(var(--space-6) * 2 + 0.75rem);
+  }
+
+  .pub-tl-item::before {
+    left: calc(11rem + var(--space-6));
+  }
+
+  .pub-tl-period {
+    text-align: right;
+  }
+}
+
+.pub-tl-card {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-surface);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .pub-tl-card {
+    padding: var(--space-6) var(--space-8);
+  }
+}
+
+.pub-tl-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  width: 100%;
+}
+
+.pub-tl-logo {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-inset);
+  color: var(--ds-text-muted);
+}
+
+.pub-tl-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: var(--pub-logo-plate);
+}
+
+.pub-tl-titles {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.pub-tl-role {
+  font-size: var(--ds-fs-xl);
+  line-height: var(--ds-lh-snug);
+}
+
+.pub-tl-company {
+  color: var(--ds-text-muted);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-tl-type {
+  grid-column: 2;
+  justify-self: start;
+}
+
+@media (min-width: 768px) {
+  .pub-tl-head {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .pub-tl-type {
+    grid-column: 3;
+    align-self: start;
+  }
+}
+
+.pub-tl-tasks {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 70ch;
+  list-style: none;
+  color: var(--ds-text);
+  line-height: var(--ds-lh-relaxed);
+}
+
+.pub-tl-tasks li {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.pub-tl-tasks li::before {
+  content: '';
+  position: absolute;
+  top: 0.75em;
+  left: 0.25rem;
+  width: 0.5rem;
+  height: 2px;
+  background-color: var(--ds-accent-text);
+}
+
+.pub-tl-project {
+  max-width: 100%;
+}
+
+.pub-tl-project span {
+  overflow-wrap: anywhere;
+}
+
+/* --- Pendidikan -------------------------------------------------------------- */
+
+.pub-edu-list {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+.pub-edu {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-4) var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-surface);
+}
+
+@media (min-width: 768px) {
+  .pub-edu {
+    padding: var(--space-8);
+  }
+}
+
+.pub-edu-logo {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius);
+  background-color: var(--ds-inset);
+  color: var(--ds-text-muted);
+}
+
+@media (min-width: 768px) {
+  .pub-edu-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+}
+
+.pub-edu-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: var(--pub-logo-plate);
+}
+
+.pub-edu-body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.pub-edu-title {
+  font-size: var(--ds-fs-xl);
+  line-height: var(--ds-lh-snug);
+}
+
+.pub-edu-school {
+  color: var(--ds-text);
+}
+
+.pub-edu-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-edu-gpa {
+  color: var(--ds-accent-text);
+  font-weight: var(--ds-fw-semibold);
+}
+
+.pub-edu-thesis {
+  margin-top: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--ds-border-control);
+  color: var(--ds-text);
+  font-size: var(--ds-fs-sm);
+  line-height: var(--ds-lh-relaxed);
+}
+
+.pub-edu-thesis span {
+  display: block;
+  color: var(--ds-text-subtle);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  letter-spacing: var(--ds-tracking-wide);
+  text-transform: uppercase;
+}

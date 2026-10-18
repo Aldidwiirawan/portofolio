@@ -418,7 +418,7 @@ Semua usulan K1–K10 disetujui, dengan catatan:
 - [x] 5. Tentang
 - [x] 6. Proyek (kartu studi kasus + daftar ringkas)
 - [x] 7. Keahlian (baris berjalan + logo sesuai K1)
-- [ ] 8. Pengalaman + Pendidikan
+- [x] 8. Pengalaman + Pendidikan
 - [ ] 9. Sertifikat (+ lightbox) + Prestasi + Organisasi
 - [ ] 10. Kontak (formulir + topik)
 - [ ] 11. Buku tamu (tombol + panel Blueprint, lazy)
