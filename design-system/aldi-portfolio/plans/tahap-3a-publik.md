@@ -474,3 +474,19 @@ Jalankan server Anda seperti biasa (`npm run dev`, port 5173), lalu:
 11. Nyalakan "Kurangi gerakan" (reduce motion) di pengaturan perangkat: baris keahlian diam dan tersusun rapi.
 12. Login dan admin: tampilan sama seperti sebelumnya; blok "Tampilan di halaman publik" tidak lagi berisi
     catatan sementara.
+13. Admin → Kotak Masuk: pesan dari formulir baru tidak menampilkan "(Tanpa subjek)"; topik tampil sebagai badge.
+
+---
+
+## 11. Perbaikan sebelum merge (permintaan pemilik, 18 Oktober 2026)
+
+1. **Keahlian:** baris hanya bergerak bila isinya lebih lebar dari wadahnya, diukur ulang saat ukuran berubah;
+   baris yang muat tampil diam tanpa salinan. Baris yang bergerak memudar di tepi kiri/kanan. Contoh hasil: di
+   1440 px Mobile, Database, dan Soft skill diam; di 375 px semua baris bergerak.
+2. **Admin, Kotak Masuk:** "(Tanpa subjek)" tidak lagi tampil di daftar maupun di detail (judul detail menjadi
+   "Pesan dari {nama}"); topik tetap badge; pesan yang punya subjek tidak berubah.
+3. **Hero:** nama satu warna `--ds-text-strong` (18,57:1 gelap, 16,78:1 terang), gradien dihapus.
+
+Uji ulang: keahlian 91/91 (4 lebar × 2 tema, ubah ukuran 1440 → 375 → 1440, jeda, reduced motion), Kotak Masuk
+18/18 (375 dan 1440), sapuan 496/496, regresi login + admin 149/149, suite lain tetap lulus (data 41, sertifikat
+20, kontak 21, buku tamu 30, detail 33, interaksi 57). Lint 0 diagnostik, build berhasil.
