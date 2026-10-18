@@ -104,6 +104,11 @@
   display: none;
 }
 
+/* Tombol suara: di bar hanya ≥1024 px; di layar lebih kecil ada di menu (bar HP sudah penuh) */
+.pub-nav-sound {
+  display: none;
+}
+
 /* Tombol bahasa ID | US */
 .pub-lang {
   display: inline-flex;
@@ -147,6 +152,10 @@
 
   .pub-nav-cv {
     display: inline-flex;
+  }
+
+  .pub-nav-sound {
+    display: inline-grid;
   }
 
   .pub-nav-menu-btn {

@@ -9,7 +9,7 @@ import CvButton from './CvButton'
 import { CloseIcon, MenuIcon } from './icons'
 import { usePublicData } from './publicContexts'
 import { SITE_NAME } from './publicFormat'
-import { LangToggle, ThemeToggle } from './Toggles'
+import { LangToggle, SoundToggle, ThemeToggle } from './Toggles'
 import './PublicNavbar.css'
 
 // Sections in the menu, with the data that decides whether the section exists (null = always)
@@ -144,6 +144,7 @@ function PublicNavbar() {
           <div className="pub-nav-actions">
             <LangToggle />
             <ThemeToggle />
+            <SoundToggle className="pub-nav-sound" />
             <CvButton size="sm" className="pub-nav-cv" />
             <button
               type="button"
@@ -177,6 +178,7 @@ function PublicNavbar() {
             <div className="pub-menu-switches">
               <LangToggle />
               <ThemeToggle />
+              <SoundToggle />
             </div>
           </div>
         </div>

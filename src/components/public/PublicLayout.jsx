@@ -9,9 +9,10 @@ import { PublicDataContext, useTheme } from './publicContexts'
 import { PageSkeleton } from './Skeletons'
 import PublicFooter from './PublicFooter'
 import PublicNavbar from './PublicNavbar'
+import SoundProvider from './sound/SoundProvider'
 
 /**
- * Frame of every public page (home, project detail, 404): theme and language providers, the public
+ * Frame of every public page (home, project detail, 404): theme, language and sound providers, the public
  * data (loaded once, so going back from a project to the home page is instant), the .pub root with
  * data-theme, skip link and viewfinder cursor. Lazy pages load inside it, so the frame stays.
  */
@@ -21,7 +22,9 @@ function PublicLayout() {
     <ThemeProvider>
       <I18nProvider>
         <PublicDataContext.Provider value={data}>
-          <PublicShell />
+          <SoundProvider>
+            <PublicShell />
+          </SoundProvider>
         </PublicDataContext.Provider>
       </I18nProvider>
     </ThemeProvider>

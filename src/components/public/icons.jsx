@@ -53,6 +53,20 @@ export const MoonIcon = (p) => (
   </Icon>
 )
 
+export const SoundOnIcon = (p) => (
+  <Icon {...p}>
+    <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" />
+    <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.5 6.5a7.8 7.8 0 0 1 0 11" />
+  </Icon>
+)
+
+export const SoundOffIcon = (p) => (
+  <Icon {...p}>
+    <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" />
+    <path d="m16 9.5 5 5M21 9.5l-5 5" />
+  </Icon>
+)
+
 export const MenuIcon = (p) => (
   <Icon {...p}>
     <path d="M4 7h16M4 12h16M4 17h16" />
