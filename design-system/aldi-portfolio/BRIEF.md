@@ -96,7 +96,8 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
 
 ### Label fisika di hero
 - Label bisa diseret, dilempar, jatuh, memantul, dan saling bertabrakan (mesin fisika
-  Matter.js; tanyakan dulu sebelum memasang).
+  Matter.js 0.20.0, disetujui pemilik untuk tahap 3B, dimuat lazy). Di HP label dilempar dengan
+  ketukan, tanpa seret (keputusan pemilik tahap 3B, `plans/tahap-3b-publik.md` K2).
 - Isi label: React, Laravel, Full-stack, Supabase, UI/UX, Junior Web Dev, lingkaran `</>`,
   dan lingkaran `*`. Isi label bisa diatur dari admin.
 - Gaya label: tag blueprint (sudut bracket kecil, huruf monospace), bukan stiker pil miring.
@@ -153,9 +154,12 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
 - Pengunjung diam lama: "Masih di situ?", lalu tertidur ("Zzz") sampai ada gerakan lagi.
 - Easter egg: diklik 10 kali berturut-turut → "Oke, oke, aku menyerah!", lalu pura-pura
   pingsan sebentar.
-- Jeda bicara acak 6 sampai 10 detik, gelembung tampil 2 sampai 3 detik, kalimat yang sama
-  tidak muncul dua kali berturut-turut.
-- Semua kalimat disimpan di `src/i18n/characterLines.js` supaya mudah ditambah atau diubah.
+- Jeda bicara acak 10 sampai 15 detik setelah setiap giliran (keputusan pemilik 19 Oktober 2026,
+  semula 6 sampai 10 detik), gelembung tampil 2 sampai 3 detik, kalimat yang sama tidak muncul
+  dua kali berturut-turut.
+- Semua kalimat disimpan di `src/i18n/characterLines.js` supaya mudah ditambah atau diubah. Daftar
+  final (tabel di bawah ditambah kalimat yang disetujui di tahap 3B) ada di file itu dan di
+  `plans/tahap-3b-publik.md` §10.
 
 ### Kalimat (Indonesia / English)
 
@@ -175,14 +179,14 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
 | | Bebek | Wiii! | Wheee! |
 | | Ayam | Lagi, lagi! | Again! |
 | Saling mengobrol | Ayam → Bebek | Siapa yang bikin web ini? | Who built this site? |
-| | Bebek → Ayam | Aldi, dong. | Aldi, duh. |
+| | Bebek → Ayam | Aldi, dong. | Aldi, of course. |
 | | Bebek → Ayam | Kenapa kita di sini? | Why are we here? |
-| | Ayam → Bebek | Jaga portofolio Aldi, dong. | Guarding Aldi's portfolio, duh. |
+| | Ayam → Bebek | Jaga portofolio Aldi, dong. | Guarding Aldi's portfolio, of course. |
 | Sesuai jam | Ayam (pagi) | Kukuruyuk! Selamat pagi! | Cock-a-doodle-doo! Morning! |
 | | Bebek (malam) | Begadang, ya? Aku juga. | Up late? Me too. |
 | Reaksi aksi | Ayam (mode gelap) | Eh, sudah malam? | Wait, is it night already? |
-| | Bebek (ganti bahasa) | Quack! Switching to English! | Kwek! Ganti ke Indonesia! |
-| | Ayam (gulir ke proyek) | Ini proyek favoritku! | This one's my favorite! |
+| | Bebek (ganti bahasa) | Quack! Switching to English! | Kwek! Ganti ke bahasa Indonesia! |
+| | Ayam (gulir ke proyek) | Nah, ini proyek-proyek Aldi! | Here are Aldi's projects! |
 | | Bebek (label jatuh dekat) | Aduh, kepalaku! | Ouch, my head! |
 | Pengunjung diam | Bebek | Masih di situ? ... Zzz | Still there? ... Zzz |
 | Easter egg (10 klik) | Ayam | Oke, oke, aku menyerah! | Okay, okay, I give up! |
@@ -199,8 +203,8 @@ bebek, supaya tidak tiga karakter bicara bersamaan.
   baru di `supabase/migrations/`; pemilik project yang menjalankannya.
 - **Performa:** library berat (misalnya Matter.js) hanya dimuat di halaman publik setelah
   halaman tampil (lazy-load). Animasi berhenti saat bagiannya tidak terlihat atau tab tidak
-  aktif. Di HP, jumlah label fisika lebih sedikit dan label hanya bisa diseret kalau sentuhan
-  dimulai tepat di label, supaya scroll halaman tidak terganggu.
+  aktif. Di HP, jumlah label fisika lebih sedikit dan label hanya dilempar dengan ketukan (tanpa
+  seret, keputusan pemilik tahap 3B), supaya scroll halaman tidak terganggu.
 - **Aksesibilitas:** hormati `prefers-reduced-motion` (label tersusun diam, karakter tidak
   berjalan, transisi dilewati). Elemen dekoratif diberi `aria-hidden`. Kontras teks minimal
   4.5:1, fokus terlihat, semua bisa dipakai dengan keyboard.

@@ -66,10 +66,11 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   Profil) dan buku tamu (tombol mengambang dengan jumlah pesan).
 - **Kerja admin:** 5 menu (Beranda; Tentang Saya; Karya & Keahlian; Rekam Jejak; Kotak Masuk) dengan sub-tab.
   Beranda memberi pengingat bila sesuatu yang dibutuhkan strategi isi belum ada.
-- **Status tahapan (18 Okt 2026):** tahap 1 (login), 2/2B (admin), dan 3A (struktur dan isi halaman publik:
+- **Status tahapan (19 Okt 2026):** tahap 1 (login), 2/2B (admin), dan 3A (struktur dan isi halaman publik:
   tema gelap/terang, ID/US, bar status, kata berganti, keahlian berjalan, detail proyek, buku tamu mengambang)
-  selesai di branch masing-masing; uji manual dan merge oleh pemilik. Tahap 3B (label fisika, suara, ayam dan
-  bebek, layar pembuka, robot a+) dan 3C (kolom versi Inggris, pengaturan label dari admin) belum dikerjakan.
+  sudah di `main`. Tahap 3B (label fisika, suara, ayam dan bebek, layar pembuka, robot a+) selesai di branch
+  `feat/public-3b`; uji manual dan merge oleh pemilik. Tahap 3C (kolom versi Inggris, pengaturan label dari
+  admin) belum dikerjakan.
 
 ## Capabilities and Constraints
 
@@ -77,16 +78,16 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   biasa dengan CSS variables, Supabase (database, Auth, Storage bucket `portfolio-assets`). Font dimuat
   self-hosted lewat Fontsource.
 - **Batasan dari pemilik:**
-  - tanpa Tailwind atau framework UI; **tanyakan dulu** sebelum menambah library (mis. Matter.js untuk label
-    fisika) atau font;
+  - tanpa Tailwind atau framework UI; **tanyakan dulu** sebelum menambah library atau font (matter-js 0.20.0
+    untuk label fisika disetujui pemilik untuk tahap 3B dan dimuat lazy);
   - jangan mengubah logika auth, hooks data, query Supabase, RLS, atau routing tanpa izin;
   - perubahan database hanya sebagai file migrasi baru di `supabase/migrations/`, dijalankan pemilik;
   - kerjakan di branch terpisah per tahap, commit per bagian, jangan push atau merge;
   - jangan menjalankan `npm run dev` kedua (server pemilik di port 5173);
   - screenshot halaman tidak di-commit.
 - **Performa:** library berat hanya dimuat di publik setelah halaman tampil. Animasi berhenti saat bagiannya tidak
-  terlihat atau tab tidak aktif. Di HP label fisika lebih sedikit dan hanya bisa diseret bila sentuhan dimulai
-  tepat di label.
+  terlihat atau tab tidak aktif. Di HP label fisika lebih sedikit dan hanya dilempar dengan ketukan (tanpa seret,
+  keputusan pemilik tahap 3B), jadi menggulir halaman tidak pernah terganggu.
 - **Layar uji wajib:** 375, 768, 1024, dan 1440 px tanpa scroll horizontal.
 - **Privasi:** alamat lengkap dan nomor HP tidak ditampilkan di publik, cukup kota (Kediri). `is_visible` hanya
   mengatur tampilan, **bukan privasi**: data dan file tetap terbaca lewat API dan URL publik.
@@ -98,8 +99,7 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 - **Keputusan yang masih terbuka:**
   - background `calm` untuk admin masih bisa berubah;
   - transisi jepret setelah login masih bisa diganti;
-  - robot a+ di footer dan panel buku tamu publik masih percobaan, bisa dihapus;
-  - pemasangan Matter.js menunggu persetujuan.
+  - robot a+ di footer dan panel buku tamu publik masih percobaan, bisa dihapus.
 
 ## Brand Commitments
 

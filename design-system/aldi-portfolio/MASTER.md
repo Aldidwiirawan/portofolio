@@ -10,7 +10,8 @@
 **Versi:** v1.2 · 16 Oktober 2026
 **Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode. Dipakai oleh
 `/admin/login` (tahap 1), seluruh panel admin `/admin/*` (tahap 2 dan 2B, lihat §14 dan
-`pages/admin.md`), dan halaman publik sejak tahap 3A (18 Oktober 2026, lihat §15 dan `pages/public.md`).
+`pages/admin.md`), dan halaman publik sejak tahap 3A (18 Oktober 2026) dan 3B (interaksi, 19 Oktober 2026), lihat
+§15 dan `pages/public.md`.
 **Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
 
 ### Asal-usul & kurasi
@@ -347,6 +348,9 @@ Props lain: `size` (lebar px, tinggi 1.2×) dan `cue` (ubah nilainya untuk memut
 lompatan). Reduced motion: wajah dan pose tetap berganti (mis. telapak menutup mata), tetapi tanpa kedip,
 napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
 
+Sejak tahap 3B robot juga tampil di halaman publik (footer dan panel buku tamu, `src/components/public/robot/`),
+memakai komponen ini **tanpa perubahan**; posisi, mengintip, dan gelembung kata diatur pembungkusnya.
+
 ### ViewfinderCursor — `src/components/effects/ViewfinderCursor.jsx`
 
 - Crosshair minimalis 19 px dengan titik tengah 3 px, **tanpa koordinat**, dan `mix-blend-mode:
@@ -361,6 +365,9 @@ napas, lirikan, kemiringan, gelengan, lompatan, atau transisi.
   disembunyikan lewat kelas `html.vf-cursor-active`, yang dilepas saat komponen dilepas.
 - Performa: satu listener `pointermove` pasif, render lewat rAF, posisi hanya lewat `transform`. rAF
   berjalan terus hanya selama bracket mengunci elemen, untuk mengikuti pergeseran layout.
+- Mouse yang diam (sejak tahap 3B): setiap render yang bukan dari `pointermove` (gulir, frame saat mengunci,
+  ±450 ms setelah klik) mengecek ulang elemen di bawah mouse dengan `document.elementFromPoint`. Jadi bracket
+  tidak tertinggal di tombol yang tertutup panel/dialog setelah diklik, atau di elemen yang tergulir pergi.
 - Reduced motion: kursor bawaan tetap, tanpa crosshair, bracket berpindah tanpa animasi.
 - Dirender lewat portal di `<body>`, `aria-hidden`, `pointer-events: none`.
 
@@ -428,7 +435,7 @@ Detail lengkap: `pages/admin.md`. Strategi isi publik: `BRIEF.md` §9. Ringkasny
   `includePrivateFields`); tanpa opsi itu query halaman publik sama persis dengan sebelumnya. Kolom baru
   ditambahkan lewat migrasi `20261016000000_admin_content_model.sql`, yang dijalankan pemilik project.
 
-## 15. Halaman publik (tahap 3A)
+## 15. Halaman publik (tahap 3A dan 3B)
 
 Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3a-publik.md`. Ringkasnya:
 
@@ -446,3 +453,9 @@ Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3
   detail, 404). Komponen admin yang dipakai ulang tanpa diubah: `useFocusTrap`, `useScrollLock`.
 - **Data:** hook publik baru (kolom eksplisit, `is_visible = true`, `sort_order`); hook lama untuk admin tidak
   berubah. Data cadangan `portfolioData.js` dihapus.
+- **Interaksi (tahap 3B, `pages/public.md` §9):** label fisika (matter-js 0.20.0, satu-satunya library baru, lazy),
+  tombol suara dan "tok" Web Audio, ayam dan bebek di garis bar status (kalimat di `src/i18n/characterLines.js`),
+  layar pembuka, robot a+ di footer dan panel buku tamu. Semua dekoratif (`aria-hidden`, tanpa fokus), berhenti di
+  luar layar dan saat tab tidak aktif, diam saat reduced motion. Bagian-bagian ini saling memberi kabar lewat
+  `interactionBus.js` (mis. `label-impact`, `intro-done`, `back-to-top`), bukan lewat import langsung, karena
+  masing-masing dimuat terpisah.

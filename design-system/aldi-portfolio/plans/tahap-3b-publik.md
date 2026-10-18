@@ -1,7 +1,7 @@
 # Rencana Tahap 3B — Halaman publik: interaksi
 
-> **Status:** rencana, menunggu persetujuan pemilik · **Branch:** `feat/public-3b` (dari `main` c3897dc) ·
-> **Tanggal:** 18 Oktober 2026. Acuan: `BRIEF.md` (utama: §1, §5 label fisika dan robot a+, §6 ayam dan bebek,
+> **Status:** selesai 19 Oktober 2026 (butir 1–9, hasil di §14), menunggu uji manual dan merge oleh pemilik ·
+> **Branch:** `feat/public-3b` (dari `main` c3897dc) · **Tanggal:** 18–19 Oktober 2026. Acuan: `BRIEF.md` (utama: §1, §5 label fisika dan robot a+, §6 ayam dan bebek,
 > §7), `MASTER.md` (§6 motion, §13 komponen brand), `pages/public.md`, `DESIGN.md` (ringkasan), `PRODUCT.md`,
 > `plans/tahap-3a-publik.md`.
 
@@ -470,6 +470,103 @@ Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad,
 - [x] 5. Footer: tombol Buku tamu berhenti di atas footer (K5) + robot kembali ke atas
 - [x] 6. Robot di panel buku tamu
 - [x] 7. Layar pembuka
-- [ ] 8. Uji otomatis + perbaikan
-- [ ] 9. Dokumentasi (`pages/public.md`, `MASTER.md` §13/§15, `PRODUCT.md`, `BRIEF.md` bila ada keputusan baru),
+- [x] 8. Uji otomatis + perbaikan
+- [x] 9. Dokumentasi (`pages/public.md`, `MASTER.md` §13/§15, `PRODUCT.md`, `BRIEF.md` bila ada keputusan baru),
       laporan dan uji manual
+
+---
+
+## 14. Hasil (19 Oktober 2026)
+
+### Uji otomatis
+
+Supabase tiruan berisi salinan data asli + Chrome headless (skrip di scratchpad, tidak di-commit). Komputer uji
+sedang ±50% sibuk oleh aplikasi lain, jadi semua uji yang bergantung waktu menunggu keadaannya (bukan jeda tetap).
+
+| Suite | Hasil | Isi |
+|---|---|---|
+| Kursor | lulus | Di `main` bracket tertinggal setelah klik Buku tamu, setelah gulir roda, dan di dialog Hapus admin; di branch tidak. Hover, area kosong, kolom teks, dan Tab di login identik dengan `main`. |
+| Suara | 25/25 + 11/11 | Mati bawaan, tombol navbar/menu, pilihan diingat, `AudioContext` baru dibuat setelah aksi pengunjung, satu "tok" saat dinyalakan, di-suspend saat tab tidak aktif; batas 45 ms / 12 per detik / 120 ms per sumber (uji unit). |
+| Label fisika | 40/40 | matter-js tidak di bundle utama dan tidak dimuat sebelum panggung terlihat, 10 label (HP 8) di dalam bingkai, seret dan lempar, klik/ketuk = lempar, geser jari di atas label tetap menggulir, loop berhenti saat diam / tab tidak aktif / di luar layar, ubah ukuran 1440 ↔ 375, reduced motion tanpa matter-js, bunyi tabrakan dalam batas. |
+| Layar pembuka | 24/24 | Tampil di render pertama (tanpa kilatan), hanya sekali per sesi, juga di detail/404, logo mendarat di logo navbar (±1,5 px), klik/Tab melewati, tidak ada saat reduced motion / tab latar / login, fokus tidak pindah. |
+| Ayam dan bebek | 59/59 | Dimuat lazy, sapaan berurutan, berdiri di garis, tidak lewat di bawah tombol Buku tamu, tidak menutupi teks/tombol, kabur / diam, lompat tanpa memindah fokus, easter egg, bunyi lompat, reaksi tema/bahasa/label jatuh, berhenti di luar layar dan saat tab tidak aktif, ketuk di HP, reduced motion, bahasa Inggris, jeda 10–15 dtk tanpa kalimat berulang, "Masih di situ?" → tidur → bangun (dengan jam dipercepat 10×), cameo sekali per sesi (tidak di 768 px / reduced motion). |
+| Footer dan robot | 59/59 | Tombol Buku tamu sama posisinya saat menggulir, berhenti 16/24 px di atas footer, tidak menutupi "Kembali ke atas"/robot/"Kirim pesan", tanpa ruang gulir tambahan, robot mengintip, berdiri saat didekati / fokus keyboard / layar sentuh, klik robot = ke atas + fokus ke konten, reduced motion. |
+| Robot buku tamu | 43/43 | Duduk di tepi formulir, tidak menutupi label/isian/tombol/pesan, melirik mengikuti tulisan, kalimat mengetik sekali, pengingat nama/pesan kosong + menggeleng, terkirim + lompat, gagal, Esc dan urutan Tab tetap seperti 3A. |
+| Sapuan 3B | 160/160 | 375/768/1024/1440 × terang/gelap × ID/EN: karakter dan gelembung tidak menutupi teks hero, tombol, teks bar status, label, atau tombol Buku tamu; gelembung di dalam layar dengan kontras ≥4,5:1; label di dalam bingkai; robot footer dan gelembungnya di dalam layar; tanpa scroll samping; tanpa galat. |
+| Potongan gagal dimuat | 3/3 | Potongan karakter/robot/cameo/fisika diblokir: halaman tetap utuh, tumpukan statis tampil, "Kembali ke atas" tetap bekerja. |
+| Suite 3A | semua lulus | Data 41/41, sertifikat 20/20, kontak 21/21, buku tamu 30/30, detail 33/33, interaksi 57/57, keahlian 91/91, kotak masuk 18/18, sapuan 496/496. |
+| Regresi login + admin | 145/145 | Identik dengan `main` per elemen; satu-satunya beda adalah lapisan kursor setelah klik "Ubah" (bracket langsung mengunci kolom di bawah mouse; perbaikan K8). |
+
+`npm run lint` 0 diagnostik, `npm run build` berhasil.
+
+### Performa
+
+- **Bundle awal** (build produksi, JS + CSS yang dimuat `index.html`): 176,4 → 180,2 kB gzip (**+3,8 kB**, sedikit di
+  atas target +3 kB di §9). Isinya bagian yang harus ada sejak awal: modul bunyi (wajib untuk iPhone), layar
+  pembuka (render pertama), pemuat lazy, perbaikan kursor, dan CSS jalur/footer.
+- **Potongan terpisah:** `physicsStage` (matter-js + fisika) 27,9 kB gzip, `CharacterLane` 4,9 kB, kalimat + gelembung
+  2,1 kB, gaya karakter 2,5 kB, robot footer 1,2 kB, cameo 0,8 kB; `RobotMascot` memakai potongan yang sudah ada.
+  Semuanya dimuat saat bagiannya mendekati layar dan browser idle; potongan yang gagal dimuat tidak merusak halaman.
+- **Waktu sampai hero tampil:** trace CPU (×4 lebih lambat) menunjukkan tidak ada kode 3B yang berjalan sebelum nama
+  hero tampil, dan kerja skrip sampai saat itu tidak bertambah. Waktu-dinding di CPU normal (11 putaran bergantian):
+  median h1 3.274 ms (`main`) vs 3.414 ms (branch), terendah 2.756 vs 2.767 ms, jadi setara dalam derau. Di CPU 4×
+  waktu-dinding terlalu berisik di komputer ini (h1 branch yang sama 2,8–13 dtk antar putaran) untuk disimpulkan.
+- **Layar pembuka:** di CPU normal hilang ±1 dtk setelah mulai; di perangkat sibuk timeline CSS tetap tepat waktu;
+  halaman yang baru siap >1,5 dtk melewatinya.
+- **Frame (Chrome dengan GPU):** CPU 1× (laptop): label jatuh dan diseret 60 fps, ≤5 ms kerja per frame. CPU 4× (HP
+  kelas menengah): jatuh/ketuk 49 fps (±7 ms per frame); menyeret (hanya desktop) 18–29 fps. Trace: ±2 hitung ulang
+  style per frame, masing-masing 22–31 elemen, tanpa hitung ulang paksa; ayam dan bebek menambah ±7%. Saat semua diam:
+  0 frame dari fisika, karakter berhenti di luar layar.
+- Tanpa GPU (headless biasa) hero 3A sendiri hanya dirender 2–13 fps (raster perangkat lunak), jadi angka fps di atas
+  diukur dengan GPU.
+
+### Ditemukan dan diperbaiki saat uji
+
+- Label bisa tembus dinding saat diseret jauh ke luar panggung → titik tarik dijaga di dalam bingkai + label yang lolos
+  dikembalikan.
+- Layar pembuka menahan hero ±0,5 dtk di perangkat sibuk → timeline dipindah ke animasi CSS, dilewati bila halaman
+  baru siap >1,5 dtk; label fisika menunggu layar pembuka selesai.
+- Ketukan di HP yang sibuk tidak terbaca (durasi diukur saat handler berjalan) → memakai `event.timeStamp`.
+- Reaksi karakter ("!" kabur, "Halo, kursor.", "Aduh, kepalaku!") terblokir selama 4–20 dtk pertama kunjungan →
+  hitungan jeda dimulai terbuka.
+- Jeda obrolan kadang <10 dtk (dihitung dari awal giliran) → 10–15 dtk sejak akhir giliran; reaksi menggeser obrolan.
+- Reaksi "label jatuh" hanya dari lantai → juga pendaratan keras di tumpukan; yang dihitung benda yang lebih cepat.
+- Potongan dekoratif yang gagal dimuat bisa membuat halaman publik kosong (React.lazy tanpa penangkap) → `lazyDecor`.
+- Gelembung pengingat dan wajah "error" robot buku tamu bisa tidak serempak → keduanya diturunkan dari event yang sama.
+
+### Berbeda dari rencana
+
+- Cameo ayam di judul Proyek hanya ≥1024 px (rencana: ≥768). Di 768 px kepala section (maks. 44rem) memakai hampir
+  seluruh lebar, tidak ada ruang di sampingnya.
+- Tinggi jalur karakter 90 px (100 px ≥1024), bukan 84/96 px: gelembung dua baris terpanjang ("Guarding Aldi's
+  portfolio, of course.") butuh ruang itu supaya tidak menyentuh panggung.
+- Layar pembuka dilewati bila halaman baru siap >1,5 dtk (keputusan saya, demi aturan "tidak memperlambat hero").
+- Di HP baris bawah footer kini dua baris (+30 px) untuk ruang robot.
+- Bundle awal +3,8 kB gzip (target +3 kB).
+
+Screenshot sebelum/sesudah (tidak di-commit): `C:\Users\acer\portofolio-screenshots\tahap-3b\`.
+
+### Uji manual untuk pemilik project
+
+Jalankan server Anda seperti biasa (`npm run dev`, port 5173), lalu:
+
+1. Buka `/` di **tab baru** di komputer: logo merakit diri lalu terbang ke logo navbar (±1 dtk). Muat ulang: tidak muncul
+   lagi. Tab baru: muncul lagi.
+2. Hero: label jatuh satu per satu. Seret label dan lepaskan (terlempar), klik label (melompat). Di HP: ketuk label
+   (terlempar); geser jari yang dimulai di atas label tetap menggulir halaman.
+3. Tombol speaker (navbar; di HP di menu ☰): nyalakan → satu "tok". Lempar label → "tok" pelan. Muat ulang: tetap
+   menyala (bunyi aktif setelah klik pertama di halaman).
+4. Ayam dan bebek di garis bar status: sapaan, lalu obrolan tiap 10–15 dtk. Arahkan mouse cepat ke ayam → kabur;
+   dekati bebek pelan-pelan → diam menatap ("Halo, kursor."). Klik → melompat; klik 10× cepat → pingsan lalu bangun.
+   Diamkan ±1 menit → "Masih di situ?" lalu tidur ("Zzz"); gerakkan mouse → bangun.
+5. Ganti tema dan bahasa → ayam/bebek bereaksi. Di HP, ketuk label di atas bebek → kadang "Aduh, kepalaku!".
+6. Gulir ke Proyek di layar lebar (≥1024 px) → ayam muncul sekali di samping judul.
+7. Footer: robot mengintip dari pojok kanan bawah; dekati → "Kembali ke atas?"; klik robot → kembali ke atas. Tombol
+   Buku tamu berhenti di atas footer dan tidak lagi menutupi "Kembali ke atas".
+8. Buka Buku tamu: robot duduk di atas formulir. Ketik pesan → "Tulis yang baik, ya!"; kirim dengan nama kosong →
+   pengingat; kirim lengkap → "Terkirim, makasih!".
+9. Klik "Buku tamu" tanpa menggerakkan mouse: bracket kursor tidak tertinggal di tombol. Di admin, klik "Hapus":
+   bracket tidak tertinggal di belakang dialog.
+10. Nyalakan "Kurangi gerakan" di perangkat: label diam (tumpukan seperti 3A), ayam dan bebek diam, tanpa layar
+    pembuka.
+11. Login dan admin: tampilan dan perilaku seperti biasa.

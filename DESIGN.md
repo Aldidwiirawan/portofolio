@@ -331,7 +331,10 @@ khas Blueprint: dipakai di kartu admin, saat tombol "Tersimpan", dan oleh kursor
 ### Signature Components
 Logo monogram yang merakit diri, robot **a+** (enam mood: idle, watching, hiding, peeking, error, success),
 kursor viewfinder (crosshair + bracket pengunci, hanya untuk pointer halus), BlueprintBackground (`busy` untuk
-login/publik, `calm` untuk admin), dan transisi jepret setelah login. Rincian perilaku di MASTER.md §13.
+login/publik, `calm` untuk admin), dan transisi jepret setelah login. Rincian perilaku di MASTER.md §13. Sejak
+tahap 3B halaman publik juga punya label fisika bergaya tag blueprint, ayam dan bebek (SVG garis tinta, paruh
+sky, jengger merah) di garis bar status, layar pembuka logo, dan robot a+ di footer dan buku tamu; semuanya
+dekoratif (`pages/public.md` §9).
 
 ### Named Rules
 **The Focus Rail Rule.** Garis kiri yang menyala saat fokus pada kolom isian adalah keputusan pemilik yang dikunci
