@@ -95,7 +95,7 @@ function createClock() {
 export function createCharacterDirector({ lane, els, getBubble, show, textOf, context, onJump, reduced, finePointer }) {
   const clock = createClock()
   const chars = Object.fromEntries(
-    WHO.map((who) => [who, { who, el: els[who], x: 0, w: 48, h: 48, dir: who === 'chicken' ? 1 : -1, mode: 'idle', target: 0, speed: 0, cancelPause: null, lastFleeLine: 0, calm: false, clicks: 0, lastClick: 0, tap: null }])
+    WHO.map((who) => [who, { who, el: els[who], x: 0, w: 48, h: 48, dir: who === 'chicken' ? 1 : -1, mode: 'idle', target: 0, speed: 0, cancelPause: null, lastFleeLine: -Infinity, calm: false, clicks: 0, lastClick: 0, tap: null }])
   )
   let laneW = 0
   let limit = { min: 0, max: 0 }
@@ -112,8 +112,8 @@ export function createCharacterDirector({ lane, els, getBubble, show, textOf, co
   let chatCancel = null
   let greeted = false
   let chats = 0
-  let lastCalmLine = 0
-  let lastImpact = 0
+  let lastCalmLine = -Infinity
+  let lastImpact = -Infinity
   let lastActivity = performance.now()
   let idleState = 'awake' // awake | asked | asleep
   const pointer = { x: -1, y: -1, t: 0, speed: 0, frame: 0 }
@@ -492,7 +492,8 @@ export function createCharacterDirector({ lane, els, getBubble, show, textOf, co
   function onCharacterPointerDown(c, event) {
     if (event.pointerType === 'touch') {
       // A tap jumps; a swipe that starts on a character still scrolls the page
-      c.tap = { id: event.pointerId, x: event.clientX, y: event.clientY, t: performance.now() }
+      // Event times (not handling times): a busy phone that handles the tap late still sees a tap
+      c.tap = { id: event.pointerId, x: event.clientX, y: event.clientY, t: event.timeStamp }
       return
     }
     if (event.button !== 0) return
@@ -504,7 +505,7 @@ export function createCharacterDirector({ lane, els, getBubble, show, textOf, co
     const tap = c.tap
     c.tap = null
     if (!tap || tap.id !== event.pointerId) return
-    if (performance.now() - tap.t < TAP_MS && Math.hypot(event.clientX - tap.x, event.clientY - tap.y) < TAP_MOVE) hit(c)
+    if (event.timeStamp - tap.t < TAP_MS && Math.hypot(event.clientX - tap.x, event.clientY - tap.y) < TAP_MOVE) hit(c)
   }
 
   function onCharacterPointerCancel(c) {

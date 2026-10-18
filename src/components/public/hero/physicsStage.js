@@ -268,7 +268,8 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
     if (!item || event.button !== 0 || el.dataset.waiting !== undefined) return
     if (event.pointerType === 'touch') {
       // Touch only tosses; the finger keeps scrolling the page (touch-action: manipulation)
-      tap = { pointerId: event.pointerId, item, x0: event.clientX, y0: event.clientY, t0: performance.now() }
+      // Times from the events themselves: a busy phone that handles them late still sees a quick tap
+      tap = { pointerId: event.pointerId, item, x0: event.clientX, y0: event.clientY, t0: event.timeStamp }
       return
     }
     // Mouse/pen: no text selection, and focus stays where it was
@@ -289,7 +290,7 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
       length: 0.01,
     })
     Composite.add(engine.world, constraint)
-    drag = { pointerId: event.pointerId, item, constraint, x0: event.clientX, y0: event.clientY, t0: performance.now(), moved: false }
+    drag = { pointerId: event.pointerId, item, constraint, x0: event.clientX, y0: event.clientY, t0: event.timeStamp, moved: false }
     item.el.dataset.dragging = ''
     lastTouch = performance.now()
     wake()
@@ -307,7 +308,7 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
 
   function endDrag(event, cancelled) {
     if (tap && event.pointerId === tap.pointerId) {
-      if (!cancelled && performance.now() - tap.t0 < TAP_MS) toss(tap.item)
+      if (!cancelled && event.timeStamp - tap.t0 < TAP_MS) toss(tap.item)
       tap = null
     }
     if (!drag || event.pointerId !== drag.pointerId) return
@@ -315,7 +316,7 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
     Composite.remove(engine.world, constraint)
     delete item.el.dataset.dragging
     drag = null
-    if (!cancelled && !moved && performance.now() - t0 < TAP_MS) {
+    if (!cancelled && !moved && event.timeStamp - t0 < TAP_MS) {
       toss(item)
       return
     }
