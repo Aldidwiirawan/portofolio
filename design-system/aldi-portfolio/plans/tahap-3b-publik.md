@@ -400,6 +400,15 @@ terjadi di dialog konfirmasi admin; hover/fokus normal tetap identik). Alternati
 **K10. Tombol suara** di navbar ≥1024 px dan di menu <1024 px; saat reduced motion tetap tampil dan menyalakannya
 berbunyi satu "tok" sebagai tanda. Setuju?
 
+## 11a. Jawaban pemilik project (18 Oktober 2026)
+
+- **K1:** paruh dan kaki memakai **sky** (`--ds-screen-ink`, pilihan A). (Pemilik juga menyebut amber khusus paruh
+  dan kaki sebagai alternatif; yang dipakai sky. Mengganti ke amber nanti cukup mengubah satu token komponen.)
+- **K2–K8 dan K10:** disetujui sesuai usulan.
+- **K9:** kalimat di §10 sedang dicek pemilik dan akan dikirim balik. Sampai saat itu hanya butir yang tidak memakai
+  kalimat karakter yang dikerjakan: 1 (kursor), 2 (suara), 3 (label fisika), 7 (layar pembuka). Butir 4 (ayam dan
+  bebek), 5 (robot footer), dan 6 (robot buku tamu) menunggu kalimat final.
+
 ---
 
 ## 12. Pengujian (langkah 2)
