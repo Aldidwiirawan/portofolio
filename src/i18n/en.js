@@ -30,6 +30,7 @@ const en = {
   'theme.toLight': 'Switch to light theme',
   'theme.toDark': 'Switch to dark theme',
   'lang.switch': 'Switch to Indonesian (Bahasa Indonesia)',
+  'lang.switchName': 'ID US: switch to Indonesian (Bahasa Indonesia)',
   'sound.on': 'Turn sound on',
   'sound.off': 'Turn sound off',
 

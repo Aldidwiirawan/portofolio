@@ -31,6 +31,7 @@ const id = {
   'theme.toLight': 'Ganti ke tema terang',
   'theme.toDark': 'Ganti ke tema gelap',
   'lang.switch': 'Ganti bahasa ke English',
+  'lang.switchName': 'ID US: ganti bahasa ke English',
   'sound.on': 'Nyalakan suara',
   'sound.off': 'Matikan suara',
 

@@ -405,6 +405,13 @@ html:has(.pub) {
   font-size: var(--ds-fs-sm);
 }
 
+/* Small buttons stay 44 px tall on touch screens (target size, MASTER §4) */
+@media (pointer: coarse) {
+  .pub-btn--sm {
+    min-height: var(--ds-target-min);
+  }
+}
+
 .pub-btn:active {
   transform: translateY(1px);
 }

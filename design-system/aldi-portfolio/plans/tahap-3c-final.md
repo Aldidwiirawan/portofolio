@@ -351,7 +351,10 @@ Semua usulan K1–K11 disetujui, dengan catatan:
       gagal baca = beranda saja, build tetap jalan). Aplikasi memperbarui deskripsi, `og:*`, `twitter:*`, canonical,
       `og:locale` per halaman/bahasa; 404 `noindex`; admin `noindex, nofollow`; JSON-LD `Person` (nama, peran, kota,
       sekolah yang sudah lulus, tautan profil; tanpa HP/alamat/email). Uji: `seo3c` 54/54 (+21/21 build asli).
-- [ ] B3. Audit impeccable + perbaikan P1/P2
+- [x] B3. Audit impeccable (beranda, detail, 404; 375/1440 px × 2 tema; detektor + uji di browser) + perbaikan:
+      nama tombol bahasa kini diawali huruf yang terlihat ("ID US: …", WCAG 2.5.3) dan tombol kecil (`.pub-btn--sm`:
+      kembali ke atas, hentikan gerak, coba lagi) 44 px di layar sentuh. Detektor: 13 temuan, semuanya disengaja
+      (grid Blueprint, garis fokus kiri, ukuran judul `clamp()`, `#000` di mask). Rincian dan sisa temuan di §11.
 - [ ] B4. `vercel.json` + `DEPLOY.md`
 - [ ] B5. Uji ulang semua + Lighthouse "sesudah"
 - [ ] B6. Dokumentasi (`pages/public.md`, `pages/admin.md`, `MASTER.md`, `README.md`) + laporan dan uji manual

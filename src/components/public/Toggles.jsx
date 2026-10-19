@@ -27,17 +27,19 @@ export function SoundToggle({ className = '' }) {
   )
 }
 
-/** One-click ID / US language switch; the active language is highlighted. */
+/**
+ * One-click ID / US language switch; the active language is highlighted. Its spoken name starts with
+ * the letters on the button ("ID US: …"), so voice control users can say what they see (WCAG 2.5.3).
+ */
 export function LangToggle({ className = '' }) {
   const { lang, setLang, t } = useI18n()
-  const label = t('lang.switch')
   return (
     <button
       type="button"
       className={`pub-lang ${className}`.trim()}
       onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
-      aria-label={label}
-      title={label}
+      aria-label={t('lang.switchName')}
+      title={t('lang.switch')}
     >
       <span className="pub-lang-option" data-active={lang === 'id'} aria-hidden="true">
         ID
