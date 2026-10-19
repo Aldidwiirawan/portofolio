@@ -44,6 +44,7 @@ export function LangToggle({ className = '' }) {
       <span className="pub-lang-option" data-active={lang === 'id'} aria-hidden="true">
         ID
       </span>
+      {/* A real space, so the button's text reads "ID US" (no layout change inside the flex row) */}{' '}
       <span className="pub-lang-option" data-active={lang === 'en'} aria-hidden="true">
         US
       </span>
