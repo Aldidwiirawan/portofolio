@@ -355,7 +355,15 @@ Semua usulan K1–K11 disetujui, dengan catatan:
       nama tombol bahasa kini diawali huruf yang terlihat ("ID US: …", WCAG 2.5.3) dan tombol kecil (`.pub-btn--sm`:
       kembali ke atas, hentikan gerak, coba lagi) 44 px di layar sentuh. Detektor: 13 temuan, semuanya disengaja
       (grid Blueprint, garis fokus kiri, ukuran judul `clamp()`, `#000` di mask). Rincian dan sisa temuan di §11.
-- [ ] B4. `vercel.json` + `DEPLOY.md`
+- [x] B4. `vercel.json`: rute SPA (kecuali `/api/`), cache 1 tahun `/assets/`, header keamanan
+      (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, COOP, HSTS), CSP **ketat
+      dan langsung berlaku** (skrip hanya situs sendiri + hash skrip tema; gambar/koneksi situs sendiri dan
+      `*.supabase.co`; tanpa objek/iframe), `X-Robots-Tag` di `/admin`. Build menulis `index.html` ber-LF dan berhenti
+      bila hash di `vercel.json` tidak cocok. Uji K9: semua suite publik dan admin dengan header ini (lulus, 0
+      laporan CSP; hanya Supabase tiruan yang diberi izin uji `eval`/`blob:`), build asli dengan CSP persis (beranda,
+      tema, bahasa, suara, label fisika, buku tamu, kontak, detail + lightbox, 404, login: 0 laporan, 0 galat),
+      pratinjau PDF `blob:` di tab baru tetap tampil. `DEPLOY.md` untuk pemilik (impor, variabel, token GitHub,
+      Supabase Auth, daftar periksa, redeploy sitemap, domain sendiri, CSP dan Report-Only darurat).
 - [ ] B5. Uji ulang semua + Lighthouse "sesudah"
 - [ ] B6. Dokumentasi (`pages/public.md`, `pages/admin.md`, `MASTER.md`, `README.md`) + laporan dan uji manual
 

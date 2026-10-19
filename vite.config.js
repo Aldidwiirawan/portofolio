@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto'
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -89,7 +92,40 @@ function siteFiles() {
   }
 }
 
+/**
+ * The small inline <script> of index.html (theme before the first paint) is allowed by its hash in the
+ * Content-Security-Policy of vercel.json (stage 3C, K9). index.html is written with LF line endings
+ * (Git on Windows checks it out with CRLF), so the hash is the same on every machine, and the build
+ * stops with the new hash when the script changed but vercel.json was not updated (DEPLOY.md §9).
+ */
+function cspScriptHash() {
+  let root = process.cwd()
+  return {
+    name: 'csp-script-hash',
+    apply: 'build',
+    configResolved(config) {
+      root = config.root
+    },
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        const out = html.replace(/\r\n/g, '\n')
+        const file = path.join(root, 'vercel.json')
+        if (!existsSync(file)) return out
+        const policy = readFileSync(file, 'utf8')
+        for (const [, body] of out.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+          const hash = `'sha256-${createHash('sha256').update(body).digest('base64')}'`
+          if (!policy.includes(hash)) {
+            throw new Error(`The inline script of index.html changed: put ${hash} in script-src of the Content-Security-Policy in vercel.json`)
+          }
+        }
+        return out
+      },
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), preloadHeroFont(), siteFiles()],
+  plugins: [react(), preloadHeroFont(), siteFiles(), cspScriptHash()],
 })
