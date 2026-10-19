@@ -322,7 +322,8 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [x] A3. Admin: bagian "Versi Inggris (opsional)" di semua form (+ daftar sejajar, galeri, tautan). Sebelum migrasi:
       pesan "belum dijalankan", isi Indonesia tetap tersimpan tanpa kolom `_en`. Uji: `admin-en` 61/61, suite admin lama
       lulus.
-- [ ] A4. Label hero: editor di Profil + panggung publik
+- [x] A4. Label hero: editor di Profil + panggung publik (urutan, bentuk, teks Inggris, HP 8 pertama; kosong =
+      keahlian unggulan; tumpukan kosong selama profil dimuat). Uji: `herolabels` 24/24, `herolabels-public` 15/15.
 - [x] A5. Grafik kontribusi GitHub (sesuai K5): `api/github-contributions.js` (token `GITHUB_TOKEN` di Vercel,
       username dari profil, cache CDN 12 jam) + `GithubActivity` lazy di akhir section Proyek; gagal/0/dev lokal =
       tidak dirender. Uji: `gh-fn` 14/14, `github` 33/33. (Di-commit sebelum A4.)

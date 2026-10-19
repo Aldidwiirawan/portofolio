@@ -15,6 +15,8 @@ import { Field, FormSection, Input, Textarea } from '../../components/admin/ui/F
 import { alignList, cleanList, cleanParallelList, englishText, remapList } from '../../components/admin/ui/formValues'
 import { FormPanel } from '../../components/admin/ui/FormPanel'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
+import { normalizeHeroLabels, prepareHeroLabels } from '../../components/admin/ui/heroLabels'
+import { HeroLabelsInput } from '../../components/admin/ui/HeroLabelsInput'
 import { IconRefresh } from '../../components/admin/ui/icons'
 import { ListInput } from '../../components/admin/ui/ListInput'
 import { Switch } from '../../components/admin/ui/Switch'
@@ -83,6 +85,8 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
     hero_keywords_en: alignList(profile?.hero_keywords, profile?.hero_keywords_en),
     hobbies_en: alignList(profile?.hobbies, profile?.hobbies_en),
     contact_topics_en: alignList(profile?.contact_topics, profile?.contact_topics_en),
+    // Labels of the hero stage (stage 3C, same migration as the English columns)
+    hero_labels: normalizeHeroLabels(profile?.hero_labels),
   }))
 
   // Files: profile photo (profile/) and the CV as PDF (cv/); uploaded when saving
@@ -138,6 +142,9 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
     if (!formData.full_name.trim()) errors.full_name = NAME_REQUIRED
     const usernameProblem = checkGithubUsername(formData.github_username)
     if (usernameProblem) errors.github_username = usernameProblem
+    const english = !englishColumnsMissing()
+    const heroLabels = prepareHeroLabels(formData.hero_labels)
+    if (english && !heroLabels.valid) errors.hero_labels = heroLabels.errors
     setFieldErrors(errors)
     if (Object.keys(errors).length > 0) {
       setGeneralError(null)
@@ -188,8 +195,9 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
       contact_topics: cleanList(formData.contact_topics),
       updated_at: new Date().toISOString(),
     }
-    if (!englishColumnsMissing()) {
+    if (english) {
       Object.assign(payload, {
+        hero_labels: heroLabels.labels,
         tagline_en: englishText(formData.tagline_en),
         primary_role_en: englishText(formData.primary_role_en),
         bio_en: englishText(formData.bio_en),
@@ -365,6 +373,25 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
               hint="Kata yang muncul bergantian, misalnya aplikasi web, aplikasi mobile, jaringan & IT support."
               disabled={busy}
             />
+          </div>
+          <div className="adm-span-2">
+            {englishColumnsMissing() ? (
+              <Alert tone="info" title="Label panggung hero belum tersedia">
+                Pembaruan database untuk versi Inggris dan label hero belum dijalankan. Panggung tetap memakai keahlian
+                unggulan.
+              </Alert>
+            ) : (
+              <HeroLabelsInput
+                id="profile-hero-labels"
+                value={formData.hero_labels}
+                onChange={(rows) => {
+                  setFormData((prev) => ({ ...prev, hero_labels: rows }))
+                  if (fieldErrors.hero_labels) setFieldErrors((prev) => ({ ...prev, hero_labels: null }))
+                }}
+                errors={fieldErrors.hero_labels || []}
+                disabled={busy}
+              />
+            )}
           </div>
         </FormSection>
 

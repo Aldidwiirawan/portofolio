@@ -27,7 +27,7 @@ const TABLES = {
   profile: {
     table: 'profiles',
     columns: PROFILE_COLUMNS,
-    enColumns: 'tagline_en, bio_en, primary_role_en, secondary_roles_en, hero_keywords_en, hobbies_en, contact_topics_en',
+    enColumns: 'tagline_en, bio_en, primary_role_en, secondary_roles_en, hero_keywords_en, hobbies_en, contact_topics_en, hero_labels',
     single: true,
     normalize: normalizeProfile,
   },
@@ -138,6 +138,15 @@ function safeAssetUrl(value) {
   return /^https?:\/\/\S+$/i.test(url) ? url : null
 }
 
+/** Labels of the hero stage chosen in the admin (at most 10; empty = the featured skills). */
+function heroLabels(value) {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item) => item && typeof item === 'object' && text(item.text))
+    .slice(0, 10)
+    .map((item) => ({ text: text(item.text), text_en: text(item.text_en), shape: item.shape === 'circle' ? 'circle' : 'tag' }))
+}
+
 function normalizeProfile(row) {
   if (!row) return null
   const email = text(row.email)
@@ -156,6 +165,7 @@ function normalizeProfile(row) {
     full_name: text(row.full_name),
     primary_role: text(row.primary_role),
     github_username: text(row.github_username),
+    hero_labels: heroLabels(row.hero_labels),
     avatar_url: safeAssetUrl(row.avatar_url),
     // The PDF uploaded in Profil; the old CV link is only the fallback (BRIEF §9)
     cvUrl: safeAssetUrl(row.cv_file_url) || safeAssetUrl(row.resume_link),

@@ -322,9 +322,9 @@
   }
 }
 
-/* HP: paling banyak 6 label */
+/* HP: paling banyak 6 label keahlian, atau 8 label pilihan admin */
 @media (max-width: 767px) {
-  .pub-stage-label[data-extra='true'] {
+  .pub-stage-pile > [data-extra='true'] {
     display: none;
   }
 }

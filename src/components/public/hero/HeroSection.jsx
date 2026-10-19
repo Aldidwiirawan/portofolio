@@ -100,7 +100,12 @@ function HeroSection() {
           )}
         </div>
 
-        <HeroStage skills={skills} ready={data.skills.status !== 'loading'} />
+        <HeroStage
+          labels={profile?.hero_labels ?? []}
+          skills={skills}
+          pending={status === 'loading'}
+          ready={status !== 'loading' && (profile?.hero_labels?.length > 0 || data.skills.status !== 'loading')}
+        />
       </div>
 
       <StatusBar available={Boolean(profile?.is_available)} location={profile?.location} />

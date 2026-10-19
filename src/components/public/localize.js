@@ -72,8 +72,13 @@ function localizeProjectCard(row, lang) {
 
 function localizeProfile(row, lang) {
   if (!row || lang !== 'en') return row
-  // The contact form shows the English topic but stores the Indonesian one (the admin inbox)
-  return { ...localizeRow(row, lang, FIELDS.profile), contact_topic_values: row.contact_topics }
+  return {
+    ...localizeRow(row, lang, FIELDS.profile),
+    // The contact form shows the English topic but stores the Indonesian one (the admin inbox)
+    contact_topic_values: row.contact_topics,
+    // Hero stage labels (decorative, aria-hidden): the English text when there is one
+    hero_labels: (row.hero_labels ?? []).map((label) => ({ ...label, text: clean(label.text_en) || label.text })),
+  }
 }
 
 function localizeSkill(row, lang) {

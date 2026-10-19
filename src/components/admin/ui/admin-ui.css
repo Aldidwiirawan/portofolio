@@ -1229,6 +1229,66 @@ html:has(.adm) body {
   font-size: var(--ds-fs-xs);
 }
 
+/* Label panggung hero (tahap 3C): baris seperti daftar tautan + pratinjau tumpukan kecil */
+.adm-herolabels-note {
+  color: var(--ds-text-muted);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.adm-herolabels-preview {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px dashed var(--ds-border-control);
+  border-radius: var(--adm-radius);
+  background-color: var(--ds-canvas);
+}
+
+.adm-herolabels-preview-title {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.adm-herolabels-pile {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.adm-herolabels-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--ds-border-control);
+  background-color: var(--ds-surface);
+  color: var(--ds-text-strong);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  white-space: nowrap;
+}
+
+.adm-herolabels-orb {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1.5px solid var(--ds-accent-text);
+  border-radius: 50%;
+  background-color: var(--ds-accent-subtle);
+  color: var(--ds-accent-text);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-sm);
+  font-weight: var(--ds-fw-bold);
+}
+
 /* Tautan proyek: setiap baris berisi nama, jenis, alamat, dan sakelar Privat */
 .adm-linklist-rows {
   display: grid;

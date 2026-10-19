@@ -9,25 +9,47 @@ import { usePhysicsStage } from './usePhysicsStage'
 // Small tilts so the static labels look dropped onto the stage (before the physics starts)
 const TILTS = [-5, 3, -2, 6, -4, 2, -6, 4]
 
+// Phones: at most 6 skill labels (+ the two round marks), or the first 8 labels chosen in the admin
+const PHONE_SKILLS = 6
+const PHONE_LABELS = 8
+
+/** Items of the pile: the labels chosen in the admin (stage 3C), in their order and shape. */
+function adminItems(labels) {
+  return labels.map((label, index) => ({
+    key: `label-${index}-${label.text}`,
+    text: label.text,
+    orb: label.shape === 'circle',
+    extra: index >= PHONE_LABELS,
+  }))
+}
+
+/** Items of the pile without admin labels: featured skills with the round marks </> and * among them. */
+function skillItems(skills) {
+  const items = pickStageSkills(skills, 8).map((skill, index) => ({ key: skill.id, text: skill.name, extra: index >= PHONE_SKILLS }))
+  // The round marks sit inside the pile, not at its edges
+  items.splice(Math.min(2, items.length), 0, { key: 'orb-code', text: '</>', orb: true })
+  items.splice(Math.min(6, items.length), 0, { key: 'orb-star', text: '*', orb: true })
+  return items
+}
+
 /**
- * Stage on the right of the hero: blueprint frame with skill labels (featured skills, at most 8 on
- * large screens and 6 on phones) and the two round marks </> and *. The static pile shows first;
- * once the stage is on screen the labels become physics labels (stage 3B): they drop in, collide,
- * can be dragged and thrown with a mouse, and tossed with a tap on touch screens. With reduced motion
- * the pile stays still. Decorative (aria-hidden): the skills section lists the same skills.
+ * Stage on the right of the hero: blueprint frame with the labels chosen in the admin (Profil → "Label
+ * panggung hero", stage 3C: at most 10, phones show the first 8) or, without them, the featured skills
+ * (at most 8 on large screens and 6 on phones) and the two round marks </> and *. The static pile shows
+ * first; once the stage is on screen the labels become physics labels (stage 3B): they drop in,
+ * collide, can be dragged and thrown with a mouse, and tossed with a tap on touch screens. With reduced
+ * motion the pile stays still. While the profile loads the pile stays empty (no swap from skills to
+ * the chosen labels). Decorative (aria-hidden): the skills section lists the skills.
  */
-function HeroStage({ skills, ready }) {
+function HeroStage({ labels = [], skills, pending = false, ready }) {
   const { t } = useI18n()
   const reducedMotion = usePrefersReducedMotion()
   const pageHidden = usePageHidden()
   const { play } = useSound()
   const stageRef = useRef(null)
 
-  const labels = pickStageSkills(skills, 8)
-  const items = labels.map((skill, index) => ({ key: skill.id, text: skill.name, index }))
-  // The round marks sit inside the pile, not at its edges
-  items.splice(Math.min(2, items.length), 0, { key: 'orb-code', text: '</>', orb: true })
-  items.splice(Math.min(6, items.length), 0, { key: 'orb-star', text: '*', orb: true })
+  let items = []
+  if (!pending) items = labels.length > 0 ? adminItems(labels) : skillItems(skills)
 
   const onImpact = useCallback((impact) => play(impact), [play])
   usePhysicsStage(stageRef, {
@@ -45,7 +67,7 @@ function HeroStage({ skills, ready }) {
           <span
             key={item.key}
             className={item.orb ? 'pub-stage-orb' : 'pub-stage-label'}
-            data-extra={!item.orb && item.index >= 6 ? 'true' : undefined}
+            data-extra={item.extra ? 'true' : undefined}
             style={{ '--tilt': `${TILTS[position % TILTS.length]}deg` }}
           >
             {item.text}
