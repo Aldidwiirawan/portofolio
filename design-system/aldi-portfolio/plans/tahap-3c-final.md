@@ -327,7 +327,9 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [x] A5. Grafik kontribusi GitHub (sesuai K5): `api/github-contributions.js` (token `GITHUB_TOKEN` di Vercel,
       username dari profil, cache CDN 12 jam) + `GithubActivity` lazy di akhir section Proyek; gagal/0/dev lokal =
       tidak dirender. Uji: `gh-fn` 14/14, `github` 33/33. (Di-commit sebelum A4.)
-- [ ] A6. Draf terjemahan `supabase/seed/terjemahan-en.sql` + uji PGlite
+- [x] A6. Draf terjemahan `supabase/seed/terjemahan-en.sql` + uji PGlite (34 cek: 2× jalan, isi Indonesia utuh,
+      teks yang sudah berubah dilewati, isi Inggris dari admin tidak ditimpa, file CRLF, tanpa migrasi gagal rapi).
+      Nama diri (keahlian, penerbit, instansi, klien) tidak ditandai `lang="id"` (commit a69b06f).
 - [ ] A7. Uji bagian A + laporan (isi migrasi, tabel draf terjemahan) → **berhenti**
 
 **Bagian B** (setelah pemilik menjalankan migrasi dan terjemahan)
