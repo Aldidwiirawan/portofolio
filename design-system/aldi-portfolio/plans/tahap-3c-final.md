@@ -323,7 +323,9 @@ Semua usulan K1–K11 disetujui, dengan catatan:
       pesan "belum dijalankan", isi Indonesia tetap tersimpan tanpa kolom `_en`. Uji: `admin-en` 61/61, suite admin lama
       lulus.
 - [ ] A4. Label hero: editor di Profil + panggung publik
-- [ ] A5. Grafik kontribusi GitHub (sesuai K5)
+- [x] A5. Grafik kontribusi GitHub (sesuai K5): `api/github-contributions.js` (token `GITHUB_TOKEN` di Vercel,
+      username dari profil, cache CDN 12 jam) + `GithubActivity` lazy di akhir section Proyek; gagal/0/dev lokal =
+      tidak dirender. Uji: `gh-fn` 14/14, `github` 33/33. (Di-commit sebelum A4.)
 - [ ] A6. Draf terjemahan `supabase/seed/terjemahan-en.sql` + uji PGlite
 - [ ] A7. Uji bagian A + laporan (isi migrasi, tabel draf terjemahan) → **berhenti**
 

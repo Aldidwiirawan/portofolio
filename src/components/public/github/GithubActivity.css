@@ -1,0 +1,159 @@
+/* Aktivitas di GitHub (tahap 3C): kalender kontribusi di akhir section Proyek */
+.pub-gh {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-12);
+  padding: var(--space-5);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--ds-surface);
+  min-width: 0;
+}
+
+.pub-gh--loading {
+  min-height: 15rem;
+}
+
+.pub-gh-skeleton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 13rem;
+}
+
+.pub-gh-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pub-gh-link {
+  font-size: var(--ds-fs-sm);
+}
+
+.pub-gh-total {
+  color: var(--ds-text-strong);
+  font-size: var(--ds-fs-md);
+  font-weight: var(--ds-fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kotak-kotak: satu kolom per minggu, Minggu di atas; kotak paling besar 15 px */
+.pub-gh-chart {
+  --pub-gh-gap: 3px;
+  display: grid;
+  gap: var(--space-3);
+  width: min(100%, calc(var(--pub-gh-weeks) * (15px + var(--pub-gh-gap))));
+  min-width: 0;
+  padding-top: 1.25rem; /* ruang label bulan */
+}
+
+.pub-gh-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--pub-gh-weeks), minmax(0, 1fr));
+  gap: var(--pub-gh-gap);
+}
+
+/* Equal rows: a short first or last week keeps its days on the right weekday */
+.pub-gh-week {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: var(--pub-gh-gap);
+}
+
+.pub-gh-month {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pub-gh-month--phone {
+  display: none;
+}
+
+.pub-gh-cell {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background-color: color-mix(in srgb, var(--ds-text) 9%, transparent);
+}
+
+.pub-gh-cell[data-level='1'] {
+  background-color: color-mix(in srgb, var(--ds-accent-text) 32%, transparent);
+}
+
+.pub-gh-cell[data-level='2'] {
+  background-color: color-mix(in srgb, var(--ds-accent-text) 55%, transparent);
+}
+
+.pub-gh-cell[data-level='3'] {
+  background-color: color-mix(in srgb, var(--ds-accent-text) 78%, transparent);
+}
+
+.pub-gh-cell[data-level='4'] {
+  background-color: var(--ds-accent-text);
+}
+
+.pub-gh-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+}
+
+.pub-gh-legend .pub-gh-cell {
+  width: 12px;
+}
+
+.pub-gh-legend span:first-child {
+  margin-right: var(--space-1);
+}
+
+.pub-gh-legend span:last-child {
+  margin-left: var(--space-1);
+}
+
+.pub-gh-recent {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .pub-gh {
+    padding: var(--space-6) var(--space-8);
+  }
+}
+
+/* HP: 26 minggu terakhir, tanpa gulir ke samping */
+@media (max-width: 767px) {
+  .pub-gh-chart {
+    width: 100%;
+  }
+
+  .pub-gh-grid {
+    grid-template-columns: repeat(var(--pub-gh-recent), minmax(0, 1fr));
+  }
+
+  .pub-gh-week[data-old] {
+    display: none;
+  }
+
+  .pub-gh-month--phone {
+    display: block;
+  }
+
+  .pub-gh-recent {
+    display: block;
+  }
+}

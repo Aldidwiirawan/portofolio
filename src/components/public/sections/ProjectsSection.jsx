@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
+import GithubActivitySlot from '../github/GithubActivitySlot'
 import { ArrowRightIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
@@ -41,11 +42,13 @@ function ProjectFacts({ project }) {
 /**
  * "Proyek unggulan": featured projects as case-study cards (cover alternates left/right on wide
  * screens), the other visible projects as a compact list. Every card links to /projects/:slug.
+ * At the end, the GitHub activity when the profile has a GitHub username (stage 3C).
  */
 function ProjectsSection() {
   const { t } = useI18n()
   const { status, data: projects } = usePublicData().projects
-  const { reload } = usePublicData()
+  const { reload, profile } = usePublicData()
+  const hasGithub = Boolean(profile.data?.github_username)
 
   if (status === 'ready' && projects.length === 0) return null
 
@@ -83,6 +86,8 @@ function ProjectsSection() {
               </ul>
             </div>
           )}
+
+          {hasGithub && <GithubActivitySlot />}
         </>
       )}
     </Section>

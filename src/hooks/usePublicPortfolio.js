@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabaseClient'
 //   one per language (components/public/localize.js).
 
 const PROFILE_COLUMNS =
-  'full_name, tagline, primary_role, secondary_roles, hero_keywords, bio, location, email, github_url, linkedin_url, instagram_url, avatar_url, is_available, cv_file_url, resume_link, hobbies, contact_topics'
+  'full_name, tagline, primary_role, secondary_roles, hero_keywords, bio, location, email, github_url, github_username, linkedin_url, instagram_url, avatar_url, is_available, cv_file_url, resume_link, hobbies, contact_topics'
 
 const PROJECT_LIST_COLUMNS =
   'id, slug, title, description, solution, thumbnail_url, status, year, project_type, client_name, tech_stack, is_featured, sort_order'
@@ -155,6 +155,7 @@ function normalizeProfile(row) {
     ...lists,
     full_name: text(row.full_name),
     primary_role: text(row.primary_role),
+    github_username: text(row.github_username),
     avatar_url: safeAssetUrl(row.avatar_url),
     // The PDF uploaded in Profil; the old CV link is only the fallback (BRIEF §9)
     cvUrl: safeAssetUrl(row.cv_file_url) || safeAssetUrl(row.resume_link),
