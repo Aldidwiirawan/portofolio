@@ -108,13 +108,14 @@ export function useAssetField(savedUrl, { folder, type = 'image', imageKind = 'p
   }
 }
 
-/** [{ url, caption? }] from a stored jsonb value (tolerates plain URL strings). */
+/** [{ url, caption, caption_en }] from a stored jsonb value (tolerates plain URL strings). */
 export function normalizeGallery(value) {
   if (!Array.isArray(value)) return []
+  const text = (v) => (typeof v === 'string' ? v : '')
   return value
     .map((item) => (typeof item === 'string' ? { url: item } : item))
     .filter((item) => item && typeof item.url === 'string' && item.url)
-    .map((item) => ({ url: item.url, caption: typeof item.caption === 'string' ? item.caption : '' }))
+    .map((item) => ({ url: item.url, caption: text(item.caption), caption_en: text(item.caption_en) }))
 }
 
 let galleryKey = 0
@@ -123,10 +124,15 @@ const nextKey = () => {
   return `g${galleryKey}`
 }
 
-/** Ordered images with a short caption each (project gallery, experience photos). */
+/**
+ * Ordered images with a short caption each (project gallery, experience photos). The English caption
+ * (caption_en, stage 3C) belongs to its image, so it moves with it.
+ */
 export function useGalleryField(savedItems, { folder = 'gallery', max = 5, imageKind = 'photo' } = {}) {
   const [initial] = useState(() => normalizeGallery(savedItems))
-  const [items, setItems] = useState(() => initial.map((item) => ({ key: nextKey(), url: item.url, caption: item.caption })))
+  const [items, setItems] = useState(() =>
+    initial.map((item) => ({ key: nextKey(), url: item.url, caption: item.caption, caption_en: item.caption_en }))
+  )
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [announcement, setAnnouncement] = useState('')
@@ -165,6 +171,7 @@ export function useGalleryField(savedItems, { folder = 'gallery', max = 5, image
             file: result.file,
             preview: URL.createObjectURL(result.file),
             caption: '',
+            caption_en: '',
             name: file.name,
             size: result.file.size,
           })
@@ -217,9 +224,14 @@ export function useGalleryField(savedItems, { folder = 'gallery', max = 5, image
     [commit]
   )
 
+  const setCaptionEn = useCallback(
+    (key, captionEn) => commit(itemsRef.current.map((x) => (x.key === key ? { ...x, caption_en: captionEn } : x))),
+    [commit]
+  )
+
   const dirty =
-    JSON.stringify(items.map((item) => [item.url || item.key, item.caption.trim()])) !==
-    JSON.stringify(initial.map((item) => [item.url, item.caption.trim()]))
+    JSON.stringify(items.map((item) => [item.url || item.key, item.caption.trim(), item.caption_en.trim()])) !==
+    JSON.stringify(initial.map((item) => [item.url, item.caption.trim(), item.caption_en.trim()]))
 
   return {
     kind: 'gallery',
@@ -235,6 +247,7 @@ export function useGalleryField(savedItems, { folder = 'gallery', max = 5, image
     remove,
     move,
     setCaption,
+    setCaptionEn,
   }
 }
 
@@ -258,7 +271,8 @@ export async function prepareUploads(fields) {
             uploaded.push(url)
           }
           const caption = item.caption.trim()
-          result.push(caption ? { url, caption } : { url })
+          const captionEn = item.caption_en.trim()
+          result.push({ url, ...(caption ? { caption } : {}), ...(captionEn ? { caption_en: captionEn } : {}) })
         }
         const kept = new Set(result.map((item) => item.url))
         field.initial.forEach((item) => {

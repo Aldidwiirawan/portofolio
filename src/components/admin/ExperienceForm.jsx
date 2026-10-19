@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { GalleryUpload, ImageField } from './ui/AssetUpload'
 import { EXPERIENCE_TYPES } from './ui/contentLabels'
+import { EnglishField, EnglishList, EnglishSection } from './ui/EnglishFields'
 import { Checkbox, ChoiceGroup, Field, FormSection, Input, Select, Textarea } from './ui/Field'
 import { dateToMonthYear, monthYearToDate } from './ui/format'
-import { checkMonthYear, cleanList } from './ui/formValues'
+import { alignList, checkMonthYear, cleanList, cleanParallelList, englishText, remapList } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { ListInput } from './ui/ListInput'
@@ -43,6 +45,11 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
     related_project_id: experience?.related_project_id != null ? String(experience.related_project_id) : '',
     is_visible: experience?.is_visible ?? true,
     is_featured: Boolean(experience?.is_featured),
+    // Versi Inggris (stage 3C); the task points are parallel to the Indonesian ones
+    role_en: experience?.role_en || '',
+    company_en: experience?.company_en || '',
+    description_en: experience?.description_en || '',
+    responsibilities_en: alignList(experience?.responsibilities, experience?.responsibilities_en),
   })
 
   // Logo of the company (logos/, 400 px) and up to three photos (gallery/), uploaded when saving
@@ -153,6 +160,14 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
       related_project_id: related ? related.id : null,
       is_visible: Boolean(formData.is_visible),
       is_featured: Boolean(formData.is_featured),
+    }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        role_en: englishText(formData.role_en),
+        company_en: englishText(formData.company_en),
+        description_en: englishText(formData.description_en),
+        responsibilities_en: cleanParallelList(formData.responsibilities, formData.responsibilities_en),
+      })
     }
     // A new experience goes to the end of the list; the order is changed with Naik/Turun
     if (!isEditMode) payload.sort_order = nextSortOrder
@@ -278,6 +293,7 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
           optional
           value={formData.responsibilities}
           onChange={(items) => set('responsibilities', items)}
+          onRowsChange={(order) => set('responsibilities_en', remapList(formData.responsibilities_en, order))}
           max={5}
           itemLabel="Poin"
           addLabel="Tambah poin"
@@ -343,6 +359,30 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
           </Select>
         </Field>
       </FormSection>
+
+      <EnglishSection
+        values={[formData.role_en, formData.company_en, formData.description_en, ...formData.responsibilities_en]}
+      >
+        <EnglishField id="exp-role-en" label="Posisi" original={formData.role} maxLength={100} {...input('role_en')} />
+        <EnglishField
+          id="exp-company-en"
+          label="Instansi atau perusahaan"
+          original={formData.company}
+          maxLength={100}
+          {...input('company_en')}
+        />
+        <EnglishList
+          id="exp-tasks-en"
+          label="Poin tugas"
+          itemLabel="Poin"
+          originals={formData.responsibilities}
+          values={formData.responsibilities_en}
+          onItemChange={(index, text) => set('responsibilities_en', formData.responsibilities_en.map((item, i) => (i === index ? text : item)))}
+          maxLength={160}
+          disabled={busy}
+        />
+        <EnglishField id="exp-description-en" label="Ringkasan" original={formData.description} multiline {...input('description_en')} />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="exp"

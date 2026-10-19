@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageField } from './ui/AssetUpload'
+import { EnglishField, EnglishSection } from './ui/EnglishFields'
 import { Field, FormSection, Input, Textarea } from './ui/Field'
 import { dateToMonthYear, monthYearToDate } from './ui/format'
-import { checkMonthYear } from './ui/formValues'
+import { checkMonthYear, englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { MonthYearSelect } from './ui/MonthYearSelect'
@@ -33,6 +35,9 @@ function OrganizationForm({ organization = null, nextSortOrder = 0, onSuccess, o
     end: dateToMonthYear(organization?.end_date),
     description: organization?.description || '',
     is_visible: organization?.is_visible ?? true,
+    // Versi Inggris (stage 3C)
+    role_en: organization?.role_en || '',
+    description_en: organization?.description_en || '',
   })
 
   // Logo or a small photo (logos/, 400 px), uploaded when saving
@@ -109,6 +114,12 @@ function OrganizationForm({ organization = null, nextSortOrder = 0, onSuccess, o
       logo_url: uploads.values.logo_url,
       is_visible: Boolean(formData.is_visible),
     }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        role_en: englishText(formData.role_en),
+        description_en: englishText(formData.description_en),
+      })
+    }
     // A new organization goes to the end of the list; the order is changed with Naik/Turun
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -155,6 +166,13 @@ function OrganizationForm({ organization = null, nextSortOrder = 0, onSuccess, o
   }
 
   const busy = isSubmitting || screen.saved
+  // Versi Inggris (stage 3C)
+  const english = (name) => ({
+    name,
+    value: formData[name],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [name]: e.target.value })),
+    disabled: busy,
+  })
 
   return (
     <FormPanel
@@ -212,6 +230,17 @@ function OrganizationForm({ organization = null, nextSortOrder = 0, onSuccess, o
           disabled={busy}
         />
       </FormSection>
+
+      <EnglishSection values={[formData.role_en, formData.description_en]}>
+        <EnglishField id="org-role-en" label="Jabatan" original={formData.role} {...english('role_en')} />
+        <EnglishField
+          id="org-description-en"
+          label="Tanggung jawab dan kontribusi"
+          original={formData.description}
+          multiline
+          {...english('description_en')}
+        />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="org"

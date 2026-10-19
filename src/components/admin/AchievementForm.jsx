@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageField, PdfUpload } from './ui/AssetUpload'
+import { EnglishField, EnglishSection } from './ui/EnglishFields'
 import { Field, FormSection, Input, Textarea } from './ui/Field'
-import { checkMonthYear } from './ui/formValues'
+import { checkMonthYear, englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { MonthYearSelect } from './ui/MonthYearSelect'
@@ -34,6 +36,10 @@ function AchievementForm({ achievement = null, nextSortOrder = 0, onSuccess, onC
     },
     description: achievement?.description || '',
     is_visible: achievement?.is_visible ?? true,
+    // Versi Inggris (stage 3C)
+    title_en: achievement?.title_en || '',
+    event_name_en: achievement?.event_name_en || '',
+    description_en: achievement?.description_en || '',
     is_featured: Boolean(achievement?.is_featured),
   })
 
@@ -106,6 +112,13 @@ function AchievementForm({ achievement = null, nextSortOrder = 0, onSuccess, onC
       is_visible: Boolean(formData.is_visible),
       is_featured: Boolean(formData.is_featured),
     }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        title_en: englishText(formData.title_en),
+        event_name_en: englishText(formData.event_name_en),
+        description_en: englishText(formData.description_en),
+      })
+    }
     // A new achievement goes to the end of the list; the order is changed with Naik/Turun
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -152,6 +165,13 @@ function AchievementForm({ achievement = null, nextSortOrder = 0, onSuccess, onC
   }
 
   const busy = isSubmitting || screen.saved
+  // Versi Inggris (stage 3C)
+  const english = (name) => ({
+    name,
+    value: formData[name],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [name]: e.target.value })),
+    disabled: busy,
+  })
 
   return (
     <FormPanel
@@ -198,6 +218,23 @@ function AchievementForm({ achievement = null, nextSortOrder = 0, onSuccess, onC
         <PdfUpload id="achieve-document" label="Dokumen (PDF)" field={docFile} hint="Piagam atau surat keterangan. PDF sampai 5 MB." disabled={busy} />
         <ImageField id="achieve-photo" label="Foto" field={photo} hint="Foto saat menerima penghargaan atau karya yang dilombakan." disabled={busy} />
       </FormSection>
+
+      <EnglishSection values={[formData.title_en, formData.event_name_en, formData.description_en]}>
+        <EnglishField id="achieve-title-en" label="Nama pencapaian" original={formData.title} {...english('title_en')} />
+        <EnglishField
+          id="achieve-event-name-en"
+          label="Penerbit atau penyelenggara"
+          original={formData.event_name}
+          {...english('event_name_en')}
+        />
+        <EnglishField
+          id="achieve-description-en"
+          label="Keterangan"
+          original={formData.description}
+          multiline
+          {...english('description_en')}
+        />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="achieve"

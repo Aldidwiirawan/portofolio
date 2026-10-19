@@ -1,14 +1,16 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { GalleryUpload, ImageField } from './ui/AssetUpload'
 import { PROJECT_STATUSES, PROJECT_TYPES } from './ui/contentLabels'
+import { EnglishField, EnglishList, EnglishSection } from './ui/EnglishFields'
 import { Checkbox, Field, FormSection, Input, Select, Textarea } from './ui/Field'
-import { cleanList } from './ui/formValues'
+import { cleanList, englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { LinkListInput } from './ui/LinkListInput'
 import { ListInput } from './ui/ListInput'
-import { allCodePrivate, initialLinks, legacyUrls, prepareLinks } from './ui/projectLinks'
+import { allCodePrivate, initialLinks, legacyUrls, LINK_LABEL_MAX, prepareLinks } from './ui/projectLinks'
 import { DisplaySettings } from './ui/Switch'
 import { prepareUploads, useAssetField, useGalleryField } from './ui/useAssetFields'
 import { useFormScreen } from './ui/useFormFeedback'
@@ -16,6 +18,10 @@ import { useFormScreen } from './ui/useFormFeedback'
 // Columns returned after saving (same as the admin list reads)
 const PROJECT_COLUMNS =
   'id, title, slug, description, content, thumbnail_url, demo_url, github_url, tech_stack, is_featured, sort_order, created_at, updated_at, gallery, status, year, project_type, client_name, my_role, problem, solution, outcome, is_repo_private, is_visible, links'
+
+// Versi Inggris (stage 3C): text fields with an _en column; gallery captions and link labels keep
+// their English text inside each item (caption_en, label_en)
+const ENGLISH_TEXTS = ['title', 'description', 'client_name', 'my_role', 'problem', 'solution', 'outcome', 'content']
 
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: THIS_YEAR + 1 - 2010 + 1 }, (_, i) => String(THIS_YEAR + 1 - i))
@@ -72,6 +78,7 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
     is_repo_private: Boolean(project?.is_repo_private) && !allCodePrivate(initialLinks(project)),
     is_visible: project?.is_visible ?? true,
     is_featured: Boolean(project?.is_featured),
+    ...Object.fromEntries(ENGLISH_TEXTS.map((name) => [`${name}_en`, project?.[`${name}_en`] || ''])),
   }))
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(isEditMode)
 
@@ -187,6 +194,10 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
       is_visible: Boolean(formData.is_visible),
       links,
     }
+    const english = !englishColumnsMissing()
+    if (english) {
+      for (const name of ENGLISH_TEXTS) payload[`${name}_en`] = englishText(formData[`${name}_en`])
+    }
     // A new project goes to the end of the list; the order is changed with Naik/Turun in the list
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -196,7 +207,8 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
         ? supabase.from('projects').update(payload).eq('id', project.id)
         : supabase.from('projects').insert(payload)
 
-      const { data, error: dbError } = await query.select(PROJECT_COLUMNS).single()
+      const columns = english ? `${PROJECT_COLUMNS}, ${ENGLISH_TEXTS.map((name) => `${name}_en`).join(', ')}` : PROJECT_COLUMNS
+      const { data, error: dbError } = await query.select(columns).single()
 
       if (dbError) {
         // Orphan file cleanup: remove the newly uploaded files if the DB operation fails
@@ -398,6 +410,52 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
           disabled={busy}
         />
       </FormSection>
+
+      <EnglishSection
+        values={[
+          ...ENGLISH_TEXTS.map((name) => formData[`${name}_en`]),
+          ...formData.links.map((link) => link.label_en),
+          ...gallery.items.map((item) => item.caption_en),
+        ]}
+      >
+        <EnglishField id="project-title-en" label="Judul proyek" original={formData.title} {...input('title_en')} />
+        <EnglishField id="project-desc-en" label="Deskripsi singkat" original={formData.description} multiline {...input('description_en')} />
+        <EnglishField id="project-client-en" label="Klien atau instansi" original={formData.client_name} {...input('client_name_en')} />
+        <EnglishField id="project-role-en" label="Peran saya" original={formData.my_role} {...input('my_role_en')} />
+        <EnglishField id="project-problem-en" label="Masalah" original={formData.problem} multiline {...input('problem_en')} />
+        <EnglishField id="project-solution-en" label="Solusi" original={formData.solution} multiline {...input('solution_en')} />
+        <EnglishField id="project-outcome-en" label="Hasil" original={formData.outcome} multiline {...input('outcome_en')} />
+        <EnglishField
+          id="project-content-en"
+          label="Penjelasan lengkap"
+          original={formData.content}
+          multiline
+          rows={6}
+          {...input('content_en')}
+        />
+        <EnglishList
+          id="project-links-en"
+          label="Nama tautan"
+          itemLabel="Tautan"
+          originals={formData.links.map((link) => link.label)}
+          values={formData.links.map((link) => link.label_en)}
+          onItemChange={(index, text) => set('links', formData.links.map((link, i) => (i === index ? { ...link, label_en: text } : link)))}
+          maxLength={LINK_LABEL_MAX}
+          emptyHint="Belum ada tautan. Tambahkan di bagian Tautan proyek; nama Inggrisnya diisi di sini."
+          disabled={busy}
+        />
+        <EnglishList
+          id="project-gallery-en"
+          label="Keterangan galeri"
+          itemLabel="Keterangan gambar"
+          originals={gallery.items.map((item) => item.caption)}
+          values={gallery.items.map((item) => item.caption_en)}
+          onItemChange={(index, text) => gallery.setCaptionEn(gallery.items[index].key, text)}
+          maxLength={120}
+          emptyHint="Belum ada gambar galeri."
+          disabled={busy}
+        />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="project"

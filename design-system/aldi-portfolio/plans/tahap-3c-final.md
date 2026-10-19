@@ -319,7 +319,9 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [x] A2. Publik: pilih versi Inggris dengan cadangan Indonesia (semua section, detail, kontak, `lang="id"`), tampilkan
       Ringkasan pengalaman (K3). Sebelum migrasi dijalankan, query mengulang tanpa kolom `_en` (halaman tetap
       Indonesia). Uji: `test-en` 60/60, suite 3A + 3B lulus.
-- [ ] A3. Admin: bagian "Versi Inggris (opsional)" di semua form (+ daftar sejajar, galeri, tautan)
+- [x] A3. Admin: bagian "Versi Inggris (opsional)" di semua form (+ daftar sejajar, galeri, tautan). Sebelum migrasi:
+      pesan "belum dijalankan", isi Indonesia tetap tersimpan tanpa kolom `_en`. Uji: `admin-en` 61/61, suite admin lama
+      lulus.
 - [ ] A4. Label hero: editor di Profil + panggung publik
 - [ ] A5. Grafik kontribusi GitHub (sesuai K5)
 - [ ] A6. Draf terjemahan `supabase/seed/terjemahan-en.sql` + uji PGlite

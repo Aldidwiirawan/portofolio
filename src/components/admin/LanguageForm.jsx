@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { LANGUAGE_LEVELS } from './ui/contentLabels'
+import { EnglishField, EnglishSection } from './ui/EnglishFields'
 import { Field, FormSection, Input, QuickPicks } from './ui/Field'
+import { englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { DisplaySettings } from './ui/Switch'
@@ -24,6 +27,9 @@ function LanguageForm({ language = null, nextSortOrder = 0, onSuccess, onCancel 
     language_name: language?.language_name || '',
     proficiency_level: language?.proficiency_level || '',
     is_visible: language?.is_visible ?? true,
+    // Versi Inggris (stage 3C)
+    language_name_en: language?.language_name_en || '',
+    proficiency_level_en: language?.proficiency_level_en || '',
   })
 
   const [fieldErrors, setFieldErrors] = useState({})
@@ -68,6 +74,12 @@ function LanguageForm({ language = null, nextSortOrder = 0, onSuccess, onCancel 
       proficiency_level: formData.proficiency_level.trim(),
       is_visible: Boolean(formData.is_visible),
     }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        language_name_en: englishText(formData.language_name_en),
+        proficiency_level_en: englishText(formData.proficiency_level_en),
+      })
+    }
     // A new language goes to the end of the list; the order is changed with Naik/Turun
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -111,6 +123,13 @@ function LanguageForm({ language = null, nextSortOrder = 0, onSuccess, onCancel 
   }
 
   const busy = isSubmitting || screen.saved
+  // Versi Inggris (stage 3C)
+  const english = (name) => ({
+    name,
+    value: formData[name],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [name]: e.target.value })),
+    disabled: busy,
+  })
 
   return (
     <FormPanel
@@ -145,6 +164,22 @@ function LanguageForm({ language = null, nextSortOrder = 0, onSuccess, onCancel 
           />
         </div>
       </FormSection>
+
+      <EnglishSection values={[formData.language_name_en, formData.proficiency_level_en]}>
+        <EnglishField
+          id="lang-language-name-en"
+          label="Nama bahasa"
+          original={formData.language_name}
+          {...english('language_name_en')}
+        />
+        <EnglishField
+          id="lang-proficiency-level-en"
+          label="Tingkat kemampuan"
+          original={formData.proficiency_level}
+          note="Tingkat standar (Penutur asli, Aktif, Menengah, Dasar) sudah diterjemahkan otomatis; isi hanya untuk tingkat lain."
+          {...english('proficiency_level_en')}
+        />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="lang"

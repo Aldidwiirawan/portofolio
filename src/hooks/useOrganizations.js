@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { selectWithEnglish } from '../lib/englishColumns'
 import { supabase } from '../lib/supabaseClient'
 
 // Columns read by the public portfolio page (unchanged).
@@ -7,6 +8,10 @@ const PUBLIC_COLUMNS =
 
 // The admin also reads the content columns added in stage 2B (migration 20261016000000).
 const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, logo_url, is_visible, sort_order`
+
+// English versions (migration 20261019000000), read by the admin only; while that migration has not
+// been run the query runs again without them (lib/englishColumns.js).
+const ENGLISH_COLUMNS = 'role_en, description_en'
 
 /**
  * Custom Hook: useOrganizations
@@ -38,11 +43,16 @@ export function useOrganizations({ includeAdminFields = false } = {}) {
 
     async function loadOrganizations() {
       try {
-        const { data, error: queryError } = await supabase
-          .from('organizations')
-          .select(includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
-          .order('start_date', { ascending: false, nullsLast: true })
-          .order('created_at', { ascending: false })
+        const { data, error: queryError } = await selectWithEnglish(
+          (columns) =>
+            supabase
+              .from('organizations')
+              .select(columns)
+              .order('start_date', { ascending: false, nullsLast: true })
+              .order('created_at', { ascending: false }),
+          includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS,
+          includeAdminFields ? ENGLISH_COLUMNS : undefined
+        )
 
         if (!isMounted) return
 

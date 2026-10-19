@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageField, PdfUpload } from './ui/AssetUpload'
 import { CERTIFICATE_CATEGORIES } from './ui/contentLabels'
+import { EnglishField, EnglishSection } from './ui/EnglishFields'
 import { Checkbox, Field, FormSection, Input, Select } from './ui/Field'
 import { dateToMonthYear, monthYearToDate } from './ui/format'
-import { checkMonthYear } from './ui/formValues'
+import { checkMonthYear, englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { MonthYearSelect } from './ui/MonthYearSelect'
@@ -38,6 +40,9 @@ function CertificationForm({ certification = null, nextSortOrder = 0, onSuccess,
     credential_url: certification?.credential_url || '',
     score: certification?.score || '',
     is_visible: certification?.is_visible ?? true,
+    // Versi Inggris (stage 3C)
+    name_en: certification?.name_en || '',
+    issuer_en: certification?.issuer_en || '',
     is_featured: Boolean(certification?.is_featured),
   })
 
@@ -138,6 +143,12 @@ function CertificationForm({ certification = null, nextSortOrder = 0, onSuccess,
       is_visible: Boolean(formData.is_visible),
       is_featured: Boolean(formData.is_featured),
     }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        name_en: englishText(formData.name_en),
+        issuer_en: englishText(formData.issuer_en),
+      })
+    }
     // A new certificate goes to the end of the list; the order is changed with Naik/Turun
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -184,6 +195,13 @@ function CertificationForm({ certification = null, nextSortOrder = 0, onSuccess,
   }
 
   const busy = isSubmitting || screen.saved
+  // Versi Inggris (stage 3C)
+  const english = (name) => ({
+    name,
+    value: formData[name],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [name]: e.target.value })),
+    disabled: busy,
+  })
   const input = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
 
   return (
@@ -283,6 +301,16 @@ function CertificationForm({ certification = null, nextSortOrder = 0, onSuccess,
           disabled={busy}
         />
       </FormSection>
+
+      <EnglishSection values={[formData.name_en, formData.issuer_en]}>
+        <EnglishField
+          id="cert-name-en"
+          label="Nama sertifikat atau pelatihan"
+          original={formData.name}
+          {...english('name_en')}
+        />
+        <EnglishField id="cert-issuer-en" label="Penerbit" original={formData.issuer} {...english('issuer_en')} />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="cert"

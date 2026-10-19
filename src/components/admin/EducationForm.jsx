@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageField } from './ui/AssetUpload'
+import { EnglishField, EnglishSection } from './ui/EnglishFields'
 import { Checkbox, Field, FormSection, Input, QuickPicks, Select, Textarea } from './ui/Field'
+import { englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { DisplaySettings } from './ui/Switch'
@@ -53,6 +56,10 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
     gpa: education?.gpa != null ? String(education.gpa).replace('.', ',') : '',
     thesis_title: education?.thesis_title || '',
     is_visible: education?.is_visible ?? true,
+    // Versi Inggris (stage 3C)
+    degree_en: education?.degree_en || '',
+    field_of_study_en: education?.field_of_study_en || '',
+    thesis_title_en: education?.thesis_title_en || '',
   })
 
   // Campus or school logo (logos/, 400 px), uploaded when saving
@@ -169,6 +176,13 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
       thesis_title: formData.thesis_title.trim() || null,
       is_visible: Boolean(formData.is_visible),
     }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        degree_en: englishText(formData.degree_en),
+        field_of_study_en: englishText(formData.field_of_study_en),
+        thesis_title_en: englishText(formData.thesis_title_en),
+      })
+    }
     // A new entry goes to the end of the list; the order is changed with Naik/Turun
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -214,6 +228,13 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
   }
 
   const busy = isSubmitting || screen.saved
+  // Versi Inggris (stage 3C)
+  const english = (name) => ({
+    name,
+    value: formData[name],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [name]: e.target.value })),
+    disabled: busy,
+  })
 
   return (
     <FormPanel
@@ -312,6 +333,22 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
       <FormSection title="Logo">
         <ImageField id="edu-logo" label="Logo kampus atau sekolah" field={logo} shape="square" imageKind="logo" disabled={busy} />
       </FormSection>
+
+      <EnglishSection values={[formData.degree_en, formData.field_of_study_en, formData.thesis_title_en]}>
+        <EnglishField id="edu-degree-en" label="Jenjang" original={formData.degree} {...english('degree_en')} />
+        <EnglishField
+          id="edu-field-of-study-en"
+          label="Jurusan"
+          original={formData.field_of_study}
+          {...english('field_of_study_en')}
+        />
+        <EnglishField
+          id="edu-thesis-title-en"
+          label="Judul tugas akhir"
+          original={formData.thesis_title}
+          {...english('thesis_title_en')}
+        />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="edu"

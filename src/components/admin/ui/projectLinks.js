@@ -8,15 +8,19 @@ export const LINK_LABEL_MAX = 60
 const LINK_TYPES = PROJECT_LINK_TYPES.map((option) => option.value)
 
 /** A new, empty row of the links list. */
-export const emptyLink = () => ({ label: '', type: 'code', url: '', is_private: false })
+export const emptyLink = () => ({ label: '', label_en: '', type: 'code', url: '', is_private: false })
 
-/** Stored links as form rows ({ label, type, url, is_private }, url '' when there is none). */
+/**
+ * Stored links as form rows ({ label, label_en, type, url, is_private }, '' when there is none).
+ * label_en is the English label (stage 3C); it belongs to its link, so it moves with it.
+ */
 export function normalizeLinks(value) {
   if (!Array.isArray(value)) return []
   return value
     .filter((item) => item && typeof item === 'object' && !Array.isArray(item))
     .map((item) => ({
       label: typeof item.label === 'string' ? item.label : '',
+      label_en: typeof item.label_en === 'string' ? item.label_en : '',
       type: LINK_TYPES.includes(item.type) ? item.type : 'other',
       url: typeof item.url === 'string' ? item.url : '',
       is_private: item.is_private === true,
@@ -32,10 +36,10 @@ export function initialLinks(project) {
   if (links.length > 0) return links
   const legacy = []
   if (project?.github_url?.trim()) {
-    legacy.push({ label: 'Kode', type: 'code', url: project.github_url.trim(), is_private: Boolean(project.is_repo_private) })
+    legacy.push({ label: 'Kode', label_en: '', type: 'code', url: project.github_url.trim(), is_private: Boolean(project.is_repo_private) })
   }
   if (project?.demo_url?.trim()) {
-    legacy.push({ label: 'Demo', type: 'demo', url: project.demo_url.trim(), is_private: false })
+    legacy.push({ label: 'Demo', label_en: '', type: 'demo', url: project.demo_url.trim(), is_private: false })
   }
   return legacy
 }
@@ -60,7 +64,7 @@ export function checkLinkUrl(url, { isPrivate = false } = {}) {
 
 /**
  * Checks the rows before saving. Fully empty rows are dropped, like empty items of a list field.
- * @returns {{ links: Array<{ label: string, type: string, url: string|null, is_private: boolean }>,
+ * @returns {{ links: Array<{ label: string, label_en?: string, type: string, url: string|null, is_private: boolean }>,
  *   errors: Array<{ label?: string, url?: string } | null>, valid: boolean }}
  *   errors follow the positions of `rows`
  */
@@ -78,7 +82,14 @@ export function prepareLinks(rows) {
     if (urlProblem) error.url = urlProblem
     if (error.label || error.url) errors[index] = error
     const url = String(row.url ?? '').trim().replace(/^https:\/\//i, 'https://')
-    links.push({ label, type: LINK_TYPES.includes(row.type) ? row.type : 'other', url: url || null, is_private: Boolean(row.is_private) })
+    const labelEn = String(row.label_en ?? '').trim().slice(0, LINK_LABEL_MAX)
+    links.push({
+      label,
+      ...(labelEn ? { label_en: labelEn } : {}),
+      type: LINK_TYPES.includes(row.type) ? row.type : 'other',
+      url: url || null,
+      is_private: Boolean(row.is_private),
+    })
   })
   return { links, errors, valid: errors.every((error) => !error) }
 }

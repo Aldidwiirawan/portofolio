@@ -16,6 +16,8 @@ const newKey = () => {
  * - value: string[]; onChange(next: string[]) — empty rows stay while editing; save
  *   cleanList(value) from formValues.js
  * - max: highest number of items; itemLabel names each row for screen readers ("Poin 2")
+ * - onRowsChange(order): optional, after a row is added, removed or moved; order[n] is the old
+ *   position of row n (null for the new row), so a parallel English list can follow (stage 3C)
  */
 export function ListInput({
   id,
@@ -24,6 +26,7 @@ export function ListInput({
   error,
   value,
   onChange,
+  onRowsChange,
   max = 10,
   itemLabel = 'Isian',
   addLabel = 'Tambah',
@@ -56,6 +59,7 @@ export function ListInput({
 
   const update = (nextItems, nextKeys) => {
     setKeys(nextKeys)
+    onRowsChange?.(nextKeys.map((key) => (rowKeys.includes(key) ? rowKeys.indexOf(key) : null)))
     onChange(nextItems)
   }
 

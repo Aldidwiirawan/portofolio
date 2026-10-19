@@ -750,6 +750,92 @@ html:has(.adm) body {
   grid-column: 1 / -1;
 }
 
+/* Versi Inggris (opsional), tahap 3C: bagian lipat di bawah isian Indonesia */
+.adm-en {
+  margin-top: var(--space-8);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--adm-radius);
+  background-color: var(--ds-canvas);
+}
+
+.adm-en-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--adm-radius);
+  cursor: pointer;
+  list-style: none;
+}
+
+.adm-en-summary::-webkit-details-marker {
+  display: none;
+}
+
+.adm-en-title {
+  color: var(--ds-text-strong);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+  font-weight: var(--ds-fw-semibold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.adm-en-count {
+  color: var(--ds-text-muted);
+  font-family: var(--ds-font-mono);
+  font-size: var(--ds-fs-xs);
+}
+
+.adm-en-chevron {
+  margin-left: auto;
+  color: var(--ds-text-muted);
+  transition: transform var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.adm-en[open] .adm-en-chevron {
+  transform: rotate(180deg);
+}
+
+.adm-en-body {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4) var(--space-5);
+  border-top: 1px solid var(--ds-border);
+}
+
+.adm-en-body > .adm-hint {
+  padding-top: var(--space-2);
+}
+
+.adm-en-rows {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-en-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+.adm-en-ref {
+  grid-column: 2;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-en-chevron {
+    transition: none;
+  }
+}
+
 .adm-required-note {
   margin: 0 0 var(--space-5);
   color: var(--ds-text-muted);

@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageField } from './ui/AssetUpload'
 import { nextSortOrder, SKILL_CATEGORIES } from './ui/contentLabels'
+import { EnglishField, EnglishSection } from './ui/EnglishFields'
 import { ChoiceGroup, Field, FormSection, Input, QuickPicks } from './ui/Field'
+import { englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { DisplaySettings } from './ui/Switch'
@@ -29,6 +32,8 @@ function SkillForm({ skill = null, skills = [], onSuccess, onCancel }) {
     category: skill?.category || '',
     proficiency: skill?.proficiency || '',
     is_visible: skill?.is_visible ?? true,
+    // Versi Inggris (stage 3C)
+    name_en: skill?.name_en || '',
     is_featured: Boolean(skill?.is_featured),
   })
 
@@ -109,6 +114,11 @@ function SkillForm({ skill = null, skills = [], onSuccess, onCancel }) {
       is_visible: Boolean(formData.is_visible),
       is_featured: Boolean(formData.is_featured),
     }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        name_en: englishText(formData.name_en),
+      })
+    }
     // Order is per category: a new skill, or one moved to another category, goes last there
     if (!isEditMode || category !== skill.category) {
       payload.sort_order = nextSortOrder(skills.filter((s) => s.category === category && s.id !== skill?.id))
@@ -157,6 +167,13 @@ function SkillForm({ skill = null, skills = [], onSuccess, onCancel }) {
   }
 
   const busy = isSubmitting || screen.saved
+  // Versi Inggris (stage 3C)
+  const english = (name) => ({
+    name,
+    value: formData[name],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [name]: e.target.value })),
+    disabled: busy,
+  })
 
   return (
     <FormPanel
@@ -222,6 +239,16 @@ function SkillForm({ skill = null, skills = [], onSuccess, onCancel }) {
           disabled={busy}
         />
       </FormSection>
+
+      <EnglishSection values={[formData.name_en]}>
+        <EnglishField
+          id="skill-name-en"
+          label="Nama keahlian"
+          original={formData.name}
+          note="Isi hanya untuk nama berbahasa Indonesia, misalnya Kerja Tim → Teamwork. Nama teknologi biarkan kosong."
+          {...english('name_en')}
+        />
+      </EnglishSection>
 
       <DisplaySettings
         idPrefix="skill"

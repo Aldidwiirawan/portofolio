@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { englishColumnsMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { useProfile } from '../../hooks/useProfile'
 import { prefersReducedMotion } from '../../lib/useMediaQuery'
@@ -8,9 +9,10 @@ import { Alert } from '../../components/admin/ui/Alert'
 import { ImageField, PdfUpload } from '../../components/admin/ui/AssetUpload'
 import { Button } from '../../components/admin/ui/Button'
 import { Badge, Card } from '../../components/admin/ui/Card'
+import { EnglishField, EnglishList, EnglishSection } from '../../components/admin/ui/EnglishFields'
 import { Skeleton } from '../../components/admin/ui/Feedback'
 import { Field, FormSection, Input, Textarea } from '../../components/admin/ui/Field'
-import { cleanList } from '../../components/admin/ui/formValues'
+import { alignList, cleanList, cleanParallelList, englishText, remapList } from '../../components/admin/ui/formValues'
 import { FormPanel } from '../../components/admin/ui/FormPanel'
 import { toFriendlyError } from '../../components/admin/ui/friendlyError'
 import { IconRefresh } from '../../components/admin/ui/icons'
@@ -27,6 +29,14 @@ const GITHUB_USERNAME = /^[A-Za-z0-9-]{1,39}$/
 function githubUsernameFromUrl(url) {
   const match = String(url || '').match(/github\.com\/([A-Za-z0-9-]{1,39})(?:[/?#]|$)/i)
   return match ? match[1] : ''
+}
+
+/** 'Fotografi, Membaca' → ['Fotografi', 'Membaca'] (the hobbies field is one comma-separated text) */
+function splitHobbies(text) {
+  return String(text || '')
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean)
 }
 
 function checkGithubUsername(value) {
@@ -65,6 +75,14 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
     hobbies: Array.isArray(profile?.hobbies) ? profile.hobbies.join(', ') : '',
     contact_topics: Array.isArray(profile?.contact_topics) ? profile.contact_topics : [],
     is_available: profile?.is_available ?? true,
+    // Versi Inggris (stage 3C); lists are parallel to the Indonesian ones
+    tagline_en: profile?.tagline_en || '',
+    primary_role_en: profile?.primary_role_en || '',
+    bio_en: profile?.bio_en || '',
+    secondary_roles_en: alignList(profile?.secondary_roles, profile?.secondary_roles_en),
+    hero_keywords_en: alignList(profile?.hero_keywords, profile?.hero_keywords_en),
+    hobbies_en: alignList(profile?.hobbies, profile?.hobbies_en),
+    contact_topics_en: alignList(profile?.contact_topics, profile?.contact_topics_en),
   }))
 
   // Files: profile photo (profile/) and the CV as PDF (cv/); uploaded when saving
@@ -90,6 +108,15 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
   }
 
   const setList = (name) => (items) => setFormData((prev) => ({ ...prev, [name]: items }))
+  // An English list follows its Indonesian list when a row is added, removed or moved
+  const followRows = (name) => (order) => setFormData((prev) => ({ ...prev, [name]: remapList(prev[name], order) }))
+  const setListItem = (name) => (index, text) =>
+    setFormData((prev) => {
+      const items = [...prev[name]]
+      while (items.length <= index) items.push('')
+      items[index] = text
+      return { ...prev, [name]: items }
+    })
 
   // Filling the GitHub link also suggests the username (only while that field is empty or was
   // suggested from the link before)
@@ -124,12 +151,7 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
     setIsSaving(true)
     setGeneralError(null)
 
-    const hobbiesArray = formData.hobbies
-      ? formData.hobbies
-          .split(',')
-          .map((h) => h.trim())
-          .filter(Boolean)
-      : []
+    const hobbiesArray = splitHobbies(formData.hobbies)
 
     const resumeLinkVal = formData.resume_url.trim() || formData.resume_link.trim() || null
 
@@ -165,6 +187,17 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
       github_username: formData.github_username.trim() || null,
       contact_topics: cleanList(formData.contact_topics),
       updated_at: new Date().toISOString(),
+    }
+    if (!englishColumnsMissing()) {
+      Object.assign(payload, {
+        tagline_en: englishText(formData.tagline_en),
+        primary_role_en: englishText(formData.primary_role_en),
+        bio_en: englishText(formData.bio_en),
+        secondary_roles_en: cleanParallelList(formData.secondary_roles, formData.secondary_roles_en),
+        hero_keywords_en: cleanParallelList(formData.hero_keywords, formData.hero_keywords_en),
+        hobbies_en: cleanParallelList(hobbiesArray, formData.hobbies_en),
+        contact_topics_en: cleanParallelList(formData.contact_topics, formData.contact_topics_en),
+      })
     }
 
     try {
@@ -218,6 +251,7 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
   const field = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
   const roles = [formData.primary_role.trim(), ...cleanList(formData.secondary_roles)].filter(Boolean)
   const keywords = cleanList(formData.hero_keywords)
+  const hobbies = splitHobbies(formData.hobbies)
 
   return (
     <div className="adm-profile">
@@ -306,6 +340,7 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
             optional
             value={formData.secondary_roles}
             onChange={setList('secondary_roles')}
+            onRowsChange={followRows('secondary_roles_en')}
             max={2}
             itemLabel="Peran"
             addLabel="Tambah peran"
@@ -321,6 +356,7 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
               optional
               value={formData.hero_keywords}
               onChange={setList('hero_keywords')}
+              onRowsChange={followRows('hero_keywords_en')}
               max={8}
               itemLabel="Kata"
               addLabel="Tambah kata"
@@ -383,6 +419,7 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
             optional
             value={formData.contact_topics}
             onChange={setList('contact_topics')}
+            onRowsChange={followRows('contact_topics_en')}
             max={8}
             itemLabel="Topik"
             addLabel="Tambah topik"
@@ -392,6 +429,70 @@ function ProfileEditor({ profile, onSaveSuccess, onReset }) {
             disabled={busy}
           />
         </FormSection>
+
+        <EnglishSection
+          values={[
+            formData.tagline_en,
+            formData.primary_role_en,
+            formData.bio_en,
+            ...formData.secondary_roles_en,
+            ...formData.hero_keywords_en,
+            ...hobbies.map((_, index) => formData.hobbies_en[index] ?? ''),
+            ...formData.contact_topics_en,
+          ]}
+        >
+          <EnglishField id="profile-tagline-en" label="Profesi atau tagline" original={formData.tagline} {...field('tagline_en')} />
+          <EnglishField
+            id="profile-primary-role-en"
+            label="Peran utama"
+            original={formData.primary_role}
+            maxLength={60}
+            {...field('primary_role_en')}
+          />
+          <EnglishList
+            id="profile-secondary-roles-en"
+            label="Peran pendukung"
+            itemLabel="Peran"
+            originals={formData.secondary_roles}
+            values={formData.secondary_roles_en}
+            onItemChange={setListItem('secondary_roles_en')}
+            maxLength={60}
+            disabled={busy}
+          />
+          <EnglishList
+            id="profile-hero-keywords-en"
+            label="Kata berganti"
+            itemLabel="Kata"
+            originals={formData.hero_keywords}
+            values={formData.hero_keywords_en}
+            onItemChange={setListItem('hero_keywords_en')}
+            maxLength={40}
+            disabled={busy}
+          />
+          <EnglishField id="profile-bio-en" label="Tentang saya" original={formData.bio} multiline rows={5} {...field('bio_en')} />
+          <EnglishList
+            id="profile-hobbies-en"
+            label="Hobi dan minat"
+            itemLabel="Hobi"
+            originals={hobbies}
+            values={formData.hobbies_en}
+            onItemChange={setListItem('hobbies_en')}
+            maxLength={60}
+            emptyHint="Isi hobi di Data utama dulu; satu kolom Inggris muncul untuk setiap hobi, sesuai urutannya."
+            disabled={busy}
+          />
+          <EnglishList
+            id="profile-contact-topics-en"
+            label="Pilihan topik pesan"
+            itemLabel="Topik"
+            originals={formData.contact_topics}
+            values={formData.contact_topics_en}
+            onItemChange={setListItem('contact_topics_en')}
+            maxLength={60}
+            emptyHint="Belum ada topik. Pesan yang masuk tetap memakai topik bahasa Indonesia."
+            disabled={busy}
+          />
+        </EnglishSection>
       </FormPanel>
 
       <aside className="adm-profile-preview" aria-labelledby="profile-preview-title">

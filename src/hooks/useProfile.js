@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { selectWithEnglish } from '../lib/englishColumns'
 import { supabase } from '../lib/supabaseClient'
 
 // Columns rendered on the public portfolio page. Never include user_id, phone_number or
@@ -9,6 +10,10 @@ const PUBLIC_PROFILE_COLUMNS =
 // The admin form also needs the row id (to update instead of insert), phone_number, full_address
 // and the columns added in stage 2B (migration 20261016000000).
 const ADMIN_PROFILE_COLUMNS = `id, ${PUBLIC_PROFILE_COLUMNS}, phone_number, full_address, cv_file_url, primary_role, secondary_roles, hero_keywords, github_username, contact_topics`
+
+// English versions (migration 20261019000000), read by the admin only; while that migration has not
+// been run the query runs again without them (lib/englishColumns.js).
+const ENGLISH_COLUMNS = 'tagline_en, bio_en, primary_role_en, secondary_roles_en, hero_keywords_en, contact_topics_en, hobbies_en, hero_labels'
 
 /**
  * Custom Hook: useProfile
@@ -41,11 +46,16 @@ export function useProfile({ includePrivateFields = false } = {}) {
 
     async function loadProfile() {
       try {
-        const { data, error: queryError } = await supabase
-          .from('profiles')
-          .select(includePrivateFields ? ADMIN_PROFILE_COLUMNS : PUBLIC_PROFILE_COLUMNS)
-          .limit(1)
-          .maybeSingle()
+        const { data, error: queryError } = await selectWithEnglish(
+          (columns) =>
+            supabase
+              .from('profiles')
+              .select(columns)
+              .limit(1)
+              .maybeSingle(),
+          includePrivateFields ? ADMIN_PROFILE_COLUMNS : PUBLIC_PROFILE_COLUMNS,
+          includePrivateFields ? ENGLISH_COLUMNS : undefined
+        )
 
         if (!isMounted) return
 
