@@ -20,8 +20,22 @@ export function useHashScroll(ready) {
     }
     const target = document.getElementById(id)
     if (!target) return
+    // Sections below the hero use content-visibility (public.css): one not shown yet has a placeholder
+    // height, so the jump would land in the wrong place. They are laid out for real first; afterwards
+    // each keeps its real height (contain-intrinsic-size: auto) and skipping resumes (stage 3C).
+    const root = document.documentElement
+    root.classList.add('pub-sections-laid-out')
+    target.getBoundingClientRect()
     target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
     if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
     target.focus({ preventScroll: true })
+    const done = () => root.classList.remove('pub-sections-laid-out')
+    window.addEventListener('scrollend', done, { once: true })
+    const timer = setTimeout(done, 2000)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('scrollend', done)
+      done()
+    }
   }, [ready, hash, key])
 }

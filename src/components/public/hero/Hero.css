@@ -163,10 +163,29 @@
   text-underline-offset: 0.25em;
 }
 
-.pub-hero-skeleton {
-  display: grid;
-  gap: var(--space-4);
-  width: 100%;
+/* Hero selama profil dimuat (3C): baris pengganti berukuran sama dengan baris aslinya, jadi tidak ada
+   pergeseran tata letak saat profil tiba */
+.pub-hero-ph-hidden {
+  visibility: hidden;
+}
+
+.pub-hero-ph {
+  display: inline-block;
+  height: 1em;
+  vertical-align: middle;
+  border-radius: var(--pub-tag-radius);
+  background-color: var(--ds-border);
+  animation: pub-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.pub .pub-hero-ph-box,
+.pub .pub-hero-ph-box:hover {
+  border-color: transparent;
+  background-color: var(--ds-border);
+  box-shadow: none;
+  color: transparent;
+  pointer-events: none;
+  animation: pub-skeleton-pulse 1.4s ease-in-out infinite;
 }
 
 /* Titik status "Siap bekerja": cincin yang membesar dan memudar (transform + opacity) */
@@ -339,6 +358,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* Gerak label tidak memicu tata letak atau lukis ulang di luar panggung (3C, seret di CPU lambat) */
+  contain: layout paint;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -414,7 +435,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pub-dot::after,
-  .pub-hero-keywords-word--enter {
+  .pub-hero-keywords-word--enter,
+  .pub-hero-ph,
+  .pub .pub-hero-ph-box {
     animation: none;
   }
 }

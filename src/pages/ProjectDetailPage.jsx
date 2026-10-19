@@ -120,7 +120,8 @@ function ProjectDetailPage() {
       {project.thumbnail_url && (
         <div className="pub-container">
           <div className="pub-detail-cover">
-            <img src={project.thumbnail_url} alt="" width="1200" height="750" decoding="async" />
+            {/* The largest element of the page (LCP): fetched first, decoded without waiting */}
+            <img src={project.thumbnail_url} alt="" width="1200" height="750" fetchPriority="high" />
           </div>
         </div>
       )}

@@ -87,7 +87,21 @@
 
 .bp-traces {
   background-color: var(--bp-trace);
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' fill='none' stroke='black' stroke-width='1.5'%3E%3Cpath d='M32.5 80.5H144.5V176.5H240.5M304.5 48.5V128.5H432.5V208.5M80.5 304.5H176.5V432.5H272.5M368.5 288.5V368.5H480.5M224.5 336.5V400.5'/%3E%3Cg fill='black' stroke='none'%3E%3Ccircle cx='32.5' cy='80.5' r='2.5'/%3E%3Ccircle cx='240.5' cy='176.5' r='2.5'/%3E%3Ccircle cx='304.5' cy='48.5' r='2.5'/%3E%3Ccircle cx='432.5' cy='208.5' r='2.5'/%3E%3Ccircle cx='80.5' cy='304.5' r='2.5'/%3E%3Ccircle cx='272.5' cy='432.5' r='2.5'/%3E%3Ccircle cx='368.5' cy='288.5' r='2.5'/%3E%3Ccircle cx='480.5' cy='368.5' r='2.5'/%3E%3Ccircle cx='224.5' cy='336.5' r='2.5'/%3E%3Ccircle cx='224.5' cy='400.5' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' fill='none' stroke='black' stroke-width='1.5'%3E%3Cpath d='M32.5 80.5H144.5V176.5H240.5M304.5 48.5V128.5H432.5V208.5M80.5 304.5H176.5V432.5H272.5M368.5 288.5V368.5H480.5M224.5 336.5V400.5'/%3E%3C/svg%3E");
+}
+
+/* Titik ujung jalur: titik = ruas sepanjang 0 dengan ujung bulat (r 2,5). Sengaja mask terpisah yang
+   kecil: Chrome tidak menghitung gambar yang isinya sangat sedikit (< 0,05 bit per piksel) sebagai
+   kandidat LCP, jadi lapisan dekoratif ini tidak pernah menggantikan nama di hero sebagai elemen
+   terbesar (3C). Satu mask berisi jalur + titik melewati batas itu. */
+.bp-traces::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--bp-trace);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' stroke='black' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M32.5 80.5h0M240.5 176.5h0M304.5 48.5h0M432.5 208.5h0M80.5 304.5h0M272.5 432.5h0M368.5 288.5h0M480.5 368.5h0M224.5 336.5h0M224.5 400.5h0'/%3E%3C/svg%3E");
+  mask-size: 512px 512px;
+  mask-repeat: repeat;
 }
 
 .bp-flow {

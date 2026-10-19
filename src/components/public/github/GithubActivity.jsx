@@ -34,7 +34,7 @@ const monthOf = (date) => date.slice(0, 7)
  * (aria-hidden): the total is the text that is read.
  */
 function GithubActivity() {
-  const { t, locale } = useI18n()
+  const { t, formatNumber, shortMonth } = useI18n()
   const [state, setState] = useState({ status: 'loading', data: null })
 
   useEffect(() => {
@@ -58,8 +58,7 @@ function GithubActivity() {
   }
 
   const { username, total, weeks } = state.data
-  const months = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' })
-  const number = new Intl.NumberFormat(locale).format(total)
+  const number = formatNumber(total)
   const href = `https://github.com/${encodeURIComponent(username)}`
 
   return (
@@ -92,7 +91,7 @@ function GithubActivity() {
               weeks.slice(index + 1, index + 3).every((next) => monthOf(next[0].date) === monthOf(first))
             // The first week starts on the weekday of the first day; earlier weekdays stay empty
             const offset = index === 0 ? dayOfWeek(first) : 0
-            const label = months.format(new Date(`${first}T00:00:00Z`))
+            const label = shortMonth(Number(first.slice(5, 7)) - 1)
             return (
               <div key={first} className="pub-gh-week" data-old={index < weeks.length - RECENT_WEEKS || undefined}>
                 {newMonth && index < weeks.length - 2 && <span className="pub-gh-month">{label}</span>}

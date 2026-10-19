@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { startTransition, useCallback, useEffect, useRef, useState } from 'react'
+import { afterFirstPaint } from '../lib/afterFirstPaint'
 import { selectWithEnglish } from '../lib/englishColumns'
-import { supabase } from '../lib/supabaseClient'
+import { restInsert, restSelect } from '../lib/publicApi'
 
-// Data of the public pages (stage 3A). The old hooks stay unchanged for the admin.
+// Data of the public pages (stage 3A). The old hooks stay unchanged for the admin. Since stage 3C the
+// requests go through lib/publicApi.js (fetch, no supabase-js in the public bundle).
 // - Explicit columns only. Never user_id, phone_number or full_address (BRIEF §9).
 // - Only rows with is_visible = true, ordered by sort_order (the admin's Naik/Turun buttons).
 // - Every table loads on its own: a failed table only hides its own section.
@@ -212,12 +214,7 @@ function normalizeProjectDetail(row) {
 
 function runQuery({ table, columns, enColumns, single, order = [] }) {
   return selectWithEnglish(
-    (selected) => {
-      let query = supabase.from(table).select(selected)
-      if (!single) query = query.eq('is_visible', true)
-      for (const [column, options] of order) query = query.order(column, { ascending: true, ...options })
-      return single ? query.limit(1).maybeSingle() : query
-    },
+    (selected) => restSelect(table, { columns: selected, filters: single ? [] : [['is_visible', true]], order, single }),
     columns,
     enColumns
   )
@@ -226,6 +223,22 @@ function runQuery({ table, columns, enColumns, single, order = [] }) {
 function emptyValue(key) {
   return TABLES[key].single ? null : []
 }
+
+/** The next state of one table: { status: 'ready', data } or { status: 'error', data: empty }. */
+async function fetchTable(key) {
+  const spec = TABLES[key]
+  try {
+    const { data, error } = await runQuery(spec)
+    if (error) throw new Error(error.message || `Gagal memuat ${spec.table}.`)
+    const normalize = spec.normalize ?? ((row) => row)
+    return { status: 'ready', data: spec.single ? normalize(data) : (data ?? []).map(normalize) }
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn(`Public page: ${spec.table} could not be loaded:`, err.message)
+    return { status: 'error', data: emptyValue(key) }
+  }
+}
+
+const BATCH_WAIT_MS = 1000
 
 // ---- hooks -----------------------------------------------------------------------
 
@@ -243,37 +256,89 @@ export function usePublicPortfolio() {
   const requests = useRef({})
   const mounted = useRef(false)
 
-  const load = useCallback(async (key, { initial = false } = {}) => {
-    const spec = TABLES[key]
-    if (!spec) return
-    const request = (requests.current[key] ?? 0) + 1
-    requests.current[key] = request
-    if (!initial) setState((prev) => ({ ...prev, [key]: { ...prev[key], status: 'loading' } }))
-
-    let next
-    try {
-      const { data, error } = await runQuery(spec)
-      if (error) throw new Error(error.message || `Gagal memuat ${spec.table}.`)
-      const normalize = spec.normalize ?? ((row) => row)
-      next = { status: 'ready', data: spec.single ? normalize(data) : (data ?? []).map(normalize) }
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn(`Public page: ${spec.table} could not be loaded:`, err.message)
-      next = { status: 'error', data: emptyValue(key) }
-    }
-    if (mounted.current && requests.current[key] === request) {
-      setState((prev) => ({ ...prev, [key]: next }))
-    }
+  /** Starts a request for one table; the callback gets its next state unless a newer request replaced it. */
+  const request = useCallback((key, onResult) => {
+    const id = (requests.current[key] ?? 0) + 1
+    requests.current[key] = id
+    fetchTable(key).then((next) => {
+      if (mounted.current && requests.current[key] === id) onResult(next)
+    })
   }, [])
+
+  const load = useCallback(
+    (key) => {
+      if (!TABLES[key]) return
+      setState((prev) => ({ ...prev, [key]: { ...prev[key], status: 'loading' } }))
+      request(key, (next) => setState((prev) => ({ ...prev, [key]: next })))
+    },
+    [request]
+  )
 
   useEffect(() => {
     mounted.current = true
-    KEYS.forEach((key) => load(key, { initial: true }))
+    // The first answers are applied together: one render of the whole page instead of one per table
+    // (stage 3C, less work while the page loads). A table still loading BATCH_WAIT_MS after the first
+    // answer comes in on its own. These updates are transitions: React renders them in small slices,
+    // so the page stays responsive (no long task) while every section fills in.
+    let pending = {}
+    let timer = 0
+    const flush = () => {
+      clearTimeout(timer)
+      const batch = pending
+      pending = null
+      startTransition(() => setState((prev) => ({ ...prev, ...batch })))
+    }
+    // Requested right after the first paint: the name and the page frame never wait for them
+    const cancel = afterFirstPaint(() => {
+      for (const key of KEYS) {
+        request(key, (next) => {
+          if (!pending) {
+            startTransition(() => setState((prev) => ({ ...prev, [key]: next })))
+            return
+          }
+          pending[key] = next
+          if (Object.keys(pending).length === KEYS.length) flush()
+          else if (!timer) timer = setTimeout(flush, BATCH_WAIT_MS)
+        })
+      }
+    })
     return () => {
       mounted.current = false
+      cancel()
+      clearTimeout(timer)
     }
-  }, [load])
+  }, [request])
 
   return { ...state, reload: load }
+}
+
+/** The visible project row with this slug (or null): { data, error } like restSelect. */
+function fetchProject(slug) {
+  return selectWithEnglish(
+    (selected) => restSelect('projects', { columns: selected, filters: [['slug', slug], ['is_visible', true]], single: true }),
+    PROJECT_DETAIL_COLUMNS,
+    PROJECT_DETAIL_EN_COLUMNS
+  )
+}
+
+// Requests started before the project page exists (prefetchProject), used once by usePublicProject
+const prefetched = new Map()
+
+/**
+ * Starts loading a project as soon as the app starts on /projects/:slug (main.jsx), and its cover
+ * image as soon as the row arrives, so neither waits for the page code and its first render (stage
+ * 3C: the cover is the largest element of the page).
+ */
+export function prefetchProject(slug) {
+  const request = fetchProject(slug)
+  prefetched.set(slug, request)
+  request.then(({ data }) => {
+    const cover = safeAssetUrl(data?.thumbnail_url)
+    if (!cover) return
+    const image = new Image()
+    image.fetchPriority = 'high'
+    image.src = cover
+  })
 }
 
 /**
@@ -289,14 +354,14 @@ export function usePublicProject(slug) {
     let active = true
     async function loadProject() {
       try {
-        const { data, error } = await selectWithEnglish(
-          (selected) => supabase.from('projects').select(selected).eq('slug', slug).eq('is_visible', true).limit(1).maybeSingle(),
-          PROJECT_DETAIL_COLUMNS,
-          PROJECT_DETAIL_EN_COLUMNS
-        )
+        const request = (attempt === 0 && prefetched.get(slug)) || fetchProject(slug)
+        prefetched.delete(slug)
+        const { data, error } = await request
         if (error) throw new Error(error.message || 'Gagal memuat proyek.')
         if (!active) return
-        setResult({ slug, status: data ? 'ready' : 'missing', project: data ? normalizeProjectDetail(data) : null })
+        startTransition(() =>
+          setResult({ slug, status: data ? 'ready' : 'missing', project: data ? normalizeProjectDetail(data) : null })
+        )
       } catch (err) {
         if (import.meta.env.DEV) console.warn('Public page: project could not be loaded:', err.message)
         if (active) setResult({ slug, status: 'error', project: null })
@@ -325,10 +390,10 @@ export function usePublicProject(slug) {
  */
 export async function sendContactMessage({ name, email, topic, message }) {
   const row = { name, email, message, topic: topic || null }
-  let { error } = await supabase.from('messages').insert([row])
+  let { error } = await restInsert('messages', row)
   if (error && /topic/.test(error.message || '')) {
     const { topic: _topic, ...withoutTopic } = row
-    ;({ error } = await supabase.from('messages').insert([withoutTopic]))
+    ;({ error } = await restInsert('messages', withoutTopic))
   }
   if (error) {
     if (import.meta.env.DEV) console.warn('Contact message could not be saved:', error.message)

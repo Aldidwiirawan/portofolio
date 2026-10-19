@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePageHidden } from '../../../lib/usePageHidden'
 import { useI18n } from '../../../i18n/i18nContext'
 import { StarIcon } from '../icons'
@@ -28,6 +28,8 @@ function SkillItems({ skills, paths }) {
  * One row of skills that slowly runs sideways (BRIEF §5 "Tampilan keahlian").
  * - It only moves when the skills are wider than the row; a row that fits stays still, without copies.
  *   This is measured again whenever the row or the list changes size (window resize, logos loading).
+ *   Measuring starts when the row comes near the screen and reads sizes only in ResizeObserver
+ *   callbacks (after the browser's own layout), so the page load never waits for it (stage 3C).
  * - The first list is the real one; the copy needed for a seamless loop is aria-hidden, so screen
  *   readers read every skill once. Every moving row has the same speed and fades out at both edges.
  * - Stops on hover, while touched, when `paused` (the section's "Hentikan gerak" button), while the
@@ -39,12 +41,29 @@ function SkillMarquee({ skills, paths, reverse = false, paused = false, still = 
   const listRef = useRef(null)
   const [metrics, setMetrics] = useState(null) // { moving: false } | { moving: true, copies, shift }
   const [onScreen, setOnScreen] = useState(false)
+  const [near, setNear] = useState(() => typeof IntersectionObserver === 'undefined')
   const [touched, setTouched] = useState(false)
   const touchTimer = useRef(0)
   const pageHidden = usePageHidden()
 
-  useLayoutEffect(() => {
-    if (still) return undefined
+  // Near the screen (and stays so): only then the row is measured and gets its copies
+  useEffect(() => {
+    const node = viewportRef.current
+    if (still || near || !node) return undefined
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        observer.disconnect()
+        setNear(true)
+      },
+      { rootMargin: '400px 0px' }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [still, near])
+
+  useEffect(() => {
+    if (still || !near) return undefined
     const viewport = viewportRef.current
     const list = listRef.current
     if (!viewport || !list || typeof ResizeObserver === 'undefined') return undefined
@@ -62,12 +81,12 @@ function SkillMarquee({ skills, paths, reverse = false, paused = false, still = 
         prev?.moving && prev.copies === copies && Math.abs(prev.shift - shift) < 0.5 ? prev : { moving: true, copies, shift }
       )
     }
-    measure()
+    // The first callback comes right after the next layout: no measuring before the browser lays out
     const observer = new ResizeObserver(measure)
     observer.observe(viewport)
     observer.observe(list)
     return () => observer.disconnect()
-  }, [still, skills, paths])
+  }, [still, near, skills, paths])
 
   useEffect(() => {
     const node = viewportRef.current

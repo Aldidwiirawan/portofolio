@@ -220,16 +220,30 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
       const pitch = item?.round ? 1.2 : Math.min(1.15, Math.max(0.8, 1.15 - ((item?.w ?? 90) - 70) / 300))
       onImpact?.({ strength: Math.min(1, (speed - 1) / 8), pitch, source: moving.id })
       if ((other.label === 'floor' || !other.isStatic) && moving.velocity.y > 0 && speed > LANDING_SPEED) {
-        const box = world.getBoundingClientRect()
-        emitInteraction('label-impact', { x: box.left + moving.position.x, y: box.top + moving.position.y, strength: Math.min(1, speed / 14) })
+        const { left, top } = box()
+        emitInteraction('label-impact', { x: left + moving.position.x, y: top + moving.position.y, strength: Math.min(1, speed / 14) })
       }
     }
   })
 
   // --- pointer: drag and throw (mouse, pen), tap to toss (touch) -----------------------------------
+  // Where the stage is on screen, kept between reads: reading it on every pointer move right after the
+  // labels moved forced a style recalculation per event (stage 3C). Read again at the start of every
+  // drag, and after a scroll or a size change.
+  let worldBox = null
+  const forgetBox = () => {
+    worldBox = null
+  }
+  function box() {
+    if (!worldBox) worldBox = world.getBoundingClientRect()
+    return worldBox
+  }
+  window.addEventListener('scroll', forgetBox, { passive: true, capture: true })
+  window.addEventListener('resize', forgetBox, { passive: true })
+
   function local(event) {
-    const box = world.getBoundingClientRect()
-    return { x: event.clientX - box.left, y: event.clientY - box.top }
+    const { left, top } = box()
+    return { x: event.clientX - left, y: event.clientY - top }
   }
 
   // The drag spring may not pull a label into a wall: matter-js would push it through
@@ -274,6 +288,7 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
     }
     // Mouse/pen: no text selection, and focus stays where it was
     event.preventDefault()
+    forgetBox()
     try {
       el.setPointerCapture(event.pointerId)
     } catch {
@@ -338,6 +353,7 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
 
   // --- size changes: move the walls; rebuild when the labels themselves changed (breakpoints) ------
   const resizeObserver = new ResizeObserver(() => {
+    forgetBox()
     const next = measure()
     if (next.w === size.w && next.h === size.h) return
     if (signatureOf(sources()) !== signature) {
@@ -381,6 +397,8 @@ export function createPhysicsStage(stage, { onImpact } = {}) {
       world.removeEventListener('pointermove', onPointerMove)
       world.removeEventListener('pointerup', onPointerUp)
       world.removeEventListener('pointercancel', onPointerCancel)
+      window.removeEventListener('scroll', forgetBox, { capture: true })
+      window.removeEventListener('resize', forgetBox)
       Events.off(engine)
       clearItems()
       Engine.clear(engine)

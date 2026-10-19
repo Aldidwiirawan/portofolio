@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { getCurrentUser, onAuthStateChange, verifyIsAdmin } from '../../lib/authService'
-import './AdminRoute.css'
+import AdminLoading from './AdminLoading'
 
 /**
  * AdminRoute Component (Auth & Role Guard)
@@ -71,12 +71,7 @@ function AdminRoute({ children }) {
 
   // State 1: Checking authentication & admin authorization
   if (authState === 'checking') {
-    return (
-      <div className="admin-auth-loading" role="status" aria-live="polite">
-        <div className="admin-loading-spinner" aria-hidden="true" />
-        <p className="admin-loading-text">Memeriksa akses...</p>
-      </div>
-    )
+    return <AdminLoading text="Memeriksa akses..." />
   }
 
   // State 2: Unauthenticated (no session) -> redirect to login

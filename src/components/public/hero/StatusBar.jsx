@@ -27,7 +27,7 @@ const isoDay = (date) =>
  * Status bar under the hero (BRIEF §5): "Siap bekerja" with a green dot, the city and today's date.
  * The chicken and the duck walk on its top line (CharacterLaneSlot, stage 3B).
  */
-function StatusBar({ available, location }) {
+function StatusBar({ available, location, pending = false }) {
   const { t, formatDate } = useI18n()
   const today = useToday()
 
@@ -36,6 +36,19 @@ function StatusBar({ available, location }) {
       <div className="pub-container pub-statusbar-inner">
         <CharacterLaneSlot />
         <ul className="pub-statusbar-list" aria-label={t('status.label')}>
+          {/* While the profile loads, the first two items keep their place invisibly (no layout shift) */}
+          {pending && (
+            <>
+              <li className="pub-statusbar-item pub-hero-ph-hidden" aria-hidden="true">
+                <span className="pub-dot" />
+                {t('hero.available')}
+              </li>
+              <li className="pub-statusbar-item pub-hero-ph-hidden" aria-hidden="true">
+                <MapPinIcon size={16} />
+                <span style={{ display: 'inline-block', width: '10ch' }} />
+              </li>
+            </>
+          )}
           {available && (
             <li className="pub-statusbar-item pub-statusbar-item--available">
               <span className="pub-dot" aria-hidden="true" />

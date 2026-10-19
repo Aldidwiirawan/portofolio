@@ -25,10 +25,41 @@ export const SKILL_CATEGORY_KEYS = {
   'Soft skill': 'soft',
 }
 
+// Names for dates in both languages. The page formats its few date styles itself instead of with Intl:
+// the first Intl formatter of a page loads the locale data, which costs more than a whole frame on a
+// slow phone (stage 3C). The output is the same as Intl id-ID / en-US.
+const MONTHS = {
+  id: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+}
+const MONTHS_SHORT = {
+  id: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+}
+const WEEKDAYS = {
+  id: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+  en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+}
+
+// monthYear: Jan 2026 · day: 1 Jan 2026 / Jan 1, 2026 · full: Kamis, 1 Januari 2026 / Thursday, January 1, 2026
 const DATE_STYLES = {
-  monthYear: { month: 'short', year: 'numeric' },
-  day: { day: 'numeric', month: 'short', year: 'numeric' },
-  full: { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' },
+  monthYear: (d, l) => `${MONTHS_SHORT[l][d.getMonth()]} ${d.getFullYear()}`,
+  day: (d, l) =>
+    l === 'en'
+      ? `${MONTHS_SHORT.en[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+      : `${d.getDate()} ${MONTHS_SHORT.id[d.getMonth()]} ${d.getFullYear()}`,
+  full: (d, l) =>
+    l === 'en'
+      ? `${WEEKDAYS.en[d.getDay()]}, ${MONTHS.en[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+      : `${WEEKDAYS.id[d.getDay()]}, ${d.getDate()} ${MONTHS.id[d.getMonth()]} ${d.getFullYear()}`,
+}
+
+/** 1234.5 → '1.234,50' (id) or '1,234.50' (en) with the given number of decimals. */
+function formatNumberIn(lang, value, decimals = 0) {
+  const [whole, fraction] = Math.abs(Number(value)).toFixed(decimals).split('.')
+  const [group, point] = lang === 'en' ? [',', '.'] : ['.', ',']
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, group)
+  return `${Number(value) < 0 ? '-' : ''}${grouped}${fraction ? point + fraction : ''}`
 }
 
 /** '2026-01-01' (a DATE column) as a local date, so the day never shifts with the time zone. */
@@ -52,17 +83,14 @@ function interpolate(text, vars) {
 export function createI18n(lang) {
   const dictionary = DICTIONARIES[lang] ?? id
   const locale = LOCALES[lang] ?? LOCALES.id
-  const dateFormats = new Map()
+  const names = lang === 'en' ? 'en' : 'id'
 
   const t = (key, vars) => interpolate(dictionary[key] ?? id[key] ?? key, vars)
 
   const formatDate = (value, style = 'monthYear') => {
     const date = parseDate(value)
     if (!date) return ''
-    if (!dateFormats.has(style)) {
-      dateFormats.set(style, new Intl.DateTimeFormat(locale, DATE_STYLES[style] ?? DATE_STYLES.monthYear))
-    }
-    return dateFormats.get(style).format(date)
+    return (DATE_STYLES[style] ?? DATE_STYLES.monthYear)(date, names)
   }
 
   return {
@@ -71,8 +99,11 @@ export function createI18n(lang) {
     t,
     formatDate,
     /** 3.54 → '3,54' (ID) or '3.54' (EN), always two decimals. */
-    formatGpa: (value) =>
-      new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value)),
+    formatGpa: (value) => formatNumberIn(names, value, 2),
+    /** 1234 → '1.234' (ID) or '1,234' (EN). */
+    formatNumber: (value) => formatNumberIn(names, value),
+    /** Short name of month 0–11: 'Agu' (ID), 'Aug' (EN). */
+    shortMonth: (index) => MONTHS_SHORT[names][index] ?? '',
     /** Label of a stored code, e.g. code('status', 'production'); '' for an unknown code. */
     code: (group, value) => (value ? (dictionary[`code.${group}.${value}`] ?? id[`code.${group}.${value}`] ?? '') : ''),
     /** A stored Indonesian label (experience type, language level) in the page language. */

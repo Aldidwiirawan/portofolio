@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Layar loading admin (cek akses AdminRoute + Suspense fallback)
+   Layar loading admin (cek akses AdminRoute, memuat kode admin, Suspense fallback)
    Meniru kerangka layout admin yang terang: area sidebar gelap di kiri (>= 1024 px) atau bar atas
    gelap (< 1024 px), isi terang. Spinner dan teks baru muncul setelah 0,3 detik, jadi cek akses
    yang cepat tidak berkedip. Elemen ini berada di luar sub-pohon bertema, jadi warnanya memakai

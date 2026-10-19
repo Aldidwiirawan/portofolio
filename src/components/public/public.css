@@ -175,6 +175,16 @@ html:has(.pub) {
 
 .pub-section {
   padding-block: var(--pub-section-y);
+  /* Sections below the hero are styled and laid out only when they come near the screen (stage 3C:
+     a shorter page load). Their text stays in the page for find-in-page and screen readers; "auto"
+     remembers the real height once a section has been shown. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+/* While the page jumps to a section (useHashScroll), every section is laid out for real */
+.pub-sections-laid-out .pub-section {
+  content-visibility: visible;
 }
 
 /* Kontainer section dengan elemen dekoratif (Section decor) */
@@ -523,10 +533,14 @@ html:has(.pub) {
   }
 }
 
+/* At least one screen tall, so the footer stays below the fold while a page loads and is not pushed
+   down when the content arrives (no layout shift, stage 3C) */
 .pub-page-skeleton {
   display: grid;
   align-content: start;
   gap: var(--space-5);
+  min-height: calc(100vh - var(--pub-nav-h));
+  min-height: calc(100svh - var(--pub-nav-h));
   padding-block: var(--space-16);
 }
 

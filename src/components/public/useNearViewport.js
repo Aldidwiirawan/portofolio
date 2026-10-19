@@ -28,11 +28,20 @@ export function useNearViewport(ref, rootMargin = '200px') {
     const el = ref.current
     if (near || !el) return undefined
     let cancelIdle = null
+    // Still near when the idle moment comes: an element that was near only for a moment (e.g. the
+    // footer before the sections below the hero arrive, stage 3C) does not load anything
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting || cancelIdle) return
-        observer.disconnect()
-        cancelIdle = whenIdle(() => setNear(true))
+        if (!entry.isIntersecting) {
+          cancelIdle?.()
+          cancelIdle = null
+          return
+        }
+        if (cancelIdle) return
+        cancelIdle = whenIdle(() => {
+          observer.disconnect()
+          setNear(true)
+        })
       },
       { rootMargin }
     )

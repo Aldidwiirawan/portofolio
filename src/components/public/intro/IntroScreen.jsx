@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Logo from '../../brand/Logo'
 import { prefersReducedMotion } from '../../../lib/useMediaQuery'
 import { readStorage, writeStorage } from '../../../lib/safeStorage'
@@ -48,15 +48,20 @@ function IntroScreen() {
   const playedRef = useRef(phase !== 'done')
   const playing = phase !== 'done'
 
-  // Where the navbar logo is, measured once before the first paint: the CSS fly lands there
-  useLayoutEffect(() => {
-    const root = rootRef.current
-    const from = logoRef.current?.getBoundingClientRect()
-    const to = document.querySelector('.pub-nav-brand .brand-logo')?.getBoundingClientRect()
-    if (!root || !from || !to || to.width === 0) return
-    root.style.setProperty('--fly-x', `${to.left + to.width / 2 - (from.left + from.width / 2)}px`)
-    root.style.setProperty('--fly-y', `${to.top + to.height / 2 - (from.top + from.height / 2)}px`)
-    root.style.setProperty('--fly-s', String(to.width / from.width))
+  // Where the navbar logo is: the CSS fly (at 720 ms) lands there. Measured in the frame after the
+  // first paint, when the layout is already done, instead of forcing one before it (stage 3C: the
+  // first paint of the page comes sooner)
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const root = rootRef.current
+      const from = logoRef.current?.getBoundingClientRect()
+      const to = document.querySelector('.pub-nav-brand .brand-logo')?.getBoundingClientRect()
+      if (!root || !from || !to || to.width === 0) return
+      root.style.setProperty('--fly-x', `${to.left + to.width / 2 - (from.left + from.width / 2)}px`)
+      root.style.setProperty('--fly-y', `${to.top + to.height / 2 - (from.top + from.height / 2)}px`)
+      root.style.setProperty('--fly-s', String(to.width / from.width))
+    })
+    return () => cancelAnimationFrame(frame)
   }, [])
 
   // Remember for this session as soon as it starts (a reload during the intro does not replay it)

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react'
-import { useGuestbook } from '../../../hooks/useGuestbook'
+import { usePublicGuestbook } from '../../../hooks/usePublicGuestbook'
 import { useI18n } from '../../../i18n/i18nContext'
 import { ChatIcon } from '../icons'
 import './Guestbook.css'
@@ -13,7 +13,7 @@ const GuestbookDrawer = lazy(loadDrawer)
  */
 function GuestbookButton() {
   const { t } = useI18n()
-  const guestbook = useGuestbook()
+  const guestbook = usePublicGuestbook()
   const [open, setOpen] = useState(false)
   const count = guestbook.loading ? null : guestbook.totalCount
 

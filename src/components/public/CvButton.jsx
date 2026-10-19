@@ -8,9 +8,20 @@ import { usePublicData } from './publicContexts'
  */
 function CvButton({ variant = 'primary', size, className = '', onClick }) {
   const { t } = useI18n()
-  const cvUrl = usePublicData()?.profile.data?.cvUrl
-  if (!cvUrl) return null
+  const profile = usePublicData()?.profile
+  const cvUrl = profile?.data?.cvUrl
   const classes = ['pub-btn', `pub-btn--${variant}`, size && `pub-btn--${size}`, className].filter(Boolean).join(' ')
+  // While the profile loads the button keeps its place, invisible, so the navbar does not move when it
+  // appears (stage 3C, no layout shift)
+  if (profile?.status === 'loading') {
+    return (
+      <span className={`${classes} pub-hero-ph-hidden`} aria-hidden="true">
+        <DownloadIcon size={18} />
+        <span>{t('cv.download')}</span>
+      </span>
+    )
+  }
+  if (!cvUrl) return null
   return (
     <a href={cvUrl} target="_blank" rel="noopener noreferrer" className={classes} onClick={onClick}>
       <DownloadIcon size={18} />

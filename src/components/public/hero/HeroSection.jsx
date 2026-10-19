@@ -7,7 +7,7 @@ import { ArrowRightIcon, GithubIcon, LinkedinIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SITE_NAME } from '../publicFormat'
-import { SectionError, SkeletonBlock } from '../Section'
+import { SectionError } from '../Section'
 import HeroStage from './HeroStage'
 import KeywordRotator from './KeywordRotator'
 import StatusBar from './StatusBar'
@@ -16,8 +16,9 @@ import './Hero.css'
 /**
  * Hero of the home page: availability, the name as the page's h1, roles, rotating keywords (only
  * when the profile has them), "Unduh CV" (or "Hubungi saya" while there is no CV), "Lihat proyek",
- * LinkedIn and GitHub, the label stage and the status bar. While the profile loads it shows
- * placeholders; when it fails, a short message with "Coba lagi" instead of made-up data.
+ * LinkedIn and GitHub, the label stage and the status bar. While the profile loads it shows the name
+ * (the site name, which is the owner's name) and placeholders of the same size (HeroLoadingRows); when
+ * it fails, the name and a short message with "Coba lagi" instead of made-up data.
  */
 function HeroSection() {
   const data = usePublicData()
@@ -31,30 +32,30 @@ function HeroSection() {
       <BlueprintBackground variant="busy" />
       <div className="pub-container pub-hero-grid">
         <div className="pub-hero-copy">
-          {status === 'loading' && <HeroSkeleton />}
-
-          {status !== 'loading' && !profile && (
-            <>
-              <h1 id="pub-hero-name" className="pub-hero-name">
-                {SITE_NAME}
-              </h1>
-              {status === 'error' && (
-                <SectionError message={t('hero.profileError')} onRetry={() => data.reload('profile')} />
-              )}
-            </>
+          {/* One and the same h1 while loading and after: the name painted first stays the largest
+              element (LCP) instead of being replaced by a new node when the profile arrives (3C) */}
+          {status === 'loading' ? (
+            <p className="pub-tag pub-hero-available pub-hero-ph-hidden" aria-hidden="true">
+              <span className="pub-dot" />
+              {t('hero.available')}
+            </p>
+          ) : (
+            profile?.is_available && (
+              <p className="pub-tag pub-hero-available">
+                <span className="pub-dot" aria-hidden="true" />
+                {t('hero.available')}
+              </p>
+            )
           )}
-
+          <h1 id="pub-hero-name" className="pub-hero-name">
+            {profile?.full_name || SITE_NAME}
+          </h1>
+          {status === 'loading' && <HeroLoadingRows />}
+          {status === 'error' && !profile && (
+            <SectionError message={t('hero.profileError')} onRetry={() => data.reload('profile')} />
+          )}
           {profile && (
             <>
-              {profile.is_available && (
-                <p className="pub-tag pub-hero-available">
-                  <span className="pub-dot" aria-hidden="true" />
-                  {t('hero.available')}
-                </p>
-              )}
-              <h1 id="pub-hero-name" className="pub-hero-name">
-                {profile.full_name || SITE_NAME}
-              </h1>
               {profile.primary_role && (
                 <p className="pub-hero-role" lang={langOf(profile, 'primary_role')}>
                   {profile.primary_role}
@@ -108,7 +109,7 @@ function HeroSection() {
         />
       </div>
 
-      <StatusBar available={Boolean(profile?.is_available)} location={profile?.location} />
+      <StatusBar available={Boolean(profile?.is_available)} location={profile?.location} pending={status === 'loading'} />
     </section>
   )
 }
@@ -136,17 +137,39 @@ function ProfileLinks({ social }) {
   )
 }
 
-function HeroSkeleton() {
+/**
+ * The rows under the name while the profile loads (stage 3C): each row has a placeholder with the
+ * classes of the real row, so nothing moves when the profile arrives (no layout shift).
+ */
+function HeroLoadingRows() {
   const { t } = useI18n()
   return (
-    <div className="pub-hero-skeleton" role="status">
-      <span className="pub-sr-only">{t('common.loading')}</span>
-      <SkeletonBlock width="9rem" height="1.5rem" />
-      <SkeletonBlock width="min(30rem, 92%)" height="clamp(3rem, 7vw, 6rem)" />
-      <SkeletonBlock width="min(22rem, 70%)" height="clamp(3rem, 7vw, 6rem)" />
-      <SkeletonBlock width="14rem" height="1.75rem" />
-      <SkeletonBlock width="20rem" height="3rem" />
-    </div>
+    <>
+      <span className="pub-sr-only" role="status">
+        {t('common.loading')}
+      </span>
+      <p className="pub-hero-role" aria-hidden="true">
+        <span className="pub-hero-ph" style={{ width: '11ch' }} />
+      </p>
+      <p className="pub-hero-also" aria-hidden="true">
+        <span className="pub-hero-ph" style={{ width: '24ch' }} />
+      </p>
+      <p className="pub-hero-keywords" aria-hidden="true">
+        <span className="pub-hero-ph" style={{ width: '22ch' }} />
+      </p>
+      <div className="pub-hero-actions" aria-hidden="true">
+        <span className="pub-btn pub-btn--primary pub-hero-ph-box">{t('hero.contact')}</span>
+        <span className="pub-btn pub-btn--secondary pub-hero-ph-box">{t('hero.viewProjects')}</span>
+      </div>
+      <ul className="pub-hero-links" aria-hidden="true">
+        <li>
+          <span className="pub-hero-link pub-hero-ph-box">{t('social.linkedin')}</span>
+        </li>
+        <li>
+          <span className="pub-hero-link pub-hero-ph-box">{t('social.github')}</span>
+        </li>
+      </ul>
+    </>
   )
 }
 

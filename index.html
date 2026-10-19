@@ -5,6 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <!-- Supabase: data requests (CORS) and images use separate connections; both open while the app loads -->
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Portofolio Aldi Dwi Irawan: proyek, keahlian, pengalaman, dan kontak." />
     <title>Aldi Dwi Irawan · Portofolio</title>

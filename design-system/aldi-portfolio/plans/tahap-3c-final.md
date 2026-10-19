@@ -333,8 +333,17 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [x] A7. Uji bagian A + laporan (isi migrasi, tabel draf terjemahan) → **berhenti** (hasil di §10)
 
 **Bagian B** (setelah pemilik menjalankan migrasi dan terjemahan)
-- [ ] B0. Lighthouse "sebelum"
-- [ ] B1. Performa: data publik tanpa Supabase (K6), kode admin lazy, chunk, font, LCP, gambar, seret label
+- [x] B0. Lighthouse "sebelum" (build `main` + bagian A, data asli hanya dibaca, mobile, median 3 kali): beranda
+      Performance 44 (FCP 2,6 s, LCP 4,6 s, TBT 953 ms, CLS 0,20), detail proyek 44 (LCP 5,9 s, CLS 0,26);
+      Accessibility 100, Best Practices 100, SEO 92 (robots.txt belum ada) di keduanya.
+- [x] B1. Performa: data publik lewat `lib/publicApi.js` (fetch REST, kunci sebagai parameter `apikey` sehingga tanpa
+      preflight CORS; tanpa supabase-js), diminta setelah gambar pertama tampil; semua kode admin/auth dalam potongan
+      lazy (`AdminShell`, `AdminPage`); section di bawah hero jadi potongan sendiri + `content-visibility`; satu `h1`
+      tetap (nama situs → nama profil) dan placeholder tak terlihat (CLS 0); preload font Inter + preconnect Supabase;
+      cover detail `fetchpriority=high` dan baris proyek diminta sebelum potongan halaman; format tanggal/angka tanpa
+      `Intl`; baris keahlian diukur hanya dekat layar; posisi panggung label disimpan + `contain`. Bundle awal 105 kB
+      gzip (dari 168), peringatan 500 kB hilang. Uji: `perf3c` 38/38 (+5/5 pada build asli), semua suite publik dan
+      admin lulus.
 - [ ] B2. SEO: meta, OG image, Twitter, JSON-LD, robots, sitemap, noindex
 - [ ] B3. Audit impeccable + perbaikan P1/P2
 - [ ] B4. `vercel.json` + `DEPLOY.md`
