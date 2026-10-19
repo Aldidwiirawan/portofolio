@@ -1,6 +1,7 @@
 # Override Halaman: Panel Admin (`/admin/*`)
 
-> **PROJECT:** Aldi Portfolio · **Diperbarui:** 18 Oktober 2026 (tautan proyek; tahap 2B: 16 Oktober)
+> **PROJECT:** Aldi Portfolio · **Diperbarui:** 20 Oktober 2026 (tahap 3C: versi Inggris, label hero, kode admin
+> dimuat terpisah; tautan proyek 18 Oktober; tahap 2B 16 Oktober)
 > ⚠️ Aturan di file ini **menimpa** `design-system/aldi-portfolio/MASTER.md`. Bila bertentangan dengan
 > `BRIEF.md`, brief yang dipakai.
 > **Status:** diterapkan di tahap 2 dan 2B (branch `feat/ui-admin`). Rencana dan urutan kerjanya:
@@ -30,7 +31,8 @@ Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2 ma
   | `--adm-nav-item-h` | 40 px; 36 px di desktop; 44 px di layar sentuh | tinggi item menu |
 
 - **Pengecualian primitive yang terdokumentasi** (elemen di luar sub-pohon bertema):
-  - latar `<html>` saat admin tampil (`html:has(.adm)`) dan layar loading `AdminRoute.css`;
+  - latar `<html>` saat admin tampil (`html:has(.adm)`) dan layar loading `AdminLoading.css` (dulu
+    `AdminRoute.css`);
   - scrim laci HP dan backdrop dialog (`navy-950` 55 %);
   - lajur gelap di bawah sidebar desktop (`.adm-shell`);
   - tinta huruf avatar buku tamu (`navy-950`, karena warna avatar datang dari data dan selalu terang).
@@ -88,6 +90,16 @@ Login punya aturannya sendiri di `pages/login.md` dan tidak diubah di tahap 2 ma
   halaman, dan slot `leading` (robot kecil di Beranda).
 - **Fokus dan judul tab:** pindah halaman (juga lewat sub-tab) → gulir ke atas dan fokus ke `h1` baru;
   daftar ↔ form → fokus ke `h1` baru; judul tab `{Halaman} · Kelola isi · Aldi Dwi Irawan`.
+
+### Pemuatan (tahap 3C)
+
+- Semua rute `/admin*` adalah anak satu rute kerangka di `App.jsx` (`ADMIN_ROUTES`): `AdminShell` (lazy) berisi
+  `ShutterProvider` dan `Suspense`, lalu `AdminPage` (lazy) memilih halaman (setiap halaman tetap potongan sendiri)
+  dan membungkusnya dengan `AdminRoute`, kecuali login. Alamat rute, `AdminRoute`, dan `authService` tidak berubah;
+  halaman publik tidak lagi mengunduh kode admin atau supabase-js.
+- Selama potongan dimuat: `AdminLoading` (kerangka terang + spinner setelah 0,3 dtk; polos di `/admin/login`).
+- `AdminShell` memasang `<meta name="robots" content="noindex, nofollow">`; `vercel.json` juga mengirim
+  `X-Robots-Tag` untuk `/admin`, dan `robots.txt` menutup `/admin`.
 
 ## 3. Komponen bersama (`src/components/admin/ui/`)
 
@@ -169,7 +181,18 @@ Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`
   5 pesan serta 5 entri buku tamu terbaru.
 - **Profil:** data utama; Foto dan CV (foto profil, CV PDF, tautan CV cadangan); Peran dan kata berganti
   (peran utama ≤60 karakter, maks. 2 peran pendukung, maks. 8 kata berganti); status ketersediaan; tautan
-  (username GitHub otomatis dari tautan GitHub); pilihan topik pesan untuk formulir kontak.
+  (username GitHub otomatis dari tautan GitHub, dipakai juga oleh grafik GitHub di publik); pilihan topik pesan
+  untuk formulir kontak.
+  - **Label panggung hero** (tahap 3C, kolom `profiles.hero_labels`): maks. 10 label berurutan (tambah, hapus,
+    Naikkan/Turunkan), tiap label berisi teks (≤24 karakter; lingkaran ≤3), bentuk Tag/Lingkaran, dan teks Inggris
+    opsional, dengan pratinjau kecil. Kosong = panggung memakai keahlian unggulan. HP memakai 8 label pertama.
+- **Versi Inggris (opsional)** (tahap 3C, migrasi `20261019000000_english_content.sql`): setiap form isi punya
+  bagian lipat tepat di bawah kolom Indonesia, tertutup bawaan, dengan hitungan "n dari m terisi". Setiap kolom
+  Inggris menampilkan teks Indonesianya sebagai rujukan. Daftar (poin tugas, kata berganti, topik, peran
+  pendukung, hobi) punya satu kolom Inggris per baris Indonesia dan ikut pindah saat baris Indonesia diurutkan
+  atau dihapus; keterangan galeri dan label tautan Inggris disimpan di objek yang sama (`caption_en`,
+  `label_en`). Kosong = situs memakai versi Indonesia. Bila migrasi belum dijalankan, isi Indonesia tetap
+  tersimpan dan bagian Inggris menampilkan pesan bahwa pembaruan database belum dijalankan.
 - **Proyek:** informasi utama; detail (status, jenis, tahun, klien, peran saya); studi kasus (masalah,
   solusi, hasil; angka hanya dari data asli); teknologi sebagai daftar berurutan; **tautan proyek** dan
   "Repo privat"; gambar sampul dan galeri 5 screenshot berketerangan; tampil/unggulan.
@@ -178,7 +201,8 @@ Utilitas di `src/lib/`: `imageCompression.js` (`compressImage`, `checkImageFile`
     Menggantikan kolom tunggal "Tautan demo" dan "Tautan kode".
   - **Kolom lama tetap diisi:** saat simpan, tautan pertama berjenis Kode yang tidak privat ditulis ke
     `github_url`, dan tautan pertama berjenis Demo yang tidak privat ke `demo_url`; bila tidak ada, kolom itu
-    dikosongkan. Halaman publik sekarang masih membaca kedua kolom itu (sampai tahap 3).
+    dikosongkan. Halaman publik membaca `links` sejak tahap 3A; kolom lama tetap diisi supaya data lama
+    tetap konsisten.
   - **"Repo privat"** tetap ada. Bila proyek punya tautan kode dan semuanya privat, kotak itu tercentang
     otomatis dan terkunci ("Nyala otomatis karena semua tautan kode bersifat privat."); selain itu diatur
     manual.
@@ -295,13 +319,19 @@ hanya menyentuh admin dan migrasi. `npm run lint` 0 diagnostik, `npm run build` 
 `npm run lint`: 0 diagnostik di `src/` (112 peringatan berasal dari skrip skill di `.claude/skills/impeccable/scripts`,
 sudah ada di `main`). `npm run build` sukses (peringatan ukuran chunk utama sudah ada di `main`).
 
+### Uji tahap 3C (19–20 Oktober 2026)
+
+| Uji | Hasil |
+|---|---|
+| Bagian "Versi Inggris" di semua form (simpan, kosong, daftar sejajar saat diurutkan/dihapus, galeri dan tautan, migrasi belum jalan) | `admin-en` 61/61 |
+| Label panggung hero (tambah, urutkan, batas 10, bentuk, teks Inggris, kosong) | `herolabels` 24/24 |
+| Suite admin lama setelah kode admin dipindah ke potongan lazy: Navigasi 235, Profil 110, Proyek 100, Keahlian 49, Pengalaman 52, Pendidikan/Bahasa/Organisasi 80, Sertifikat/Prestasi 69, Beranda 39, Tautan 97, fokus/sibuk 16, kunci gulir 19 | semua lulus |
+| Privasi (publik tidak membaca/menampilkan HP dan alamat; dicek ulang dengan tampilan 3A) | 32/32 |
+| Pembanding dengan `main`: login identik; query admin hanya bertambah kolom `_en`/`hero_labels`, urutan dan jumlah sama | sesuai |
+| Semua suite di atas dengan header CSP dari `vercel.json` (unggah gambar dan PDF, pratinjau, login) | lihat `plans/tahap-3c-final.md` §11 |
+
 ## 11. Batasan yang diketahui
 
-- **Halaman publik belum membaca kolom baru** (tahap 3). Sakelar tampil/unggulan, CV PDF, galeri, dan lainnya
-  sudah tersimpan tetapi belum terlihat di situs.
-- **Tautan proyek di situs:** sampai tahap 3 situs hanya menampilkan tautan kode dan demo publik pertama
-  (lewat `github_url`/`demo_url`). Tautan lain dan label tautan privat baru tampil setelah halaman publik
-  membaca `links`.
 - **Tautan privat bukan rahasia:** alamat tautan privat (bila diisi) tetap tersimpan di `links`, yang bisa
   dibaca lewat API publik seperti kolom konten lain. Jangan isi alamat yang benar-benar rahasia.
 - **"Repo privat" manual** masih bisa dinyalakan walau ada tautan kode yang publik (tidak dicegah).
@@ -315,4 +345,6 @@ sudah ada di `main`). `npm run build` sukses (peringatan ukuran chunk utama suda
   routing). Menu, sub-tab, jejak, Batal, Keluar, "Muat ulang", dan tutup/muat ulang tab sudah dijaga.
 - Badge pesan memakai `useMessages` di kerangka, jadi ada satu permintaan tambahan per halaman admin; halaman
   Pengalaman juga memuat daftar proyek untuk pilihan "Proyek terkait".
-- Belum dikerjakan (tahap 3c): kolom versi bahasa Inggris, label fisika, angka studi kasus.
+- Angka studi kasus belum punya kolom sendiri; angka hanya ditulis di Hasil bila memang ada datanya.
+- Kode admin dimuat terpisah (tahap 3C), jadi membuka `/admin` pertama kali memuat satu potongan tambahan
+  (supabase-js, ±57 kB gzip) dengan layar "Memuat halaman...".

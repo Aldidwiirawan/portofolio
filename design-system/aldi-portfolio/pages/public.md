@@ -1,11 +1,11 @@
 # Override Halaman: Portofolio Publik (`/`, `/projects/:slug`, 404)
 
-> **PROJECT:** Aldi Portfolio · **Diperbarui:** 19 Oktober 2026 (tahap 3B)
+> **PROJECT:** Aldi Portfolio · **Diperbarui:** 20 Oktober 2026 (tahap 3C)
 > ⚠️ Aturan di file ini **menimpa** `design-system/aldi-portfolio/MASTER.md`. Acuan utama tetap `BRIEF.md`.
-> **Status: diterapkan (tahap 3A dan 3B).** Rencana dan keputusan pemilik: `plans/tahap-3a-publik.md` (K1–K10, §6a)
-> dan `plans/tahap-3b-publik.md` (K1–K10, §11a). Interaksi 3B (label fisika, suara, ayam dan bebek, layar
-> pembuka, robot a+) dijelaskan di §9. Tahap 3C (kolom versi Inggris, pengaturan label dari admin) belum
-> dikerjakan.
+> **Status: diterapkan (tahap 3A, 3B, 3C).** Rencana dan keputusan pemilik: `plans/tahap-3a-publik.md` (K1–K10, §6a),
+> `plans/tahap-3b-publik.md` (K1–K10, §11a), dan `plans/tahap-3c-final.md` (K1–K11, §8a). Interaksi 3B (label fisika,
+> suara, ayam dan bebek, layar pembuka, robot a+) di §9; isi Inggris, label hero dari admin, dan grafik GitHub (3C)
+> di §2, §3, §6; performa dan SEO (3C) di §11 dan §12.
 
 ---
 
@@ -29,9 +29,18 @@
 - Bahasa bawaan **Indonesia** (tidak mengikuti browser); tombol `ID | US` di navbar berganti sekali klik dan
   diingat (`aldi-portfolio-lang`). `<html lang>` ikut berubah dan kembali `id` saat keluar dari halaman publik.
 - Teks tampilan ada di `src/i18n/id.js` dan `en.js` (kunci sama, `{nama}` diisi `t()`); konteks di
-  `src/i18n/i18nContext.js`, penyedia `I18nProvider.jsx`, helper di `translate.js` (`formatDate` `id-ID` /
-  `en-US`, `formatGpa`, `code()` untuk kode pilihan, `storedLabel()` untuk label lama seperti "Magang").
-- **Isi dari database tetap bahasa Indonesia** sampai tahap 3C (kolom versi Inggris).
+  `src/i18n/i18nContext.js`, penyedia `I18nProvider.jsx`, helper di `translate.js` (`formatDate`, `formatGpa`,
+  `formatNumber`, `shortMonth`, `code()` untuk kode pilihan, `storedLabel()` untuk label lama seperti "Magang").
+  Sejak 3C tanggal dan angka diformat tanpa `Intl` (nama bulan/hari di `translate.js`, hasil sama persis dengan
+  `id-ID`/`en-US`), karena pemakaian pertama `Intl` memakan ±190 ms di HP lambat.
+- **Isi Inggris (3C):** kolom pendamping `_en` (migrasi `20261019000000_english_content.sql`) dan kunci
+  `caption_en`/`label_en` di galeri dan tautan. Di mode US setiap teks memakai versi Inggris bila terisi, kalau
+  kosong versi Indonesia (per kolom dan per baris daftar), lewat `components/public/localize.js`. Teks cadangan
+  Indonesia di halaman Inggris diberi `lang="id"`; nama diri (keahlian, penerbit, instansi, klien) tidak.
+- **Formulir kontak di mode US** menampilkan topik Inggris tetapi menyimpan topik Indonesia (dicocokkan lewat
+  urutan).
+- Tombol bahasa dibacakan "ID US: ganti bahasa ke English" (diawali huruf yang terlihat, WCAG 2.5.3); tooltip
+  tetap teks pendek.
 
 ## 3. Struktur halaman
 
@@ -41,14 +50,14 @@ Prestasi (bila ada) · Organisasi (bila ada) · Kontak · Footer · tombol Buku 
 | Bagian | Komponen (`src/components/public/…`) | Catatan |
 |---|---|---|
 | Kerangka | `PublicLayout`, `ThemeProvider`, `sound/SoundProvider`, `intro/IntroScreen`, `PublicNavbar`, `PublicFooter`, `Toggles`, `CvButton`, `SocialLinks` | Rute `/`, `/projects/:slug`, `*` memakai satu kerangka (tema, bahasa, suara, data dimuat sekali). Menu HP < 1024 px: dialog layar penuh, fokus terkunci. Footer: robot a+ di samping "Kembali ke atas" (§9). |
-| Hero | `hero/HeroSection`, `HeroStage`, `KeywordRotator`, `StatusBar`, `CharacterLaneSlot` | "Unduh CV" bila ada CV, kalau tidak "Hubungi saya" (K2). Kata berganti hanya bila `hero_keywords` terisi (K3). Panggung: keahlian unggulan bergiliran per kategori, maks. 8 (HP 6), plus `</>` dan `*` (K5), `aria-hidden`, menjadi label fisika (§9). Ayam dan bebek berjalan di garis atas bar status (§9). |
+| Hero | `hero/HeroSection`, `HeroStage`, `KeywordRotator`, `StatusBar`, `CharacterLaneSlot` | "Unduh CV" bila ada CV, kalau tidak "Hubungi saya" (K2). Kata berganti hanya bila `hero_keywords` terisi (K3). Panggung: label dari admin (`profiles.hero_labels`, Profil → "Label panggung hero": urutan, bentuk tag/lingkaran, teks Inggris; HP 8 pertama); bila kosong keahlian unggulan bergiliran per kategori, maks. 8 (HP 6), plus `</>` dan `*` (K5). `aria-hidden`, menjadi label fisika (§9). Selama profil dimuat, `h1` sudah berisi nama situs dan baris lain berupa placeholder tak terlihat setinggi aslinya (3C, tanpa pergeseran). Ayam dan bebek berjalan di garis atas bar status (§9). |
 | Tentang | `sections/AboutSection` | Foto 4:5 berbingkai, bio, fakta pendidikan/bahasa/domisili, hobi. |
-| Proyek | `sections/ProjectsSection`, `ProjectCover`, `TechList` | Unggulan = kartu studi kasus (sampul atau placeholder logo), deskripsi kosong → potongan Solusi (K4); sisanya daftar ringkas. Satu tautan per kartu (judul diperluas). |
+| Proyek | `sections/ProjectsSection`, `ProjectCover`, `TechList`, `github/GithubActivity` | Unggulan = kartu studi kasus (sampul atau placeholder logo), deskripsi kosong → potongan Solusi (K4); sisanya daftar ringkas. Satu tautan per kartu (judul diperluas). Di akhir section: grafik kontribusi GitHub (3C, K5) dari fungsi Vercel `api/github-contributions.js` (token `GITHUB_TOKEN`, username dari profil, cache 12 jam); dimuat saat mendekati layar, HP 26 minggu terakhir; gagal, total 0, atau dev lokal = tidak dirender. |
 | Pengalaman, Pendidikan | `sections/ExperienceSection`, `EducationSection` | Linimasa; "Lihat proyek: …" hanya untuk proyek yang tampil dan punya slug. |
 | Keahlian | `skills/SkillsSection`, `SkillMarquee`, `TechLogo` | Lihat §4. |
 | Sertifikat, Prestasi, Organisasi | `sections/CertificatesSection`, `AchievementsSection`, `OrganizationsSection` | Unggulan dulu, sisanya "Lihat semua (n lagi)"; fokus pindah ke sertifikat pertama yang muncul. Prestasi/Organisasi tidak dirender bila kosong. |
 | Kontak | `contact/ContactSection`, `ContactForm` | Email, LinkedIn, GitHub, "Unduh CV" (K2); formulir nama/email/topik/pesan tanpa Subjek (K9) → `messages.topic`. |
-| Buku tamu | `guestbook/GuestbookButton`, `GuestbookDrawer` (lazy), `robot/GuestbookRobot` | Tombol dengan jumlah pesan, menempel di bawah layar lalu berhenti di atas footer (3B, K5); panel kanan (HP penuh) dengan robot a+ di tepi formulir, memakai `useGuestbook` lama tanpa perubahan. |
+| Buku tamu | `guestbook/GuestbookButton`, `GuestbookDrawer` (lazy), `robot/GuestbookRobot` | Tombol dengan jumlah pesan, menempel di bawah layar lalu berhenti di atas footer (3B, K5); panel kanan (HP penuh) dengan robot a+ di tepi formulir. Sejak 3C memakai `hooks/usePublicGuestbook.js` (fetch; aturan sama di `guestbookRules.js`); `useGuestbook` tetap untuk admin. |
 | Detail proyek | `src/pages/ProjectDetailPage` (lazy), `ProjectLinks`, `Lightbox` (lazy) | Lihat §5. |
 | 404 | `src/pages/NotFoundPage` | Alamat tidak dikenal (termasuk `/admin/…` yang tidak ada) dan proyek yang tidak ada/disembunyikan. |
 
@@ -83,10 +92,17 @@ Prestasi (bila ada) · Organisasi (bila ada) · Kontak · Footer · tombol Buku 
 
 ## 6. Data
 
-- Semua query publik di `src/hooks/usePublicPortfolio.js`: kolom eksplisit, `is_visible = true`, urut
-  `sort_order`. Satu tabel gagal hanya memengaruhi section-nya (pesan + "Coba lagi"); profil gagal → hero
-  menampilkan nama situs dan pesan, bukan data karangan. **`src/data/portfolioData.js` dan semua data cadangan
+- Semua query publik di `src/hooks/usePublicPortfolio.js`: kolom eksplisit (ditambah kolom `_en`), `is_visible =
+  true`, urut `sort_order`. Satu tabel gagal hanya memengaruhi section-nya (pesan + "Coba lagi"); profil gagal →
+  hero menampilkan nama situs dan pesan, bukan data karangan. **`src/data/portfolioData.js` dan semua data cadangan
   sudah dihapus.**
+- **Sejak 3C halaman publik tidak memakai supabase-js** (K6): `src/lib/publicApi.js` memanggil REST API Supabase
+  yang sama dengan `fetch` (`restSelect`, `restInsert`; kunci publishable dan RLS sama). Kunci dikirim sebagai
+  parameter `apikey` dan permintaan baca hanya membawa header `Accept`, jadi browser tidak perlu preflight CORS.
+  Pesan kontak dan buku tamu memakai `restInsert`. Admin tetap memakai supabase-js dan hook lamanya.
+- Data diminta **setelah gambar pertama tampil** (`lib/afterFirstPaint.js`), lalu dipasang sekaligus dalam satu
+  `startTransition` (maks. 1 dtk menunggu tabel lain). Halaman detail meminta baris proyeknya dari `main.jsx` sebelum
+  potongan halaman selesai diunduh (`prefetchProject`), dan sampulnya ikut diminta dengan prioritas tinggi.
 - Tidak pernah diambil: `phone_number`, `full_address`, `user_id`. CV = `cv_file_url`, cadangannya `resume_link`.
 - URL dari database hanya dirender bila `http(s)://` (`javascript:` dan skema lain dibuang).
 - Hook admin lama tidak berubah (admin tetap memakai query yang sama).
@@ -197,7 +213,12 @@ layar dan saat tab tidak aktif (`usePageHidden`).
   tertinggal di elemen yang tertutup panel/dialog atau yang tergulir pergi. Hover dan fokus keyboard tetap identik
   (K8).
 
-## 10. Diuji (18 dan 19 Oktober 2026)
+## 10. Diuji (18, 19, dan 20 Oktober 2026)
+
+Tahap 3C (19–20 Oktober 2026): semua suite 3A/3B, isi Inggris (`en`, `sweep-en` 4 lebar × 2 tema × 2 bahasa ×
+4 halaman), label hero, grafik GitHub dan fungsinya, performa (`perf3c`: bundle tanpa supabase-js/admin, data setelah
+gambar pertama tanpa preflight, satu `h1`, CLS 0), SEO (`seo3c`), audit impeccable, dan semua suite dengan header
+CSP dari `vercel.json`. Hasil dan Lighthouse sebelum/sesudah di `plans/tahap-3c-final.md` §11.
 
 Tahap 3B (19 Oktober 2026): suite kursor, suara, label fisika, layar pembuka, ayam dan bebek, footer dan robot, robot
 buku tamu, sapuan 3B (4 lebar × 2 tema × 2 bahasa: tidak ada yang menutupi teks/tombol, kontras gelembung ≥4,5:1),
@@ -210,3 +231,42 @@ Supabase tiruan dengan salinan data asli + Chrome headless (skrip di scratchpad,
 kontak, buku tamu, detail, interaksi, sapuan 375/768/1024/1440 × terang/gelap × ID/EN (tanpa scroll samping,
 kontras ≥4,5:1, sampul dan teks tidak bertumpuk), dan login + admin identik dengan `main` kecuali catatan sementara
 di blok tampilan yang memang dihapus. Rincian di `plans/tahap-3a-publik.md` §10.
+
+## 11. Performa (tahap 3C)
+
+- **Bundle awal** 105 kB gzip (dari 168 kB): tanpa supabase-js (§6) dan tanpa kode admin/auth (`AdminShell`,
+  `AdminPage` lazy di `App.jsx`). Section di bawah hero adalah potongan sendiri (`src/pages/HomeSections.jsx`) yang
+  mulai diunduh setelah gambar pertama dan dirender bertahap (`useDeferredValue`).
+- **LCP = nama di hero:** `h1` langsung berisi nama situs (elemen yang sama tetap dipakai saat nama profil datang),
+  font Inter latin di-preload (`vite.config.js`), dan preconnect ke Supabase di `index.html`. Mask jalur sirkuit di
+  latar dipecah (garis dan titik terpisah) supaya Chrome tidak menganggapnya elemen terbesar.
+- **Tanpa pergeseran (CLS 0):** placeholder tak terlihat setinggi isi asli untuk baris hero, tombol CV, dan bar
+  status selama profil dimuat.
+- `.pub-section` memakai `content-visibility: auto` (+ `contain-intrinsic-size`); lompatan ke section (`#proyek`)
+  memasang kelas `pub-sections-laid-out` sebentar supaya posisi tujuan sudah benar.
+- Baris keahlian diukur hanya saat mendekati layar (ResizeObserver, tanpa pengukuran paksa saat halaman dimuat);
+  layar pembuka mengukur logo di effect + rAF; panggung label menyimpan posisinya (dibaca ulang hanya saat gulir,
+  ubah ukuran, atau sentuhan baru) dan memakai `contain: layout paint`.
+- `useNearViewport` memuat sesuatu (robot footer, karakter) hanya bila elemennya masih dekat layar saat browser
+  idle, bukan sekadar sempat dekat sesaat.
+- Tombol kecil (`.pub-btn--sm`: kembali ke atas, hentikan gerak, coba lagi) 40 px dengan mouse, 44 px di layar
+  sentuh.
+
+## 12. SEO dan pratinjau tautan (tahap 3C)
+
+- `index.html`: judul dan deskripsi Indonesia, Open Graph (`og:type`, `og:site_name`, `og:title`,
+  `og:description`, `og:image` 1200×630 + ukuran + alt, `og:locale` id_ID + alternatif en_US), Twitter card
+  `summary_large_image`, `theme-color` terang/gelap. Pratinjau WhatsApp/LinkedIn tidak menjalankan JavaScript, jadi
+  semua alamat memakai judul dan gambar situs (K11).
+- Gambar `public/og-image.png`, sumbernya `design-system/aldi-portfolio/og/og-image.html` (cara membuat ulang ada di
+  komentar file itu).
+- `vite.config.js` saat build: alamat gambar OG absolut dari `VITE_SITE_URL` (cadangan: alamat produksi Vercel),
+  `robots.txt` (`/admin`, `/api/` ditutup, alamat sitemap), `sitemap.xml` (beranda + proyek tampil, dibaca lewat API
+  publik; proyek baru masuk setelah deploy berikutnya, `DEPLOY.md` §7), dan `index.html` dengan akhir baris LF supaya
+  hash CSP skrip tema sama di semua komputer (build berhenti bila hash di `vercel.json` sudah tidak cocok).
+- `components/public/usePageMeta.js`: per halaman dan bahasa memperbarui deskripsi (≤160 karakter), `og:*`,
+  `twitter:*`, `og:locale`, canonical dan `og:url` (bila `VITE_SITE_URL` ada); 404 `noindex, follow`. Admin
+  (`AdminShell`) memasang `noindex, nofollow`, dan `vercel.json` mengirim `X-Robots-Tag` untuk `/admin`.
+- JSON-LD `Person` (`usePersonJsonLd` di `PublicLayout`): nama, peran (`primary_role`, cadangan tagline), tagline,
+  alamat situs, foto, kota (`location`), sekolah yang sudah lulus (`alumniOf`), tautan profil https. **Tidak pernah**
+  nomor HP, alamat, atau email.

@@ -364,8 +364,10 @@ Semua usulan K1–K11 disetujui, dengan catatan:
       tema, bahasa, suara, label fisika, buku tamu, kontak, detail + lightbox, 404, login: 0 laporan, 0 galat),
       pratinjau PDF `blob:` di tab baru tetap tampil. `DEPLOY.md` untuk pemilik (impor, variabel, token GitHub,
       Supabase Auth, daftar periksa, redeploy sitemap, domain sendiri, CSP dan Report-Only darurat).
-- [ ] B5. Uji ulang semua + Lighthouse "sesudah"
-- [ ] B6. Dokumentasi (`pages/public.md`, `pages/admin.md`, `MASTER.md`, `README.md`) + laporan dan uji manual
+- [x] B5. Uji ulang semua pada kode akhir (publik, admin, PGlite, lint, build) + Lighthouse "sesudah" bergantian
+      dengan "sebelum" (5 putaran): beranda Performance 44 → 91, detail 43 → 72; SEO 92 → 100 (hasil di §11)
+- [x] B6. Dokumentasi (`pages/public.md` §2, §3, §6, §10–12; `pages/admin.md` pemuatan, Profil, Versi Inggris,
+      uji 3C; `MASTER.md` v1.3; `README.md` baru) + laporan dan uji manual (§11)
 
 ---
 
@@ -401,3 +403,118 @@ Semua usulan K1–K11 disetujui, dengan catatan:
    itu (HP: 8 pertama). Hapus semua, simpan: kembali ke keahlian unggulan.
 8. Grafik GitHub hanya muncul setelah online di Vercel dengan `GITHUB_TOKEN` (bagian B4); di `npm run dev` tidak
    tampil, dan itu memang disengaja.
+
+## 11. Hasil bagian B (20 Oktober 2026)
+
+**Commit:** db0597b B1 performa · 40dd890 B2 SEO · 5765ee0 B3 audit · 8053558 B4 Vercel · 1653f98 perbaikan tombol
+bahasa (temuan Lighthouse) · commit dokumentasi B5/B6.
+
+### Lighthouse (mobile, perlambatan simulasi bawaan, build produksi lewat `vite preview`, data asli hanya dibaca)
+
+"Sebelum" = kode di awal bagian B (commit 72afa2f: `main` + bagian A). Karena kecepatan komputer berubah-ubah
+(benchmarkIndex 1.636 saat B0, ±850 sekarang), angka akhir diukur **bergantian** sebelum/sesudah dalam 5 putaran pada
+kecepatan yang sama (benchmarkIndex 802–953 untuk keduanya). Median:
+
+| Halaman | Performance | Accessibility | Best Practices | SEO | FCP | LCP | TBT | CLS | Speed Index |
+|---|---|---|---|---|---|---|---|---|---|
+| Beranda, sebelum | 44 | 100 | 100 | 92 | 2,7 s | 4,9 s | 1.019 ms | 0,20 | 4,4 s |
+| Beranda, sesudah | **91** | 100 | 100 | **100** | 2,2 s | 2,6 s | 199 ms | 0 | 3,5 s |
+| Detail SI-Arsip, sebelum | 43 | 100 | 100 | 92 | 2,7 s | 6,0 s | 640 ms | 0,26 | 3,9 s |
+| Detail SI-Arsip, sesudah | **72** | 100 | 100 | **100** | 2,1 s | 5,0 s | 322 ms | 0 | 3,3 s |
+
+- Beranda per putaran (sesudah): 91, 88, 91, 86, 92. Target Performance ≥90 tercapai di beranda (median).
+- **Detail belum ≥90:** elemen terbesarnya adalah gambar sampul SI-Arsip, PNG 221 kB yang jauh lebih besar dari
+  ukuran tampilnya. Unggah ulang sampul itu lewat admin (otomatis diubah ke WebP dan diperkecil) akan menurunkan LCP.
+- SEO 92 → 100 karena `robots.txt` kini ada; Accessibility 100 dan audit "nama sesuai teks" kini lulus.
+- Angka di Vercel bisa sedikit berbeda (CDN, kompresi, jaringan nyata); cek ulang lewat Chrome DevTools setelah online.
+
+### Bundle (build produksi)
+
+| | Sebelum | Sesudah |
+|---|---|---|
+| JS awal | 582,6 kB (167,7 kB gzip) | 336,2 kB (105,4 kB gzip) |
+| CSS awal | 78,3 kB (16,2 kB gzip) | 55,7 kB (13,0 kB gzip) |
+| Peringatan chunk > 500 kB | ada | hilang |
+| supabase-js | di bundle awal | hanya di potongan admin (`AdminPage`, 57 kB gzip) |
+
+### Audit impeccable (B3)
+
+Skor: Accessibility 3 → 4, Performance 3, Theming 4, Responsive 3, Integritas implementasi 4 = **17/20 → 18/20**
+(Good). Diperiksa: detektor impeccable atas seluruh kode publik, lalu di browser beranda/detail/404 × 375/1440 px ×
+gelap/terang (kontras, target sentuh dengan emulasi layar sentuh, nama aksesibel, heading, landmark, alt, id ganda,
+fokus 40 Tab pertama, reflow 320 px, teks 125–200 %).
+
+| Temuan | Prioritas | Status |
+|---|---|---|
+| Nama tombol bahasa ("Ganti bahasa ke English") tidak memuat teks yang terlihat "ID US" (WCAG 2.5.3) | P1 | Diperbaiki: "ID US: ganti bahasa ke English" + spasi asli di antara ID dan US |
+| Tombol kecil 40 px di layar sentuh: Kembali ke atas, Hentikan gerak, Coba lagi | P2 | Diperbaiki: 44 px saat `pointer: coarse` |
+| `html { font-size: 16px }` (index.css, sejak commit pertama) mengabaikan ukuran huruf pilihan browser; bila diganti, bar navigasi perlu dibuat lentur karena pada teks 125–150 % tombolnya keluar layar | P3 | Dilaporkan (zoom browser tetap bekerja dan reflow 320 px lulus; perubahan menyentuh admin juga) |
+| Foto profil (65 kB) dan sampul SI-Arsip (PNG 221 kB) dikirim lebih besar dari ukuran tampilnya | P3 | Dilaporkan (unggah ulang lewat admin) |
+| Tombol kecil dan "Unduh CV" di navbar 40 px saat memakai mouse | — | Sesuai MASTER (ringkas di desktop, 44 px di sentuh) |
+| Detektor: grid Blueprint (4), garis fokus kiri `.pub-control::before`, ukuran judul `clamp()` (6), `#000` di mask (2) | — | Disengaja (BRIEF/MASTER, keputusan pemilik) |
+
+Lulus tanpa temuan: kontras semua teks ≥4,5:1 (judul besar ≥3:1), satu `h1` dan urutan heading, landmark, alt
+gambar, label formulir, tanpa id ganda, tanpa scroll samping 320–1440 px, fokus terlihat (kartu proyek memakai
+bingkai fokus seluruh kartu), reduced motion (suite 3B).
+
+### Content-Security-Policy (K9)
+
+**CSP ketat langsung berlaku** (bukan Report-Only), karena semua fitur lulus dengan header persis dari `vercel.json`:
+- semua suite publik dan admin dijalankan di belakang header itu (server uji membaca `vercel.json`); satu-satunya
+  kelonggaran khusus uji: Supabase tiruan memakai `Function()` untuk mengubah data uji dan satu uji membaca PDF
+  pilihan lewat `fetch(blob:)`. Kode asli tidak memakai keduanya (dicek di bundle);
+- build produksi asli dengan CSP persis tanpa kelonggaran: beranda (data asli), skrip tema, font, gambar Supabase,
+  latar blueprint, tema, bahasa, suara, label fisika, buku tamu (dibuka saja), formulir kontak (tidak dikirim),
+  detail + lightbox, 404, halaman login: **0 laporan CSP, 0 galat**;
+- pratinjau PDF `blob:` di tab baru (mewarisi CSP halaman admin) tetap tampil di penampil PDF Chrome;
+- belum bisa diuji otomatis: login dan unggah ke Supabase asli (butuh akun; `*.supabase.co` sudah diizinkan), dan
+  browser selain Chrome. Termasuk di uji manual. Bila ada yang terblokir: `DEPLOY.md` §9 (Report-Only darurat).
+
+### Uji otomatis (kode akhir)
+
+Semua dijalankan ulang pada kode akhir (Supabase tiruan berisi salinan data asli, Chrome headless):
+
+| Kelompok | Hasil |
+|---|---|
+| Publik 3A/3B/3C: tok 11, suara 25, label fisika 40, layar pembuka 24, ayam-bebek 59, footer 59, robot buku tamu 43, sapuan 3B 160, data 41, sertifikat 20, kontak 21, buku tamu 30, detail 33, interaksi 57, keahlian 91, pesan 18, sapuan 496, fungsi GitHub 14, Inggris 61, grafik GitHub 33, label hero 15, sapuan Inggris 560 | semua lulus |
+| Performa `perf3c` (bundle tanpa supabase-js/admin, data setelah gambar pertama tanpa preflight, satu `h1` tetap, CLS 0, sampul detail diminta lebih dulu) | 38/38 (+5/5 di build asli) |
+| SEO `seo3c` (tag statis, robots, sitemap, meta per halaman/bahasa, canonical, JSON-LD tanpa data pribadi, noindex 404 dan admin) | 54/54 (+21/21 di build asli) |
+| Admin: navigasi 235, profil 110, proyek 100, keahlian 49, pengalaman 52, pendidikan/bahasa/organisasi 80, sertifikat/prestasi 69, beranda 39, tautan 97, Versi Inggris 61, label hero 24, privasi 32, fokus/sibuk 16, kunci gulir 19 | semua lulus |
+| Pembanding dengan `main` | login identik; 36 perbedaan hanya di admin dan semuanya dari bagian A (kolom `_en` di query dengan jumlah dan urutan sama, bilah "Versi Inggris", editor label di Profil) |
+| PGlite: migrasi `_en` 56, file terjemahan 34 | semua lulus |
+| Dengan header `vercel.json` (CSP): semua suite publik dan admin di atas, build asli, pratinjau PDF | lulus, 0 laporan CSP |
+| `npm run lint` / `npm run build` | bersih / berhasil, tanpa peringatan ukuran chunk |
+
+Dua uji lama disesuaikan (bukan kodenya): `data` dan `privacy` kini menunggu data datang (nama di hero sudah tampil
+sebelum data) dan membaca tampilan 3A (kelas `.about-info-card` sudah tidak ada sejak 18 Oktober).
+
+### Catatan
+
+- **Seret label di CPU 4× lebih lambat** tetap 24–29 fps. Posisi panggung yang disimpan dan `contain` mengurangi
+  hitung ulang style, tetapi tidak terukur menaikkan fps (batasnya di perhitungan fisika + render). Di desktop dan
+  HP nyata seret/lempar berjalan normal.
+- **Pertanyaan:** keterangan panggung hero "Keahlian unggulan" tetap tampil walau label dipilih sendiri di admin
+  (bisa berisi hal yang bukan keahlian). Pilihan: biarkan, ganti teksnya, atau sembunyikan bila label diatur admin.
+- Gambar OG berisi teks peran "Junior Programmer · Web & Mobile". Bila peran berubah, buat ulang dari
+  `og/og-image.html` (caranya di komentar file itu).
+- Grafik GitHub baru tampil setelah online dengan `GITHUB_TOKEN`; sitemap baru berisi proyek baru setelah redeploy.
+
+### Uji manual bagian B
+
+**Di komputer (sebelum online)**
+1. `npm run build` lalu `npm run preview`, buka alamat yang ditampilkan: nama di hero langsung tampil, isi menyusul
+   tanpa ada yang bergeser; detail proyek dan halaman 404 normal.
+2. Klik menu Tentang/Proyek/Kontak di navbar dan buka `/#kontak` langsung: halaman berhenti tepat di section-nya.
+3. Tombol bahasa, tema, suara; seret dan lempar label di hero; buka buku tamu; kirim satu pesan kontak (hapus dari
+   admin bila hanya uji).
+4. `/admin/login` → masuk → buka beberapa menu (pertama kali muncul "Memuat halaman..." sebentar), ubah dan simpan
+   satu isian, unggah gambar dan PDF, klik pratinjau PDF.
+5. Tekan Ctrl+U di beranda: ada `og:title`, `og:image`, `twitter:card`; `/robots.txt` terbuka.
+
+**Setelah online (ikuti `DEPLOY.md`)**
+6. Langkah 1–5 `DEPLOY.md`, lalu seluruh daftar periksa §6, terutama: login dan unggah gambar/PDF dengan Supabase
+   asli, pratinjau PDF, grafik GitHub, `/sitemap.xml`, pratinjau tautan di WhatsApp/LinkedIn, dan Console tanpa pesan
+   "Refused to ...". Bila sempat, ulangi beberapa langkah di Firefox atau Safari HP.
+7. Chrome DevTools → Lighthouse → Mobile untuk beranda dan satu detail proyek.
+8. Unggah ulang sampul SI-Arsip lewat admin (Proyek → ubah → Gambar sampul), lalu ukur ulang detailnya.
+9. Keputusan keterangan "Keahlian unggulan" (Catatan di atas).

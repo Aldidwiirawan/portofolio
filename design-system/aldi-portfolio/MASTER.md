@@ -7,11 +7,11 @@
 ---
 
 **Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
-**Versi:** v1.2 · 16 Oktober 2026
+**Versi:** v1.3 · 20 Oktober 2026
 **Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode. Dipakai oleh
 `/admin/login` (tahap 1), seluruh panel admin `/admin/*` (tahap 2 dan 2B, lihat §14 dan
-`pages/admin.md`), dan halaman publik sejak tahap 3A (18 Oktober 2026) dan 3B (interaksi, 19 Oktober 2026), lihat
-§15 dan `pages/public.md`.
+`pages/admin.md`), dan halaman publik sejak tahap 3A (18 Oktober 2026), 3B (interaksi, 19 Oktober 2026), dan 3C
+(isi Inggris, performa, SEO, persiapan Vercel, 20 Oktober 2026), lihat §15 dan `pages/public.md`.
 **Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
 
 ### Asal-usul & kurasi
@@ -64,7 +64,7 @@ Component  --login-*, --adm-*  khusus komponen/halaman        → didefinisikan 
 - **Token lama tetap hidup.** `--color-*`, `--shadow-*`, `--transition-*`, `--font-*` sejak tahap 3A hanya
   dipakai gaya dasar global di `src/index.css` (`html`, `body`, `h1–h6`, `p`, `a`, `.btn`, `.badge`,
   `.container`), yang masih menjadi dasar login/admin. **Jangan hapus atau ganti namanya** sebelum gaya dasar itu
-  dirapikan di akhir tahap 3 (lihat §9).
+  dirapikan (lihat §9; belum dikerjakan sampai tahap 3C).
 
 ## 3. Warna
 
@@ -286,6 +286,9 @@ Setelah sebuah halaman selesai dimigrasi, token lama yang tidak lagi dipakai bol
 - [ ] Kontras dihitung dari computed style (bukan ditebak).
 - [ ] Reduced motion diuji (emulasi `prefers-reduced-motion: reduce`).
 - [ ] Halaman lain tidak berubah (bandingkan computed style/tinggi section dengan baseline).
+- [ ] Halaman publik (sejak 3C): bundle awal tetap tanpa supabase-js dan kode admin; data publik lewat
+      `src/lib/publicApi.js`; tanpa pergeseran tata letak (CLS 0); Lighthouse mobile beranda tidak turun.
+- [ ] Sumber dari domain lain (gambar, skrip, font, API) ditambahkan juga ke CSP di `vercel.json` (`DEPLOY.md` §9).
 - [ ] Screenshot sebelum/sesudah ditunjukkan di laporan. Sejak 15 Okt 2026 screenshot halaman tidak
       di-commit (keputusan pemilik); pemeriksaan logo tetap di `screenshots/logo-check/`.
 
@@ -435,9 +438,10 @@ Detail lengkap: `pages/admin.md`. Strategi isi publik: `BRIEF.md` §9. Ringkasny
   `includePrivateFields`); tanpa opsi itu query halaman publik sama persis dengan sebelumnya. Kolom baru
   ditambahkan lewat migrasi `20261016000000_admin_content_model.sql`, yang dijalankan pemilik project.
 
-## 15. Halaman publik (tahap 3A dan 3B)
+## 15. Halaman publik (tahap 3A, 3B, 3C)
 
-Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3a-publik.md`. Ringkasnya:
+Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3a-publik.md`,
+`plans/tahap-3b-publik.md`, `plans/tahap-3c-final.md`. Ringkasnya:
 
 - **Kerangka:** `PublicLayout` (rute `/`, `/projects/:slug`, `*`) memasang `ThemeProvider`, `I18nProvider`, data
   publik yang dimuat sekali (`usePublicPortfolio`), akar `.pub` ber-`data-theme`, tautan "Lewati ke konten",
@@ -452,10 +456,18 @@ Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3
 - **Komponen identitas yang dipakai:** `Logo`, `ViewfinderCursor`, `BlueprintBackground variant="busy"` (hero,
   detail, 404). Komponen admin yang dipakai ulang tanpa diubah: `useFocusTrap`, `useScrollLock`.
 - **Data:** hook publik baru (kolom eksplisit, `is_visible = true`, `sort_order`); hook lama untuk admin tidak
-  berubah. Data cadangan `portfolioData.js` dihapus.
+  berubah. Data cadangan `portfolioData.js` dihapus. Sejak 3C halaman publik memanggil REST Supabase dengan
+  `fetch` (`src/lib/publicApi.js`, tanpa supabase-js) setelah gambar pertama tampil, dan membaca kolom `_en`: di
+  mode US setiap teks memakai versi Inggris bila terisi, kalau kosong versi Indonesia (`lang="id"`).
 - **Interaksi (tahap 3B, `pages/public.md` §9):** label fisika (matter-js 0.20.0, satu-satunya library baru, lazy),
   tombol suara dan "tok" Web Audio, ayam dan bebek di garis bar status (kalimat di `src/i18n/characterLines.js`),
   layar pembuka, robot a+ di footer dan panel buku tamu. Semua dekoratif (`aria-hidden`, tanpa fokus), berhenti di
   luar layar dan saat tab tidak aktif, diam saat reduced motion. Bagian-bagian ini saling memberi kabar lewat
   `interactionBus.js` (mis. `label-impact`, `intro-done`, `back-to-top`), bukan lewat import langsung, karena
   masing-masing dimuat terpisah.
+- **Tahap 3C (`pages/public.md` §2, §11, §12; `plans/tahap-3c-final.md`):** label panggung hero dari admin
+  (`profiles.hero_labels`), grafik kontribusi GitHub lewat fungsi Vercel `api/github-contributions.js`, kode admin
+  dan section di bawah hero dimuat terpisah, `h1` hero langsung berisi nama (LCP), placeholder tak terlihat (CLS 0),
+  meta Open Graph/Twitter, `og-image.png`, JSON-LD `Person` tanpa data pribadi, `robots.txt` dan `sitemap.xml` saat
+  build, `noindex` di admin dan 404. Online di Vercel: `vercel.json` (rute SPA, cache aset, header keamanan, CSP
+  dengan hash skrip tema) dan panduan `DEPLOY.md`.
