@@ -330,7 +330,7 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [x] A6. Draf terjemahan `supabase/seed/terjemahan-en.sql` + uji PGlite (34 cek: 2× jalan, isi Indonesia utuh,
       teks yang sudah berubah dilewati, isi Inggris dari admin tidak ditimpa, file CRLF, tanpa migrasi gagal rapi).
       Nama diri (keahlian, penerbit, instansi, klien) tidak ditandai `lang="id"` (commit a69b06f).
-- [ ] A7. Uji bagian A + laporan (isi migrasi, tabel draf terjemahan) → **berhenti**
+- [x] A7. Uji bagian A + laporan (isi migrasi, tabel draf terjemahan) → **berhenti** (hasil di §10)
 
 **Bagian B** (setelah pemilik menjalankan migrasi dan terjemahan)
 - [ ] B0. Lighthouse "sebelum"
@@ -340,3 +340,38 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [ ] B4. `vercel.json` + `DEPLOY.md`
 - [ ] B5. Uji ulang semua + Lighthouse "sesudah"
 - [ ] B6. Dokumentasi (`pages/public.md`, `pages/admin.md`, `MASTER.md`, `README.md`) + laporan dan uji manual
+
+---
+
+## 10. Hasil bagian A (19 Oktober 2026)
+
+**Commit:** 46aea8b A1 migrasi · c31e2aa A2 publik Inggris · 5654ca5 A3 admin "Versi Inggris" · f2bad3c A5 grafik GitHub ·
+5a17817 A4 label hero · a69b06f perbaikan: nama diri tidak ditandai `lang="id"` · 7f75901 A6 draf terjemahan.
+
+**Uji otomatis (semua lulus):**
+- PGlite: migrasi 56/56 (2× jalan, data lama utuh, CHECK, gagal di tengah, tanpa migrasi tautan); file terjemahan
+  34/34 (2× jalan, isi Indonesia utuh, teks yang berubah dilewati, isi Inggris dari admin tidak ditimpa, file CRLF,
+  tanpa migrasi gagal rapi).
+- Publik (Supabase tiruan): semua suite 3A dan 3B; `en` 61/61, `github` 33/33, `gh-fn` 14/14 (fungsi Vercel),
+  `herolabels-public` 15/15, `sweep-en` 560/560 (4 lebar × 2 tema × 2 bahasa × 4 halaman dengan isi draf).
+- Admin: nav 235, profil 110, proyek 100, keahlian 49, pengalaman 52, pendidikan/bahasa/organisasi 80,
+  sertifikat/prestasi 69, dasbor 39, tautan 97, `admin-en` 61/61, `herolabels` 24/24.
+- `test-regression` (pembanding admin dengan `main`) berbeda hanya di bagian yang memang diubah: query admin
+  menambah kolom `_en`/`hero_labels`, form bertambah bilah "Versi Inggris" (+46–70 px), Profil bertambah editor label
+  dan bagian Inggris. Halaman login tidak berubah.
+- `npm run lint` bersih; `npm run build` berhasil (peringatan chunk > 500 kB masih ada, ditangani di B1).
+
+**Uji manual setelah migrasi dan file terjemahan dijalankan:**
+1. Supabase SQL Editor: jalankan `supabase/migrations/20261019000000_english_content.sql`; tabel cek tidak berisi
+   "BELUM ADA". Lalu `supabase/seed/terjemahan-en.sql`; semua baris cek `terisi = true`.
+2. Halaman publik, tombol US: hero, Tentang saya, Pengalaman, Pendidikan, Sertifikat, Keahlian, Kontak berbahasa
+   Inggris. Ganti ke ID: kembali Indonesia.
+3. Detail proyek (US): SI-Arsip (keterangan galeri, "Detail teknis" Inggris), AyamBebek (label tautan privat).
+4. Formulir kontak (US): pilih "Project collaboration", kirim; di admin Kotak Masuk topiknya "Kerja sama proyek".
+5. Admin → Proyek → ubah satu proyek → buka "Versi Inggris (opsional)": isi tampil, ubah satu kalimat, simpan, cek di
+   halaman publik (US).
+6. Admin → Pengalaman: naikkan/turunkan satu poin tugas Indonesia; poin Inggrisnya ikut pindah.
+7. Admin → Profil → "Label panggung hero": tambah 3 label (satu lingkaran `</>`), simpan; hero publik memakai label
+   itu (HP: 8 pertama). Hapus semua, simpan: kembali ke keahlian unggulan.
+8. Grafik GitHub hanya muncul setelah online di Vercel dengan `GITHUB_TOKEN` (bagian B4); di `npm run dev` tidak
+   tampil, dan itu memang disengaja.
