@@ -12,6 +12,8 @@ const EMPTY = { name: '', email: '', topic: '', message: '' }
  * contact topics (no subject field, K9). Errors are shown per field and focus moves to the first
  * one; the result is announced in a status/alert region that is always in the DOM. While sending,
  * the button uses aria-disabled + a guard so keyboard focus stays on it.
+ * @param {{ topics: Array<{ value: string, label: string, lang?: string }> }} props value = the
+ *   Indonesian topic that is stored, label = the topic in the page language
  */
 function ContactForm({ topics }) {
   const { t } = useI18n()
@@ -132,8 +134,8 @@ function ContactForm({ topics }) {
           <select {...props} className="pub-input" name="topic">
             <option value="">{t('form.topicPick')}</option>
             {topics.map((topic) => (
-              <option key={topic} value={topic}>
-                {topic}
+              <option key={topic.value} value={topic.value} lang={topic.lang}>
+                {topic.label}
               </option>
             ))}
           </select>

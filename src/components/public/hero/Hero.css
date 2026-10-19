@@ -79,7 +79,7 @@
   font-size: var(--ds-fs-sm);
 }
 
-.pub-hero-also span {
+.pub-hero-also > span:first-child {
   color: var(--ds-text-subtle);
 }
 

@@ -12,7 +12,8 @@ const SWIPE_PX = 50
  * ← → (and Home/End), the buttons or a swipe on touch screens change the image; Escape, "Tutup" or a
  * click beside the image closes it. Focus stays inside and returns to the opener afterwards.
  * Always dark, whatever the page theme.
- * @param {{ images: Array<{ url: string, caption?: string }>, start?: number, onClose: () => void }} props
+ * @param {{ images: Array<{ url: string, caption?: string, lang?: string }>, start?: number, onClose: () => void }} props
+ *   lang: language of the caption when it differs from the page ('id' on the English page)
  */
 function Lightbox({ images, start = 0, onClose }) {
   const { t } = useI18n()
@@ -72,8 +73,8 @@ function Lightbox({ images, start = 0, onClose }) {
       </div>
 
       <figure className="pub-lightbox-figure" onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-        <img key={image.url} src={image.url} alt={caption} decoding="async" />
-        {caption && <figcaption>{caption}</figcaption>}
+        <img key={image.url} src={image.url} alt={caption} decoding="async" lang={image.caption ? image.lang : undefined} />
+        {caption && <figcaption lang={image.caption ? image.lang : undefined}>{caption}</figcaption>}
       </figure>
 
       {many && (

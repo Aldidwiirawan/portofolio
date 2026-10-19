@@ -41,7 +41,8 @@ function TechLogo({ skill, paths, size = 20 }) {
     )
   }
 
-  const key = techLogoKey(skill.name)
+  // logo_name: the stored name, when the English page shows a translated one
+  const key = techLogoKey(skill.logo_name ?? skill.name)
   if (key) {
     if (!paths?.[key]) return <span className="pub-techlogo" style={{ width: size, height: size }} aria-hidden="true" />
     return (

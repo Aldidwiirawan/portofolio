@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
 import { ArrowRightIcon, BriefcaseIcon } from '../icons'
+import { langOf } from '../localize'
+import Phrase from '../Phrase'
 import { usePublicData } from '../publicContexts'
 import { Section, SectionError, SkeletonBlock } from '../Section'
 import TechList from './TechList'
@@ -22,8 +24,9 @@ export function Period({ start, end, current }) {
 }
 
 /**
- * "Pengalaman": timeline of the visible experiences. An experience linked to a visible project with
- * a slug gets "Lihat proyek: …" (a hidden project is never linked).
+ * "Pengalaman": timeline of the visible experiences, with the summary ("Ringkasan" in the admin) above
+ * the tasks when it is filled. An experience linked to a visible project with a slug gets
+ * "Lihat proyek: …" (a hidden project is never linked).
  */
 function ExperienceSection() {
   const { t, storedLabel } = useI18n()
@@ -50,7 +53,6 @@ function ExperienceSection() {
         <ol className="pub-timeline">
           {experiences.map((item) => {
             const project = projects.find((p) => p.id === item.related_project_id && p.slug)
-            const place = [item.company, item.location].filter(Boolean).join(' · ')
             return (
               <li key={item.id} className="pub-tl-item">
                 <p className="pub-tl-period">
@@ -73,18 +75,34 @@ function ExperienceSection() {
                       )}
                     </div>
                     <div className="pub-tl-titles">
-                      <h3 className="pub-tl-role">{item.role}</h3>
-                      {place && <p className="pub-tl-company">{place}</p>}
+                      <h3 className="pub-tl-role" lang={langOf(item, 'role')}>
+                        {item.role}
+                      </h3>
+                      {(item.company || item.location) && (
+                        <p className="pub-tl-company">
+                          {item.company && <span lang={langOf(item, 'company')}>{item.company}</span>}
+                          {item.company && item.location && ' · '}
+                          {item.location}
+                        </p>
+                      )}
                     </div>
                     {item.experience_type && (
                       <span className="pub-badge pub-badge--accent pub-tl-type">{storedLabel('exp', item.experience_type)}</span>
                     )}
                   </div>
 
+                  {item.description && (
+                    <p className="pub-tl-summary" lang={langOf(item, 'description')}>
+                      {item.description}
+                    </p>
+                  )}
+
                   {item.responsibilities.length > 0 && (
                     <ul className="pub-tl-tasks" aria-label={t('experience.tasks')}>
-                      {item.responsibilities.map((task) => (
-                        <li key={task}>{task}</li>
+                      {item.responsibilities.map((task, index) => (
+                        <li key={`${task}-${index}`} lang={langOf(item, 'responsibilities', index)}>
+                          {task}
+                        </li>
                       ))}
                     </ul>
                   )}
@@ -93,7 +111,9 @@ function ExperienceSection() {
 
                   {project && (
                     <Link to={`/projects/${encodeURIComponent(project.slug)}`} className="pub-arrow-link pub-tl-project">
-                      <span>{t('experience.viewProject', { title: project.title })}</span>
+                      <span>
+                        <Phrase id="experience.viewProject" vars={{ title: { text: project.title, lang: langOf(project, 'title') } }} />
+                      </span>
                       <ArrowRightIcon size={18} />
                     </Link>
                   )}

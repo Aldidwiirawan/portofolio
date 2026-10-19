@@ -1,6 +1,7 @@
 import { useI18n } from '../../../i18n/i18nContext'
 import CvButton from '../CvButton'
 import { GithubIcon, LinkedinIcon, MailIcon } from '../icons'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import ContactForm from './ContactForm'
 import './ContactSection.css'
@@ -58,10 +59,20 @@ function ContactSection() {
           <CvButton className="pub-contact-cv" />
         </div>
 
-        <ContactForm topics={profile?.contact_topics ?? []} />
+        <ContactForm topics={contactTopics(profile)} />
       </div>
     </section>
   )
+}
+
+/**
+ * Topics of the form in the page language. The value is always the Indonesian topic, so the admin
+ * inbox gets the same topics whatever language the visitor reads.
+ */
+function contactTopics(profile) {
+  const labels = profile?.contact_topics ?? []
+  const values = profile?.contact_topic_values ?? labels
+  return labels.map((label, index) => ({ value: values[index] ?? label, label, lang: langOf(profile, 'contact_topics', index) }))
 }
 
 /** 'https://www.linkedin.com/in/aldi-dwi-irawan/' → 'linkedin.com/in/aldi-dwi-irawan' */

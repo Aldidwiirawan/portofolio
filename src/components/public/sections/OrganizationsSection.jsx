@@ -1,5 +1,6 @@
 import { useI18n } from '../../../i18n/i18nContext'
 import { UsersIcon } from '../icons'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { Section } from '../Section'
 import { Period } from './ExperienceSection'
@@ -33,13 +34,21 @@ function OrganizationsSection() {
               </span>
               <div className="pub-card-body">
                 <h3 className="pub-card-title">{item.name}</h3>
-                {item.role && <p className="pub-card-sub">{item.role}</p>}
+                {item.role && (
+                  <p className="pub-card-sub" lang={langOf(item, 'role')}>
+                    {item.role}
+                  </p>
+                )}
                 {(item.start_date || item.end_date) && (
                   <p className="pub-card-meta">
                     <Period start={item.start_date} end={item.end_date} current={!item.end_date} />
                   </p>
                 )}
-                {item.description && <p className="pub-card-text">{item.description}</p>}
+                {item.description && (
+                  <p className="pub-card-text" lang={langOf(item, 'description')}>
+                    {item.description}
+                  </p>
+                )}
               </div>
             </article>
           </li>

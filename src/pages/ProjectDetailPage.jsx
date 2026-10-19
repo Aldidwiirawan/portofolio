@@ -1,10 +1,12 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import BlueprintBackground from '../components/effects/BlueprintBackground'
 import { usePublicProject } from '../hooks/usePublicPortfolio'
 import { useI18n } from '../i18n/i18nContext'
 import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon } from '../components/public/icons'
 import LazyLightbox from '../components/public/LazyLightbox'
+import { langOf, localizeProject } from '../components/public/localize'
+import Phrase from '../components/public/Phrase'
 import ProjectLinks from '../components/public/ProjectLinks'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
@@ -26,9 +28,10 @@ const BUILT_DURING_TYPES = ['Magang', 'Kerja', 'Freelance', 'Organisasi']
  */
 function ProjectDetailPage() {
   const { slug } = useParams()
-  const { status, project, reload } = usePublicProject(slug)
+  const { status, project: stored, reload } = usePublicProject(slug)
   const data = usePublicData()
-  const { t, code } = useI18n()
+  const { t, code, lang } = useI18n()
+  const project = useMemo(() => localizeProject(stored, lang), [stored, lang])
   const headingRef = useRef(null)
   const { viewer, openLightbox, closeLightbox } = useLightbox()
   const name = data.profile.data?.full_name || SITE_NAME
@@ -64,7 +67,7 @@ function ProjectDetailPage() {
   const facts = [
     project.year && { label: t('detail.year'), value: project.year },
     code('type', project.project_type) && { label: t('detail.type'), value: code('type', project.project_type) },
-    project.client_name && { label: t('detail.client'), value: project.client_name },
+    project.client_name && { label: t('detail.client'), value: project.client_name, lang: langOf(project, 'client_name') },
   ].filter(Boolean)
   const story = [
     ['problem', t('detail.problem')],
@@ -82,23 +85,32 @@ function ProjectDetailPage() {
             <span>{t('detail.back')}</span>
           </Link>
           <StatusBadge status={project.status} />
-          <h1 ref={headingRef} tabIndex={-1} className="pub-detail-title">
+          <h1 ref={headingRef} tabIndex={-1} className="pub-detail-title" lang={langOf(project, 'title')}>
             {project.title}
           </h1>
-          {project.description?.trim() && <p className="pub-lead pub-detail-lead">{project.description}</p>}
+          {project.description?.trim() && (
+            <p className="pub-lead pub-detail-lead" lang={langOf(project, 'description')}>
+              {project.description}
+            </p>
+          )}
           {facts.length > 0 && (
             <dl className="pub-detail-facts" aria-label={t('detail.facts')}>
               {facts.map((fact) => (
                 <div key={fact.label}>
                   <dt>{fact.label}</dt>
-                  <dd>{fact.value}</dd>
+                  <dd lang={fact.lang}>{fact.value}</dd>
                 </div>
               ))}
             </dl>
           )}
           {experience && (
             <Link to={{ pathname: '/', hash: '#pengalaman' }} className="pub-arrow-link pub-detail-built">
-              <span>{t(`detail.builtDuring.${builtKey}`, { company: experience.company })}</span>
+              <span>
+                <Phrase
+                  id={`detail.builtDuring.${builtKey}`}
+                  vars={{ company: { text: experience.company, lang: langOf(experience, 'company') } }}
+                />
+              </span>
               <ArrowRightIcon size={18} />
             </Link>
           )}
@@ -120,7 +132,9 @@ function ProjectDetailPage() {
               <h2 id="detail-peran" className="pub-detail-h2">
                 {t('detail.myRole')}
               </h2>
-              <p className="pub-detail-text">{project.my_role}</p>
+              <p className="pub-detail-text" lang={langOf(project, 'my_role')}>
+                {project.my_role}
+              </p>
             </section>
           )}
 
@@ -129,7 +143,9 @@ function ProjectDetailPage() {
               <h2 id={`detail-${key}`} className="pub-detail-h2">
                 {label}
               </h2>
-              <p className="pub-detail-text">{project[key]}</p>
+              <p className="pub-detail-text" lang={langOf(project, key)}>
+                {project[key]}
+              </p>
             </section>
           ))}
 
@@ -152,7 +168,11 @@ function ProjectDetailPage() {
                         <span className="pub-gallery-frame">
                           <img src={image.url} alt="" width="640" height="400" loading="lazy" decoding="async" />
                         </span>
-                        {image.caption && <span className="pub-gallery-caption">{image.caption}</span>}
+                        {image.caption && (
+                          <span className="pub-gallery-caption" lang={image.lang}>
+                            {image.caption}
+                          </span>
+                        )}
                       </button>
                     </li>
                   )
@@ -167,7 +187,9 @@ function ProjectDetailPage() {
                 <h2 className="pub-detail-h2">{t('detail.technical')}</h2>
                 <ChevronDownIcon size={20} className="pub-detail-technical-icon" />
               </summary>
-              <div className="pub-detail-technical-body">{project.content}</div>
+              <div className="pub-detail-technical-body" lang={langOf(project, 'content')}>
+                {project.content}
+              </div>
             </details>
           )}
         </div>

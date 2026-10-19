@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { selectWithEnglish } from '../lib/englishColumns'
 import { supabase } from '../lib/supabaseClient'
 
 // Data of the public pages (stage 3A). The old hooks stay unchanged for the admin.
 // - Explicit columns only. Never user_id, phone_number or full_address (BRIEF §9).
 // - Only rows with is_visible = true, ordered by sort_order (the admin's Naik/Turun buttons).
 // - Every table loads on its own: a failed table only hides its own section.
+// - The English versions (_en columns, stage 3C) are read next to the Indonesian ones; the page picks
+//   one per language (components/public/localize.js).
 
 const PROFILE_COLUMNS =
-  'full_name, primary_role, secondary_roles, hero_keywords, bio, location, email, github_url, linkedin_url, instagram_url, avatar_url, is_available, cv_file_url, resume_link, hobbies, contact_topics'
+  'full_name, tagline, primary_role, secondary_roles, hero_keywords, bio, location, email, github_url, linkedin_url, instagram_url, avatar_url, is_available, cv_file_url, resume_link, hobbies, contact_topics'
 
 const PROJECT_LIST_COLUMNS =
   'id, slug, title, description, solution, thumbnail_url, status, year, project_type, client_name, tech_stack, is_featured, sort_order'
@@ -15,16 +18,23 @@ const PROJECT_LIST_COLUMNS =
 const PROJECT_DETAIL_COLUMNS =
   'id, slug, title, description, content, thumbnail_url, status, year, project_type, client_name, my_role, problem, solution, outcome, tech_stack, gallery, links'
 
+// Columns of migration 20261019000000 (English content). The captions and labels in gallery and
+// links need no column of their own.
+const PROJECT_DETAIL_EN_COLUMNS =
+  'title_en, description_en, client_name_en, my_role_en, problem_en, solution_en, outcome_en, content_en'
+
 const TABLES = {
   profile: {
     table: 'profiles',
     columns: PROFILE_COLUMNS,
+    enColumns: 'tagline_en, bio_en, primary_role_en, secondary_roles_en, hero_keywords_en, hobbies_en, contact_topics_en',
     single: true,
     normalize: normalizeProfile,
   },
   projects: {
     table: 'projects',
     columns: PROJECT_LIST_COLUMNS,
+    enColumns: 'title_en, description_en, solution_en, client_name_en',
     order: [['sort_order'], ['created_at', { ascending: false }]],
     normalize: (row) => ({
       ...row,
@@ -35,18 +45,25 @@ const TABLES = {
   experiences: {
     table: 'experiences',
     columns:
-      'id, role, company, experience_type, location, start_date, end_date, is_current, responsibilities, skill_tags, logo_url, related_project_id, sort_order',
+      'id, role, company, experience_type, location, start_date, end_date, is_current, description, responsibilities, skill_tags, logo_url, related_project_id, sort_order',
+    enColumns: 'role_en, company_en, description_en, responsibilities_en',
     order: [['sort_order'], ['start_date', { ascending: false }]],
-    normalize: (row) => ({
-      ...row,
-      responsibilities: toTextList(row.responsibilities),
-      skill_tags: toTextList(row.skill_tags),
-      logo_url: safeAssetUrl(row.logo_url),
-    }),
+    normalize: (row) => {
+      const [responsibilities, responsibilitiesEn] = parallelLists(row.responsibilities, row.responsibilities_en)
+      return {
+        ...row,
+        description: text(row.description),
+        responsibilities,
+        responsibilities_en: responsibilitiesEn,
+        skill_tags: toTextList(row.skill_tags),
+        logo_url: safeAssetUrl(row.logo_url),
+      }
+    },
   },
   educations: {
     table: 'educations',
     columns: 'id, institution, degree, field_of_study, start_year, end_year, is_current, gpa, thesis_title, logo_url, sort_order',
+    enColumns: 'degree_en, field_of_study_en, thesis_title_en',
     order: [['sort_order'], ['start_year', { ascending: false }]],
     normalize: (row) => ({ ...row, logo_url: safeAssetUrl(row.logo_url) }),
   },
@@ -54,6 +71,7 @@ const TABLES = {
     table: 'certifications',
     columns:
       'id, name, issuer, category, issue_date, expiry_date, no_expiry, score, image_url, pdf_url, credential_url, is_featured, sort_order',
+    enColumns: 'name_en, issuer_en',
     order: [['sort_order'], ['issue_date', { ascending: false }]],
     normalize: (row) => ({
       ...row,
@@ -65,24 +83,28 @@ const TABLES = {
   achievements: {
     table: 'achievements',
     columns: 'id, title, event_name, month, year, description, photo_url, document_url, sort_order',
+    enColumns: 'title_en, event_name_en, description_en',
     order: [['sort_order'], ['year', { ascending: false }]],
     normalize: (row) => ({ ...row, photo_url: safeAssetUrl(row.photo_url), document_url: safeAssetUrl(row.document_url) }),
   },
   organizations: {
     table: 'organizations',
     columns: 'id, name, role, start_date, end_date, description, logo_url, sort_order',
+    enColumns: 'role_en, description_en',
     order: [['sort_order'], ['start_date', { ascending: false }]],
     normalize: (row) => ({ ...row, logo_url: safeAssetUrl(row.logo_url) }),
   },
   skills: {
     table: 'skills',
     columns: 'id, name, category, icon_url, is_featured, sort_order',
+    enColumns: 'name_en',
     order: [['sort_order'], ['name']],
     normalize: (row) => ({ ...row, icon_url: safeAssetUrl(row.icon_url) }),
   },
   languages: {
     table: 'languages',
     columns: 'id, language_name, proficiency_level, sort_order',
+    enColumns: 'language_name_en, proficiency_level_en',
     order: [['sort_order'], ['language_name']],
   },
 }
@@ -99,6 +121,17 @@ function toTextList(value) {
   return Array.isArray(value) ? value.map(text).filter(Boolean) : []
 }
 
+/**
+ * An Indonesian list without its empty items, and the English list kept parallel to it: item n of
+ * the English list translates item n of the Indonesian list ('' = not translated).
+ */
+function parallelLists(idList, enList) {
+  const english = Array.isArray(enList) ? enList : []
+  const pairs = (Array.isArray(idList) ? idList : []).map((item, index) => [text(item), text(english[index])])
+  const kept = pairs.filter(([item]) => item)
+  return [kept.map(([item]) => item), kept.map(([, translation]) => translation)]
+}
+
 /** A web address (http/https) or null, so no other scheme ever reaches an href or src. */
 function safeAssetUrl(value) {
   const url = text(value)
@@ -108,14 +141,20 @@ function safeAssetUrl(value) {
 function normalizeProfile(row) {
   if (!row) return null
   const email = text(row.email)
+  const lists = Object.fromEntries(
+    ['secondary_roles', 'hero_keywords', 'hobbies', 'contact_topics'].flatMap((field) => {
+      const [items, translations] = parallelLists(row[field], row[`${field}_en`])
+      return [
+        [field, items],
+        [`${field}_en`, translations],
+      ]
+    })
+  )
   return {
     ...row,
+    ...lists,
     full_name: text(row.full_name),
     primary_role: text(row.primary_role),
-    secondary_roles: toTextList(row.secondary_roles),
-    hero_keywords: toTextList(row.hero_keywords),
-    hobbies: toTextList(row.hobbies),
-    contact_topics: toTextList(row.contact_topics),
     avatar_url: safeAssetUrl(row.avatar_url),
     // The PDF uploaded in Profil; the old CV link is only the fallback (BRIEF §9)
     cvUrl: safeAssetUrl(row.cv_file_url) || safeAssetUrl(row.resume_link),
@@ -140,9 +179,10 @@ export function publicLinks(value) {
     .filter((item) => item && typeof item === 'object' && text(item.label))
     .map((item) => {
       const type = LINK_TYPES.includes(item.type) ? item.type : 'other'
-      if (item.is_private === true) return { label: text(item.label), type, is_private: true }
+      const labels = { label: text(item.label), label_en: text(item.label_en) }
+      if (item.is_private === true) return { ...labels, type, is_private: true }
       const url = text(item.url)
-      return /^https:\/\/\S+$/i.test(url) ? { label: text(item.label), type, url, is_private: false } : null
+      return /^https:\/\/\S+$/i.test(url) ? { ...labels, type, url, is_private: false } : null
     })
     .filter(Boolean)
 }
@@ -153,17 +193,23 @@ function normalizeProjectDetail(row) {
     tech_stack: toTextList(row.tech_stack),
     thumbnail_url: safeAssetUrl(row.thumbnail_url),
     gallery: (Array.isArray(row.gallery) ? row.gallery : [])
-      .map((item) => ({ url: safeAssetUrl(item?.url), caption: text(item?.caption) }))
+      .map((item) => ({ url: safeAssetUrl(item?.url), caption: text(item?.caption), caption_en: text(item?.caption_en) }))
       .filter((item) => item.url),
     links: publicLinks(row.links),
   }
 }
 
-function runQuery({ table, columns, single, order = [] }) {
-  let query = supabase.from(table).select(columns)
-  if (!single) query = query.eq('is_visible', true)
-  for (const [column, options] of order) query = query.order(column, { ascending: true, ...options })
-  return single ? query.limit(1).maybeSingle() : query
+function runQuery({ table, columns, enColumns, single, order = [] }) {
+  return selectWithEnglish(
+    (selected) => {
+      let query = supabase.from(table).select(selected)
+      if (!single) query = query.eq('is_visible', true)
+      for (const [column, options] of order) query = query.order(column, { ascending: true, ...options })
+      return single ? query.limit(1).maybeSingle() : query
+    },
+    columns,
+    enColumns
+  )
 }
 
 function emptyValue(key) {
@@ -232,13 +278,11 @@ export function usePublicProject(slug) {
     let active = true
     async function loadProject() {
       try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select(PROJECT_DETAIL_COLUMNS)
-          .eq('slug', slug)
-          .eq('is_visible', true)
-          .limit(1)
-          .maybeSingle()
+        const { data, error } = await selectWithEnglish(
+          (selected) => supabase.from('projects').select(selected).eq('slug', slug).eq('is_visible', true).limit(1).maybeSingle(),
+          PROJECT_DETAIL_COLUMNS,
+          PROJECT_DETAIL_EN_COLUMNS
+        )
         if (error) throw new Error(error.message || 'Gagal memuat proyek.')
         if (!active) return
         setResult({ slug, status: data ? 'ready' : 'missing', project: data ? normalizeProjectDetail(data) : null })

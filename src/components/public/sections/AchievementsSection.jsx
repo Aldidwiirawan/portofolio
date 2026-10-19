@@ -1,5 +1,6 @@
 import { useI18n } from '../../../i18n/i18nContext'
 import { FileIcon, TrophyIcon } from '../icons'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { Section } from '../Section'
 import LazyLightbox from '../LazyLightbox'
@@ -27,7 +28,7 @@ function AchievementsSection() {
                   <button
                     type="button"
                     className="pub-card-media"
-                    onClick={() => openLightbox([{ url: item.photo_url, caption: item.title }])}
+                    onClick={() => openLightbox([{ url: item.photo_url, caption: item.title, lang: langOf(item, 'title') }])}
                     aria-label={t('lightbox.open', { caption: item.title })}
                   >
                     <img src={item.photo_url} alt="" width="72" height="72" loading="lazy" decoding="async" />
@@ -38,10 +39,20 @@ function AchievementsSection() {
                   </span>
                 )}
                 <div className="pub-card-body">
-                  <h3 className="pub-card-title">{item.title}</h3>
-                  {item.event_name && <p className="pub-card-sub">{item.event_name}</p>}
+                  <h3 className="pub-card-title" lang={langOf(item, 'title')}>
+                    {item.title}
+                  </h3>
+                  {item.event_name && (
+                    <p className="pub-card-sub" lang={langOf(item, 'event_name')}>
+                      {item.event_name}
+                    </p>
+                  )}
                   {when && <p className="pub-card-meta">{when}</p>}
-                  {item.description && <p className="pub-card-text">{item.description}</p>}
+                  {item.description && (
+                    <p className="pub-card-text" lang={langOf(item, 'description')}>
+                      {item.description}
+                    </p>
+                  )}
                   {item.document_url && (
                     <a href={item.document_url} target="_blank" rel="noopener noreferrer" className="pub-arrow-link">
                       <FileIcon size={18} />

@@ -1,4 +1,5 @@
 import { useI18n } from '../../../i18n/i18nContext'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SkeletonBlock } from '../Section'
 import './AboutSection.css'
@@ -16,14 +17,25 @@ function AboutSection() {
 
   const education = data.educations.data[0]
   const languages = data.languages.data
+  const mainField = education?.field_of_study ? 'field_of_study' : 'degree'
   const facts = [
     education && {
       key: 'education',
       label: t('about.education'),
       body: (
         <>
-          <p className="pub-about-fact-main">{education.field_of_study || education.degree}</p>
-          <p>{[education.field_of_study && education.degree, education.institution].filter(Boolean).join(' · ')}</p>
+          <p className="pub-about-fact-main" lang={langOf(education, mainField)}>
+            {education[mainField]}
+          </p>
+          <p>
+            {education.field_of_study && education.degree && (
+              <>
+                <span lang={langOf(education, 'degree')}>{education.degree}</span>
+                {' · '}
+              </>
+            )}
+            {education.institution}
+          </p>
           {education.gpa != null && <p className="pub-about-fact-note">{t('about.gpa', { gpa: formatGpa(education.gpa) })}</p>}
         </>
       ),
@@ -33,12 +45,24 @@ function AboutSection() {
       label: t('about.languages'),
       body: (
         <ul className="pub-about-langs">
-          {languages.map((language) => (
-            <li key={language.id}>
-              <span className="pub-about-fact-main">{language.language_name}</span>
-              {language.proficiency_level && <span> · {storedLabel('langLevel', language.proficiency_level)}</span>}
-            </li>
-          ))}
+          {languages.map((language) => {
+            const level = storedLabel('langLevel', language.proficiency_level)
+            // A standard level is translated by the dictionary; only a free-text level stays Indonesian
+            const levelLang = level === language.proficiency_level ? langOf(language, 'proficiency_level') : undefined
+            return (
+              <li key={language.id}>
+                <span className="pub-about-fact-main" lang={langOf(language, 'language_name')}>
+                  {language.language_name}
+                </span>
+                {level && (
+                  <span>
+                    {' · '}
+                    <span lang={levelLang}>{level}</span>
+                  </span>
+                )}
+              </li>
+            )
+          })}
         </ul>
       ),
     },
@@ -78,7 +102,11 @@ function AboutSection() {
             </h2>
           </div>
 
-          {profile.bio && <p className="pub-about-bio">{profile.bio}</p>}
+          {profile.bio && (
+            <p className="pub-about-bio" lang={langOf(profile, 'bio')}>
+              {profile.bio}
+            </p>
+          )}
 
           {facts.length > 0 && (
             <dl className="pub-about-facts">
@@ -95,8 +123,8 @@ function AboutSection() {
             <div className="pub-about-hobbies">
               <h3 className="pub-about-hobbies-title">{t('about.hobbies')}</h3>
               <ul className="pub-chips">
-                {profile.hobbies.map((hobby) => (
-                  <li key={hobby} className="pub-chip">
+                {profile.hobbies.map((hobby, index) => (
+                  <li key={`${hobby}-${index}`} className="pub-chip" lang={langOf(profile, 'hobbies', index)}>
                     {hobby}
                   </li>
                 ))}

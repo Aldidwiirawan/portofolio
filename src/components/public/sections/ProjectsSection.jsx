@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
 import { ArrowRightIcon } from '../icons'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { Section, SectionError, SkeletonBlock } from '../Section'
 import ProjectCover from './ProjectCover'
@@ -20,15 +21,21 @@ export function StatusBadge({ status }) {
 }
 
 /** "2026 · Web · Klien: …" */
-function useProjectFacts(project, { withClient = true } = {}) {
+function ProjectFacts({ project }) {
   const { t, code } = useI18n()
-  return [
-    project.year,
-    code('type', project.project_type),
-    withClient && project.client_name && `${t('projects.client')}: ${project.client_name}`,
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  const facts = [project.year, code('type', project.project_type)].filter(Boolean).join(' · ')
+  if (!facts && !project.client_name) return null
+  return (
+    <span className="pub-case-facts">
+      {facts}
+      {facts && project.client_name && ' · '}
+      {project.client_name && (
+        <>
+          {t('projects.client')}: <span lang={langOf(project, 'client_name')}>{project.client_name}</span>
+        </>
+      )}
+    </span>
+  )
 }
 
 /**
@@ -84,7 +91,6 @@ function ProjectsSection() {
 
 function ProjectCaseCard({ project, flip }) {
   const { t } = useI18n()
-  const facts = useProjectFacts(project)
   const href = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : null
 
   return (
@@ -93,9 +99,9 @@ function ProjectCaseCard({ project, flip }) {
       <div className="pub-case-body">
         <div className="pub-case-meta">
           <StatusBadge status={project.status} />
-          {facts && <span className="pub-case-facts">{facts}</span>}
+          <ProjectFacts project={project} />
         </div>
-        <h3 className="pub-case-title">
+        <h3 className="pub-case-title" lang={langOf(project, 'title')}>
           {href ? (
             <Link to={href} className="pub-case-link">
               {project.title}
@@ -104,7 +110,11 @@ function ProjectCaseCard({ project, flip }) {
             project.title
           )}
         </h3>
-        {project.summary && <p className="pub-case-summary">{project.summary}</p>}
+        {project.summary && (
+          <p className="pub-case-summary" lang={langOf(project, 'summary')}>
+            {project.summary}
+          </p>
+        )}
         <TechList items={project.tech_stack} max={5} />
         {href && (
           <span className="pub-arrow-link pub-case-more" aria-hidden="true">
@@ -122,7 +132,9 @@ function ProjectRow({ project }) {
   const facts = [project.year, code('type', project.project_type), code('status', project.status)].filter(Boolean).join(' · ')
   const content = (
     <>
-      <span className="pub-row-title">{project.title}</span>
+      <span className="pub-row-title" lang={langOf(project, 'title')}>
+        {project.title}
+      </span>
       {facts && <span className="pub-row-facts">{facts}</span>}
     </>
   )

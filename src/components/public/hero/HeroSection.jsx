@@ -1,8 +1,10 @@
+import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import BlueprintBackground from '../../effects/BlueprintBackground'
 import { useI18n } from '../../../i18n/i18nContext'
 import CvButton from '../CvButton'
 import { ArrowRightIcon, GithubIcon, LinkedinIcon } from '../icons'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SITE_NAME } from '../publicFormat'
 import { SectionError, SkeletonBlock } from '../Section'
@@ -53,13 +55,28 @@ function HeroSection() {
               <h1 id="pub-hero-name" className="pub-hero-name">
                 {profile.full_name || SITE_NAME}
               </h1>
-              {profile.primary_role && <p className="pub-hero-role">{profile.primary_role}</p>}
-              {profile.secondary_roles.length > 0 && (
-                <p className="pub-hero-also">
-                  <span>{t('hero.also')}</span> {profile.secondary_roles.join(' · ')}
+              {profile.primary_role && (
+                <p className="pub-hero-role" lang={langOf(profile, 'primary_role')}>
+                  {profile.primary_role}
                 </p>
               )}
-              {profile.hero_keywords.length > 0 && <KeywordRotator words={profile.hero_keywords} />}
+              {profile.secondary_roles.length > 0 && (
+                <p className="pub-hero-also">
+                  <span>{t('hero.also')}</span>{' '}
+                  {profile.secondary_roles.map((role, index) => (
+                    <Fragment key={index}>
+                      {index > 0 && ' · '}
+                      <span lang={langOf(profile, 'secondary_roles', index)}>{role}</span>
+                    </Fragment>
+                  ))}
+                </p>
+              )}
+              {profile.hero_keywords.length > 0 && (
+                <KeywordRotator
+                  words={profile.hero_keywords}
+                  langs={profile.hero_keywords.map((_, index) => langOf(profile, 'hero_keywords', index))}
+                />
+              )}
 
               <div className="pub-hero-actions">
                 {profile.cvUrl ? (

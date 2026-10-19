@@ -4,6 +4,7 @@ import { prefersReducedMotion } from '../../lib/useMediaQuery'
 import { useI18n } from '../../i18n/i18nContext'
 import { ArrowUpIcon } from './icons'
 import { emitInteraction } from './interactionBus'
+import { langOf } from './localize'
 import { usePublicData } from './publicContexts'
 import { SITE_NAME } from './publicFormat'
 import SocialLinks from './SocialLinks'
@@ -40,7 +41,11 @@ function PublicFooter() {
           <Logo size={29} trim />
           <div>
             <p className="pub-footer-name">{name}</p>
-            {role && <p className="pub-footer-role">{role}</p>}
+            {role && (
+              <p className="pub-footer-role" lang={langOf(profile, 'primary_role')}>
+                {role}
+              </p>
+            )}
           </div>
         </div>
 

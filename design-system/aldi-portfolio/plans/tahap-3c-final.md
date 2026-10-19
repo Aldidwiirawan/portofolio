@@ -316,8 +316,9 @@ Semua usulan K1–K11 disetujui, dengan catatan:
 - [x] A1. Migrasi `supabase/migrations/20261019000000_english_content.sql` (kolom `_en`, `profiles.hero_labels`,
       CHECK `label_en`) + uji PGlite (56 cek lulus: 2× jalan, data lama utuh, CHECK, gagal di tengah, tanpa migrasi
       tautan)
-- [ ] A2. Publik: pilih versi Inggris dengan cadangan Indonesia (semua section, detail, kontak, `lang="id"`), tampilkan
-      Ringkasan pengalaman (K3)
+- [x] A2. Publik: pilih versi Inggris dengan cadangan Indonesia (semua section, detail, kontak, `lang="id"`), tampilkan
+      Ringkasan pengalaman (K3). Sebelum migrasi dijalankan, query mengulang tanpa kolom `_en` (halaman tetap
+      Indonesia). Uji: `test-en` 60/60, suite 3A + 3B lulus.
 - [ ] A3. Admin: bagian "Versi Inggris (opsional)" di semua form (+ daftar sejajar, galeri, tautan)
 - [ ] A4. Label hero: editor di Profil + panggung publik
 - [ ] A5. Grafik kontribusi GitHub (sesuai K5)

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { usePageHidden } from '../../../lib/usePageHidden'
 import { useI18n } from '../../../i18n/i18nContext'
 import { StarIcon } from '../icons'
+import { langOf } from '../localize'
 import TechLogo from './TechLogo'
 
 const SPEED = 36 // px per second, the same for every row
@@ -12,7 +13,7 @@ function SkillItems({ skills, paths }) {
   return skills.map((skill) => (
     <li key={skill.id} className="pub-skill" data-featured={skill.is_featured || undefined}>
       <TechLogo skill={skill} paths={paths} />
-      <span>{skill.name}</span>
+      <span lang={langOf(skill, 'name')}>{skill.name}</span>
       {skill.is_featured && (
         <>
           <StarIcon size={14} className="pub-skill-star" />

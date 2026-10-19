@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { parseDate } from '../../../i18n/translate'
 import { AwardIcon, BadgeCheckIcon, ChevronDownIcon, FileIcon } from '../icons'
+import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { Section, SectionError } from '../Section'
 import LazyLightbox from '../LazyLightbox'
@@ -51,7 +52,7 @@ function CertificatesSection() {
                 <CertificateCard
                   cert={cert}
                   headingRef={index === primary.length ? firstExtraRef : undefined}
-                  onOpenImage={() => openLightbox([{ url: cert.image_url, caption: cert.name }])}
+                  onOpenImage={() => openLightbox([{ url: cert.image_url, caption: cert.name, lang: langOf(cert, 'name') }])}
                 />
               </li>
             ))}
@@ -99,10 +100,14 @@ function CertificateCard({ cert, headingRef, onOpenImage }) {
           )}
           {code('cert', cert.category) && <span className="pub-badge pub-badge--accent">{code('cert', cert.category)}</span>}
         </div>
-        <h3 ref={headingRef} tabIndex={headingRef ? -1 : undefined} className="pub-cert-name">
+        <h3 ref={headingRef} tabIndex={headingRef ? -1 : undefined} className="pub-cert-name" lang={langOf(cert, 'name')}>
           {cert.name}
         </h3>
-        {cert.issuer && <p className="pub-cert-issuer">{cert.issuer}</p>}
+        {cert.issuer && (
+          <p className="pub-cert-issuer" lang={langOf(cert, 'issuer')}>
+            {cert.issuer}
+          </p>
+        )}
         <ul className="pub-cert-facts">
           {cert.issue_date && <li>{t('certificates.issued', { date: formatDate(cert.issue_date) })}</li>}
           {validity && <li data-expired={expired || undefined}>{validity}</li>}

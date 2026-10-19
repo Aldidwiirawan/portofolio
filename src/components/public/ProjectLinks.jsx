@@ -6,7 +6,8 @@ const TYPE_ICONS = { code: CodeIcon, demo: ExternalIcon, docs: FileIcon, video: 
 /**
  * Links of a project in the admin's order (BRIEF §5): public links are buttons that open in a new
  * tab; private links are plain labels ("Konsol web · repo privat") without any address.
- * `links` comes from publicLinks(), so a private link has no url at all.
+ * `links` comes from publicLinks(), so a private link has no url at all; link.lang is 'id' when the
+ * English page shows the Indonesian label.
  */
 function ProjectLinks({ links }) {
   const { t, code } = useI18n()
@@ -22,7 +23,9 @@ function ProjectLinks({ links }) {
             return (
               <li key={`${link.label}-${index}`} className="pub-link-private">
                 <LockIcon size={18} />
-                <span className="pub-link-private-label">{link.label}</span>
+                <span className="pub-link-private-label" lang={link.lang}>
+                  {link.label}
+                </span>
                 <span className="pub-badge">{t(link.type === 'code' ? 'detail.repoPrivate' : 'detail.private')}</span>
               </li>
             )
@@ -31,7 +34,9 @@ function ProjectLinks({ links }) {
             <li key={`${link.label}-${index}`}>
               <a href={link.url} target="_blank" rel="noopener noreferrer" className="pub-btn pub-btn--secondary pub-link-btn">
                 <Icon size={18} />
-                <span className="pub-link-label">{link.label}</span>
+                <span className="pub-link-label" lang={link.lang}>
+                  {link.label}
+                </span>
                 <span className="pub-link-type">{code('link', link.type)}</span>
                 <span className="pub-sr-only">{t('common.newTab')}</span>
               </a>

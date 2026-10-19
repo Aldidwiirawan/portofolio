@@ -1,10 +1,11 @@
-import { Suspense } from 'react'
+import { Suspense, useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 import ViewfinderCursor from '../effects/ViewfinderCursor'
 import I18nProvider from '../../i18n/I18nProvider'
 import { useI18n } from '../../i18n/i18nContext'
 import { usePublicPortfolio } from '../../hooks/usePublicPortfolio'
 import IntroScreen from './intro/IntroScreen'
+import { localizePortfolio } from './localize'
 import ThemeProvider from './ThemeProvider'
 import { PublicDataContext, useTheme } from './publicContexts'
 import { PageSkeleton } from './Skeletons'
@@ -23,14 +24,21 @@ function PublicLayout() {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <PublicDataContext.Provider value={data}>
+        <LocalizedData data={data}>
           <SoundProvider>
             <PublicShell />
           </SoundProvider>
-        </PublicDataContext.Provider>
+        </LocalizedData>
       </I18nProvider>
     </ThemeProvider>
   )
+}
+
+/** The public data in the page language (English texts with Indonesian fallback, stage 3C). */
+function LocalizedData({ data, children }) {
+  const { lang } = useI18n()
+  const value = useMemo(() => localizePortfolio(data, lang), [data, lang])
+  return <PublicDataContext.Provider value={value}>{children}</PublicDataContext.Provider>
 }
 
 function PublicShell() {
