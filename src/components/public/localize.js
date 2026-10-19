@@ -1,23 +1,26 @@
 // English versions of the content (stage 3C, BRIEF §9). On the English page every text uses its _en
 // column when it is filled, else the Indonesian text. Lists go item by item (item n of the _en list
 // translates item n of the Indonesian list). A text that falls back to Indonesian is recorded in
-// row.idText, so its element gets lang="id" and screen readers pronounce it right. The Indonesian page
-// gets the rows unchanged.
+// row.idText, so its element gets lang="id" and screen readers pronounce it right. Proper names
+// (`names`: skills, issuers, companies, clients) also use their _en version when filled, but are never
+// marked: "React.js" or "Cisco Networking Academy" is not Indonesian text. The Indonesian page gets the
+// rows unchanged.
 
 const FIELDS = {
   profile: { texts: ['tagline', 'bio', 'primary_role'], lists: ['secondary_roles', 'hero_keywords', 'hobbies', 'contact_topics'] },
-  projects: { texts: ['title', 'description', 'solution', 'client_name'] },
-  experiences: { texts: ['role', 'company', 'description'], lists: ['responsibilities'] },
+  projects: { texts: ['title', 'description', 'solution'], names: ['client_name'] },
+  experiences: { texts: ['role', 'description'], names: ['company'], lists: ['responsibilities'] },
   educations: { texts: ['degree', 'field_of_study', 'thesis_title'] },
-  certifications: { texts: ['name', 'issuer'] },
+  certifications: { texts: ['name'], names: ['issuer'] },
   achievements: { texts: ['title', 'event_name', 'description'] },
   organizations: { texts: ['role', 'description'] },
-  skills: { texts: ['name'] },
+  skills: { names: ['name'] },
   languages: { texts: ['language_name', 'proficiency_level'] },
 }
 
 const PROJECT_DETAIL_FIELDS = {
-  texts: ['title', 'description', 'client_name', 'my_role', 'problem', 'solution', 'outcome', 'content'],
+  texts: ['title', 'description', 'my_role', 'problem', 'solution', 'outcome', 'content'],
+  names: ['client_name'],
 }
 
 const clean = (value) => (typeof value === 'string' ? value.trim() : '')
@@ -26,7 +29,7 @@ const clean = (value) => (typeof value === 'string' ? value.trim() : '')
  * The row in the page language. On the English page each listed text becomes its _en version when
  * filled; the texts that stay Indonesian are listed in idText ('bio', 'responsibilities.2', …).
  */
-export function localizeRow(row, lang, { texts = [], lists = [] }) {
+export function localizeRow(row, lang, { texts = [], names = [], lists = [] }) {
   if (!row || lang !== 'en') return row
   const out = { ...row }
   const idText = new Set()
@@ -34,6 +37,10 @@ export function localizeRow(row, lang, { texts = [], lists = [] }) {
     const english = clean(row[`${field}_en`])
     if (english) out[field] = english
     else if (clean(row[field])) idText.add(field)
+  }
+  for (const field of names) {
+    const english = clean(row[`${field}_en`])
+    if (english) out[field] = english
   }
   for (const field of lists) {
     const english = Array.isArray(row[`${field}_en`]) ? row[`${field}_en`] : []
