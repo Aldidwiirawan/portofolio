@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import BlueprintBackground from '../components/effects/BlueprintBackground'
 import { ArrowLeftIcon } from '../components/public/icons'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
+import { usePageMeta } from '../components/public/usePageMeta'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { useI18n } from '../i18n/i18nContext'
 import './NotFoundPage.css'
@@ -12,11 +13,14 @@ import './NotFoundPage.css'
  * (`kind="project"`). Focus moves to the heading so screen readers hear the result first.
  */
 function NotFoundPage({ kind = 'page', name = SITE_NAME }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const headingRef = useRef(null)
   const isProject = kind === 'project'
+  const title = t('meta.notFound', { name })
 
-  useDocumentTitle(t('meta.notFound', { name }))
+  useDocumentTitle(title)
+  // Search engines leave this page out (Vercel answers every unknown address with the app, status 200)
+  usePageMeta({ title, lang, noindex: true })
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true })

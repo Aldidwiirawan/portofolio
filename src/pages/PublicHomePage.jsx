@@ -5,6 +5,7 @@ import GuestbookButton from '../components/public/guestbook/GuestbookButton'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
+import { usePageMeta } from '../components/public/usePageMeta'
 import { useI18n } from '../i18n/i18nContext'
 
 // The sections below the hero are their own chunk; it starts loading right after the first paint
@@ -21,11 +22,14 @@ afterFirstPaint(loadSections)
  */
 function PublicHomePage() {
   const data = usePublicData()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const name = data.profile.data?.full_name || SITE_NAME
+  const role = data.profile.data?.tagline || data.profile.data?.primary_role
   const showSections = useDeferredValue(true, false)
+  const title = t('meta.title', { name })
 
-  useDocumentTitle(t('meta.title', { name }))
+  useDocumentTitle(title)
+  usePageMeta({ title, description: role ? t('meta.descriptionRole', { name, role }) : t('meta.description', { name }), path: '/', lang })
 
   return (
     <>

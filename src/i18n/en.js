@@ -4,6 +4,7 @@ const en = {
   'meta.project': '{title} · {name}',
   'meta.notFound': 'Page not found · {name}',
   'meta.description': 'Portfolio of {name}: projects, skills, experience, and contact.',
+  'meta.descriptionRole': 'Portfolio of {name}, {role}: projects, skills, experience, and contact.',
 
   'common.skip': 'Skip to content',
   'common.loading': 'Loading…',

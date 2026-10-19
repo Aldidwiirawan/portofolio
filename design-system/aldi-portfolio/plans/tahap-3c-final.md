@@ -344,7 +344,13 @@ Semua usulan K1–K11 disetujui, dengan catatan:
       `Intl`; baris keahlian diukur hanya dekat layar; posisi panggung label disimpan + `contain`. Bundle awal 105 kB
       gzip (dari 168), peringatan 500 kB hilang. Uji: `perf3c` 38/38 (+5/5 pada build asli), semua suite publik dan
       admin lulus.
-- [ ] B2. SEO: meta, OG image, Twitter, JSON-LD, robots, sitemap, noindex
+- [x] B2. SEO: `index.html` berisi deskripsi, Open Graph, Twitter card `summary_large_image`, `theme-color`
+      terang/gelap; gambar `public/og-image.png` 1200×630 (sumber `og/og-image.html`). Build (`vite.config.js`)
+      menjadikan alamat gambar absolut dari `VITE_SITE_URL` (cadangan: alamat produksi Vercel) dan membuat
+      `robots.txt` (`/admin`, `/api/` ditutup) serta `sitemap.xml` (beranda + proyek tampil, dibaca lewat API publik;
+      gagal baca = beranda saja, build tetap jalan). Aplikasi memperbarui deskripsi, `og:*`, `twitter:*`, canonical,
+      `og:locale` per halaman/bahasa; 404 `noindex`; admin `noindex, nofollow`; JSON-LD `Person` (nama, peran, kota,
+      sekolah yang sudah lulus, tautan profil; tanpa HP/alamat/email). Uji: `seo3c` 54/54 (+21/21 build asli).
 - [ ] B3. Audit impeccable + perbaikan P1/P2
 - [ ] B4. `vercel.json` + `DEPLOY.md`
 - [ ] B5. Uji ulang semua + Lighthouse "sesudah"

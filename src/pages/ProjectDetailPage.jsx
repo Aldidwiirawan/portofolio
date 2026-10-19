@@ -15,6 +15,7 @@ import { PageSkeleton } from '../components/public/Skeletons'
 import { StatusBadge } from '../components/public/sections/ProjectsSection'
 import TechList from '../components/public/sections/TechList'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
+import { usePageMeta } from '../components/public/usePageMeta'
 import { useLightbox } from '../components/public/useLightbox'
 import NotFoundPage from './NotFoundPage'
 import './ProjectDetailPage.css'
@@ -36,7 +37,10 @@ function ProjectDetailPage() {
   const { viewer, openLightbox, closeLightbox } = useLightbox()
   const name = data.profile.data?.full_name || SITE_NAME
 
-  useDocumentTitle(project ? t('meta.project', { title: project.title, name }) : null)
+  const title = project ? t('meta.project', { title: project.title, name }) : null
+
+  useDocumentTitle(title)
+  usePageMeta({ title, description: project?.description || project?.solution, path: project ? `/projects/${project.slug}` : null, lang })
 
   // A new project starts at the top of the page (no smooth scroll from the previous position)
   useLayoutEffect(() => {

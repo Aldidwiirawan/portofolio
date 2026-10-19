@@ -7,11 +7,12 @@ import { usePublicPortfolio } from '../../hooks/usePublicPortfolio'
 import IntroScreen from './intro/IntroScreen'
 import { localizePortfolio } from './localize'
 import ThemeProvider from './ThemeProvider'
-import { PublicDataContext, useTheme } from './publicContexts'
+import { PublicDataContext, usePublicData, useTheme } from './publicContexts'
 import { PageSkeleton } from './Skeletons'
 import PublicFooter from './PublicFooter'
 import PublicNavbar from './PublicNavbar'
 import SoundProvider from './sound/SoundProvider'
+import { personFromProfile, usePersonJsonLd } from './usePageMeta'
 
 /**
  * Frame of every public page (home, project detail, 404): theme, language and sound providers, the public
@@ -44,6 +45,10 @@ function LocalizedData({ data, children }) {
 function PublicShell() {
   const { theme } = useTheme()
   const { t } = useI18n()
+  const data = usePublicData()
+
+  // Structured data about the owner for search engines (stage 3C), from the loaded profile
+  usePersonJsonLd(useMemo(() => personFromProfile(data.profile.data, data.educations.data ?? []), [data.profile.data, data.educations.data]))
 
   return (
     <div className="pub" data-theme={theme}>

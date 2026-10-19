@@ -5,6 +5,7 @@ const id = {
   'meta.project': '{title} · {name}',
   'meta.notFound': 'Halaman tidak ditemukan · {name}',
   'meta.description': 'Portofolio {name}: proyek, keahlian, pengalaman, dan kontak.',
+  'meta.descriptionRole': 'Portofolio {name}, {role}: proyek, keahlian, pengalaman, dan kontak.',
 
   'common.skip': 'Lewati ke konten',
   'common.loading': 'Memuat…',
