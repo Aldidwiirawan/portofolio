@@ -51,6 +51,7 @@ const id = {
   'hero.contact': 'Hubungi saya',
   'hero.profileError': 'Profil belum bisa dimuat.',
   'hero.stageCaption': 'Keahlian unggulan',
+  'hero.stageCaptionLabels': 'Yang saya kerjakan',
 
   'status.label': 'Status',
   'status.location': 'Lokasi',

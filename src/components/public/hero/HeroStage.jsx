@@ -38,8 +38,10 @@ function skillItems(skills) {
  * (at most 8 on large screens and 6 on phones) and the two round marks </> and *. The static pile shows
  * first; once the stage is on screen the labels become physics labels (stage 3B): they drop in,
  * collide, can be dragged and thrown with a mouse, and tossed with a tap on touch screens. With reduced
- * motion the pile stays still. While the profile loads the pile stays empty (no swap from skills to
- * the chosen labels). Decorative (aria-hidden): the skills section lists the skills.
+ * motion the pile stays still. The caption follows the source: "Keahlian unggulan" for the skills,
+ * "Yang saya kerjakan" for the admin labels (they may hold more than skills). While the profile loads
+ * the pile stays empty and the caption keeps its place unseen (no swap from skills to the chosen
+ * labels). Decorative (aria-hidden): the skills section lists the skills.
  */
 function HeroStage({ labels = [], skills, pending = false, ready }) {
   const { t } = useI18n()
@@ -48,8 +50,9 @@ function HeroStage({ labels = [], skills, pending = false, ready }) {
   const { play } = useSound()
   const stageRef = useRef(null)
 
+  const useLabels = labels.length > 0
   let items = []
-  if (!pending) items = labels.length > 0 ? adminItems(labels) : skillItems(skills)
+  if (!pending) items = useLabels ? adminItems(labels) : skillItems(skills)
 
   const onImpact = useCallback((impact) => play(impact), [play])
   usePhysicsStage(stageRef, {
@@ -61,7 +64,9 @@ function HeroStage({ labels = [], skills, pending = false, ready }) {
 
   return (
     <div ref={stageRef} className="pub-stage" aria-hidden="true" data-stage="labels">
-      <p className="pub-stage-caption">{t('hero.stageCaption')}</p>
+      <p className={pending ? 'pub-stage-caption pub-hero-ph-hidden' : 'pub-stage-caption'}>
+        {t(useLabels ? 'hero.stageCaptionLabels' : 'hero.stageCaption')}
+      </p>
       <div className="pub-stage-pile">
         {items.map((item, position) => (
           <span

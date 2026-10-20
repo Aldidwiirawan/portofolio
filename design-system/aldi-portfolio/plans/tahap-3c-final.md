@@ -493,8 +493,9 @@ sebelum data) dan membaca tampilan 3A (kelas `.about-info-card` sudah tidak ada 
 - **Seret label di CPU 4× lebih lambat** tetap 24–29 fps. Posisi panggung yang disimpan dan `contain` mengurangi
   hitung ulang style, tetapi tidak terukur menaikkan fps (batasnya di perhitungan fisika + render). Di desktop dan
   HP nyata seret/lempar berjalan normal.
-- **Pertanyaan:** keterangan panggung hero "Keahlian unggulan" tetap tampil walau label dipilih sendiri di admin
-  (bisa berisi hal yang bukan keahlian). Pilihan: biarkan, ganti teksnya, atau sembunyikan bila label diatur admin.
+- **Keterangan panggung hero (diputuskan 20 Oktober):** dengan keahlian unggulan tetap "Keahlian unggulan" /
+  "Main skills"; dengan label dari admin menjadi "Yang saya kerjakan" / "What I work with". Selama profil dimuat
+  keterangan tidak terlihat (tempatnya tetap), jadi tidak ada pergantian teks yang terlihat.
 - Gambar OG berisi teks peran "Junior Programmer · Web & Mobile". Bila peran berubah, buat ulang dari
   `og/og-image.html` (caranya di komentar file itu).
 - Grafik GitHub baru tampil setelah online dengan `GITHUB_TOKEN`; sitemap baru berisi proyek baru setelah redeploy.
@@ -517,4 +518,5 @@ sebelum data) dan membaca tampilan 3A (kelas `.about-info-card` sudah tidak ada 
    "Refused to ...". Bila sempat, ulangi beberapa langkah di Firefox atau Safari HP.
 7. Chrome DevTools → Lighthouse → Mobile untuk beranda dan satu detail proyek.
 8. Unggah ulang sampul SI-Arsip lewat admin (Proyek → ubah → Gambar sampul), lalu ukur ulang detailnya.
-9. Keputusan keterangan "Keahlian unggulan" (Catatan di atas).
+9. Keterangan panggung: tanpa label admin tertulis KEAHLIAN UNGGULAN / MAIN SKILLS; setelah label diisi di Profil →
+   "Label panggung hero" tertulis YANG SAYA KERJAKAN / WHAT I WORK WITH (cek dengan tombol ID US).

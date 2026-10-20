@@ -50,6 +50,7 @@ const en = {
   'hero.contact': 'Contact me',
   'hero.profileError': 'The profile could not be loaded.',
   'hero.stageCaption': 'Main skills',
+  'hero.stageCaptionLabels': 'What I work with',
 
   'status.label': 'Status',
   'status.location': 'Location',
