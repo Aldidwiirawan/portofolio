@@ -520,3 +520,46 @@ sebelum data) dan membaca tampilan 3A (kelas `.about-info-card` sudah tidak ada 
 8. Unggah ulang sampul SI-Arsip lewat admin (Proyek → ubah → Gambar sampul), lalu ukur ulang detailnya.
 9. Keterangan panggung: tanpa label admin tertulis KEAHLIAN UNGGULAN / MAIN SKILLS; setelah label diisi di Profil →
    "Label panggung hero" tertulis YANG SAYA KERJAKAN / WHAT I WORK WITH (cek dengan tombol ID US).
+
+## 12. Perbaikan sampul proyek (24 Oktober 2026, sebelum deploy)
+
+**Masalah:** sampul AyamBebek berupa screenshot HP 698×1600 (potret). Di kartu dua kolom tinggi sampul mengikuti
+gambar, jadi kartu setinggi 803–1.339 px, teks mengambang di tengah, bagian atas screenshot terpotong, dan saat
+gambar selesai dimuat kartu memanjang (CLS 0,13–0,38 di 768–1440 px).
+
+**Perbaikan:** `ProjectImage` + `useImageOrientation` (lihat `pages/public.md` §5) dipakai di kartu unggulan, sampul
+detail, dan galeri; lightbox memakai deteksi yang sama. Bingkai 16:9 di HP dan 16:10 mulai 768 px; di kartu dua
+kolom minimal 16:10 dan ikut setinggi teks bila teksnya lebih tinggi (768–1024 px), tanpa ruang kosong. Lanskap
+`cover` di tengah; potret utuh (`contain`) di atas grid blueprint dengan bayangan halus. Daftar "Proyek lainnya"
+tidak memuat gambar, jadi tidak berubah.
+
+| Kartu AyamBebek (ID) | 375 | 768 | 1024 | 1440 |
+|---|---|---|---|---|
+| Sebelum | 643 px | 803 px | 1.071 px | 1.339 px |
+| Sesudah | 622 px | 472 px | 465 px | 411 px |
+
+**Lighthouse** (mobile, build produksi dengan data asli hanya dibaca, 5 putaran bergantian, median):
+
+| Halaman | Sebelum | Sesudah | LCP sebelum → sesudah | CLS |
+|---|---|---|---|---|
+| Beranda | 69 | 69 | 4,28 → 4,23 dtk | 0 → 0 |
+| Detail AyamBebek | 68 | 70 | 5,10 → 5,01 dtk (elemen LCP kini judul) | 0,015 → 0,015 |
+| Detail SI-Arsip | 63 | 61 | 5,94 → 6,04 dtk | 0 → 0 |
+
+SI-Arsip −2 masih dalam variasi mesin: file JS sebelum gambar sama (gambar ikut chunk `useLightbox` yang sudah ada,
++1 kB), dan `benchmarkIndex` putaran sesudah lebih rendah di 4 dari 5 putaran. CLS 0,015 di detail AyamBebek sudah ada
+sebelumnya dan bukan dari sampul (`div.pub-container` di detail; kemungkinan baris "Dikerjakan saat magang di …"
+yang muncul setelah data pengalaman tiba).
+
+**Uji otomatis:** `project-image` 286/286 (375/768/1024/1440 × terang/gelap × ID/EN: rasio bingkai, orientasi,
+gambar utuh/memenuhi, tinggi kartu, lightbox, CLS; gambar diperlambat 2,5 dtk; galeri campuran; gambar gagal; kembali
+dari detail dengan gambar di cache; reduced motion). Suite lama: detail 33/33, data 41/41, interact 57/57, perf3c
+38/38, sweep 496/496, sweep-en 560/560. `npm run lint` bersih, `npm run build` berhasil.
+
+**Uji manual:**
+1. Beranda di layar lebar: kartu AyamBebek setinggi kartu lain; screenshot HP tampil utuh di tengah, di atas grid
+   tipis dengan bayangan halus. Kartu Madura Mart: gambar memenuhi bingkai.
+2. Perkecil jendela sampai ukuran HP (atau DevTools → 375 px): sampul 16:9, screenshot HP tetap utuh.
+3. Buka detail AyamBebek: sampul dan kelima gambar galeri utuh; klik satu gambar: lightbox menampilkan gambar utuh
+   dengan grid tipis di belakangnya; ← → berpindah gambar.
+4. Ulangi 1 dan 3 dengan tema terang/gelap dan tombol ID US.
