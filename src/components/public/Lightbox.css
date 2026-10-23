@@ -55,6 +55,9 @@
 }
 
 .pub-lightbox-figure img {
+  position: relative;
+  grid-row: 1;
+  grid-column: 1;
   max-width: 100%;
   max-height: 100%;
   min-height: 0;
@@ -64,7 +67,23 @@
   box-shadow: var(--ds-shadow-lg);
 }
 
+/* Gambar potret: grid blueprint tipis di bidang gambar, memudar ke tepi (seperti di kartu dan detail) */
+.pub-lightbox-figure[data-orientation='portrait']::before {
+  content: '';
+  grid-row: 1;
+  grid-column: 1;
+  justify-self: stretch;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ds-text-strong) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ds-text-strong) 7%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 75%);
+  pointer-events: none;
+}
+
 .pub-lightbox-figure figcaption {
+  grid-row: 2;
   max-width: 60ch;
   color: var(--ds-text);
   font-size: var(--ds-fs-sm);

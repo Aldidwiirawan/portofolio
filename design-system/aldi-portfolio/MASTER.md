@@ -471,3 +471,6 @@ Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3
   meta Open Graph/Twitter, `og-image.png`, JSON-LD `Person` tanpa data pribadi, `robots.txt` dan `sitemap.xml` saat
   build, `noindex` di admin dan 404. Online di Vercel: `vercel.json` (rute SPA, cache aset, header keamanan, CSP
   dengan hash skrip tema) dan panduan `DEPLOY.md`.
+- **Gambar proyek (sebelum deploy, `pages/public.md` §5):** bingkai berasio tetap (16:9 di HP, 16:10 lebih lebar);
+  gambar lanskap `cover` di tengah, gambar potret (screenshot HP) utuh di atas grid blueprint dengan bayangan halus.
+  Orientasi dibaca saat gambar selesai dimuat (`ProjectImage`), sama di kartu, detail, galeri, dan lightbox.

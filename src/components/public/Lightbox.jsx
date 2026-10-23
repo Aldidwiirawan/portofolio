@@ -3,6 +3,7 @@ import { useFocusTrap } from '../admin/ui/useFocusTrap'
 import { useScrollLock } from '../admin/ui/useScrollLock'
 import { useI18n } from '../../i18n/i18nContext'
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from './icons'
+import { useImageOrientation } from './useImageOrientation'
 import './Lightbox.css'
 
 const SWIPE_PX = 50
@@ -11,7 +12,8 @@ const SWIPE_PX = 50
  * Image viewer (loaded on demand): one image at a time with its caption and "n dari total".
  * ← → (and Home/End), the buttons or a swipe on touch screens change the image; Escape, "Tutup" or a
  * click beside the image closes it. Focus stays inside and returns to the opener afterwards.
- * Always dark, whatever the page theme.
+ * Always dark, whatever the page theme. Every image shows whole; a portrait one (phone screenshot)
+ * gets the thin blueprint grid behind it, like on the cards and the detail page.
  * @param {{ images: Array<{ url: string, caption?: string, lang?: string }>, start?: number, onClose: () => void }} props
  *   lang: language of the caption when it differs from the page ('id' on the English page)
  */
@@ -24,6 +26,7 @@ function Lightbox({ images, start = 0, onClose }) {
   const many = images.length > 1
   const image = images[index]
   const caption = image.caption || (many ? t('lightbox.untitled', { n: index + 1 }) : '')
+  const { ref: imageRef, orientation, onLoad: onImageLoad } = useImageOrientation(image.url)
 
   useFocusTrap(dialogRef, true, { onEscape: onClose, initialFocusRef: closeRef })
   useScrollLock(true)
@@ -72,8 +75,21 @@ function Lightbox({ images, start = 0, onClose }) {
         </button>
       </div>
 
-      <figure className="pub-lightbox-figure" onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
-        <img key={image.url} src={image.url} alt={caption} decoding="async" lang={image.caption ? image.lang : undefined} />
+      <figure
+        className="pub-lightbox-figure"
+        data-orientation={orientation ?? undefined}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+      >
+        <img
+          key={image.url}
+          ref={imageRef}
+          src={image.url}
+          alt={caption}
+          decoding="async"
+          lang={image.caption ? image.lang : undefined}
+          onLoad={onImageLoad}
+        />
         {caption && <figcaption lang={image.caption ? image.lang : undefined}>{caption}</figcaption>}
       </figure>
 

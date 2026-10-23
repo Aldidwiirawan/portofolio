@@ -7,6 +7,7 @@ import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon } from '../components/pu
 import LazyLightbox from '../components/public/LazyLightbox'
 import { langOf, localizeProject } from '../components/public/localize'
 import Phrase from '../components/public/Phrase'
+import ProjectImage from '../components/public/ProjectImage'
 import ProjectLinks from '../components/public/ProjectLinks'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
@@ -123,10 +124,8 @@ function ProjectDetailPage() {
 
       {project.thumbnail_url && (
         <div className="pub-container">
-          <div className="pub-detail-cover">
-            {/* The largest element of the page (LCP): fetched first, decoded without waiting */}
-            <img src={project.thumbnail_url} alt="" width="1200" height="750" fetchPriority="high" />
-          </div>
+          {/* The largest element of the page (LCP): fetched first, decoded without waiting */}
+          <ProjectImage className="pub-detail-cover" src={project.thumbnail_url} width="1200" height="750" fetchPriority="high" />
         </div>
       )}
 
@@ -170,9 +169,7 @@ function ProjectDetailPage() {
                         onClick={() => openLightbox(project.gallery, index)}
                         aria-label={t('lightbox.open', { caption })}
                       >
-                        <span className="pub-gallery-frame">
-                          <img src={image.url} alt="" width="640" height="400" loading="lazy" decoding="async" />
-                        </span>
+                        <ProjectImage as="span" className="pub-gallery-frame" src={image.url} width="640" height="400" loading="lazy" decoding="async" />
                         {image.caption && (
                           <span className="pub-gallery-caption" lang={image.lang}>
                             {image.caption}

@@ -79,20 +79,20 @@
   font-size: var(--ds-fs-sm);
 }
 
+/* Sampul: 16:9 di HP, 16:10 di layar lebar; gambarnya diatur ProjectImage (potret tampil utuh) */
 .pub-detail-cover {
   overflow: hidden;
   margin-top: var(--space-10);
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border: 1px solid var(--ds-border);
   border-radius: var(--pub-radius-card);
   background-color: var(--ds-inset);
 }
 
-.pub-detail-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
+@media (min-width: 768px) {
+  .pub-detail-cover {
+    aspect-ratio: 16 / 10;
+  }
 }
 
 .pub-detail-body {
@@ -188,11 +188,8 @@
   background-color: var(--ds-inset);
 }
 
+/* Gambarnya diatur ProjectImage: lanskap memenuhi bingkai, potret utuh di atas grid */
 .pub-gallery-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
   transition: transform var(--ds-duration-slow) var(--ds-ease-out);
 }
 

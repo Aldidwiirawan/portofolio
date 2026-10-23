@@ -89,6 +89,14 @@ Prestasi (bila ada) · Organisasi (bila ada) · Kontak · Footer · tombol Buku 
   tampil sebagai label "… · repo privat". Tautan publik wajib `https://`. (Kolom `links` tetap terbaca lewat API.)
 - Lightbox: selalu gelap, "n dari total", ← → Home End dan geser di HP, Escape/Tutup/klik di luar gambar, fokus
   terkunci lalu kembali ke pembuka.
+- **Gambar proyek** (`ProjectImage` + `useImageOrientation`; kartu unggulan, sampul detail, galeri, dan lightbox): bingkai
+  berukuran dari CSS, bukan dari gambar, jadi tinggi kartu tidak pernah mengikuti gambar dan CLS tetap 0. Sampul 16:9 di
+  HP dan 16:10 mulai 768 px (di kartu dua kolom minimal 16:10 dan ikut setinggi teks bila teksnya lebih tinggi, tanpa
+  ruang kosong); galeri 16:10. Orientasi dibaca dari `naturalWidth`/`naturalHeight` saat gambar selesai dimuat (sampai
+  itu gambar tidak terlihat): lanskap memenuhi bingkai (`cover`, tengah); potret (tinggi > lebar, mis. screenshot HP)
+  utuh di tengah (`contain`) di atas grid blueprint 24 px dengan bayangan halus. Lightbox selalu menampilkan gambar
+  utuh; gambar potret mendapat grid yang memudar di belakangnya. Gambar yang gagal dimuat: bingkai kosong tanpa ikon
+  rusak. Daftar "Proyek lainnya" hanya berisi teks (tanpa gambar).
 
 ## 6. Data
 

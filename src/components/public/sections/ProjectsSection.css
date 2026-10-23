@@ -138,11 +138,12 @@
   transform: translateX(3px);
 }
 
-/* Sampul 16:10 */
+/* Sampul: 16:9 di HP, 16:10 di layar lebar. Tingginya dari rasio ini, tidak pernah dari gambar
+   (gambarnya diatur ProjectImage: lanskap memenuhi, potret utuh di atas grid). */
 .pub-cover {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   background-color: var(--ds-inset);
 }
 
@@ -151,12 +152,15 @@
 }
 
 @media (min-width: 768px) {
-  /* Sampul mengisi tinggi kartu: tanpa aspect-ratio (yang akan melebarkannya melewati kolom) */
+  .pub-cover {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Di kartu dua kolom: lebar = kolomnya, tinggi minimal 16:10 (rasio ini yang memberi tinggi baris),
+     dan ikut memanjang bila teks di sebelahnya lebih tinggi, jadi tidak ada ruang kosong di bawahnya */
   .pub-case .pub-cover {
     width: 100%;
-    height: 100%;
-    min-height: 18rem;
-    aspect-ratio: auto;
+    align-self: stretch;
     border-bottom: 0;
     border-right: 1px solid var(--ds-border);
   }
@@ -168,10 +172,6 @@
 }
 
 .pub-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
   transition: transform var(--ds-duration-slow) var(--ds-ease-out);
 }
 
@@ -209,8 +209,14 @@
 
 .pub-case--skeleton .pub-case-cover {
   display: block;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: 0;
+}
+
+@media (min-width: 768px) {
+  .pub-case--skeleton .pub-case-cover {
+    aspect-ratio: 16 / 10;
+  }
 }
 
 /* Daftar ringkas "Proyek lainnya" */
