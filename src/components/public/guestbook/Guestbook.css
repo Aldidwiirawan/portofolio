@@ -2,7 +2,8 @@
 
 /* Menempel di bawah layar selama menggulir, lalu berhenti di atas footer (3B, K5) supaya tidak menutupi
    "Kembali ke atas" dan robot a+. Tombol ini anak terakhir <main> (kolom flex): sticky di dalam <main>,
-   dengan margin yang membuat tingginya di alur halaman nol (48 px naik, 16/24 px turun). */
+   dengan margin yang membuat tingginya di alur halaman nol (48 px naik, 16/24 px turun; HP sempit: lihat
+   di bawah). */
 .pub-gb-fab {
   position: sticky;
   bottom: var(--space-4);
@@ -53,14 +54,32 @@
   }
 }
 
-/* HP sempit: ikon + jumlah saja (nama lengkap tetap ada di aria-label) */
+/* HP sempit: tombol ikon 44 px (batas sentuh minimum) dengan jumlah pesan sebagai lencana kecil di
+   sudutnya, supaya hanya menutupi sedikit konten (nama lengkap tetap ada di aria-label). Di sini tombol
+   juga memakai ruang sendiri di akhir <main> (naik hanya 24 px ke padding section terakhir), jadi di
+   ujung halaman ia tidak menempel pada konten terakhir. */
 @media (max-width: 479px) {
   .pub-gb-fab-text {
     display: none;
   }
 
   .pub-gb-fab {
-    padding-left: var(--space-3);
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: calc(-1 * var(--space-6)) var(--space-3) var(--space-3) 0;
+    bottom: var(--space-3);
+    padding: 0;
+  }
+
+  .pub-gb-fab-count {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    font-size: 0.6875rem;
   }
 }
 
