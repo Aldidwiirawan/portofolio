@@ -45,10 +45,12 @@
   border-color: var(--ds-border-control);
 }
 
+/* Dua kolom sama lebar untuk kartu biasa maupun terbalik; kartu terbalik hanya menukar urutan (order),
+   jadi sampul semua kartu berukuran sama persis. Sampul dan teks sama-sama di tengah secara vertikal. */
 @media (min-width: 768px) {
   .pub-case {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    align-items: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
   }
 
   .pub-case[data-flip='true'] .pub-case-cover {
@@ -58,6 +60,7 @@
 
 .pub-case-body {
   display: grid;
+  align-self: center;
   align-content: center;
   justify-items: start;
   gap: var(--space-4);
@@ -85,7 +88,13 @@
   line-height: 1.5;
 }
 
+/* Judul maks. 2 baris dan ringkasan maks. 3 baris, supaya tinggi kartu seragam */
 .pub-case-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
   line-height: 1.2;
 }
@@ -138,41 +147,50 @@
   transform: translateX(3px);
 }
 
-/* Sampul: 16:9 di HP, 16:10 di layar lebar. Tingginya dari rasio ini, tidak pernah dari gambar
-   (gambarnya diatur ProjectImage: lanskap memenuhi, potret utuh di atas grid). */
+/* Sampul: 16:10 di semua lebar. Tingginya hanya dari rasio ini, tidak pernah dari gambar atau dari
+   teks di sebelahnya (gambarnya diatur ProjectImage: lanskap memenuhi, potret utuh di atas grid). */
 .pub-cover {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   background-color: var(--ds-inset);
 }
 
-.pub-case .pub-cover {
+/* HP: sampul selebar kartu di atas teks */
+.pub-case-cover {
+  min-width: 0;
   border-bottom: 1px solid var(--ds-border);
 }
 
+/* Dua kolom: sampul berbingkai sendiri di tengah kolomnya. Tingginya terkunci 16:10 (align-self
+   center, bukan stretch), jadi bila teks lebih tinggi sampul tidak ikut memanjang. */
 @media (min-width: 768px) {
-  .pub-cover {
-    aspect-ratio: 16 / 10;
-  }
-
-  /* Di kartu dua kolom: lebar = kolomnya, tinggi minimal 16:10 (rasio ini yang memberi tinggi baris),
-     dan ikut memanjang bila teks di sebelahnya lebih tinggi, jadi tidak ada ruang kosong di bawahnya */
-  .pub-case .pub-cover {
-    width: 100%;
-    align-self: stretch;
-    border-bottom: 0;
-    border-right: 1px solid var(--ds-border);
-  }
-
-  .pub-case[data-flip='true'] .pub-cover {
-    border-right: 0;
-    border-left: 1px solid var(--ds-border);
+  .pub-case-cover {
+    align-self: center;
+    margin: var(--space-4);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--pub-radius);
   }
 }
 
+@media (min-width: 1024px) {
+  .pub-case-cover {
+    margin: var(--space-6);
+  }
+}
+
+/* Gambar lanskap memenuhi bingkai dari bagian atas (kepala halaman di screenshot tetap terlihat);
+   potret tetap utuh di tengah (cadangan ProjectImage) */
 .pub-cover img {
   transition: transform var(--ds-duration-slow) var(--ds-ease-out);
+}
+
+.pub-cover.pub-media img {
+  object-position: top center;
+}
+
+.pub-cover.pub-media[data-orientation='portrait'] img {
+  object-position: center;
 }
 
 .pub-case[data-linked='true']:hover .pub-cover img {
@@ -209,13 +227,13 @@
 
 .pub-case--skeleton .pub-case-cover {
   display: block;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   border-radius: 0;
 }
 
 @media (min-width: 768px) {
   .pub-case--skeleton .pub-case-cover {
-    aspect-ratio: 16 / 10;
+    border-radius: var(--pub-radius);
   }
 }
 

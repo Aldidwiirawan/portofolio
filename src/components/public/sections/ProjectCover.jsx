@@ -3,8 +3,8 @@ import { useI18n } from '../../../i18n/i18nContext'
 import ProjectImage from '../ProjectImage'
 
 /**
- * Cover of a project in a fixed frame (16:9 on phones, 16:10 wider; no layout shift while it loads).
- * A landscape image fills it, a portrait one (phone screenshot) shows whole (ProjectImage). Without
+ * Cover of a project in a fixed 16:10 frame at every width (no layout shift while it loads). A
+ * landscape image fills it from the top, a portrait one (phone screenshot) shows whole (ProjectImage). Without
  * a cover image a blueprint placeholder shows the logo and the project type. Decorative: the title
  * sits next to it.
  */
