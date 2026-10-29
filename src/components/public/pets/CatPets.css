@@ -42,9 +42,10 @@
   cursor: grabbing;
 }
 
-/* Merunduk ke bawah layar: saat formulir kontak terlihat, saat bar status hero di tengah layar, atau
-   saat kucing berada di atas tautan, tombol, atau kolom isian. Tidak bisa difokus selama merunduk. */
+/* Merunduk ke bawah layar: saat formulir kontak terlihat, saat bar status hero di tengah layar, saat
+   kucing berada di atas tautan, tombol, atau kolom isian, dan di HP selama halaman digulir. Tidak bisa difokus selama merunduk. */
 .pub-pets[data-tucked] .pub-cat-button,
+.pub-pets[data-scrolling] .pub-cat-button,
 .pub-cat[data-shy='true'] .pub-cat-button {
   visibility: hidden;
   transform: translateY(110%);
@@ -244,6 +245,7 @@
 @media (prefers-reduced-motion: reduce) {
   .pub-cat-button,
   .pub-pets[data-tucked] .pub-cat-button,
+  .pub-pets[data-scrolling] .pub-cat-button,
   .pub-cat[data-shy='true'] .pub-cat-button {
     transition: none;
   }

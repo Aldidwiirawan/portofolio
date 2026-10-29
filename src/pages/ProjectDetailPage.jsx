@@ -2,17 +2,18 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { usePublicProject } from '../hooks/usePublicPortfolio'
 import { useI18n } from '../i18n/i18nContext'
-import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon } from '../components/public/icons'
+import { ArrowLeftIcon, GithubIcon } from '../components/public/icons'
 import LazyLightbox from '../components/public/LazyLightbox'
 import { langOf, localizeProject } from '../components/public/localize'
-import Phrase from '../components/public/Phrase'
-import ProjectImage from '../components/public/ProjectImage'
+import MediaViewer from '../components/public/detail/MediaViewer'
+import RepoPanel from '../components/public/detail/RepoPanel'
+import { publicRepoLink } from '../components/public/detail/repoLink'
 import ProjectLinks from '../components/public/ProjectLinks'
 import { usePublicData } from '../components/public/publicContexts'
 import { SITE_NAME } from '../components/public/publicFormat'
 import { SectionError } from '../components/public/Section'
 import { PageSkeleton } from '../components/public/Skeletons'
-import { StatusBadge } from '../components/public/sections/ProjectsSection'
+import { Period } from '../components/public/sections/Period'
 import TechList from '../components/public/sections/TechList'
 import { useDocumentTitle } from '../components/public/useDocumentTitle'
 import { usePageMeta } from '../components/public/usePageMeta'
@@ -20,18 +21,37 @@ import { useLightbox } from '../components/public/useLightbox'
 import NotFoundPage from './NotFoundPage'
 import './ProjectDetailPage.css'
 
-const BUILT_DURING_TYPES = ['Magang', 'Kerja', 'Freelance', 'Organisasi']
+const pad = (n) => String(n).padStart(2, '0')
+const words = (value) => String(value || '').toLowerCase().split(/\s+/).filter(Boolean)
+
+/** Whether two organization names point to the same place ("Dinas … Kabupaten Kediri" / "Diskominfo Kabupaten Kediri"). */
+function sameOrganization(a, b) {
+  const x = words(a)
+  const y = words(b)
+  if (x.length === 0 || y.length === 0) return false
+  const joinedX = x.join(' ')
+  const joinedY = y.join(' ')
+  if (joinedX.includes(joinedY) || joinedY.includes(joinedX)) return true
+  return x.length >= 2 && y.length >= 2 && x.slice(-2).join(' ') === y.slice(-2).join(' ')
+}
 
 /**
- * Project detail (/projects/:slug): only visible projects; an unknown or hidden slug shows the 404
- * page. Empty parts (problem, outcome, gallery, links, …) are left out. "Detail teknis" (the long
- * `content`) sits at the end, collapsed (K8).
+ * Project page (/projects/:slug, monochrome redesign, phase 6); only visible projects, an unknown or
+ * hidden slug shows the 404 page.
+ * - Top bar: back to the projects, "Proyek 03 / 05", GitHub when the project has a public repository.
+ * - Black header: kind of activity (from the related experience), status and type, the title, the
+ *   short description, and time, place, partner and status (each only when known).
+ * - Media viewer, "Info proyek" (type, my part, technologies), the GitHub panel and the links.
+ * - "Tentang proyek": background, problem, solution and main features, numbered; a point that is
+ *   still empty in the database is left out. "Hasil" follows as a note; the long technical text is
+ *   not shown on this page.
+ * - Previous and next project in the order of the home page.
  */
 function ProjectDetailPage() {
   const { slug } = useParams()
   const { status, project: stored, reload } = usePublicProject(slug)
   const data = usePublicData()
-  const { t, code, lang } = useI18n()
+  const { t, code, storedLabel, lang } = useI18n()
   const project = useMemo(() => localizeProject(stored, lang), [stored, lang])
   const headingRef = useRef(null)
   const { viewer, openLightbox, closeLightbox } = useLightbox()
@@ -57,167 +77,209 @@ function ProjectDetailPage() {
   if (status === 'error') {
     return (
       <div className="pub-container pub-detail-error">
-        <Link to={{ pathname: '/', hash: '#proyek' }} className="pub-arrow-link pub-detail-back">
-          <ArrowLeftIcon size={18} />
-          <span>{t('detail.back')}</span>
-        </Link>
+        <BackLink />
         <SectionError message={t('detail.loadError')} onRetry={reload} />
       </div>
     )
   }
 
+  const list = data.projects.data
+  const position = list.findIndex((item) => item.slug === project.slug)
+  const previous = position > 0 ? list[position - 1] : null
+  const next = position >= 0 && position < list.length - 1 ? list[position + 1] : null
   const experience = data.experiences.data.find((item) => item.related_project_id === project.id)
-  const builtKey = BUILT_DURING_TYPES.includes(experience?.experience_type) ? experience.experience_type : 'other'
-  const facts = [
-    project.year && { label: t('detail.year'), value: project.year },
-    code('type', project.project_type) && { label: t('detail.type'), value: code('type', project.project_type) },
-    project.client_name && { label: t('detail.client'), value: project.client_name, lang: langOf(project, 'client_name') },
+  const repoLink = publicRepoLink(project)
+
+  const labels = [
+    experience?.experience_type && { key: 'activity', text: storedLabel('exp', experience.experience_type), fill: true },
+    code('status', project.status) && { key: 'status', text: code('status', project.status) },
+    code('type', project.project_type) && { key: 'type', text: code('type', project.project_type) },
   ].filter(Boolean)
-  const story = [
-    ['problem', t('detail.problem')],
-    ['solution', t('detail.solution')],
-    ['outcome', t('detail.outcome')],
-  ].filter(([key]) => project[key]?.trim())
+
+  const meta = [
+    (experience?.start_date || project.year) && {
+      key: 'time',
+      label: t('detail.time'),
+      value: experience?.start_date ? <Period start={experience.start_date} end={experience.end_date} current={experience.is_current} /> : project.year,
+    },
+    experience?.company &&
+      !sameOrganization(experience.company, project.client_name) && {
+        key: 'place',
+        label: t('detail.place'),
+        value: <span lang={langOf(experience, 'company')}>{experience.company}</span>,
+      },
+    project.client_name && { key: 'partner', label: t('detail.partner'), value: <span lang={langOf(project, 'client_name')}>{project.client_name}</span> },
+    code('status', project.status) && { key: 'status', label: t('detail.status'), value: code('status', project.status) },
+  ].filter(Boolean)
+
+  const points = [
+    project.background && { key: 'background', title: t('detail.background'), text: project.background },
+    project.problem?.trim() && { key: 'problem', title: t('detail.problem'), text: project.problem },
+    project.solution?.trim() && { key: 'solution', title: t('detail.solution'), text: project.solution },
+    project.features?.length > 0 && { key: 'features', title: t('detail.features'), list: project.features },
+  ].filter(Boolean)
+
+  const otherLinks = project.links.filter((link) => link !== repoLink)
 
   return (
     <article className="pub-detail">
-      <header className="pub-detail-hero">
-        <div className="pub-container pub-detail-hero-inner">
-          <Link to={{ pathname: '/', hash: '#proyek' }} className="pub-arrow-link pub-detail-back">
-            <ArrowLeftIcon size={18} />
-            <span>{t('detail.back')}</span>
-          </Link>
-          <StatusBadge status={project.status} />
+      <div className="pub-container pub-detail-bar">
+        <BackLink />
+        {position >= 0 && <span className="pub-detail-count">{t('detail.counter', { n: pad(position + 1), total: pad(list.length) })}</span>}
+        {repoLink && (
+          <a href={repoLink.url} target="_blank" rel="noopener noreferrer" className="pub-detail-github">
+            <GithubIcon size={16} />
+            <span>GitHub</span>
+            <span className="pub-sr-only">{t('common.newTab')}</span>
+          </a>
+        )}
+      </div>
+
+      <header className="pub-invert pub-detail-head">
+        <div className="pub-container">
+          {labels.length > 0 && (
+            <ul className="pub-detail-labels">
+              {labels.map((label) => (
+                <li key={label.key} data-fill={label.fill || undefined}>
+                  {label.text}
+                </li>
+              ))}
+            </ul>
+          )}
           <h1 ref={headingRef} tabIndex={-1} className="pub-detail-title" lang={langOf(project, 'title')}>
             {project.title}
           </h1>
           {project.description?.trim() && (
-            <p className="pub-lead pub-detail-lead" lang={langOf(project, 'description')}>
+            <p className="pub-detail-lead" lang={langOf(project, 'description')}>
               {project.description}
             </p>
           )}
-          {facts.length > 0 && (
-            <dl className="pub-detail-facts" aria-label={t('detail.facts')}>
-              {facts.map((fact) => (
-                <div key={fact.label}>
-                  <dt>{fact.label}</dt>
-                  <dd lang={fact.lang}>{fact.value}</dd>
+          {meta.length > 0 && (
+            <dl className="pub-detail-meta">
+              {meta.map((item) => (
+                <div key={item.key}>
+                  <dd>{item.value}</dd>
+                  <dt>{item.label}</dt>
                 </div>
               ))}
             </dl>
           )}
-          {experience && (
-            <Link to={{ pathname: '/', hash: '#pengalaman' }} className="pub-arrow-link pub-detail-built">
-              <span>
-                <Phrase
-                  id={`detail.builtDuring.${builtKey}`}
-                  vars={{ company: { text: experience.company, lang: langOf(experience, 'company') } }}
-                />
-              </span>
-              <ArrowRightIcon size={18} />
-            </Link>
-          )}
         </div>
       </header>
 
-      {project.thumbnail_url && (
-        <div className="pub-container">
-          {/* The largest element of the page (LCP): fetched first, decoded without waiting */}
-          <ProjectImage className="pub-detail-cover" src={project.thumbnail_url} width="1200" height="750" fetchPriority="high" />
-        </div>
-      )}
-
       <div className="pub-container pub-detail-body">
-        <div className="pub-detail-main">
-          {project.my_role?.trim() && (
-            <section className="pub-detail-part" aria-labelledby="detail-peran">
-              <h2 id="detail-peran" className="pub-detail-h2">
-                {t('detail.myRole')}
-              </h2>
-              <p className="pub-detail-text" lang={langOf(project, 'my_role')}>
-                {project.my_role}
-              </p>
-            </section>
-          )}
+        <div className="pub-detail-grid">
+          <MediaViewer key={project.slug} project={project} onZoom={openLightbox} />
 
-          {story.map(([key, label]) => (
-            <section key={key} className="pub-detail-part" aria-labelledby={`detail-${key}`}>
-              <h2 id={`detail-${key}`} className="pub-detail-h2">
-                {label}
-              </h2>
-              <p className="pub-detail-text" lang={langOf(project, key)}>
-                {project[key]}
-              </p>
-            </section>
-          ))}
-
-          {project.gallery.length > 0 && (
-            <section className="pub-detail-part" aria-labelledby="detail-galeri">
-              <h2 id="detail-galeri" className="pub-detail-h2">
-                {t('detail.gallery')}
-              </h2>
-              <ul className="pub-gallery">
-                {project.gallery.map((image, index) => {
-                  const caption = image.caption || t('lightbox.untitled', { n: index + 1 })
-                  return (
-                    <li key={image.url}>
-                      <button
-                        type="button"
-                        className="pub-gallery-item"
-                        onClick={() => openLightbox(project.gallery, index)}
-                        aria-label={t('lightbox.open', { caption })}
-                      >
-                        <ProjectImage as="span" className="pub-gallery-frame" src={image.url} width="640" height="400" loading="lazy" decoding="async" />
-                        {image.caption && (
-                          <span className="pub-gallery-caption" lang={image.lang}>
-                            {image.caption}
-                          </span>
-                        )}
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            </section>
-          )}
-
-          {project.content?.trim() && (
-            <details className="pub-detail-technical">
-              <summary>
-                <h2 className="pub-detail-h2">{t('detail.technical')}</h2>
-                <ChevronDownIcon size={20} className="pub-detail-technical-icon" />
-              </summary>
-              <div className="pub-detail-technical-body" lang={langOf(project, 'content')}>
-                {project.content}
-              </div>
-            </details>
-          )}
-        </div>
-
-        {(project.tech_stack.length > 0 || project.links.length > 0) && (
           <aside className="pub-detail-side">
-            {project.tech_stack.length > 0 && (
-              <section className="pub-detail-part" aria-labelledby="detail-teknologi">
-                <h2 id="detail-teknologi" className="pub-detail-h2 pub-detail-h2--small">
-                  {t('detail.tech')}
-                </h2>
-                <TechList items={project.tech_stack} label={t('detail.tech')} />
-              </section>
-            )}
-            {project.links.length > 0 && (
-              <section className="pub-detail-part" aria-labelledby="detail-tautan">
-                <h2 id="detail-tautan" className="pub-detail-h2 pub-detail-h2--small">
-                  {t('detail.links')}
-                </h2>
-                <ProjectLinks links={project.links} />
+            <section className="pub-panel" aria-labelledby="info-judul">
+              <div className="pub-panel-title">
+                <h2 id="info-judul">{t('detail.info')}</h2>
+              </div>
+              <dl className="pub-detail-info">
+                {code('type', project.project_type) && (
+                  <>
+                    <dt>{t('detail.type')}</dt>
+                    <dd>{code('type', project.project_type)}</dd>
+                  </>
+                )}
+                {project.my_role?.trim() && (
+                  <>
+                    <dt>{t('detail.myPart')}</dt>
+                    <dd lang={langOf(project, 'my_role')}>{project.my_role}</dd>
+                  </>
+                )}
+                {project.tech_stack.length > 0 && (
+                  <>
+                    <dt>{t('detail.tech')}</dt>
+                    <dd>
+                      <TechList items={project.tech_stack} label={t('detail.tech')} className="pub-detail-tech" />
+                    </dd>
+                  </>
+                )}
+              </dl>
+            </section>
+
+            <RepoPanel project={project} />
+
+            {otherLinks.length > 0 && (
+              <section className="pub-panel" aria-labelledby="tautan-judul">
+                <div className="pub-panel-title">
+                  <h2 id="tautan-judul">{t('detail.links')}</h2>
+                </div>
+                <ProjectLinks links={otherLinks} />
               </section>
             )}
           </aside>
+        </div>
+
+        {points.length > 0 && (
+          <section className="pub-detail-about" aria-labelledby="tentang-proyek">
+            <h2 id="tentang-proyek" className="pub-detail-h2">
+              {t('detail.about')}
+            </h2>
+            <div className="pub-detail-points">
+              {points.map((point, index) => (
+                <article key={point.key} className="pub-detail-point">
+                  <p className="pub-detail-point-n" aria-hidden="true">
+                    {pad(index + 1)}
+                  </p>
+                  <h3>{point.title}</h3>
+                  {point.text && <p lang={langOf(project, point.key)}>{point.text}</p>}
+                  {point.list && (
+                    <ul>
+                      {point.list.map((item, n) => (
+                        <li key={`${item}-${n}`} lang={langOf(project, 'features', n)}>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {project.outcome?.trim() && (
+          <section className="pub-detail-outcome" aria-labelledby="hasil-proyek">
+            <h2 id="hasil-proyek">{t('detail.outcome')}</h2>
+            <p lang={langOf(project, 'outcome')}>{project.outcome}</p>
+          </section>
+        )}
+
+        {(previous || next) && (
+          <nav className="pub-detail-pn" aria-label={t('detail.otherProjects')}>
+            {previous ? (
+              <Link to={`/projects/${encodeURIComponent(previous.slug)}`} className="pub-detail-pn-link" rel="prev">
+                <span>{t('detail.prev')}</span>
+                <b lang={langOf(previous, 'title')}>{previous.title}</b>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {next && (
+              <Link to={`/projects/${encodeURIComponent(next.slug)}`} className="pub-detail-pn-link pub-detail-pn-link--next" rel="next">
+                <span>{t('detail.next')}</span>
+                <b lang={langOf(next, 'title')}>{next.title}</b>
+              </Link>
+            )}
+          </nav>
         )}
       </div>
 
       <LazyLightbox viewer={viewer} onClose={closeLightbox} />
     </article>
+  )
+}
+
+function BackLink() {
+  const { t } = useI18n()
+  return (
+    <Link to={{ pathname: '/', hash: '#proyek' }} className="pub-detail-back">
+      <ArrowLeftIcon size={18} />
+      <span>{t('detail.back')}</span>
+    </Link>
   )
 }
 

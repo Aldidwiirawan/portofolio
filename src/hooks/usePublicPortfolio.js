@@ -26,6 +26,10 @@ const PROJECT_DETAIL_COLUMNS =
 const PROJECT_DETAIL_EN_COLUMNS =
   'title_en, description_en, client_name_en, my_role_en, problem_en, solution_en, outcome_en, content_en'
 
+// The four points of the monochrome project page (migration 20261030000000): read only when they exist,
+// so the page keeps working before the owner runs that migration
+const PROJECT_DETAIL_OPTIONAL = ['background', 'features', 'background_en', 'features_en']
+
 const TABLES = {
   profile: {
     table: 'profiles',
@@ -215,12 +219,26 @@ function photoList(value) {
 }
 
 function normalizeProjectDetail(row) {
+  const [features, featuresEn] = parallelLists(row.features, row.features_en)
   return {
     ...row,
+    background: text(row.background),
+    background_en: text(row.background_en),
+    features,
+    features_en: featuresEn,
     tech_stack: toTextList(row.tech_stack),
     thumbnail_url: safeAssetUrl(row.thumbnail_url),
+    // kind: gallery or diagram; device: web or mobile (the media viewer's tabs and "Layar Web / Layar HP")
     gallery: (Array.isArray(row.gallery) ? row.gallery : [])
-      .map((item) => ({ url: safeAssetUrl(item?.url), caption: text(item?.caption), caption_en: text(item?.caption_en) }))
+      .map((item) => ({
+        url: safeAssetUrl(item?.url),
+        caption: text(item?.caption),
+        caption_en: text(item?.caption_en),
+        kind: item?.kind === 'diagram' ? 'diagram' : 'gallery',
+        device: item?.device === 'mobile' ? 'mobile' : 'web',
+        label: text(item?.label),
+        label_en: text(item?.label_en),
+      }))
       .filter((item) => item.url),
     links: publicLinks(row.links),
   }
@@ -335,7 +353,13 @@ export function usePublicPortfolio() {
 /** The visible project row with this slug (or null): { data, error } like restSelect. */
 function fetchProject(slug) {
   return selectWithEnglish(
-    (selected) => restSelect('projects', { columns: selected, filters: [['slug', slug], ['is_visible', true]], single: true }),
+    (selected) =>
+      selectWithOptional(
+        (all) => restSelect('projects', { columns: all, filters: [['slug', slug], ['is_visible', true]], single: true }),
+        selected,
+        'projects',
+        PROJECT_DETAIL_OPTIONAL
+      ),
     PROJECT_DETAIL_COLUMNS,
     PROJECT_DETAIL_EN_COLUMNS
   )

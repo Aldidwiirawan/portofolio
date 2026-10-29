@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { englishColumnsMissing } from '../../lib/englishColumns'
+import { englishColumnsMissing, optionalColumnMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
 import { GalleryUpload, ImageField } from './ui/AssetUpload'
 import { PROJECT_STATUSES, PROJECT_TYPES } from './ui/contentLabels'
 import { EnglishField, EnglishList, EnglishSection } from './ui/EnglishFields'
 import { Checkbox, Field, FormSection, Input, Select, Textarea } from './ui/Field'
-import { cleanList, englishText } from './ui/formValues'
+import { Alert } from './ui/Alert'
+import { alignList, cleanList, cleanParallelList, englishText, remapList } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { LinkListInput } from './ui/LinkListInput'
@@ -22,6 +23,14 @@ const PROJECT_COLUMNS =
 // Versi Inggris (stage 3C): text fields with an _en column; gallery captions and link labels keep
 // their English text inside each item (caption_en, label_en)
 const ENGLISH_TEXTS = ['title', 'description', 'client_name', 'my_role', 'problem', 'solution', 'outcome', 'content']
+
+// The four points of the project page (migration 20261030000000): background and main features, with
+// their English versions, and the gallery with kind, device and label (up to 12 images). Until that
+// migration has run the form says so, saves without them and keeps the old limit of 5 images.
+const REDESIGN_COLUMNS = ['background', 'features', 'background_en', 'features_en']
+const FEATURES_MAX = 8
+const GALLERY_MAX = 12
+const GALLERY_MAX_BEFORE = 5
 
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: THIS_YEAR + 1 - 2010 + 1 }, (_, i) => String(THIS_YEAR + 1 - i))
@@ -72,6 +81,10 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
     problem: project?.problem || '',
     solution: project?.solution || '',
     outcome: project?.outcome || '',
+    background: project?.background || '',
+    features: Array.isArray(project?.features) ? project.features : [],
+    background_en: project?.background_en || '',
+    features_en: alignList(project?.features, project?.features_en),
     tech_stack: Array.isArray(project?.tech_stack) ? project.tech_stack : [],
     links: initialLinks(project),
     // The checkbox value chosen by hand; while every code link is private it shows on by itself
@@ -84,7 +97,8 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
 
   // Cover image (projects/) and gallery screenshots (gallery/), uploaded when saving
   const cover = useAssetField(project?.thumbnail_url, { folder: 'projects' })
-  const gallery = useGalleryField(project?.gallery, { max: 5 })
+  const redesign = !optionalColumnMissing('projects', 'features')
+  const gallery = useGalleryField(project?.gallery, { max: redesign ? GALLERY_MAX : GALLERY_MAX_BEFORE, typed: true })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [generalError, setGeneralError] = useState('')
@@ -198,6 +212,14 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
     if (english) {
       for (const name of ENGLISH_TEXTS) payload[`${name}_en`] = englishText(formData[`${name}_en`])
     }
+    if (redesign) {
+      payload.background = formData.background.trim() || null
+      payload.features = cleanList(formData.features)
+      if (english) {
+        payload.background_en = englishText(formData.background_en)
+        payload.features_en = cleanParallelList(formData.features, formData.features_en)
+      }
+    }
     // A new project goes to the end of the list; the order is changed with Naik/Turun in the list
     if (!isEditMode) payload.sort_order = nextSortOrder
 
@@ -207,7 +229,11 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
         ? supabase.from('projects').update(payload).eq('id', project.id)
         : supabase.from('projects').insert(payload)
 
-      const columns = english ? `${PROJECT_COLUMNS}, ${ENGLISH_TEXTS.map((name) => `${name}_en`).join(', ')}` : PROJECT_COLUMNS
+      const extra = [
+        ...(english ? ENGLISH_TEXTS.map((name) => `${name}_en`) : []),
+        ...(redesign ? REDESIGN_COLUMNS.filter((name) => english || !name.endsWith('_en')) : []),
+      ]
+      const columns = extra.length > 0 ? `${PROJECT_COLUMNS}, ${extra.join(', ')}` : PROJECT_COLUMNS
       const { data, error: dbError } = await query.select(columns).single()
 
       if (dbError) {
@@ -253,6 +279,7 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
       )
     : ''
   const busy = isSubmitting || screen.saved
+  const diagrams = gallery.items.filter((item) => item.kind === 'diagram')
   const input = (name) => ({ name, value: formData[name], onChange: handleChange, disabled: busy })
   const codePrivate = allCodePrivate(formData.links)
 
@@ -336,14 +363,53 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
         </Field>
       </FormSection>
 
-      <FormSection title="Studi kasus" description="Opsional. Ringkas saja; isi hanya yang benar-benar Anda ketahui.">
-        <Field id="project-problem" label="Masalah" optional hint="Masalah apa yang diselesaikan? Contoh: pencatatan penjualan masih manual di buku.">
+      <FormSection
+        title="Studi kasus"
+        description="Opsional. Ringkas saja; isi hanya yang benar-benar Anda ketahui. Di halaman proyek tampil sebagai Latar belakang, Permasalahan, Solusi, dan Fitur utama; poin yang kosong tidak tampil."
+      >
+        {redesign ? (
+          <Field
+            id="project-background"
+            label="Latar belakang"
+            optional
+            hint="Kapan dan di mana proyek dikerjakan, untuk siapa. Contoh: dikerjakan saat PKL di Diskominfo, Juni–Agustus 2025."
+          >
+            <Textarea rows={3} {...input('background')} />
+          </Field>
+        ) : (
+          <Alert tone="info" title="Latar belakang dan fitur utama belum tersedia">
+            Pembaruan database untuk halaman proyek baru (migrasi 20261030000000_redesign_monokrom.sql) belum dijalankan.
+          </Alert>
+        )}
+        <Field id="project-problem" label="Permasalahan" optional hint="Masalah apa yang diselesaikan? Contoh: pencatatan penjualan masih manual di buku.">
           <Textarea rows={3} {...input('problem')} />
         </Field>
         <Field id="project-solution" label="Solusi" optional hint="Apa yang Anda bangun dan bagaimana caranya.">
           <Textarea rows={3} {...input('solution')} />
         </Field>
-        <Field id="project-outcome" label="Hasil" optional hint="Dampak yang terlihat. Tulis angka hanya kalau memang ada datanya.">
+        {redesign && (
+          <ListInput
+            id="project-features"
+            label="Fitur utama"
+            optional
+            value={formData.features}
+            onChange={(items) => set('features', items)}
+            onRowsChange={(order) => set('features_en', remapList(formData.features_en, order))}
+            max={FEATURES_MAX}
+            itemLabel="Fitur"
+            addLabel="Tambah fitur"
+            placeholder="Contoh: Pembayaran Midtrans atau bayar di tempat"
+            maxLength={160}
+            hint={`Sampai ${FEATURES_MAX} fitur, satu per baris.`}
+            disabled={busy}
+          />
+        )}
+        <Field
+          id="project-outcome"
+          label="Hasil"
+          optional
+          hint="Dampak yang terlihat; tampil sebagai catatan di bawah keempat poin. Tulis angka hanya kalau memang ada datanya."
+        >
           <Textarea rows={3} {...input('outcome')} />
         </Field>
       </FormSection>
@@ -406,7 +472,7 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
           field={gallery}
           altName={formData.title.trim()}
           captionPlaceholder="Contoh: Halaman kasir"
-          hint="Sampai 5 gambar. Urutan di sini menjadi urutan tampil."
+          hint={`Sampai ${gallery.max} gambar. Urutan di sini menjadi urutan tampil. Pilih Diagram untuk use case, DFD, ERD, dan sejenisnya (beri nama singkat), dan Layar HP untuk tangkapan layar aplikasi mobile.`}
           disabled={busy}
         />
       </FormSection>
@@ -416,13 +482,18 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
           ...ENGLISH_TEXTS.map((name) => formData[`${name}_en`]),
           ...formData.links.map((link) => link.label_en),
           ...gallery.items.map((item) => item.caption_en),
+          ...(redesign ? [formData.background_en, ...formData.features_en] : []),
+          ...diagrams.map((item) => item.label_en),
         ]}
       >
         <EnglishField id="project-title-en" label="Judul proyek" original={formData.title} {...input('title_en')} />
         <EnglishField id="project-desc-en" label="Deskripsi singkat" original={formData.description} multiline {...input('description_en')} />
         <EnglishField id="project-client-en" label="Klien atau instansi" original={formData.client_name} {...input('client_name_en')} />
         <EnglishField id="project-role-en" label="Peran saya" original={formData.my_role} {...input('my_role_en')} />
-        <EnglishField id="project-problem-en" label="Masalah" original={formData.problem} multiline {...input('problem_en')} />
+        {redesign && (
+          <EnglishField id="project-background-en" label="Latar belakang" original={formData.background} multiline {...input('background_en')} />
+        )}
+        <EnglishField id="project-problem-en" label="Permasalahan" original={formData.problem} multiline {...input('problem_en')} />
         <EnglishField id="project-solution-en" label="Solusi" original={formData.solution} multiline {...input('solution_en')} />
         <EnglishField id="project-outcome-en" label="Hasil" original={formData.outcome} multiline {...input('outcome_en')} />
         <EnglishField
@@ -442,6 +513,30 @@ function ProjectForm({ project = null, nextSortOrder = 0, onSuccess, onCancel })
           onItemChange={(index, text) => set('links', formData.links.map((link, i) => (i === index ? { ...link, label_en: text } : link)))}
           maxLength={LINK_LABEL_MAX}
           emptyHint="Belum ada tautan. Tambahkan di bagian Tautan proyek; nama Inggrisnya diisi di sini."
+          disabled={busy}
+        />
+        {redesign && (
+          <EnglishList
+            id="project-features-en"
+            label="Fitur utama"
+            itemLabel="Fitur"
+            originals={formData.features}
+            values={formData.features_en}
+            onItemChange={(index, text) => set('features_en', formData.features_en.map((item, i) => (i === index ? text : item)))}
+            maxLength={160}
+            emptyHint="Belum ada fitur utama."
+            disabled={busy}
+          />
+        )}
+        <EnglishList
+          id="project-diagrams-en"
+          label="Nama diagram"
+          itemLabel="Nama diagram"
+          originals={diagrams.map((item) => item.label)}
+          values={diagrams.map((item) => item.label_en)}
+          onItemChange={(index, text) => gallery.setMeta(diagrams[index].key, { label_en: text })}
+          maxLength={24}
+          emptyHint="Belum ada gambar berjenis Diagram."
           disabled={busy}
         />
         <EnglishList

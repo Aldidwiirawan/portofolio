@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { selectWithEnglish } from '../lib/englishColumns'
+import { selectWithEnglish, selectWithOptional } from '../lib/englishColumns'
 import { supabase } from '../lib/supabaseClient'
 
 // Columns read by the public portfolio page (unchanged).
@@ -13,6 +13,10 @@ const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, gallery, status, year, project_type, c
 // English versions (migration 20261019000000), read by the admin only; while that migration has not
 // been run the query runs again without them (lib/englishColumns.js).
 const ENGLISH_COLUMNS = 'title_en, description_en, client_name_en, my_role_en, problem_en, solution_en, outcome_en, content_en'
+
+// The points of the project page (migration 20261030000000), admin only; read only when they exist
+// (lib/englishColumns.js selectWithOptional), so the list keeps working before that migration.
+const OPTIONAL_ADMIN_COLUMNS = ['background', 'features', 'background_en', 'features_en']
 
 /**
  * Custom Hook: useProjects
@@ -47,12 +51,18 @@ export function useProjects({ includeAdminFields = false } = {}) {
       try {
         const { data, error: queryError } = await selectWithEnglish(
           (columns) =>
-            supabase
-              .from('projects')
-              .select(columns)
-              .order('is_featured', { ascending: false })
-              .order('sort_order', { ascending: true, nullsFirst: false })
-              .order('created_at', { ascending: false }),
+            selectWithOptional(
+              (all) =>
+                supabase
+                  .from('projects')
+                  .select(all)
+                  .order('is_featured', { ascending: false })
+                  .order('sort_order', { ascending: true, nullsFirst: false })
+                  .order('created_at', { ascending: false }),
+              columns,
+              'projects',
+              includeAdminFields ? OPTIONAL_ADMIN_COLUMNS : []
+            ),
           includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS,
           includeAdminFields ? ENGLISH_COLUMNS : undefined
         )

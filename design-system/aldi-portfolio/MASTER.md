@@ -621,3 +621,30 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
 - **Admin**: foto pendidikan (unggah sampai 3 di `EducationForm`, keterangan EN; pemberitahuan bila migrasi
   belum dijalankan; dua bug rollback unggahan diperbaiki; foto ikut dihapus saat entri dihapus), keterangan EN foto
   di `ExperienceForm`.
+
+### Detail proyek dan GitHub (Fase 6)
+
+- **Perbaikan Fase 5:** gambar lightbox disembunyikan (spinner "Memuat") sampai termuat penuh, lalu tampil utuh
+  (`contain`) pada rasionya sendiri; tahun di Perjalanan memberi ruang setinggi kipas foto saat folder terbuka
+  (`:has(.pub-jr-folder[data-open])`), jadi foto tidak menutupi angka; di HP (<620 px) kucing merunduk selama
+  halaman digulir (`.pub-pets[data-scrolling]`, kembali 500 ms setelah berhenti).
+- **Halaman detail** (`ProjectDetailPage`): bar atas (kembali, "Proyek 04 / 06" dari urutan daftar, pil GitHub bila
+  ada repo publik); header hitam `.pub-invert` berisi label (jenis pengalaman terkait, status, jenis aplikasi),
+  judul, `description` sebagai lead, dan meta Waktu/Tempat/Mitra/Status (dari pengalaman terkait atau `year`;
+  Tempat disembunyikan bila sama dengan mitra). Lalu media di kiri, panel di kanan (Info proyek: Jenis, Bagian saya,
+  Teknologi; Repositori GitHub; Tautan lain), empat poin bernomor (Latar belakang, Permasalahan, Solusi, Fitur
+  utama; **poin kosong disembunyikan dan nomornya urut ulang**), catatan "Hasil" (`outcome`), dan navigasi
+  sebelumnya/berikutnya. "Detail teknis" (`content`) tidak tampil di publik.
+- **MediaViewer:** tab Sampul/Galeri/Diagram (tombol `aria-pressed`, hanya jenis yang punya gambar; tanpa bar tab
+  bila hanya satu jenis), panggung 16:10 `contain`, panah dan thumbnail untuk galeri, tombol nama diagram, pilihan
+  Layar web/Layar HP hanya bila kedua perangkat ada, "Perbesar" membuka lightbox.
+- **RepoPanel + `api/github-repo.js`:** hanya untuk tautan kode github.com yang publik. Fungsi server menerima
+  `?slug=`, mengambil tautan dari proyek yang tampil (bukan proxy terbuka), menolak repo privat, membaca repo,
+  bahasa, `composer.json` dan `package.json` (deteksi framework dengan peta nama), cache CDN 1 jam. `GITHUB_TOKEN`
+  hanya di server. Panel: lencana Live API, nama repo, tanggal pembaruan, bahasa utama, bar bahasa monokrom (5
+  tingkat abu-abu + legenda), framework. **Gagal:** pesan singkat dan tetap ada tautan "Buka repositori".
+- **Data:** `background`, `features` (+ `_en`) dibaca lewat `selectWithOptional`; item galeri menyimpan `kind`
+  (`gallery`/`diagram`), `device` (`web`/`mobile`), `label`/`label_en` (nama diagram, maks. 24).
+- **Admin `ProjectForm`:** Latar belakang, Fitur utama (maks. 8, EN sejajar), "Masalah" menjadi "Permasalahan",
+  galeri sampai 12 gambar dengan Jenis, Perangkat, dan Nama diagram (+EN). Sebelum migrasi: pemberitahuan dan
+  batas lama 5 gambar.

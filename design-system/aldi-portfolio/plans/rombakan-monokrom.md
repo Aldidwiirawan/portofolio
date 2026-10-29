@@ -1,6 +1,6 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 5 selesai, menunggu persetujuan pemilik untuk Fase 6 · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 6 selesai, menunggu persetujuan pemilik untuk Fase 7 · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -151,5 +151,12 @@ laporan akhir.
       `interactionBus`, `characterLines`, `SocialLinks` dihapus. Uji: lint, build, uji Fase 5 (40 cek; tulis
       ke Supabase dicegat), uji hero/chip/proyek ulang, login identik, screenshot termasuk folder, lightbox,
       kucing diseret. Form admin belum diuji di browser (perlu harness admin tiruan; masuk Fase 7)
-- [ ] Fase 6. Detail proyek, `api/github-repo.js` (+ admin proyek)
+- [x] Fase 6. Detail proyek (bar atas + nomor, header hitam, MediaViewer Sampul/Galeri/Diagram, panel info, empat
+      poin yang kosong disembunyikan, catatan Hasil, sebelumnya/berikutnya), `api/github-repo.js` + RepoPanel
+      (hanya repo publik, keadaan gagal dengan tautan), admin proyek (Latar belakang, Fitur utama, galeri 12 dengan
+      Jenis/Perangkat/Nama diagram + EN). Perbaikan Fase 5: lightbox menunggu gambar termuat dan tampil utuh,
+      folder tidak menutupi tahun, kucing merunduk saat digulir di HP. Uji: lint, build, uji fungsi API (15 cek,
+      fetch tiruan), uji Fase 6 (38 cek; data diagram dan GitHub tiruan, termasuk gagal), uji hero/chip/proyek/
+      Fase 5 ulang, login identik dengan `main`, screenshot detail Madura Mart 1440/390 × terang/gelap. Form admin
+      proyek belum diuji di browser (Fase 7)
 - [ ] Fase 7. Validasi dan laporan akhir

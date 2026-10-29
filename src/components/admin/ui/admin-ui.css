@@ -2459,3 +2459,11 @@ html:has(.adm-form-actions) .adm-toasts {
     outline-color: CanvasText;
   }
 }
+
+/* Galeri proyek: jenis, perangkat, dan nama diagram per gambar (rombakan monokrom, Fase 6) */
+.adm-gallery-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-2);
+}

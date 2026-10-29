@@ -82,6 +82,13 @@ function Lightbox({ images, start = 0, onClose }) {
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >
+        {/* Shown only once fully loaded (a large JPEG would otherwise paint from the top down) */}
+        {!orientation && (
+          <span className="pub-lightbox-loading" role="status">
+            <span className="pub-spinner" aria-hidden="true" />
+            <span className="pub-sr-only">{t('common.loading')}</span>
+          </span>
+        )}
         <img
           key={image.url}
           ref={imageRef}

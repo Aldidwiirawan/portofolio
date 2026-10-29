@@ -3,6 +3,7 @@ import { IMAGE_ACCEPT, IMAGE_MAX_SIDE } from '../../../lib/imageCompression'
 import { PDF_ACCEPT } from '../../../lib/pdfFile'
 import { useLock } from './adminContexts'
 import { IconButton } from './Button'
+import { Select } from './Field'
 import { formatFileSize } from './format'
 import { ImageUpload } from './ImageUpload'
 import { IconAlert, IconArrowDown, IconArrowUp, IconEye, IconFile, IconImage, IconTrash, IconUpload } from './icons'
@@ -259,6 +260,49 @@ export function GalleryUpload({ field, id, label, hint, altName = '', captionPla
                       onChange={(e) => field.setCaption(item.key, e.target.value)}
                     />
                   </span>
+                  {field.typed && (
+                    <div className="adm-gallery-meta">
+                      <div>
+                        <label htmlFor={`${id}-${item.key}-kind`} className="adm-sublabel">
+                          Jenis
+                        </label>
+                        <Select id={`${id}-${item.key}-kind`} value={item.kind} disabled={disabled} onChange={(e) => field.setMeta(item.key, { kind: e.target.value })}>
+                          <option value="gallery">Galeri</option>
+                          <option value="diagram">Diagram</option>
+                        </Select>
+                      </div>
+                      <div>
+                        <label htmlFor={`${id}-${item.key}-device`} className="adm-sublabel">
+                          Perangkat
+                        </label>
+                        <Select id={`${id}-${item.key}-device`} value={item.device} disabled={disabled} onChange={(e) => field.setMeta(item.key, { device: e.target.value })}>
+                          <option value="web">Layar web</option>
+                          <option value="mobile">Layar HP</option>
+                        </Select>
+                      </div>
+                      {item.kind === 'diagram' && (
+                        <div>
+                          <label htmlFor={`${id}-${item.key}-label`} className="adm-sublabel">
+                            Nama diagram
+                          </label>
+                          <span className="adm-control">
+                            <input
+                              id={`${id}-${item.key}-label`}
+                              type="text"
+                              className="adm-input"
+                              value={item.label}
+                              maxLength={24}
+                              placeholder="Contoh: ERD"
+                              disabled={captionLock.hard || undefined}
+                              readOnly={captionLock.soft || undefined}
+                              aria-disabled={captionLock.soft || undefined}
+                              onChange={(e) => field.setMeta(item.key, { label: e.target.value })}
+                            />
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {item.file && <p className="adm-upload-size">{formatFileSize(item.size)} · belum disimpan</p>}
                 </div>
                 <div className="adm-gallery-actions">

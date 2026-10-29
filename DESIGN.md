@@ -266,6 +266,10 @@ status. Rincian dan alasannya di MASTER §16; ringkasnya:
   sertifikat bergambar utuh dengan lightbox, bagian kontak hitam dengan formulir di panel tipis, footer hitam
   sederhana. Kucing Kopi (hitam) dan Susu (putih) mengintip di bawah layar dan tidak pernah menutupi tombol,
   formulir, atau bar status; tombol buku tamu berbentuk pil mengambang.
+- **Detail proyek:** header hitam (label, judul, lead, meta Waktu/Tempat/Mitra/Status), media bertab
+  Sampul/Galeri/Diagram di panggung 16:10, panel bergaris (Info proyek, Repositori GitHub dengan bar bahasa
+  abu-abu bertingkat, Tautan), empat poin bernomor yang hanya tampil bila terisi, catatan Hasil, dan navigasi
+  sebelumnya/berikutnya.
 - **Tetap berlaku dari Blueprint:** aturan aksesibilitas, target sentuh ≥44 px, reduced motion, dan "Not Color
   Alone". Komponen Blueprint (kursor viewfinder, latar blueprint, layar pembuka) tidak dipakai di publik.
 

@@ -71,8 +71,9 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   `feat/redesign-monokrom` per fase (`design-system/aldi-portfolio/plans/rombakan-monokrom.md`, MASTER §16): fase 1
   (rencana dan SQL), fase 2 (fondasi visual: palet, Space Grotesk, navbar, tema bawaan terang), dan fase 3 (hero:
   chip berfisika, nama besar, baris kode, bar status), fase 4 (bento Tentang, pita teknologi, Proyek yang
-  menumpuk), dan fase 5 (Perjalanan, Sertifikat, Kontak, buku tamu, kucing Kopi & Susu, foto pendidikan di
-  admin) selesai.
+  menumpuk), fase 5 (Perjalanan, Sertifikat, Kontak, buku tamu, kucing Kopi & Susu, foto pendidikan di
+  admin), dan fase 6 (halaman detail proyek, panel repo GitHub publik, latar belakang/fitur/jenis galeri di admin)
+  selesai.
 
 ## Capabilities and Constraints
 

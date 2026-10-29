@@ -95,6 +95,18 @@
   line-height: 0.9;
   letter-spacing: -0.03em;
   -webkit-text-stroke: 2.5px var(--fg);
+  transition: margin-bottom 500ms var(--ds-ease-out);
+}
+
+/* Folder terbuka: tahun memberi ruang setinggi kipas foto, jadi foto tidak pernah menutupi angkanya */
+.pub-jr-side:has(.pub-jr-folder[data-open]) .pub-jr-year {
+  margin-bottom: 12rem;
+}
+
+@media (max-width: 1059px) {
+  .pub-jr-side:has(.pub-jr-folder[data-open]) .pub-jr-year {
+    margin-bottom: 11.25rem;
+  }
 }
 
 /* --- Folder foto -------------------------------------------------------------------- */
@@ -446,7 +458,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pub-jr-folder-front,
-  .pub-jr-photo {
+  .pub-jr-photo,
+  .pub-jr-year {
     transition: none;
   }
 }

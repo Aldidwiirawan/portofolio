@@ -81,8 +81,8 @@ function CatArt({ white, leftEye, rightEye }) {
  * fall). Smaller on phones.
  *
  * They never cover what matters: on the first screen they sit on top of the hero status bar, they
- * duck away while the contact form is on screen, and a cat that ends up over a link, button or field
- * ducks until it walks on. The guestbook button always stays above them.
+ * duck away while the contact form is on screen, a cat that ends up over a link, button or field
+ * ducks until it walks on, and on phones both duck while the page scrolls. The guestbook button always stays above them.
  */
 function CatPets() {
   const { t } = useI18n()
@@ -90,6 +90,7 @@ function CatPets() {
   const reducedMotion = usePrefersReducedMotion()
   const [talk, setTalk] = useState('')
   const [tucked, setTucked] = useState(false)
+  const layerRef = useRef(null)
   const catRefs = useRef([])
   const flipRefs = useRef([])
   const pupilRefs = useRef([
@@ -137,6 +138,19 @@ function CatPets() {
     }
     window.addEventListener('pointermove', onPointer, { passive: true })
     window.addEventListener('pointerdown', onPointer, { passive: true })
+    // Phones: the cats duck while the page scrolls (they would cover the text going by) and come back
+    // half a second after it stops
+    const phone = window.matchMedia('(max-width: 619px)')
+    let scrollTimer = 0
+    const onScroll = () => {
+      if (!phone.matches || !layerRef.current) return
+      layerRef.current.dataset.scrolling = 'true'
+      clearTimeout(scrollTimer)
+      scrollTimer = setTimeout(() => {
+        if (layerRef.current) delete layerRef.current.dataset.scrolling
+      }, 500)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
 
     let frame = 0
     let tick = 0
@@ -234,6 +248,8 @@ function CatPets() {
       clearTimeout(talkTimer.current)
       window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('pointerdown', onPointer)
+      window.removeEventListener('scroll', onScroll)
+      clearTimeout(scrollTimer)
     }
   }, [])
 
@@ -299,7 +315,7 @@ function CatPets() {
   const talking = CATS.find((cat) => cat.key === talk)
 
   return (
-    <div className="pub-pets" data-tucked={tucked || undefined}>
+    <div ref={layerRef} className="pub-pets" data-tucked={tucked || undefined}>
       {CATS.map((cat, index) => (
         <div
           key={cat.key}

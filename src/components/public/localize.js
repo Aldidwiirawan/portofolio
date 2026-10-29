@@ -19,8 +19,9 @@ const FIELDS = {
 }
 
 const PROJECT_DETAIL_FIELDS = {
-  texts: ['title', 'description', 'my_role', 'problem', 'solution', 'outcome', 'content'],
+  texts: ['title', 'description', 'my_role', 'background', 'problem', 'solution', 'outcome', 'content'],
   names: ['client_name'],
+  lists: ['features'],
 }
 
 const clean = (value) => (typeof value === 'string' ? value.trim() : '')
@@ -118,7 +119,7 @@ export function localizeProject(project, lang) {
   if (!project || lang !== 'en') return project
   return {
     ...localizeRow(project, lang, PROJECT_DETAIL_FIELDS),
-    gallery: project.gallery.map((image) => localizeItem(image, 'caption', lang)),
+    gallery: project.gallery.map((image) => localizeItem(localizeItem(image, 'caption', lang), 'label', lang)),
     links: project.links.map((link) => localizeItem(link, 'label', lang)),
   }
 }

@@ -108,15 +108,31 @@ export function useAssetField(savedUrl, { folder, type = 'image', imageKind = 'p
   }
 }
 
-/** [{ url, caption, caption_en }] from a stored jsonb value (tolerates plain URL strings). */
+/**
+ * [{ url, caption, caption_en, kind, device, label, label_en }] from a stored jsonb value (tolerates plain
+ * URL strings). kind ('gallery' | 'diagram'), device ('web' | 'mobile') and the short label of a diagram
+ * belong to the project gallery (migration 20261030000000); other galleries ignore them.
+ */
 export function normalizeGallery(value) {
   if (!Array.isArray(value)) return []
   const text = (v) => (typeof v === 'string' ? v : '')
   return value
     .map((item) => (typeof item === 'string' ? { url: item } : item))
     .filter((item) => item && typeof item.url === 'string' && item.url)
-    .map((item) => ({ url: item.url, caption: text(item.caption), caption_en: text(item.caption_en) }))
+    .map((item) => ({
+      url: item.url,
+      caption: text(item.caption),
+      caption_en: text(item.caption_en),
+      kind: item.kind === 'diagram' ? 'diagram' : 'gallery',
+      device: item.device === 'mobile' ? 'mobile' : 'web',
+      label: text(item.label),
+      label_en: text(item.label_en),
+    }))
 }
+
+// What decides whether a gallery changed (typed: also kind, device and label)
+const galleryState = (item, typed) =>
+  [item.url || item.key, item.caption.trim(), item.caption_en.trim(), ...(typed ? [item.kind, item.device, item.label.trim(), item.label_en.trim()] : [])]
 
 let galleryKey = 0
 const nextKey = () => {
@@ -126,13 +142,13 @@ const nextKey = () => {
 
 /**
  * Ordered images with a short caption each (project gallery, experience photos). The English caption
- * (caption_en, stage 3C) belongs to its image, so it moves with it.
+ * (caption_en, stage 3C) belongs to its image, so it moves with it. With `typed` (project gallery) each
+ * image also has a kind (gallery or diagram), a device (web or mobile screen) and, for a diagram, a short
+ * label with its English version (setMeta).
  */
-export function useGalleryField(savedItems, { folder = 'gallery', max = 5, imageKind = 'photo' } = {}) {
+export function useGalleryField(savedItems, { folder = 'gallery', max = 5, imageKind = 'photo', typed = false } = {}) {
   const [initial] = useState(() => normalizeGallery(savedItems))
-  const [items, setItems] = useState(() =>
-    initial.map((item) => ({ key: nextKey(), url: item.url, caption: item.caption, caption_en: item.caption_en }))
-  )
+  const [items, setItems] = useState(() => initial.map((item) => ({ key: nextKey(), ...item })))
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [announcement, setAnnouncement] = useState('')
@@ -172,6 +188,10 @@ export function useGalleryField(savedItems, { folder = 'gallery', max = 5, image
             preview: URL.createObjectURL(result.file),
             caption: '',
             caption_en: '',
+            kind: 'gallery',
+            device: 'web',
+            label: '',
+            label_en: '',
             name: file.name,
             size: result.file.size,
           })
@@ -229,12 +249,18 @@ export function useGalleryField(savedItems, { folder = 'gallery', max = 5, image
     [commit]
   )
 
+  // kind, device, label, label_en of one image (typed galleries)
+  const setMeta = useCallback(
+    (key, patch) => commit(itemsRef.current.map((x) => (x.key === key ? { ...x, ...patch } : x))),
+    [commit]
+  )
+
   const dirty =
-    JSON.stringify(items.map((item) => [item.url || item.key, item.caption.trim(), item.caption_en.trim()])) !==
-    JSON.stringify(initial.map((item) => [item.url, item.caption.trim(), item.caption_en.trim()]))
+    JSON.stringify(items.map((item) => galleryState(item, typed))) !== JSON.stringify(initial.map((item) => galleryState(item, typed)))
 
   return {
     kind: 'gallery',
+    typed,
     folder,
     max,
     initial,
@@ -248,6 +274,7 @@ export function useGalleryField(savedItems, { folder = 'gallery', max = 5, image
     move,
     setCaption,
     setCaptionEn,
+    setMeta,
   }
 }
 
@@ -272,7 +299,19 @@ export async function prepareUploads(fields) {
           }
           const caption = item.caption.trim()
           const captionEn = item.caption_en.trim()
-          result.push({ url, ...(caption ? { caption } : {}), ...(captionEn ? { caption_en: captionEn } : {}) })
+          const saved = { url, ...(caption ? { caption } : {}), ...(captionEn ? { caption_en: captionEn } : {}) }
+          if (field.typed) {
+            // Only what differs from the defaults (gallery, web) is stored; a label only for a diagram
+            const label = item.kind === 'diagram' ? item.label.trim() : ''
+            const labelEn = item.kind === 'diagram' ? item.label_en.trim() : ''
+            Object.assign(saved, {
+              ...(item.kind === 'diagram' ? { kind: 'diagram' } : {}),
+              ...(item.device === 'mobile' ? { device: 'mobile' } : {}),
+              ...(label ? { label } : {}),
+              ...(labelEn ? { label_en: labelEn } : {}),
+            })
+          }
+          result.push(saved)
         }
         const kept = new Set(result.map((item) => item.url))
         field.initial.forEach((item) => {
