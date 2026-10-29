@@ -1,97 +1,44 @@
-/* Footer publik dan daftar tautan sosial (dipakai juga di hero dan kontak) */
+/* Footer sederhana, hitam (lanjutan bagian Kontak di beranda) */
 
 .pub-footer {
-  position: relative;
-  /* Robot a+ bersembunyi di bawah tepi halaman: dipotong di sini, tanpa menambah ruang gulir */
-  overflow: clip;
-  border-top: 1px solid var(--ds-border);
-  background-color: var(--ds-surface);
+  flex-shrink: 0;
 }
 
-.pub[data-theme='dark'] .pub-footer {
-  background-color: color-mix(in srgb, var(--ds-surface) 60%, var(--ds-canvas));
-}
-
+/* Ruang bawah untuk tombol buku tamu dan kucing yang mengambang, supaya baris terakhir tidak tertutup */
 .pub-footer-inner {
-  display: grid;
-  gap: var(--space-6);
-  padding-block: var(--space-10) var(--space-8);
-}
-
-.pub-footer-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.pub-footer-brand .brand-logo {
-  color: var(--ds-accent-text);
-}
-
-.pub-footer-name {
-  color: var(--ds-text-strong);
-  font-weight: var(--ds-fw-bold);
-}
-
-.pub-footer-role {
-  color: var(--ds-text-muted);
-  font-size: var(--ds-fs-sm);
-}
-
-.pub-footer-bottom {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding-top: var(--space-5);
-  /* Ruang robot a+ di kanan tombol (52 px + celah) */
-  padding-right: calc(52px + var(--space-3));
-  border-top: 1px solid var(--ds-border);
+  gap: 0.75rem 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 7rem;
+  border-top: 1px solid var(--line);
+  color: var(--mute);
+  font-size: 0.8125rem;
 }
 
-.pub-footer-rights {
-  color: var(--ds-text-muted);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  letter-spacing: 0.02em;
+.pub-footer-top,
+.pub-footer-top:hover {
+  color: var(--fg);
 }
 
-@media (min-width: 768px) {
-  .pub-footer-inner {
-    grid-template-columns: 1fr auto;
-    align-items: center;
-  }
-
-  .pub-footer-bottom {
-    grid-column: 1 / -1;
-  }
+.pub-footer-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--ds-target-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
-/* Daftar ikon sosial */
-.pub-social {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  list-style: none;
-}
-
-.pub-social-link {
-  color: var(--ds-text-muted);
-}
-
-/* "Kembali ke atas" tetap rata kanan (juga saat baris turun di HP), di sebelah robot */
-.pub-footer-bottom .pub-top-btn {
-  margin-left: auto;
-}
-
-/* Pojok robot a+ (3B): dari tepi bawah footer, setinggi robot */
-.pub-top-robot {
-  position: absolute;
-  right: 0;
-  bottom: calc(-1 * var(--space-8));
-  width: 52px;
-  height: 63px;
-  pointer-events: none;
+.pub-footer-top:hover span {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
 }

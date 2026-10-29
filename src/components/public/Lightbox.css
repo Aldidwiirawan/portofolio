@@ -1,4 +1,5 @@
-/* Penampil gambar (lightbox) — selalu gelap (data-theme="dark") */
+/* Penampil gambar (lightbox) — selalu gelap (data-theme="dark", palet monokrom gelap). Ditutup dengan
+   Esc, tombol "Tutup", atau klik di luar gambar. */
 
 .pub-lightbox {
   position: fixed;
@@ -6,9 +7,34 @@
   z-index: 250;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  background-color: color-mix(in srgb, var(--ds-canvas) 94%, transparent);
+  background-color: rgb(10 10 10 / 0.92);
   color: var(--ds-text);
   animation: pub-lightbox-in var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.pub-lightbox-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--ds-target-min);
+  padding: 0 1.125rem;
+  border: 2px solid var(--fg);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--fg);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--ds-duration-fast) ease,
+    color var(--ds-duration-fast) ease;
+}
+
+.pub-lightbox-close:hover {
+  background-color: var(--fg);
+  color: var(--bg);
 }
 
 @keyframes pub-lightbox-in {
@@ -31,10 +57,10 @@
   font-size: var(--ds-fs-sm);
 }
 
-.pub-lightbox-close,
 .pub-lightbox-nav {
-  background-color: var(--ds-surface);
-  color: var(--ds-text-strong);
+  border: 2px solid var(--fg);
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
 .pub-lightbox-figure {
@@ -63,7 +89,9 @@
   min-height: 0;
   object-fit: contain;
   align-self: center;
-  border-radius: 2px;
+  border: 2px solid var(--fg);
+  border-radius: 14px;
+  background-color: #ffffff;
   box-shadow: var(--ds-shadow-lg);
 }
 

@@ -40,6 +40,7 @@ function AboutSection() {
   const education = data.educations.data[0]
   const skillGroups = groupSkills(data.skills.data)
   const focusChips = profile.hero_keywords.length > 0 ? 'hero_keywords' : 'secondary_roles'
+  const hasFocus = Boolean(profile.tagline) || profile[focusChips].length > 0
 
   return (
     <section id="tentang" className="pub-section pub-about" aria-labelledby="tentang-judul">
@@ -84,35 +85,56 @@ function AboutSection() {
             </figure>
           )}
 
-          {education && (
-            <article className="pub-tile pub-about-edu pub-reveal">
-              <div className="pub-about-edu-top">
-                <span className="pub-about-edu-icon" aria-hidden="true">
-                  <CapIcon size={28} />
-                </span>
-                {(education.is_current || education.end_year) && (
-                  <span className="pub-about-edu-year">
-                    {education.is_current ? t('about.studying') : t('about.graduated', { year: education.end_year })}
-                  </span>
-                )}
-              </div>
-              <p className="pub-about-edu-school">{education.institution}</p>
-              <h3 className="pub-about-edu-title">
-                <span lang={langOf(education, 'degree')}>{education.degree}</span>{' '}
-                <span lang={langOf(education, 'field_of_study')}>{education.field_of_study}</span>
-              </h3>
-              {education.thesis_title && (
-                <p className="pub-about-edu-thesis" lang={langOf(education, 'thesis_title')}>
-                  {t('about.thesis')}: {education.thesis_title}
-                </p>
+          {(education || hasFocus) && (
+            <div className="pub-about-col" data-full={skillGroups.length === 0 || undefined}>
+              {education && (
+                <article className="pub-tile pub-about-edu pub-reveal">
+                  <div className="pub-about-edu-top">
+                    <span className="pub-about-edu-icon" aria-hidden="true">
+                      <CapIcon size={28} />
+                    </span>
+                    {(education.is_current || education.end_year) && (
+                      <span className="pub-about-edu-year">
+                        {education.is_current ? t('about.studying') : t('about.graduated', { year: education.end_year })}
+                      </span>
+                    )}
+                  </div>
+                  <p className="pub-about-edu-school">{education.institution}</p>
+                  <h3 className="pub-about-edu-title">
+                    <span lang={langOf(education, 'degree')}>{education.degree}</span>{' '}
+                    <span lang={langOf(education, 'field_of_study')}>{education.field_of_study}</span>
+                  </h3>
+                  {education.thesis_title && (
+                    <p className="pub-about-edu-thesis" lang={langOf(education, 'thesis_title')}>
+                      {t('about.thesis')}: {education.thesis_title}
+                    </p>
+                  )}
+                  {education.gpa != null && (
+                    <p className="pub-about-gpa">
+                      <b>{formatGpa(education.gpa)}</b>
+                      <span>{t('about.gpaOf', { max: formatGpa(4) })}</span>
+                    </p>
+                  )}
+                </article>
               )}
-              {education.gpa != null && (
-                <p className="pub-about-gpa">
-                  <b>{formatGpa(education.gpa)}</b>
-                  <span>{t('about.gpaOf', { max: formatGpa(4) })}</span>
-                </p>
+              {hasFocus && (
+                <article className="pub-tile pub-invert pub-about-focus pub-reveal">
+                  <div>
+                    <h3>{t('about.focus')}</h3>
+                    {profile.tagline && <p lang={langOf(profile, 'tagline')}>{profile.tagline}</p>}
+                  </div>
+                  {profile[focusChips].length > 0 && (
+                    <ul className="pub-about-focus-list">
+                      {profile[focusChips].map((item, index) => (
+                        <li key={`${item}-${index}`} lang={langOf(profile, focusChips, index)}>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
               )}
-            </article>
+            </div>
           )}
 
           {skillGroups.length > 0 && (
@@ -133,24 +155,6 @@ function AboutSection() {
                   </ul>
                 </div>
               ))}
-            </article>
-          )}
-
-          {(profile.tagline || profile[focusChips].length > 0) && (
-            <article className="pub-tile pub-invert pub-about-focus pub-reveal">
-              <div>
-                <h3>{t('about.focus')}</h3>
-                {profile.tagline && <p lang={langOf(profile, 'tagline')}>{profile.tagline}</p>}
-              </div>
-              {profile[focusChips].length > 0 && (
-                <ul className="pub-about-focus-list">
-                  {profile[focusChips].map((item, index) => (
-                    <li key={`${item}-${index}`} lang={langOf(profile, focusChips, index)}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
             </article>
           )}
         </div>

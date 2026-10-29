@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import { englishColumnsMissing } from '../../lib/englishColumns'
+import { englishColumnsMissing, optionalColumnMissing } from '../../lib/englishColumns'
 import { supabase } from '../../lib/supabaseClient'
-import { ImageField } from './ui/AssetUpload'
-import { EnglishField, EnglishSection } from './ui/EnglishFields'
+import { Alert } from './ui/Alert'
+import { GalleryUpload, ImageField } from './ui/AssetUpload'
+import { EnglishField, EnglishList, EnglishSection } from './ui/EnglishFields'
 import { Checkbox, Field, FormSection, Input, QuickPicks, Select, Textarea } from './ui/Field'
 import { englishText } from './ui/formValues'
 import { FormPanel } from './ui/FormPanel'
 import { toFriendlyError } from './ui/friendlyError'
 import { DisplaySettings } from './ui/Switch'
-import { prepareUploads, useAssetField } from './ui/useAssetFields'
+import { prepareUploads, useAssetField, useGalleryField } from './ui/useAssetFields'
 import { useFormScreen } from './ui/useFormFeedback'
 
 const DEGREE_PRESETS = ['Diploma III (D3)', 'Sarjana (S1)', 'Magister (S2)', 'SMK / SMA']
@@ -62,15 +63,19 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
     thesis_title_en: education?.thesis_title_en || '',
   })
 
-  // Campus or school logo (logos/, 400 px), uploaded when saving
+  // Campus or school logo (logos/, 400 px) and up to three photos (gallery/, the folder of the public
+  // journey timeline), uploaded when saving. Photos need migration 20261030000000 (educations.photos);
+  // until it has run the form says so and leaves them out.
   const logo = useAssetField(education?.logo_url, { folder: 'logos', imageKind: 'logo' })
+  const photos = useGalleryField(education?.photos, { max: 3 })
+  const photosAvailable = !optionalColumnMissing('educations', 'photos')
 
   const [fieldErrors, setFieldErrors] = useState({})
   const [generalError, setGeneralError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Screen only: feedback, unsaved-changes guard, guarded cancel
-  const screen = useFormScreen({ data: formData, generalError, onCancel, extraDirty: logo.dirty })
+  const screen = useFormScreen({ data: formData, generalError, onCancel, extraDirty: logo.dirty || photos.dirty })
   const { finish } = screen
 
   const handleChange = (e) => {
@@ -145,20 +150,21 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
     if (!validate()) {
       return
     }
-    if (logo.busy) {
-      setGeneralError('Tunggu sebentar, logo yang dipilih masih diproses.')
+    if (logo.busy || photos.busy) {
+      setGeneralError('Tunggu sebentar, gambar yang dipilih masih diproses.')
       return
     }
 
     setIsSubmitting(true)
     setGeneralError(null)
 
+    // prepareUploads removes what it already uploaded when one upload fails, so there is nothing to
+    // roll back here
     let uploads
     try {
-      uploads = await prepareUploads({ logo_url: logo })
+      uploads = await prepareUploads(photosAvailable ? { logo_url: logo, photos } : { logo_url: logo })
     } catch (err) {
-      await uploads.rollback()
-      setGeneralError(err instanceof Error ? err.message : 'Gagal mengunggah logo.')
+      setGeneralError(err instanceof Error ? err.message : 'Gagal mengunggah gambar.')
       setIsSubmitting(false)
       return
     }
@@ -176,6 +182,7 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
       thesis_title: formData.thesis_title.trim() || null,
       is_visible: Boolean(formData.is_visible),
     }
+    if (photosAvailable) payload.photos = uploads.values.photos
     if (!englishColumnsMissing()) {
       Object.assign(payload, {
         degree_en: englishText(formData.degree_en),
@@ -218,6 +225,8 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
         finish(() => onSuccess(data))
       }
     } catch (err) {
+      // The new files are removed again when the save fails
+      await uploads.rollback()
       setGeneralError(
         err instanceof Error
           ? err.message
@@ -330,11 +339,33 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
         </Field>
       </FormSection>
 
-      <FormSection title="Logo">
+      <FormSection title="Logo dan foto">
         <ImageField id="edu-logo" label="Logo kampus atau sekolah" field={logo} shape="square" imageKind="logo" disabled={busy} />
+        {photosAvailable ? (
+          <GalleryUpload
+            id="edu-photos"
+            label="Foto dokumentasi"
+            field={photos}
+            altName={formData.institution.trim()}
+            captionPlaceholder="Contoh: Sidang tugas akhir"
+            hint="Sampai 3 foto. Tampil di folder arsip pada Perjalanan di halaman publik; keterangan dibaca sebagai teks alternatif."
+            disabled={busy}
+          />
+        ) : (
+          <Alert tone="info" title="Foto pendidikan belum tersedia">
+            Pembaruan database untuk foto pendidikan (migrasi 20261030000000_redesign_monokrom.sql) belum dijalankan.
+          </Alert>
+        )}
       </FormSection>
 
-      <EnglishSection values={[formData.degree_en, formData.field_of_study_en, formData.thesis_title_en]}>
+      <EnglishSection
+        values={[
+          formData.degree_en,
+          formData.field_of_study_en,
+          formData.thesis_title_en,
+          ...(photosAvailable ? photos.items.map((item) => item.caption_en) : []),
+        ]}
+      >
         <EnglishField id="edu-degree-en" label="Jenjang" original={formData.degree} {...english('degree_en')} />
         <EnglishField
           id="edu-field-of-study-en"
@@ -348,6 +379,19 @@ function EducationForm({ education = null, nextSortOrder = 0, onSuccess, onCance
           original={formData.thesis_title}
           {...english('thesis_title_en')}
         />
+        {photosAvailable && (
+          <EnglishList
+            id="edu-photos-en"
+            label="Keterangan foto"
+            itemLabel="Keterangan foto"
+            originals={photos.items.map((item) => item.caption)}
+            values={photos.items.map((item) => item.caption_en)}
+            onItemChange={(index, text) => photos.setCaptionEn(photos.items[index].key, text)}
+            maxLength={120}
+            emptyHint="Belum ada foto dokumentasi."
+            disabled={busy}
+          />
+        )}
       </EnglishSection>
 
       <DisplaySettings

@@ -70,8 +70,9 @@ function Lightbox({ images, start = 0, onClose }) {
         <p className="pub-lightbox-count" aria-live="polite">
           {many ? t('lightbox.counter', { n: index + 1, total: images.length }) : ''}
         </p>
-        <button ref={closeRef} type="button" className="pub-icon-btn pub-lightbox-close" onClick={onClose} aria-label={t('common.close')}>
-          <CloseIcon size={22} />
+        <button ref={closeRef} type="button" className="pub-lightbox-close" onClick={onClose}>
+          <span>{t('common.close')}</span>
+          <CloseIcon size={20} />
         </button>
       </div>
 

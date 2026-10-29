@@ -2,18 +2,15 @@ import { useI18n } from '../../i18n/i18nContext'
 import { AlertIcon } from './icons'
 
 /**
- * Home page section: blueprint tag, h2 and an optional intro, inside the page container.
- * The section is labelled by its heading; `id` is the address used by the menu (/#id). `decor` is an
- * optional decorative element placed in the container (e.g. the chicken next to the Proyek heading).
+ * Home page section (Prestasi, Organisasi): the large h2 and an optional intro, inside the page
+ * container. The section is labelled by its heading; `id` is the address used by the menu (/#id).
  */
-export function Section({ id, tag, title, intro, actions, decor, className = '', children }) {
+export function Section({ id, title, intro, actions, className = '', children }) {
   const headingId = `${id}-judul`
   return (
     <section id={id} className={`pub-section ${className}`.trim()} aria-labelledby={headingId}>
-      <div className={decor ? 'pub-container pub-container--decor' : 'pub-container'}>
-        {decor}
+      <div className="pub-container">
         <div className={`pub-section-head${actions ? ' pub-section-head--actions' : ''}`}>
-          <p className="pub-tag">{tag}</p>
           <h2 id={headingId} className="pub-h2">
             {title}
           </h2>

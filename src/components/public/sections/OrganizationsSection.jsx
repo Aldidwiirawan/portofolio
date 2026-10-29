@@ -3,8 +3,8 @@ import { UsersIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { Section } from '../Section'
-import { Period } from './ExperienceSection'
-import './CertificatesSection.css'
+import { Period } from './Period'
+import './CardsSection.css'
 
 /** "Organisasi": only rendered when there are visible organizations (the table is optional). */
 function OrganizationsSection() {
@@ -13,7 +13,7 @@ function OrganizationsSection() {
   if (status !== 'ready' || organizations.length === 0) return null
 
   return (
-    <Section id="organisasi" tag={t('organizations.tag')} title={t('organizations.title')}>
+    <Section id="organisasi" title={t('organizations.title')}>
       <ul className="pub-cards">
         {organizations.map((item) => (
           <li key={item.id}>

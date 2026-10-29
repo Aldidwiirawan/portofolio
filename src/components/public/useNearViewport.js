@@ -15,7 +15,7 @@ function whenIdle(callback) {
 
 /**
  * True once the element has come within `rootMargin` of the screen and the browser has had an idle
- * moment (and stays true). Used to load the decorative pieces (chicken and duck, robot, cameo) only when
+ * moment (and stays true). Used to load the decorative pieces (e.g. the GitHub graph) only when
  * the visitor gets close to them, without slowing down the page itself.
  * @param {React.RefObject<Element>} ref
  * @param {string} [rootMargin] e.g. '200px'

@@ -11,19 +11,19 @@ import { SITE_NAME } from './publicFormat'
 import { LangToggle, SoundToggle, ThemeToggle } from './Toggles'
 import './PublicNavbar.css'
 
-// Sections in the menu, with the data that decides whether the section exists (null = always).
-// "Perjalanan" points at the experience section until the journey timeline replaces it.
+// Sections in the menu, with the data that decides whether the section exists (null = always)
 const NAV_SECTIONS = [
   { id: 'beranda', label: 'nav.top', data: null },
   { id: 'tentang', label: 'nav.about', data: 'profile' },
   { id: 'proyek', label: 'nav.projects', data: 'projects' },
-  { id: 'pengalaman', label: 'nav.journey', data: 'experiences' },
+  { id: 'perjalanan', label: 'nav.journey', data: ['experiences', 'educations'] },
   { id: 'sertifikat', label: 'nav.certificates', data: 'certifications' },
   { id: 'kontak', label: 'nav.contact', data: null },
 ]
 
 function hasSection(data, key) {
   if (!key) return true
+  if (Array.isArray(key)) return key.some((one) => hasSection(data, one))
   const entry = data[key]
   if (entry.status !== 'ready') return true // loading or failed: the section still shows (skeleton / message)
   return Array.isArray(entry.data) ? entry.data.length > 0 : Boolean(entry.data)

@@ -588,3 +588,36 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
   (`timeline-scope`, maks. 8 kartu). Selain itu daftar biasa.
 - **Proyek lainnya** daftar ringkas; **grafik GitHub** monokrom, label bulan hanya untuk bulan yang lebarnya ≥ 3
   minggu (bulan pertama yang terpotong tidak lagi menempel ke bulan berikutnya).
+- **Bento (perbaikan Fase 5):** kartu "Fokus saya" di bawah kartu pendidikan dalam kolom kiri (`.pub-about-col`);
+  pendidikan setinggi isinya, Fokus mengisi sisa tinggi kolom di samping tech stack.
+
+### Perjalanan, Sertifikat, Kontak, Buku tamu, Kucing (Fase 5)
+
+- **Perjalanan** (`JourneySection`, `id="perjalanan"`, penanda lama `#pengalaman`/`#pendidikan` di dalamnya):
+  pengalaman dan pendidikan dalam satu daftar, terbaru dulu (pendidikan yang hanya punya tahun dianggap mulai
+  Agustus, awal tahun ajaran). Garis tengah abu-abu dengan garis hitam dan titik yang turun mengikuti scroll,
+  kartu terbuka seperti tirai (keduanya scroll-driven). Tiap baris: tahun besar bergaris tepi, **folder hanya
+  bila entri punya foto** (`JourneyFolder`: klik/Enter membuka, 3 foto berkipas dengan bunyi `open`/`close`,
+  alt = keterangan foto), selain itu periode; kartu berisi jenis, posisi, tempat, periode, ringkasan, poin tugas,
+  tag, dan tautan proyek terkait. Foto: `experiences.photos` (sudah ada) dan `educations.photos` (migrasi
+  20261030000000, dibaca lewat `selectWithOptional` sehingga halaman tetap jalan sebelum migrasi).
+- **Sertifikat**: 3 unggulan, gambar utuh (`contain`) di latar lembut, kartu terangkat saat hover, kategori,
+  nama, penerbit, terbit/berlaku sampai, "Lihat PDF" (+ "Verifikasi" bila ada tautan kredensial), lightbox
+  (Esc, tombol "Tutup", klik di luar; fokus kembali ke gambar), "Lihat semua (n lagi)". Skor tidak tampil.
+- **Kontak** `.pub-invert`: judul, ajakan, email sebagai tautan besar, profil lain (LinkedIn, GitHub, CV) sebagai
+  tombol ikon, formulir lama (logika tidak diubah) dalam panel bergaris tipis. **Footer** sederhana dan hitam:
+  hak cipta, kota, "Terbuka untuk kerja" bila tersedia, "Kembali ke atas". Robot a+ dihapus dari publik.
+- **Buku tamu**: pil mengambang `fixed` di kanan bawah dengan jumlah pesan asli (HP: tombol bulat + lencana),
+  menyingkir (tidak bisa difokus) selama bar status hero atau formulir kontak terlihat (`useCoveredAreas`).
+  Avatar di panel monokrom.
+- **Kucing Kopi & Susu** (`pets/CatPets.jsx` + `catSim.js`, hanya beranda, chunk sendiri): mengintip (mata
+  mengikuti pointer, berkedip, ekor bergoyang), sesekali berjalan ke titik acak, mengejar pointer di 280 px bawah
+  layar (sentuhan terakhir di layar sentuh), diseret (bergelantungan, meong pelan) dan dilempar (jatuh,
+  memantul, bunyi mendarat, meong bila jatuh keras), klik/Enter melompat dengan balon kata ID/EN. Warna dari
+  `--fg`/`--bg`, jadi terbalik di tema gelap. Lebih kecil di HP (76 px). Reduced motion: diam (diseret tetap
+  bisa, langsung mendarat tanpa animasi). **Tidak menutupi:** duduk di atas bar status hero, merunduk saat formulir
+  kontak terlihat, dan merunduk bila berada di atas tautan, tombol, atau kolom isian; selalu di bawah tombol buku
+  tamu (z-index 85 < 90).
+- **Admin**: foto pendidikan (unggah sampai 3 di `EducationForm`, keterangan EN; pemberitahuan bila migrasi
+  belum dijalankan; dua bug rollback unggahan diperbaiki; foto ikut dihapus saat entri dihapus), keterangan EN foto
+  di `ExperienceForm`.

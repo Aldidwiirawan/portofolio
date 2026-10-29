@@ -70,8 +70,9 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   Inggris, SEO, Vercel) sudah di `main` dan online. **Rombakan monokrom** halaman publik berjalan di branch
   `feat/redesign-monokrom` per fase (`design-system/aldi-portfolio/plans/rombakan-monokrom.md`, MASTER §16): fase 1
   (rencana dan SQL), fase 2 (fondasi visual: palet, Space Grotesk, navbar, tema bawaan terang), dan fase 3 (hero:
-  chip berfisika, nama besar, baris kode, bar status), dan fase 4 (bento Tentang, pita teknologi, Proyek yang
-  menumpuk) selesai.
+  chip berfisika, nama besar, baris kode, bar status), fase 4 (bento Tentang, pita teknologi, Proyek yang
+  menumpuk), dan fase 5 (Perjalanan, Sertifikat, Kontak, buku tamu, kucing Kopi & Susu, foto pendidikan di
+  admin) selesai.
 
 ## Capabilities and Constraints
 
@@ -103,7 +104,7 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 - **Keputusan yang masih terbuka:**
   - background `calm` untuk admin masih bisa berubah;
   - transisi jepret setelah login masih bisa diganti;
-  - robot a+ di footer dan panel buku tamu publik masih percobaan, bisa dihapus.
+  - robot a+ sudah dihapus dari halaman publik di rombakan monokrom (masih dipakai di login dan admin).
 
 ## Brand Commitments
 

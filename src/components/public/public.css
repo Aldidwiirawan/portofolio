@@ -301,11 +301,6 @@ html:has(.pub) {
   content-visibility: visible;
 }
 
-/* Kontainer section dengan elemen dekoratif (Section decor) */
-.pub-container--decor {
-  position: relative;
-}
-
 .pub-section + .pub-section {
   border-top: 1px solid var(--ds-border);
 }
@@ -638,6 +633,12 @@ html:has(.pub) {
 
 .pub-arrow-link:hover svg {
   transform: translateX(3px);
+}
+
+/* Penanda alamat lama (/#pengalaman, /#pendidikan) di awal bagian penggantinya */
+.pub-anchor {
+  display: block;
+  height: 0;
 }
 
 /* --- Muncul saat digulir ----------------------------------------------------------

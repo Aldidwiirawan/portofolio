@@ -281,14 +281,29 @@
   transform: translateY(-2px);
 }
 
+/* Kolom kiri: pendidikan dengan "Fokus saya" di bawahnya. Kartu pendidikan setinggi isinya; kartu Fokus
+   mengisi sisa tinggi kolom, jadi tidak ada ruang kosong di samping tech stack. */
+.pub-about-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 0.5rem + 1.6vw, 1.75rem);
+}
+
 /* Fokus saya (kartu hitam) */
 .pub-about-focus {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex: 1;
+  flex-direction: column;
   justify-content: space-between;
   gap: 1.5rem;
   border-color: var(--bg);
+}
+
+/* Tanpa tech stack: kolom selebar bento, Fokus kembali satu baris */
+.pub-about-col[data-full] .pub-about-focus {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .pub-about-focus h3 {
@@ -337,7 +352,7 @@
     transform: rotate(1.2deg);
   }
 
-  .pub-about-edu {
+  .pub-about-col {
     grid-column: span 5;
   }
 
@@ -346,10 +361,9 @@
     box-shadow: 8px 8px 0 var(--fg);
   }
 
-  /* Pendidikan tanpa tech stack (atau sebaliknya) memakai seluruh baris */
-  .pub-about-edu:last-child,
-  .pub-about-edu:has(+ .pub-about-focus),
-  .pub-about-stack:not(.pub-about-edu + .pub-about-stack) {
+  /* Kolom kiri tanpa tech stack (atau tech stack tanpa kolom kiri) memakai seluruh baris */
+  .pub-about-col[data-full],
+  .pub-about-stack:not(.pub-about-col + .pub-about-stack) {
     grid-column: span 12;
   }
 }

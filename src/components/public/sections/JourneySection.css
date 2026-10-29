@@ -1,0 +1,452 @@
+/* "Perjalanan saya" — garis waktu monokrom (MASTER §16) */
+
+.pub-journey {
+  position: relative;
+}
+
+.pub-journey-head {
+  text-align: center;
+}
+
+/* Judul dengan stabilo abu-abu yang memanjang saat judul masuk layar */
+.pub-journey-title span {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+}
+
+.pub-journey-title span::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0.05em;
+  left: 0;
+  z-index: -1;
+  height: 0.14em;
+  background-color: color-mix(in srgb, var(--fg) 12%, transparent);
+  transform-origin: left;
+}
+
+.pub-journey-head .pub-lead {
+  margin: 1.25rem auto 0;
+}
+
+.pub-jr {
+  position: relative;
+  margin-top: clamp(4rem, 2rem + 6vw, 6.875rem);
+  view-timeline: --pub-jr block;
+}
+
+/* Garis tengah: abu-abu penuh, garis hitam di atasnya yang turun mengikuti scroll, titik di ujungnya */
+.pub-jr-track,
+.pub-jr-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1.25rem;
+  width: 3px;
+  margin-left: -1.5px;
+}
+
+.pub-jr-track {
+  background-color: color-mix(in srgb, var(--fg) 10%, transparent);
+}
+
+.pub-jr-fill {
+  background-color: var(--fg);
+  transform-origin: 50% 0;
+}
+
+.pub-jr-fill::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  border-radius: 50%;
+  background-color: var(--fg);
+}
+
+.pub-jr-list {
+  list-style: none;
+}
+
+.pub-jr-item {
+  position: relative;
+  display: grid;
+  gap: 1.75rem;
+  align-items: center;
+  padding: 2.5rem 0 2.5rem 3.25rem;
+}
+
+.pub-jr-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.pub-jr-year {
+  color: transparent;
+  font-size: clamp(4.5rem, 3rem + 6vw, 9.375rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  -webkit-text-stroke: 2.5px var(--fg);
+}
+
+/* --- Folder foto -------------------------------------------------------------------- */
+
+.pub-jr-folder {
+  --pub-fan-x: 5.25rem;
+  --pub-photo-w: 6.875rem;
+
+  position: relative;
+  width: 11.25rem;
+  height: 9.375rem;
+  margin-top: -1.125rem;
+}
+
+.pub-jr-folder-back {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 7.375rem;
+  border-radius: 12px;
+  background-color: var(--fg);
+}
+
+.pub-jr-folder-back::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 0;
+  width: 66px;
+  height: 24px;
+  border-radius: 10px 10px 0 0;
+  background-color: var(--fg);
+}
+
+.pub-jr-folder-front {
+  position: absolute;
+  right: -6px;
+  bottom: 0;
+  left: -6px;
+  z-index: 3;
+  height: 6rem;
+  border-radius: 10px;
+  background-color: var(--fg);
+  box-shadow: 0 -2px 0 color-mix(in srgb, var(--bg) 30%, transparent) inset;
+  transform-origin: 50% 100%;
+  transition: transform 500ms var(--ds-ease-out);
+}
+
+.pub-jr-folder[data-open] .pub-jr-folder-front {
+  transform: perspective(500px) rotateX(-32deg);
+}
+
+/* Foto: tersimpan kecil di dalam folder, keluar berkipas saat folder dibuka */
+.pub-jr-photo {
+  position: absolute;
+  bottom: 1.875rem;
+  left: 50%;
+  z-index: 2;
+  width: var(--pub-photo-w);
+  aspect-ratio: 4 / 3;
+  margin-left: calc(var(--pub-photo-w) / -2);
+  overflow: hidden;
+  border: 5px solid #ffffff;
+  border-radius: 6px;
+  background-color: #d4d4d8;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.3);
+  opacity: 0;
+  transform: translateY(20px) scale(0.6);
+  transition:
+    transform 600ms var(--ds-ease-out),
+    opacity 300ms ease;
+}
+
+.pub-jr-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.pub-jr-folder[data-open] .pub-jr-photo {
+  opacity: 1;
+}
+
+.pub-jr-folder[data-open] .pub-jr-photo:nth-of-type(2) {
+  transform: translate(calc(var(--pub-fan-x) * -1), -9.375rem) rotate(-14deg);
+}
+
+.pub-jr-folder[data-open] .pub-jr-photo:nth-of-type(3) {
+  transform: translate(0, -11.875rem) rotate(2deg);
+  transition-delay: 60ms;
+}
+
+.pub-jr-folder[data-open] .pub-jr-photo:nth-of-type(4) {
+  transform: translate(var(--pub-fan-x), -9.375rem) rotate(13deg);
+  transition-delay: 120ms;
+}
+
+/* Satu foto: lurus ke atas; dua foto: kiri dan kanan */
+.pub-jr-folder[data-open][data-count='1'] .pub-jr-photo:nth-of-type(2) {
+  transform: translate(0, -11.875rem) rotate(-3deg);
+}
+
+.pub-jr-folder[data-open][data-count='2'] .pub-jr-photo:nth-of-type(3) {
+  transform: translate(var(--pub-fan-x), -9.375rem) rotate(10deg);
+}
+
+/* Tombol selebar folder (di atas semuanya): klik, Enter, atau Spasi membuka dan menutup */
+.pub-jr-folder-button {
+  position: absolute;
+  inset: -18px -6px 0;
+  z-index: 4;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pub-jr-folder-text {
+  margin-top: 1.375rem;
+  text-align: center;
+}
+
+.pub-jr-folder-text b {
+  display: block;
+  color: var(--fg);
+  font-size: 0.9375rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.pub-jr-folder-text span {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  color: var(--mute);
+  font-size: 0.875rem;
+}
+
+.pub-jr-folder-text b + span {
+  margin-top: 0.5rem;
+}
+
+/* --- Kartu ---------------------------------------------------------------------- */
+
+.pub-jr-card {
+  min-width: 0;
+  padding: clamp(1.5rem, 1rem + 1.4vw, 2.375rem);
+  border: var(--pub-border) solid var(--fg);
+  border-radius: 28px;
+  background-color: var(--bg);
+  box-shadow: 8px 8px 0 var(--fg);
+}
+
+.pub-jr-kind {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  background-color: var(--fg);
+  color: var(--bg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pub-jr-role {
+  margin-top: 1.125rem;
+  color: var(--fg);
+  font-size: clamp(1.5rem, 1.2rem + 0.9vw, 1.875rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.pub-jr-place {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+  color: var(--mute);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pub-jr-place svg {
+  flex-shrink: 0;
+  margin-top: 0.15em;
+}
+
+.pub-jr-period {
+  margin-top: 0.25rem;
+  color: var(--mute);
+  font-size: 0.875rem;
+}
+
+.pub-jr-text {
+  margin-top: 1rem;
+  color: var(--mute);
+}
+
+.pub-jr-tasks {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  list-style: none;
+}
+
+.pub-jr-tasks li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  color: var(--mute);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.pub-jr-tasks li::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background-color: var(--fg);
+  transform: translateY(-1px);
+}
+
+.pub-jr-also {
+  margin-top: 0.875rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 12px;
+  background-color: var(--soft);
+  color: var(--ds-text);
+  font-size: 0.9375rem;
+}
+
+.pub-jr-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1.5px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  list-style: none;
+}
+
+.pub-jr-tags li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.8rem;
+  border: 1.5px solid color-mix(in srgb, var(--fg) 15%, transparent);
+  border-radius: 10px;
+  color: var(--fg);
+  font-size: 0.78125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pub-jr-project {
+  margin-top: 1rem;
+}
+
+/* Dua kolom mulai 1060 px: garis di tengah, sisi tahun dan kartu bergantian */
+@media (min-width: 1060px) {
+  .pub-jr-track,
+  .pub-jr-fill {
+    left: 50%;
+  }
+
+  .pub-jr-item {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 7.5rem;
+    padding: 3.5rem 0;
+  }
+
+  .pub-jr-item[data-flip] .pub-jr-side {
+    order: 2;
+  }
+
+  .pub-jr-folder {
+    --pub-fan-x: 7.5rem;
+    --pub-photo-w: 8.125rem;
+  }
+}
+
+@media (max-width: 1059px) {
+  .pub-jr-item {
+    padding-left: 3.25rem;
+  }
+}
+
+/* --- Gerak: garis mengikuti scroll, kartu terbuka seperti tirai, stabilo judul -------- */
+
+@keyframes pub-jr-drop {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pub-jr-curtain {
+  from {
+    clip-path: inset(0 -14px 100% 0 round 28px);
+  }
+  to {
+    clip-path: inset(0 -14px -14px 0 round 28px);
+  }
+}
+
+@keyframes pub-jr-mark {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .pub-jr-fill {
+      animation: pub-jr-drop linear both;
+      animation-timeline: --pub-jr;
+      animation-range: entry 40% exit 60%;
+    }
+
+    .pub-jr-card {
+      animation: pub-jr-curtain linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 60%;
+    }
+
+    .pub-journey-title span::after {
+      animation: pub-jr-mark linear both;
+      animation-timeline: view();
+      animation-range: entry 30% entry 90%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-jr-folder-front,
+  .pub-jr-photo {
+    transition: none;
+  }
+}

@@ -12,6 +12,8 @@ import { useI18n } from '../i18n/i18nContext'
 const loadSections = () => import('./HomeSections')
 const HomeSections = lazy(loadSections)
 afterFirstPaint(loadSections)
+// Kopi and Susu: decorative, their own chunk, rendered together with the sections
+const CatPets = lazy(() => import('../components/public/pets/CatPets'))
 
 /**
  * Public home page (/): the hero, then the other sections (HomeSections) in the order of the stage 3A
@@ -37,6 +39,11 @@ function PublicHomePage() {
       {showSections && (
         <Suspense fallback={null}>
           <HomeSections />
+        </Suspense>
+      )}
+      {showSections && (
+        <Suspense fallback={null}>
+          <CatPets />
         </Suspense>
       )}
       <GuestbookButton />

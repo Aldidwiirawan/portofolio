@@ -1,6 +1,6 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 4 selesai, menunggu persetujuan pemilik untuk Fase 5 · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 5 selesai, menunggu persetujuan pemilik untuk Fase 6 · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -144,6 +144,12 @@ laporan akhir.
       motion, fakta dan Kunjungi vs data live, label bulan dengan data tiruan), uji hero/chip ulang, login identik
       dengan `main`, screenshot 1440/390 × terang/gelap + saat menumpuk
 - Catatan Fase 7 (pemilik): uji juga seret chip dengan sentuhan (emulasi touch Playwright) di 390.
-- [ ] Fase 5. Perjalanan, Sertifikat, Kontak, Buku tamu, Kucing (+ admin foto)
+- [x] Fase 5. Perjalanan (folder hanya bila ada foto), Sertifikat (3 unggulan, lightbox), Kontak + footer hitam,
+      buku tamu pil yang menyingkir dari bar status dan formulir, kucing Kopi & Susu (4 perilaku, kecil di HP,
+      diam saat reduced motion, tidak menutupi tombol/formulir), bento: Fokus di bawah pendidikan; admin: foto
+      pendidikan + keterangan EN + perbaikan rollback, keterangan EN foto pengalaman. Robot, ayam/bebek sisa,
+      `interactionBus`, `characterLines`, `SocialLinks` dihapus. Uji: lint, build, uji Fase 5 (40 cek; tulis
+      ke Supabase dicegat), uji hero/chip/proyek ulang, login identik, screenshot termasuk folder, lightbox,
+      kucing diseret. Form admin belum diuji di browser (perlu harness admin tiruan; masuk Fase 7)
 - [ ] Fase 6. Detail proyek, `api/github-repo.js` (+ admin proyek)
 - [ ] Fase 7. Validasi dan laporan akhir

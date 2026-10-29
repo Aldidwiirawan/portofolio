@@ -1,85 +1,97 @@
 /* Tombol buku tamu mengambang dan panel buku tamu */
 
-/* Menempel di bawah layar selama menggulir, lalu berhenti di atas footer (3B, K5) supaya tidak menutupi
-   "Kembali ke atas" dan robot a+. Tombol ini anak terakhir <main> (kolom flex): sticky di dalam <main>,
-   dengan margin yang membuat tingginya di alur halaman nol (48 px naik, 16/24 px turun; HP sempit: lihat
-   di bawah). */
+/* Pil mengambang di kanan bawah dengan jumlah pesan asli. Selalu di atas kucing (z-index), dan
+   menyingkir ke bawah layar selama bar status hero atau formulir kontak terlihat (data-hidden,
+   GuestbookButton), jadi tidak pernah menutupi keduanya. Tersembunyi = visibility hidden: tidak bisa
+   difokus. */
 .pub-gb-fab {
-  position: sticky;
-  bottom: var(--space-4);
+  position: fixed;
+  right: clamp(1rem, 2vw, 1.75rem);
+  bottom: clamp(1rem, 2vw, 1.75rem);
   z-index: 90;
-  align-self: flex-end;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  height: 3rem;
-  margin: calc(-3rem - var(--space-4)) var(--space-4) var(--space-4) 0;
-  padding: 0 var(--space-3) 0 var(--space-4);
-  border: 1px solid var(--ds-border-control);
-  border-radius: var(--pub-radius);
-  background-color: var(--ds-surface-raised);
-  box-shadow: var(--ds-shadow-lg);
-  color: var(--ds-text-strong);
-  font-size: var(--ds-fs-sm);
-  font-weight: var(--ds-fw-semibold);
+  gap: 0.75rem;
+  height: 4rem;
+  padding: 0 0.75rem 0 1.5rem;
+  border: var(--pub-border) solid var(--fg);
+  border-radius: 999px;
+  background-color: var(--bg);
+  box-shadow: 5px 6px 0 var(--fg);
+  color: var(--fg);
+  font-size: 1.125rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: border-color var(--ds-duration-fast) ease;
+  transition:
+    transform 250ms var(--ds-ease-out),
+    visibility 0s;
 }
 
 .pub-gb-fab:hover {
-  border-color: var(--ds-accent-text);
+  transform: translateY(-2px);
+}
+
+.pub-gb-fab[data-hidden] {
+  visibility: hidden;
+  transform: translateY(calc(100% + 3rem));
+  transition:
+    transform 300ms var(--ds-ease-out),
+    visibility 0s 300ms;
 }
 
 .pub-gb-fab svg {
-  color: var(--ds-accent-text);
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
 }
 
 .pub-gb-fab-count {
   display: inline-grid;
   place-items: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding: 0 0.375rem;
-  border-radius: 2px;
-  background-color: var(--ds-accent);
-  color: var(--ds-on-accent);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
+  min-width: 2.375rem;
+  height: 2.125rem;
+  padding: 0 0.5rem;
+  border: 1.5px solid color-mix(in srgb, var(--fg) 20%, transparent);
+  border-radius: 10px;
+  font-size: 0.875rem;
 }
 
-@media (min-width: 768px) {
-  .pub-gb-fab {
-    bottom: var(--space-6);
-    margin: calc(-3rem - var(--space-6)) var(--space-6) var(--space-6) 0;
-  }
-}
-
-/* HP sempit: tombol ikon 44 px (batas sentuh minimum) dengan jumlah pesan sebagai lencana kecil di
-   sudutnya, supaya hanya menutupi sedikit konten (nama lengkap tetap ada di aria-label). Di sini tombol
-   juga memakai ruang sendiri di akhir <main> (naik hanya 24 px ke padding section terakhir), jadi di
-   ujung halaman ia tidak menempel pada konten terakhir. */
-@media (max-width: 479px) {
+/* HP: tombol bulat 56 px tanpa teks, jumlah pesan sebagai lencana di sudutnya */
+@media (max-width: 619px) {
   .pub-gb-fab-text {
     display: none;
   }
 
   .pub-gb-fab {
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin: calc(-1 * var(--space-6)) var(--space-3) var(--space-3) 0;
-    bottom: var(--space-3);
+    width: 3.5rem;
+    height: 3.5rem;
     padding: 0;
+    box-shadow: 3px 4px 0 var(--fg);
   }
 
   .pub-gb-fab-count {
     position: absolute;
     top: -0.5rem;
     right: -0.5rem;
-    min-width: 1.25rem;
-    height: 1.25rem;
-    padding: 0 0.25rem;
-    font-size: 0.6875rem;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.3rem;
+    border: 0;
+    background-color: var(--fg);
+    color: var(--bg);
+    font-size: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-gb-fab,
+  .pub-gb-fab[data-hidden] {
+    transition: none;
+  }
+
+  .pub-gb-fab:hover {
+    transform: none;
   }
 }
 
@@ -93,7 +105,7 @@
 .pub-gb-backdrop {
   position: absolute;
   inset: 0;
-  background-color: color-mix(in srgb, var(--ds-screen) 60%, transparent);
+  background-color: rgb(10 10 10 / 0.6);
   animation: pub-gb-fade var(--ds-duration-base) ease;
 }
 
@@ -105,8 +117,8 @@
   display: flex;
   flex-direction: column;
   width: min(30rem, 100%);
-  border-left: 1px solid var(--ds-border);
-  background-color: var(--ds-canvas);
+  border-left: var(--pub-border) solid var(--fg);
+  background-color: var(--bg);
   box-shadow: var(--ds-shadow-lg);
   animation: pub-gb-slide var(--ds-duration-slow) var(--ds-ease-out);
 }
@@ -157,9 +169,9 @@
   display: grid;
   gap: var(--space-4);
   padding: var(--space-4);
-  border: 1px solid var(--ds-border);
-  border-radius: 2px;
-  background-color: var(--ds-surface);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  background-color: var(--bg);
 }
 
 .pub-gb-textarea {
@@ -224,9 +236,9 @@
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 2px;
-  background-color: var(--ds-accent-subtle);
-  color: var(--ds-screen);
+  border-radius: 50%;
+  background-color: var(--fg);
+  color: var(--bg);
   font-family: var(--ds-font-mono);
   font-weight: var(--ds-fw-bold);
 }

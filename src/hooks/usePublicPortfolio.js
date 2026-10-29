@@ -1,6 +1,6 @@
 import { startTransition, useCallback, useEffect, useRef, useState } from 'react'
 import { afterFirstPaint } from '../lib/afterFirstPaint'
-import { selectWithEnglish } from '../lib/englishColumns'
+import { selectWithEnglish, selectWithOptional } from '../lib/englishColumns'
 import { restInsert, restSelect } from '../lib/publicApi'
 
 // Data of the public pages (stage 3A). The old hooks stay unchanged for the admin. Since stage 3C the
@@ -48,8 +48,9 @@ const TABLES = {
   },
   experiences: {
     table: 'experiences',
+    // photos (migration 20261016000000): the folder of the journey timeline
     columns:
-      'id, role, company, experience_type, location, start_date, end_date, is_current, description, responsibilities, skill_tags, logo_url, related_project_id, sort_order',
+      'id, role, company, experience_type, location, start_date, end_date, is_current, description, responsibilities, skill_tags, logo_url, photos, related_project_id, sort_order',
     enColumns: 'role_en, company_en, description_en, responsibilities_en',
     order: [['sort_order'], ['start_date', { ascending: false }]],
     normalize: (row) => {
@@ -61,6 +62,7 @@ const TABLES = {
         responsibilities_en: responsibilitiesEn,
         skill_tags: toTextList(row.skill_tags),
         logo_url: safeAssetUrl(row.logo_url),
+        photos: photoList(row.photos),
       }
     },
   },
@@ -68,8 +70,10 @@ const TABLES = {
     table: 'educations',
     columns: 'id, institution, degree, field_of_study, start_year, end_year, is_current, gpa, thesis_title, logo_url, sort_order',
     enColumns: 'degree_en, field_of_study_en, thesis_title_en',
+    // educations.photos comes with migration 20261030000000; until then the page shows no folder
+    optional: ['photos'],
     order: [['sort_order'], ['start_year', { ascending: false }]],
-    normalize: (row) => ({ ...row, logo_url: safeAssetUrl(row.logo_url) }),
+    normalize: (row) => ({ ...row, logo_url: safeAssetUrl(row.logo_url), photos: photoList(row.photos) }),
   },
   certifications: {
     table: 'certifications',
@@ -202,6 +206,14 @@ export function publicLinks(value) {
     .filter(Boolean)
 }
 
+/** Journey photos [{ url, caption, caption_en }]: at most 3, safe addresses only (caption = alt text). */
+function photoList(value) {
+  return (Array.isArray(value) ? value : [])
+    .map((item) => ({ url: safeAssetUrl(item?.url), caption: text(item?.caption), caption_en: text(item?.caption_en) }))
+    .filter((item) => item.url)
+    .slice(0, 3)
+}
+
 function normalizeProjectDetail(row) {
   return {
     ...row,
@@ -214,9 +226,15 @@ function normalizeProjectDetail(row) {
   }
 }
 
-function runQuery({ table, columns, enColumns, single, order = [] }) {
+function runQuery({ table, columns, enColumns, optional, single, order = [] }) {
   return selectWithEnglish(
-    (selected) => restSelect(table, { columns: selected, filters: single ? [] : [['is_visible', true]], order, single }),
+    (selected) =>
+      selectWithOptional(
+        (all) => restSelect(table, { columns: all, filters: single ? [] : [['is_visible', true]], order, single }),
+        selected,
+        table,
+        optional
+      ),
     columns,
     enColumns
   )

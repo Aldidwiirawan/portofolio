@@ -262,6 +262,10 @@ status. Rincian dan alasannya di MASTER §16; ringkasnya:
 - **Tentang dan Proyek:** bento kartu bergaris (perkenalan, foto, pendidikan dengan IPK besar, tech stack, kartu
   hitam Fokus), pita teks besar yang bergeser mengikuti scroll, lalu bagian hitam berisi kartu proyek yang menumpuk
   (sticky) di layar lebar dan daftar biasa di HP; tanpa angka metrik.
+- **Perjalanan, Sertifikat, Kontak:** garis waktu dengan tahun bergaris tepi dan folder foto berkipas, kartu
+  sertifikat bergambar utuh dengan lightbox, bagian kontak hitam dengan formulir di panel tipis, footer hitam
+  sederhana. Kucing Kopi (hitam) dan Susu (putih) mengintip di bawah layar dan tidak pernah menutupi tombol,
+  formulir, atau bar status; tombol buku tamu berbentuk pil mengambang.
 - **Tetap berlaku dari Blueprint:** aturan aksesibilitas, target sentuh ≥44 px, reduced motion, dan "Not Color
   Alone". Komponen Blueprint (kursor viewfinder, latar blueprint, layar pembuka) tidak dipakai di publik.
 

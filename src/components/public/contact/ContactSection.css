@@ -1,134 +1,150 @@
-/* Section Kontak dan formulir pesan */
+/* "Kontak" — bagian hitam dengan formulir yang sudah ada (MASTER §16) */
+
+.pub-contact {
+  padding-bottom: clamp(4rem, 3rem + 3vw, 6rem);
+}
 
 .pub-contact-grid {
   display: grid;
-  gap: var(--space-10);
+  gap: clamp(2rem, 1rem + 4vw, 5rem);
+  align-items: start;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1060px) {
   .pub-contact-grid {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: start;
-    gap: var(--space-16);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
 .pub-contact-intro {
-  display: grid;
-  justify-items: start;
-  gap: var(--space-6);
-}
-
-.pub-contact-intro .pub-section-head {
-  margin-bottom: 0;
-}
-
-.pub-channels {
-  display: grid;
-  gap: var(--space-2);
-  width: 100%;
-  list-style: none;
-}
-
-.pub-channel,
-.pub-channel:hover {
-  color: var(--ds-text-strong);
-}
-
-.pub-channel {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: 4rem;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--ds-border);
-  border-radius: var(--pub-radius);
-  background-color: var(--ds-surface);
-  transition: border-color var(--ds-duration-fast) ease;
-}
-
-.pub-channel:hover {
-  border-color: var(--ds-border-control);
-}
-
-.pub-channel-icon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--pub-radius);
-  background-color: var(--ds-accent-subtle);
-  color: var(--ds-accent-text);
-}
-
-.pub-channel-text {
-  display: grid;
   min-width: 0;
 }
 
-.pub-channel-label {
-  color: var(--ds-text-subtle);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  letter-spacing: var(--ds-tracking-wide);
+.pub-contact-intro .pub-lead {
+  margin-top: 1.25rem;
+}
+
+.pub-contact-label {
+  margin-top: 2.5rem;
+  color: var(--mute);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.pub-channel-value {
+.pub-contact-mail,
+.pub-contact-mail:hover {
+  color: var(--fg);
+}
+
+.pub-contact-mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+  max-width: 100%;
+  min-height: 4rem;
+  margin-top: 0.75rem;
+  padding: 0 1.375rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  font-size: 1.0625rem;
+  font-weight: 700;
   overflow-wrap: anywhere;
-  font-weight: var(--ds-fw-semibold);
+  transition: border-color var(--ds-duration-fast) ease;
 }
 
-.pub-channel:hover .pub-channel-value {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+.pub-contact-mail svg {
+  flex-shrink: 0;
 }
 
-/* Formulir: kartu dengan bracket sudut */
-.pub-contact-form {
-  position: relative;
+.pub-contact-mail:hover {
+  border-color: var(--fg);
+}
+
+.pub-contact-profiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  list-style: none;
+}
+
+.pub-contact-profile,
+.pub-contact-profile:hover {
+  color: var(--fg);
+}
+
+.pub-contact-profile {
   display: grid;
-  gap: var(--space-5);
-  padding: var(--space-5);
-  border: 1px solid var(--ds-border);
-  border-radius: 2px;
-  background-color: var(--ds-surface);
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  transition:
+    background-color var(--ds-duration-fast) ease,
+    color var(--ds-duration-fast) ease;
 }
 
-.pub-contact-form::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  --pub-bracket: var(--ds-accent-text);
-  --pub-bracket-len: 14px;
-  --pub-bracket-w: 2px;
-  background: var(--pub-brackets);
-  background-repeat: no-repeat;
-  pointer-events: none;
+.pub-contact-profile:hover {
+  background-color: var(--fg);
+  color: var(--bg);
 }
 
-@media (min-width: 768px) {
-  .pub-contact-form {
-    padding: var(--space-8);
-  }
+/* Formulir: panel bergaris tipis di atas latar hitam */
+.pub-contact-form {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  padding: clamp(1.5rem, 1rem + 1.4vw, 2.25rem);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background-color: color-mix(in srgb, var(--fg) 4%, transparent);
 }
 
 .pub-contact-form-head {
   display: grid;
-  gap: var(--space-1);
+  gap: 0.25rem;
 }
 
 .pub-contact-form-title {
-  font-size: var(--ds-fs-xl);
+  color: var(--fg);
+  font-size: 1.375rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.pub-contact-form .pub-label {
+  color: var(--mute);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pub-contact-form .pub-input {
+  border-color: var(--line);
+  background-color: color-mix(in srgb, var(--fg) 5%, transparent);
+  color: var(--fg);
+}
+
+.pub-contact-form .pub-input:hover,
+.pub-contact-form .pub-input:focus-visible {
+  border-color: var(--fg);
+}
+
+.pub-contact-form select.pub-input option {
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
 .pub-contact-form-row {
   display: grid;
-  gap: var(--space-5);
+  gap: 1rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 620px) {
   .pub-contact-form-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -136,10 +152,4 @@
 
 .pub-contact-form-foot .pub-btn {
   width: 100%;
-}
-
-@media (min-width: 768px) {
-  .pub-contact-form-foot .pub-btn {
-    width: auto;
-  }
 }

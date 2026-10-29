@@ -13,6 +13,7 @@ import { IconCap } from '../../components/admin/ui/icons'
 import { RowActions, SectionScreen } from '../../components/admin/ui/SectionScreen'
 import { useReorder } from '../../components/admin/ui/useReorder'
 import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
+import { assetUrlsOf } from '../../components/admin/ui/useAssetFields'
 
 /**
  * AdminEducationsPage Component (CRUD)
@@ -105,8 +106,8 @@ function EducationsScreen() {
         )
       }
 
-      // Best-effort removal of the logo
-      await removeAssets([deletingEdu.logo_url])
+      // Best-effort removal of the logo and the photos
+      await removeAssets(assetUrlsOf(deletingEdu, ['logo_url'], ['photos']))
 
       if (editingEdu?.id === deletingEdu.id) {
         setEditingEdu(null)

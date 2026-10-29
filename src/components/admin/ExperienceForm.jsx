@@ -336,7 +336,7 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
           field={photos}
           altName={formData.company.trim()}
           captionPlaceholder="Contoh: Pemasangan jaringan di ruang server"
-          hint="Sampai 3 foto kegiatan."
+          hint="Sampai 3 foto kegiatan. Tampil di folder arsip pada Perjalanan di halaman publik; keterangan dibaca sebagai teks alternatif."
           disabled={busy}
         />
       </FormSection>
@@ -361,7 +361,13 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
       </FormSection>
 
       <EnglishSection
-        values={[formData.role_en, formData.company_en, formData.description_en, ...formData.responsibilities_en]}
+        values={[
+          formData.role_en,
+          formData.company_en,
+          formData.description_en,
+          ...formData.responsibilities_en,
+          ...photos.items.map((item) => item.caption_en),
+        ]}
       >
         <EnglishField id="exp-role-en" label="Posisi" original={formData.role} maxLength={100} {...input('role_en')} />
         <EnglishField
@@ -382,6 +388,17 @@ function ExperienceForm({ experience = null, projects = [], nextSortOrder = 0, o
           disabled={busy}
         />
         <EnglishField id="exp-description-en" label="Ringkasan" original={formData.description} multiline {...input('description_en')} />
+        <EnglishList
+          id="exp-photos-en"
+          label="Keterangan foto"
+          itemLabel="Keterangan foto"
+          originals={photos.items.map((item) => item.caption)}
+          values={photos.items.map((item) => item.caption_en)}
+          onItemChange={(index, text) => photos.setCaptionEn(photos.items[index].key, text)}
+          maxLength={120}
+          emptyHint="Belum ada foto dokumentasi."
+          disabled={busy}
+        />
       </EnglishSection>
 
       <DisplaySettings

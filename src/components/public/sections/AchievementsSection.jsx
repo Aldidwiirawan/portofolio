@@ -5,7 +5,7 @@ import { usePublicData } from '../publicContexts'
 import { Section } from '../Section'
 import LazyLightbox from '../LazyLightbox'
 import { useLightbox } from '../useLightbox'
-import './CertificatesSection.css'
+import './CardsSection.css'
 
 /** "Prestasi": only rendered when there are visible achievements (the table is optional). */
 function AchievementsSection() {
@@ -15,7 +15,7 @@ function AchievementsSection() {
   if (status !== 'ready' || achievements.length === 0) return null
 
   return (
-    <Section id="prestasi" tag={t('achievements.tag')} title={t('achievements.title')}>
+    <Section id="prestasi" title={t('achievements.title')}>
       <ul className="pub-cards">
         {achievements.map((item) => {
           const when = item.month

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { selectWithEnglish } from '../lib/englishColumns'
+import { selectWithEnglish, selectWithOptional } from '../lib/englishColumns'
 import { supabase } from '../lib/supabaseClient'
 
 // Columns read by the public portfolio page (unchanged).
@@ -12,6 +12,10 @@ const ADMIN_COLUMNS = `${PUBLIC_COLUMNS}, logo_url, gpa, thesis_title, is_visibl
 // English versions (migration 20261019000000), read by the admin only; while that migration has not
 // been run the query runs again without them (lib/englishColumns.js).
 const ENGLISH_COLUMNS = 'degree_en, field_of_study_en, thesis_title_en'
+
+// Photos of the journey folder (migration 20261030000000), admin only; read only when the column
+// exists (lib/englishColumns.js selectWithOptional), so the list keeps working before that migration.
+const OPTIONAL_ADMIN_COLUMNS = ['photos']
 
 /**
  * Custom Hook: useEducations
@@ -46,11 +50,17 @@ export function useEducations({ includeAdminFields = false } = {}) {
       try {
         const { data, error: queryError } = await selectWithEnglish(
           (columns) =>
-            supabase
-              .from('educations')
-              .select(columns)
-              .order('sort_order', { ascending: true, nullsFirst: false })
-              .order('start_year', { ascending: false }),
+            selectWithOptional(
+              (all) =>
+                supabase
+                  .from('educations')
+                  .select(all)
+                  .order('sort_order', { ascending: true, nullsFirst: false })
+                  .order('start_year', { ascending: false }),
+              columns,
+              'educations',
+              includeAdminFields ? OPTIONAL_ADMIN_COLUMNS : []
+            ),
           includeAdminFields ? ADMIN_COLUMNS : PUBLIC_COLUMNS,
           includeAdminFields ? ENGLISH_COLUMNS : undefined
         )

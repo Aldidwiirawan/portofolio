@@ -1,0 +1,93 @@
+/* Prestasi dan Organisasi: kartu sederhana monokrom (tampil hanya bila datanya ada) */
+
+.pub-cards {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .pub-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pub-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-4);
+  height: 100%;
+  padding: var(--space-5);
+  border: var(--pub-border) solid var(--fg);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--bg);
+}
+
+.pub-card-media {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  overflow: hidden;
+  border: 1.5px solid var(--line);
+  border-radius: var(--pub-radius);
+  background-color: var(--soft);
+  color: var(--fg);
+}
+
+button.pub-card-media {
+  width: 4.5rem;
+  height: 4.5rem;
+  cursor: zoom-in;
+}
+
+.pub-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pub-card-media--logo img {
+  object-fit: contain;
+  background-color: var(--pub-logo-plate);
+}
+
+.pub-card-body {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.pub-card-title {
+  color: var(--fg);
+  font-size: 1.125rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.pub-card-sub {
+  color: var(--ds-text);
+  font-size: 0.9375rem;
+}
+
+.pub-card-meta {
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pub-card-text {
+  color: var(--mute);
+  font-size: 0.9375rem;
+  line-height: var(--ds-lh-relaxed);
+  white-space: pre-line;
+}
+
+.pub-card .pub-arrow-link {
+  font-size: 0.9375rem;
+}

@@ -5,17 +5,16 @@ import { useI18n } from '../../../i18n/i18nContext'
 import { AlertIcon, CheckIcon, CloseIcon, SendIcon } from '../icons'
 import { usePublicData } from '../publicContexts'
 import { firstName } from '../publicFormat'
-import GuestbookRobot from '../robot/GuestbookRobot'
 
 // Same limits as the guestbook table (CHECK constraints) and useGuestbook
 const NAME_MAX = 100
 const MESSAGE_MAX = 240
-const HEX_COLOR = /^#[0-9a-f]{3,8}$/i
 
 /**
  * Guestbook panel (right side, full screen on phones): short form and the messages, pinned ones
  * first, with the owner's replies. A dialog with focus kept inside; Escape, "Tutup" or a click on
- * the dimmed page closes it. Messages appear for every visitor right away (useGuestbook).
+ * the dimmed page closes it. Messages appear for every visitor right away (useGuestbook). Avatars are
+ * monochrome initials (the stored avatar color is not used by the monochrome page).
  */
 function GuestbookDrawer({ guestbook, onClose }) {
   const { t, formatDate } = useI18n()
@@ -28,11 +27,6 @@ function GuestbookDrawer({ guestbook, onClose }) {
   const [message, setMessage] = useState('')
   const [errors, setErrors] = useState({})
   const [state, setState] = useState('idle') // idle | sending | sent | failed
-  // Robot a+ on the form: which field it watches, and the last thing that happened (3B)
-  const [watching, setWatching] = useState(null) // null | 'name' | 'message'
-  const [robotEvent, setRobotEvent] = useState(null)
-  const typedRef = useRef(false)
-  const tellRobot = (kind) => setRobotEvent((previous) => ({ kind, key: (previous?.key ?? 0) + 1 }))
 
   useFocusTrap(panelRef, true, { onEscape: onClose, initialFocusRef: nameRef })
   useScrollLock(true)
@@ -47,8 +41,6 @@ function GuestbookDrawer({ guestbook, onClose }) {
     else if (message.trim().length > MESSAGE_MAX) found.message = t('form.tooLong', { field: t('guestbook.message'), n: MESSAGE_MAX })
     setErrors(found)
     if (found.name || found.message) {
-      if (!name.trim()) tellRobot('emptyName')
-      else if (!message.trim()) tellRobot('emptyMessage')
       ;(found.name ? nameRef : messageRef).current?.focus()
       return
     }
@@ -58,31 +50,22 @@ function GuestbookDrawer({ guestbook, onClose }) {
       setName('')
       setMessage('')
       setState('sent')
-      tellRobot('sent')
     } catch {
       setState('failed')
-      tellRobot('failed')
     }
   }
 
   const left = MESSAGE_MAX - message.length
   const sending = state === 'sending'
-  // The robot sits to the right of the form: its eyes go from the start of the text (left) towards the
-  // right as the text grows
-  const typed = watching === 'name' ? name.length / 40 : watching === 'message' ? message.length / 120 : 0
-  const lookAt = watching ? -1 + Math.min(1, typed) * 1.2 : 0
 
   return (
     <div className="pub-gb-layer">
       <div className="pub-gb-backdrop" onClick={onClose} aria-hidden="true" />
       <div ref={panelRef} className="pub-gb-panel" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
         <div className="pub-gb-head">
-          <div>
-            <p className="pub-tag">{t('guestbook.path')}</p>
-            <h2 id={`${id}-title`} className="pub-gb-title">
-              {t('guestbook.title')}
-            </h2>
-          </div>
+          <h2 id={`${id}-title`} className="pub-gb-title">
+            {t('guestbook.title')}
+          </h2>
           <button type="button" className="pub-icon-btn" onClick={onClose} aria-label={t('common.close')}>
             <CloseIcon size={22} />
           </button>
@@ -90,8 +73,6 @@ function GuestbookDrawer({ guestbook, onClose }) {
 
         <div className="pub-gb-body">
           <p className="pub-gb-intro">{t('guestbook.intro')}</p>
-
-          <GuestbookRobot watching={Boolean(watching)} lookAt={lookAt} event={robotEvent} />
 
           <form className="pub-gb-form" onSubmit={onSubmit} noValidate>
             <div className="pub-field" data-invalid={errors.name ? '' : undefined}>
@@ -111,8 +92,6 @@ function GuestbookDrawer({ guestbook, onClose }) {
                     setName(event.target.value)
                     if (state !== 'sending') setState('idle')
                   }}
-                  onFocus={() => setWatching('name')}
-                  onBlur={() => setWatching(null)}
                   aria-invalid={errors.name ? true : undefined}
                   aria-describedby={errors.name ? `${id}-name-error` : undefined}
                   aria-required="true"
@@ -146,14 +125,7 @@ function GuestbookDrawer({ guestbook, onClose }) {
                   onChange={(event) => {
                     setMessage(event.target.value)
                     if (state !== 'sending') setState('idle')
-                    // "Tulis yang baik, ya!" once per opening of the panel
-                    if (!typedRef.current && event.target.value.trim()) {
-                      typedRef.current = true
-                      tellRobot('typing')
-                    }
                   }}
-                  onFocus={() => setWatching('message')}
-                  onBlur={() => setWatching(null)}
                   aria-invalid={errors.message ? true : undefined}
                   aria-describedby={[errors.message && `${id}-message-error`, `${id}-left`].filter(Boolean).join(' ')}
                   aria-required="true"
@@ -207,11 +179,7 @@ function GuestbookDrawer({ guestbook, onClose }) {
                 {guestbook.entries.map((entry) => (
                   <li key={entry.id} className="pub-gb-entry">
                     <div className="pub-gb-entry-head">
-                      <span
-                        className="pub-gb-avatar"
-                        style={HEX_COLOR.test(entry.avatar_color || '') ? { backgroundColor: entry.avatar_color } : undefined}
-                        aria-hidden="true"
-                      >
+                      <span className="pub-gb-avatar" aria-hidden="true">
                         {(entry.name || '?').trim().charAt(0).toUpperCase()}
                       </span>
                       <p className="pub-gb-name">{entry.name}</p>

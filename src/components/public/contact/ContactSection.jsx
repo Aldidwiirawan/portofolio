@@ -1,62 +1,61 @@
 import { useI18n } from '../../../i18n/i18nContext'
-import CvButton from '../CvButton'
-import { GithubIcon, LinkedinIcon, MailIcon } from '../icons'
+import { FileIcon, GithubIcon, LinkedinIcon, MailIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import ContactForm from './ContactForm'
 import './ContactSection.css'
 
 /**
- * "Hubungi saya": invitation, direct contact (email, LinkedIn, GitHub), "Unduh CV" once a CV exists
- * (K2) and the contact form. Always rendered: the form works even when the profile failed to load
- * (then without topics and direct links).
+ * "Kontak" (monochrome redesign, phase 5): a black section with the invitation, the email address as
+ * a large link, the other profiles (LinkedIn, GitHub, the CV once one exists) as icon buttons, and the
+ * existing contact form (its sending, checks, loading state and messages are unchanged). Always
+ * rendered: the form works even when the profile failed to load (then without topics and links).
  */
 function ContactSection() {
   const { t } = useI18n()
   const profile = usePublicData().profile.data
   const social = profile?.social ?? {}
-  const channels = [
-    social.email && { key: 'email', href: `mailto:${social.email}`, label: t('social.email'), value: social.email, Icon: MailIcon },
-    social.linkedin && { key: 'linkedin', href: social.linkedin, label: t('social.linkedin'), value: shortUrl(social.linkedin), Icon: LinkedinIcon, external: true },
-    social.github && { key: 'github', href: social.github, label: t('social.github'), value: shortUrl(social.github), Icon: GithubIcon, external: true },
+  const profiles = [
+    social.linkedin && { key: 'linkedin', href: social.linkedin, label: t('social.linkedin'), Icon: LinkedinIcon },
+    social.github && { key: 'github', href: social.github, label: t('social.github'), Icon: GithubIcon },
+    profile?.cvUrl && { key: 'cv', href: profile.cvUrl, label: t('cv.download'), Icon: FileIcon },
   ].filter(Boolean)
 
   return (
-    <section id="kontak" className="pub-section pub-contact" aria-labelledby="kontak-judul">
+    <section id="kontak" className="pub-section pub-invert pub-contact" aria-labelledby="kontak-judul">
       <div className="pub-container pub-contact-grid">
         <div className="pub-contact-intro">
-          <div className="pub-section-head">
-            <p className="pub-tag">{t('contact.tag')}</p>
-            <h2 id="kontak-judul" className="pub-h2">
-              {t('contact.title')}
-            </h2>
-            <p className="pub-lead">{t('contact.intro')}</p>
-          </div>
+          <h2 id="kontak-judul" className="pub-h2 pub-reveal">
+            {t('contact.title')}
+          </h2>
+          <p className="pub-lead">{t('contact.intro')}</p>
 
-          {channels.length > 0 && (
-            <ul className="pub-channels" aria-label={t('contact.channels')}>
-              {channels.map(({ key, href, label, value, Icon, external }) => (
-                <li key={key}>
-                  <a
-                    href={href}
-                    className="pub-channel"
-                    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    <span className="pub-channel-icon" aria-hidden="true">
-                      <Icon size={20} />
-                    </span>
-                    <span className="pub-channel-text">
-                      <span className="pub-channel-label">{label}</span>
-                      <span className="pub-channel-value">{value}</span>
-                    </span>
-                    {external && <span className="pub-sr-only">{t('common.newTab')}</span>}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {social.email && (
+            <>
+              <p className="pub-contact-label">{t('contact.emailLabel')}</p>
+              <a href={`mailto:${social.email}`} className="pub-contact-mail">
+                <MailIcon size={20} />
+                <span>{social.email}</span>
+              </a>
+            </>
           )}
 
-          <CvButton className="pub-contact-cv" />
+          {profiles.length > 0 && (
+            <>
+              <p className="pub-contact-label" id="kontak-profil">
+                {t('contact.profilesLabel')}
+              </p>
+              <ul className="pub-contact-profiles" aria-labelledby="kontak-profil">
+                {profiles.map(({ key, href, label, Icon }) => (
+                  <li key={key}>
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="pub-contact-profile" aria-label={`${label} ${t('common.newTab')}`} title={label}>
+                      <Icon size={20} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
 
         <ContactForm topics={contactTopics(profile)} />
@@ -73,11 +72,6 @@ function contactTopics(profile) {
   const labels = profile?.contact_topics ?? []
   const values = profile?.contact_topic_values ?? labels
   return labels.map((label, index) => ({ value: values[index] ?? label, label, lang: langOf(profile, 'contact_topics', index) }))
-}
-
-/** 'https://www.linkedin.com/in/aldi-dwi-irawan/' → 'linkedin.com/in/aldi-dwi-irawan' */
-function shortUrl(url) {
-  return url.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '')
 }
 
 export default ContactSection
