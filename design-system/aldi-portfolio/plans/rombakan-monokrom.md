@@ -1,6 +1,6 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 1 selesai, menunggu persetujuan pemilik untuk Fase 2 · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 2 selesai, menunggu persetujuan pemilik untuk Fase 3 · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -27,6 +27,11 @@ mengulang pekerjaan yang sudah di-commit. Commit per fase; jangan push, merge, a
 - **JF Interior:** baris tersembunyi yang sudah ada diperbarui; lokasi tetap Sidoarjo.
 - **Hasil proyek:** `outcome` tampil sebagai catatan "Hasil" di bawah empat poin; `content` tidak tampil di publik.
 - **Chip hero:** dari "Label panggung hero" di admin (`profiles.hero_labels`), dengan SQL opsional untuk mengisinya.
+  Catatan Fase 3 (pemilik, saat menyetujui Fase 2): label admin hanya teks, jadi bintang empat sudut ✦ setelah
+  "Aldi" dan dua chip lingkaran (hitam berisi `</>`, putih berisi bintang) tetap dibuat kode sesuai referensi.
+- **Laporan tiap fase:** sertakan screenshot 1440 dan 390, tema terang dan gelap. Berhenti setelah tiap fase.
+- **Suara:** catatan persetujuan Fase 2 memuat dua pilihan tanpa memilih salah satu; bawaan tetap mati (pilihan
+  pertama, sama dengan sekarang) sampai pemilik memutuskan lain.
 
 ### Asisten (bisa dikoreksi pemilik)
 - Kalimat pembuka di header detail = `description` (sudah dipakai sebagai deskripsi singkat).
@@ -119,7 +124,11 @@ laporan akhir.
 
 - [x] Fase 1. Rencana ini, tiga file SQL (§3), referensi `docs/redesign/`, uji PGlite (76 cek: 2× jalan, aturan
       menerima dan menolak, data lama utuh, guard), build lokal + screenshot → **berhenti**, tunggu persetujuan
-- [ ] Fase 2. Fondasi visual
+- [x] Fase 2. Fondasi visual: palet monokrom + jembatan `--ds-*` di `.pub`, Space Grotesk (+ preload), tema bawaan
+      terang (skrip, hash CSP, `theme-color`), kartu/tombol/chip/fokus 3 px/grid 46 px, navbar baru (AD, 6 menu,
+      suara, tema, ID/EN, CV, dialog HP), IntroScreen dihapus, ViewfinderCursor dan BlueprintBackground dilepas
+      dari publik, `playCue` di modul suara, MASTER §16 + DESIGN.md + PRODUCT.md. Uji: build, lint, screenshot
+      1440/390 × terang/gelap tanpa scroll horizontal dan tanpa error console, login identik dengan `main`
 - [ ] Fase 3. Hero
 - [ ] Fase 4. Tentang, pita teknologi, Proyek
 - [ ] Fase 5. Perjalanan, Sertifikat, Kontak, Buku tamu, Kucing (+ admin foto)

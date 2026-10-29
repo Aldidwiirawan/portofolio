@@ -1,10 +1,8 @@
 import { Suspense, useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
-import ViewfinderCursor from '../effects/ViewfinderCursor'
 import I18nProvider from '../../i18n/I18nProvider'
 import { useI18n } from '../../i18n/i18nContext'
 import { usePublicPortfolio } from '../../hooks/usePublicPortfolio'
-import IntroScreen from './intro/IntroScreen'
 import { localizePortfolio } from './localize'
 import ThemeProvider from './ThemeProvider'
 import { PublicDataContext, usePublicData, useTheme } from './publicContexts'
@@ -17,8 +15,7 @@ import { personFromProfile, usePersonJsonLd } from './usePageMeta'
 /**
  * Frame of every public page (home, project detail, 404): theme, language and sound providers, the public
  * data (loaded once, so going back from a project to the home page is instant), the .pub root with
- * data-theme, skip link, viewfinder cursor and the opening screen (first public page of a session).
- * Lazy pages load inside it, so the frame stays.
+ * data-theme and the skip link. Lazy pages load inside it, so the frame stays.
  */
 function PublicLayout() {
   const data = usePublicPortfolio()
@@ -55,8 +52,6 @@ function PublicShell() {
       <a href="#konten" className="pub-skip">
         {t('common.skip')}
       </a>
-      <ViewfinderCursor />
-      <IntroScreen />
       <PublicNavbar />
       <main id="konten" className="pub-main" tabIndex={-1}>
         <Suspense fallback={<PageSkeleton />}>

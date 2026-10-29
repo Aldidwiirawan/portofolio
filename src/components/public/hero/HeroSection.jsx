@@ -1,6 +1,5 @@
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
-import BlueprintBackground from '../../effects/BlueprintBackground'
 import { useI18n } from '../../../i18n/i18nContext'
 import CvButton from '../CvButton'
 import { ArrowRightIcon, GithubIcon, LinkedinIcon } from '../icons'
@@ -29,7 +28,6 @@ function HeroSection() {
 
   return (
     <section id="beranda" className="pub-hero" aria-labelledby="pub-hero-name">
-      <BlueprintBackground variant="busy" />
       <div className="pub-container pub-hero-grid">
         <div className="pub-hero-copy">
           {/* One and the same h1 while loading and after: the name painted first stays the largest

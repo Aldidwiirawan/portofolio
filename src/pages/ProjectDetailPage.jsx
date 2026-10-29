@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import BlueprintBackground from '../components/effects/BlueprintBackground'
 import { usePublicProject } from '../hooks/usePublicPortfolio'
 import { useI18n } from '../i18n/i18nContext'
 import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon } from '../components/public/icons'
@@ -83,7 +82,6 @@ function ProjectDetailPage() {
   return (
     <article className="pub-detail">
       <header className="pub-detail-hero">
-        <BlueprintBackground variant="busy" />
         <div className="pub-container pub-detail-hero-inner">
           <Link to={{ pathname: '/', hash: '#proyek' }} className="pub-arrow-link pub-detail-back">
             <ArrowLeftIcon size={18} />

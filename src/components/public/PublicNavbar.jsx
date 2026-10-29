@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import Logo from '../brand/Logo'
 import { useFocusTrap } from '../admin/ui/useFocusTrap'
 import { useScrollLock } from '../admin/ui/useScrollLock'
 import { useMediaQuery, prefersReducedMotion } from '../../lib/useMediaQuery'
@@ -12,12 +11,13 @@ import { SITE_NAME } from './publicFormat'
 import { LangToggle, SoundToggle, ThemeToggle } from './Toggles'
 import './PublicNavbar.css'
 
-// Sections in the menu, with the data that decides whether the section exists (null = always)
+// Sections in the menu, with the data that decides whether the section exists (null = always).
+// "Perjalanan" points at the experience section until the journey timeline replaces it.
 const NAV_SECTIONS = [
+  { id: 'beranda', label: 'nav.top', data: null },
   { id: 'tentang', label: 'nav.about', data: 'profile' },
   { id: 'proyek', label: 'nav.projects', data: 'projects' },
-  { id: 'pengalaman', label: 'nav.experience', data: 'experiences' },
-  { id: 'keahlian', label: 'nav.skills', data: 'skills' },
+  { id: 'pengalaman', label: 'nav.journey', data: 'experiences' },
   { id: 'sertifikat', label: 'nav.certificates', data: 'certifications' },
   { id: 'kontak', label: 'nav.contact', data: null },
 ]
@@ -27,6 +27,17 @@ function hasSection(data, key) {
   const entry = data[key]
   if (entry.status !== 'ready') return true // loading or failed: the section still shows (skeleton / message)
   return Array.isArray(entry.data) ? entry.data.length > 0 : Boolean(entry.data)
+}
+
+/** "AD" from "Aldi Dwi Irawan": first letters of the first two words. */
+function initialsOf(name) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
 }
 
 /**
@@ -56,9 +67,10 @@ function useActiveSection(ids, enabled, refreshKey) {
 }
 
 /**
- * Sticky navbar of the public pages: logo, section menu, language and theme switches and "Unduh CV"
- * (only when a CV exists). Below 1024 px the menu opens as a full-screen dialog with focus kept inside;
- * Escape, the close button or choosing a section closes it.
+ * Sticky navbar of the public pages: initials mark on the left, the section menu in the middle, and
+ * sound, theme, language and "Unduh CV" (only when a CV exists) on the right. Below 1060 px the menu
+ * opens as a full-screen dialog with focus kept inside; Escape, the close button or choosing a section
+ * closes it.
  */
 function PublicNavbar() {
   const data = usePublicData()
@@ -66,7 +78,7 @@ function PublicNavbar() {
   const { pathname, hash } = useLocation()
   const navigate = useNavigate()
   const isHome = pathname === '/'
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const isDesktop = useMediaQuery('(min-width: 1060px)')
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const menuRef = useRef(null)
@@ -82,7 +94,7 @@ function PublicNavbar() {
     statusKey
   )
 
-  // The full-screen menu only exists on small screens (it closes when the window grows past 1024 px)
+  // The full-screen menu only exists on small screens (it closes when the window grows past 1060 px)
   const menuShown = menuOpen && !isDesktop
   const closeMenu = () => setMenuOpen(false)
   useFocusTrap(menuRef, menuShown, { onEscape: closeMenu })
@@ -131,9 +143,8 @@ function PublicNavbar() {
       <header className="pub-nav" data-scrolled={scrolled}>
         <div className="pub-container pub-nav-bar">
           <Link to="/" className="pub-nav-brand" aria-label={t('nav.home', { name })} onClick={onBrandClick}>
-            <Logo size={29} trim />
-            <span className="pub-nav-name" aria-hidden="true">
-              {name}
+            <span className="pub-nav-mark" aria-hidden="true">
+              {initialsOf(name)}
             </span>
           </Link>
 
@@ -142,10 +153,10 @@ function PublicNavbar() {
           </nav>
 
           <div className="pub-nav-actions">
-            <LangToggle />
-            <ThemeToggle />
             <SoundToggle className="pub-nav-sound" />
-            <CvButton size="sm" className="pub-nav-cv" />
+            <ThemeToggle />
+            <LangToggle />
+            <CvButton size="sm" variant="primary" className="pub-nav-cv" />
             <button
               type="button"
               className="pub-icon-btn pub-nav-menu-btn"
@@ -161,9 +172,9 @@ function PublicNavbar() {
       </header>
 
       {menuShown && (
-        <div id="pub-menu" ref={menuRef} className="pub-menu" role="dialog" aria-modal="true" aria-labelledby="pub-menu-title">
+        <div id="pub-menu" ref={menuRef} className="pub-menu pub-grid-bg" role="dialog" aria-modal="true" aria-labelledby="pub-menu-title">
           <div className="pub-container pub-menu-head">
-            <p id="pub-menu-title" className="pub-tag">
+            <p id="pub-menu-title" className="pub-menu-title">
               {t('nav.menuLabel')}
             </p>
             <button type="button" className="pub-icon-btn" aria-label={t('nav.closeMenu')} onClick={closeMenu}>
@@ -174,11 +185,11 @@ function PublicNavbar() {
             <ul className="pub-menu-list">{links(closeMenu)}</ul>
           </nav>
           <div className="pub-container pub-menu-foot">
-            <CvButton className="pub-menu-cv" onClick={closeMenu} />
+            <CvButton variant="primary" className="pub-menu-cv" onClick={closeMenu} />
             <div className="pub-menu-switches">
-              <LangToggle />
-              <ThemeToggle />
               <SoundToggle />
+              <ThemeToggle />
+              <LangToggle />
             </div>
           </div>
         </div>

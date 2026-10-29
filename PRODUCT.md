@@ -66,11 +66,10 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   Profil) dan buku tamu (tombol mengambang dengan jumlah pesan).
 - **Kerja admin:** 5 menu (Beranda; Tentang Saya; Karya & Keahlian; Rekam Jejak; Kotak Masuk) dengan sub-tab.
   Beranda memberi pengingat bila sesuatu yang dibutuhkan strategi isi belum ada.
-- **Status tahapan (19 Okt 2026):** tahap 1 (login), 2/2B (admin), dan 3A (struktur dan isi halaman publik:
-  tema gelap/terang, ID/US, bar status, kata berganti, keahlian berjalan, detail proyek, buku tamu mengambang)
-  sudah di `main`. Tahap 3B (label fisika, suara, ayam dan bebek, layar pembuka, robot a+) selesai di branch
-  `feat/public-3b`; uji manual dan merge oleh pemilik. Tahap 3C (kolom versi Inggris, pengaturan label dari
-  admin) belum dikerjakan.
+- **Status tahapan (30 Okt 2026):** tahap 1 (login), 2/2B (admin), dan 3A–3C (halaman publik Blueprint, isi
+  Inggris, SEO, Vercel) sudah di `main` dan online. **Rombakan monokrom** halaman publik berjalan di branch
+  `feat/redesign-monokrom` per fase (`design-system/aldi-portfolio/plans/rombakan-monokrom.md`, MASTER §16): fase 1
+  (rencana dan SQL) dan fase 2 (fondasi visual: palet, Space Grotesk, navbar, tema bawaan terang) selesai.
 
 ## Capabilities and Constraints
 
@@ -79,7 +78,8 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   self-hosted lewat Fontsource.
 - **Batasan dari pemilik:**
   - tanpa Tailwind atau framework UI; **tanyakan dulu** sebelum menambah library atau font (matter-js 0.20.0
-    untuk label fisika disetujui pemilik untuk tahap 3B dan dimuat lazy);
+    untuk label fisika disetujui pemilik untuk tahap 3B dan dimuat lazy; rombakan monokrom hanya boleh menambah
+    `@fontsource-variable/space-grotesk`, dan matter-js dilepas setelah fisika buatan sendiri menggantikannya);
   - jangan mengubah logika auth, hooks data, query Supabase, RLS, atau routing tanpa izin;
   - perubahan database hanya sebagai file migrasi baru di `supabase/migrations/`, dijalankan pemilik;
   - kerjakan di branch terpisah per tahap, commit per bagian, jangan push atau merge;
@@ -88,7 +88,8 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 - **Performa:** library berat hanya dimuat di publik setelah halaman tampil. Animasi berhenti saat bagiannya tidak
   terlihat atau tab tidak aktif. Di HP label fisika lebih sedikit dan hanya dilempar dengan ketukan (tanpa seret,
   keputusan pemilik tahap 3B), jadi menggulir halaman tidak pernah terganggu.
-- **Layar uji wajib:** 375, 768, 1024, dan 1440 px tanpa scroll horizontal.
+- **Layar uji wajib:** 375, 768, 1024, dan 1440 px tanpa scroll horizontal (rombakan monokrom: 1440, 1024, 899,
+  768, dan 390 px, tema terang dan gelap, plus reduced motion).
 - **Privasi:** alamat lengkap dan nomor HP tidak ditampilkan di publik, cukup kota (Kediri). `is_visible` hanya
   mengatur tampilan, **bukan privasi**: data dan file tetap terbaca lewat API dan URL publik.
 - **Tanpa data cadangan (sejak 3A):** halaman publik hanya menampilkan data asli dari admin; bagian yang datanya
@@ -103,21 +104,23 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 
 ## Brand Commitments
 
-- **Nama:** Aldi Dwi Irawan. Design system bernama **"Blueprint"**.
+- **Nama:** Aldi Dwi Irawan. Design system login dan admin bernama **"Blueprint"**; halaman publik memakai
+  **gaya monokrom** sejak rombakan Oktober 2026 (MASTER §16, desain referensi pemilik di `docs/redesign/`).
 - **Aset identitas** (rincian di BRIEF §1, §3, §5, §6 dan MASTER §13): logo monogram stensil `public/logo.svg`
   yang merakit diri; maskot robot **a+**; karakter **ayam** (berani, cerewet, suka pamer) dan **bebek** (santai,
   polos, agak lemot) beserta kalimatnya; kursor viewfinder; background blueprint; transisi jepret; label bergaya
-  tag blueprint.
+  tag blueprint. Di halaman publik monokrom aset ini diganti per fase: chip yang bisa diseret dan kucing **Kopi**
+  (hitam) dan **Susu** (putih) dari referensi pemilik; kursor viewfinder dan layar pembuka sudah tidak dipakai.
 - **Keputusan desain yang disengaja, jangan diganti (pemilik, 17 Okt 2026):**
-  - **font Inter**;
+  - **font Inter** di login dan admin (halaman publik memakai Space Grotesk sejak brief rombakan, 30 Okt 2026);
   - **garis kiri yang menyala saat fokus** pada kolom isian (`.adm-control::before` di
     `src/components/admin/ui/admin-ui.css`).
-- **Suara:** bahasa Indonesia sederhana yang mudah dipahami. Karakter ayam dan bebek boleh jenaka sesuai
-  kepribadiannya. Tidak ada suara ayam atau bebek; satu-satunya bunyi adalah "tok" saat label bertabrakan dan
-  karakter melompat, bawaan mati.
+- **Suara:** bahasa Indonesia sederhana yang mudah dipahami. Karakter boleh jenaka sesuai kepribadiannya. Semua
+  bunyi disintesis dengan Web Audio (tanpa file audio): "tok" dan nada pendek untuk chip, folder, dan kucing,
+  bawaan mati dan hanya setelah pengunjung berinteraksi.
 - **Orisinalitas:** irfansabrian.vercel.app dan styfensagala.vercel.app hanya sumber inspirasi. Jangan menyalin
-  tata letak khasnya: sidebar bernomor dan garis kontur (Irfan); stiker pil miring dengan bayangan tegas dan
-  karakter gumpalan hitam (Styfen).
+  tata letak khasnya: sidebar bernomor dan garis kontur (Irfan); karakter gumpalan hitam (Styfen). Chip pil dengan
+  bayangan kotak di hero monokrom berasal dari desain referensi pemilik sendiri (`docs/redesign/`), bukan salinan.
 
 ## Evidence on Hand
 
@@ -161,7 +164,7 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   kursor viewfinder kembali ke kursor biasa.
 - Elemen dekoratif `aria-hidden`, tidak menangkap klik atau fokus. Status dinamis diumumkan (`role="alert"` /
   `role="status"`).
-- Kursor viewfinder hanya untuk pointer halus (`(hover: hover) and (pointer: fine)`) dan tidak aktif di
-  `forced-colors`.
+- Kursor viewfinder (sekarang hanya di login dan admin) hanya untuk pointer halus (`(hover: hover) and
+  (pointer: fine)`) dan tidak aktif di `forced-colors`.
 - Bahasa sederhana untuk pengunjung yang tidak teknis; versi Inggris opsional untuk isi konten dan kembali ke versi
   Indonesia bila kosong.

@@ -1,8 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Design system fonts (self-hosted). Family names end in "Variable", so pages still on the
-// legacy --font-sans ('Inter') are unaffected until they migrate to --ds-font-sans.
+// Design system fonts (self-hosted, CSP font-src 'self'). Family names end in "Variable", so pages
+// still on the legacy --font-sans ('Inter') are unaffected until they migrate to --ds-font-sans.
+// Inter: login and admin. Space Grotesk: public pages (.pub, public.css). JetBrains Mono: code.
+// A browser only downloads the files of a family that is actually rendered.
 import '@fontsource-variable/inter'
+import '@fontsource-variable/space-grotesk'
 import '@fontsource-variable/jetbrains-mono'
 import './index.css'
 // Base styles of the public pages right after the global ones, so every component stylesheet (loaded

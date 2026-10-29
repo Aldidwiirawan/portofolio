@@ -7,12 +7,15 @@
 ---
 
 **Project:** Aldi Portfolio (React + Vite + CSS biasa + Supabase)
-**Versi:** v1.3 · 20 Oktober 2026
+**Versi:** v1.4 · 30 Oktober 2026
 **Status penerapan:** token, font, dan komponen brand/efek (§13) sudah ada di kode. Dipakai oleh
 `/admin/login` (tahap 1), seluruh panel admin `/admin/*` (tahap 2 dan 2B, lihat §14 dan
 `pages/admin.md`), dan halaman publik sejak tahap 3A (18 Oktober 2026), 3B (interaksi, 19 Oktober 2026), dan 3C
 (isi Inggris, performa, SEO, persiapan Vercel, 20 Oktober 2026), lihat §15 dan `pages/public.md`.
-**Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`.
+**Halaman publik sejak rombakan monokrom (30 Oktober 2026, branch `feat/redesign-monokrom`):** warna, huruf, dan
+komponen dasar publik mengikuti **§16**, bukan Blueprint. Login dan admin tetap Blueprint (§1–§14).
+**Sumber token di kode:** `src/index.css` (blok "DESIGN SYSTEM BLUEPRINT v1"), font di `src/main.jsx`; palet
+monokrom publik di `src/components/public/public.css`.
 
 ### Asal-usul & kurasi
 
@@ -440,6 +443,10 @@ Detail lengkap: `pages/admin.md`. Strategi isi publik: `BRIEF.md` §9. Ringkasny
 
 ## 15. Halaman publik (tahap 3A, 3B, 3C)
 
+> **Sejak rombakan monokrom (§16):** gaya visual di bagian ini (navy, biru, grid blueprint, kursor viewfinder,
+> layar pembuka, `BlueprintBackground`) tidak berlaku lagi untuk halaman publik. Kerangka, data, bahasa, SEO, dan
+> aturan aksesibilitasnya tetap berlaku. Bagian lain yang masih Blueprint diganti per fase (`plans/rombakan-monokrom.md`).
+
 Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3a-publik.md`,
 `plans/tahap-3b-publik.md`, `plans/tahap-3c-final.md`. Ringkasnya:
 
@@ -474,3 +481,66 @@ Detail lengkap: `pages/public.md`; rencana dan keputusan pemilik: `plans/tahap-3
 - **Gambar proyek (sebelum deploy, `pages/public.md` §5):** bingkai berasio tetap (16:9 di HP, 16:10 lebih lebar);
   gambar lanskap `cover` di tengah, gambar potret (screenshot HP) utuh di atas grid blueprint dengan bayangan halus.
   Orientasi dibaca saat gambar selesai dimuat (`ProjectImage`), sama di kartu, detail, galeri, dan lightbox.
+
+## 16. Halaman publik: gaya monokrom (rombakan Oktober 2026)
+
+Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe referensi di folder yang sama
+(dibaca sebagai spesifikasi, tidak disalin mentah). Rencana, keputusan, dan checklist fase:
+`plans/rombakan-monokrom.md`. Berlaku hanya di dalam `.pub`; login dan admin tidak berubah.
+
+### Palet
+
+| Token | Terang (bawaan) | Gelap | Dipakai untuk |
+|---|---|---|---|
+| `--bg` | `#ffffff` | `#0a0a0a` | latar halaman dan kartu |
+| `--fg` | `#0a0a0a` | `#fafafa` | teks utama, garis kartu, bayangan kotak, tombol isi |
+| `--soft` | `#f3f3f1` | `#18181b` | latar lembut (tombol ikon, chip, kartu sekunder) |
+| `--mute` | `#55555e` | `#a1a1aa` | teks kedua (±7,4:1 dan ±7,7:1 di `--bg`) |
+| `--hair` | `rgb(10 10 10 / .07)` | `rgb(250 250 250 / .06)` | garis grid 46 px |
+| `--line` | `rgb(10 10 10 / .14)` | `rgb(250 250 250 / .16)` | garis tipis, pemisah, chip |
+| `--ok` | `#22c55e` | `#22c55e` | titik status (terbuka untuk kerja, Live API, pesan terkirim) |
+
+- **Bagian terbalik** (`.pub-invert`: Proyek, Kontak, header detail proyek) memakai palet tema yang lain, jadi
+  latarnya `--fg` tema ini dan teksnya `--bg`. Komponen di dalamnya cukup memakai token biasa.
+- **Warna lain hanya untuk status:** galat merah (`--ds-danger-*`) dan teks sukses hijau (`--ds-success-text`
+  `#15803d` / `#4ade80`), selalu dengan ikon atau teks.
+- **Larangan kontras:** `#a1a1aa` (atau lebih pucat) tidak pernah dipakai untuk teks di tema terang (±2,6:1).
+  Teks paling pucat adalah `--mute` atau `--ds-text-subtle` (`#63636c` / `#8e8e97`).
+- **Jembatan Blueprint:** di dalam `.pub` token `--ds-*` dipetakan ke palet ini (`--ds-accent` = `--fg`,
+  `--ds-canvas` = `--bg`, dan seterusnya), supaya komponen yang belum dirombak ikut monokrom. Komponen baru memakai
+  token monokrom langsung.
+
+### Tipografi
+
+- **Space Grotesk Variable** (300–700, `@fontsource-variable/space-grotesk`, self-hosted, di-preload untuk nama
+  hero) untuk semua teks publik; **JetBrains Mono** untuk baris kode. Tidak ada font dari CDN (CSP).
+- **Judul besar** (`.pub-h2`, `.pub-display`): huruf kapital, 700, `letter-spacing: -0.055em`, `line-height: 0.88`;
+  judul section 52–112 px.
+- **Isi** 17 px, `line-height` 1,6. **Label** huruf kapital 11,5–15 px, 700, tracking 0,08–0,14em.
+
+### Komponen dasar (`public.css`)
+
+- **Kartu** `.pub-card`: garis 2,5 px `--fg`, sudut 28 px, latar `--bg`; `.pub-card--shadow` menambah bayangan kotak
+  `6px 6px 0 var(--fg)` tanpa blur.
+- **Tombol** `.pub-btn`: pil, huruf kapital, garis 2 px, bayangan kotak 4 px. Hover bergeser `-2px` dengan
+  bayangan 6 px, ditekan turun `3px` ke bayangannya. `--primary` berlatar `--fg`, `--ghost` tanpa garis, `--sm`
+  lebih kecil (44 px di layar sentuh).
+- **Tombol ikon** `.pub-icon-btn`: bulat 44 px (48–52 px di navbar desktop) di latar `--soft`.
+- **Chip** `.pub-chip` (sudut 8 px, latar lembut), **label** `.pub-tag` dan **badge** `.pub-badge` berbentuk pil.
+- **Fokus keyboard** selalu `outline` 3 px `--fg`, offset 3 px. **Grid** 46 px di `.pub-main` dan `.pub-grid-bg`.
+- **Gerak** tombol dan ikon dimatikan saat `prefers-reduced-motion`.
+
+### Kerangka global
+
+- **Navbar** (`PublicNavbar`): tanda inisial "AD" di kiri; menu Beranda, Tentang, Proyek, Perjalanan, Sertifikat,
+  Kontak di tengah (≥ 1060 px, garis bawah saat hover dan untuk section yang dibaca); di kanan tombol suara
+  (≥ 620 px), tema, pilihan bahasa ID/EN (dua tombol `aria-pressed`), dan "Unduh CV" (≥ 1280 px, tidak ada di
+  referensi tetapi dipertahankan karena unduhan CV adalah ukuran sukses). Di bawah 1060 px menu menjadi dialog
+  layar penuh (fokus terkunci, Esc dan tombol Tutup) berisi semua tombol tadi.
+- **Tema:** bawaan **terang**, pilihan pengunjung disimpan (`aldi-portfolio-theme`). Skrip di `index.html` (hash
+  CSP di `vercel.json`) dan `ThemeProvider` memasang `data-pub-theme` dan warna `theme-color`.
+- **Suara:** satu modul (`sound/tokSynth.js`, Web Audio, tanpa file audio): `playTok` dan `playCue(name)` dengan
+  nada `pick`, `drop`, `jump`, `hit`, `land`, `open`, `close`, `zoom`, `meow`, dipanggil lewat
+  `useSound().cue`. Bawaan mati, bunyi hanya setelah gestur pengunjung, berhenti saat tab tersembunyi.
+- **Dilepas dari publik:** `IntroScreen` (dihapus), `ViewfinderCursor` dan `BlueprintBackground` (file tetap untuk
+  login dan admin).

@@ -27,27 +27,33 @@ export function SoundToggle({ className = '' }) {
   )
 }
 
+const LANGUAGES = [
+  { code: 'id', name: 'lang.idName' },
+  { code: 'en', name: 'lang.enName' },
+]
+
 /**
- * One-click ID / US language switch; the active language is highlighted. Its spoken name starts with
- * the letters on the button ("ID US: …"), so voice control users can say what they see (WCAG 2.5.3).
+ * ID / EN language choice: two buttons in a pill, the active one pressed (aria-pressed). Each spoken
+ * name starts with the letters on the button ("ID, Bahasa Indonesia"), so voice control users can say
+ * what they see (WCAG 2.5.3).
  */
 export function LangToggle({ className = '' }) {
   const { lang, setLang, t } = useI18n()
   return (
-    <button
-      type="button"
-      className={`pub-lang ${className}`.trim()}
-      onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
-      aria-label={t('lang.switchName')}
-      title={t('lang.switch')}
-    >
-      <span className="pub-lang-option" data-active={lang === 'id'} aria-hidden="true">
-        ID
-      </span>
-      {/* A real space, so the button's text reads "ID US" (no layout change inside the flex row) */}{' '}
-      <span className="pub-lang-option" data-active={lang === 'en'} aria-hidden="true">
-        US
-      </span>
-    </button>
+    <div className={`pub-lang ${className}`.trim()} role="group" aria-label={t('lang.label')}>
+      {LANGUAGES.map((option) => (
+        <button
+          key={option.code}
+          type="button"
+          className="pub-lang-option"
+          lang={option.code}
+          aria-pressed={lang === option.code}
+          aria-label={t(option.name)}
+          onClick={() => setLang(option.code)}
+        >
+          {option.code.toUpperCase()}
+        </button>
+      ))}
+    </div>
   )
 }

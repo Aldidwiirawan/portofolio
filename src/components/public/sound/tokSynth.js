@@ -64,14 +64,8 @@ export function setAudioPaused(paused) {
   else if (!paused && ctx.state === 'suspended') ctx.resume().catch(() => {})
 }
 
-/**
- * Plays one tok, unless the limits say it would be too much.
- * @param {{ strength?: number, pitch?: number, source?: unknown }} [options]
- *   strength 0..1 (how hard: impact speed), pitch multiplier (1 = label, higher for a small jump,
- *   lower for a big label), source = what made the sound (for the per-source limit)
- * @returns {boolean} whether it played
- */
-export function playTok({ strength = 0.5, pitch = 1, source } = {}) {
+/** Whether a sound may start now (audio running, under the limits); records it when it may. */
+function allowed(source) {
   if (!ctx || ctx.state !== 'running') return false
   const now = performance.now()
   if (now - lastAt < MIN_GAP_MS) return false
@@ -85,6 +79,18 @@ export function playTok({ strength = 0.5, pitch = 1, source } = {}) {
   }
   lastAt = now
   recent.push(now)
+  return true
+}
+
+/**
+ * Plays one tok, unless the limits say it would be too much.
+ * @param {{ strength?: number, pitch?: number, source?: unknown }} [options]
+ *   strength 0..1 (how hard: impact speed), pitch multiplier (1 = label, higher for a small jump,
+ *   lower for a big label), source = what made the sound (for the per-source limit)
+ * @returns {boolean} whether it played
+ */
+export function playTok({ strength = 0.5, pitch = 1, source } = {}) {
+  if (!allowed(source)) return false
 
   const t = ctx.currentTime
   const volume = MAX_VOLUME * Math.min(1, Math.max(0.08, strength))
@@ -127,5 +133,59 @@ export function playTok({ strength = 0.5, pitch = 1, source } = {}) {
     band.disconnect()
     clickGain.disconnect()
   }
+  return true
+}
+
+// One oscillator gliding from one pitch to another, with a quick fade in and out
+function glide(from, to, duration, type, volume, delay = 0) {
+  const t = ctx.currentTime + delay
+  const osc = ctx.createOscillator()
+  osc.type = type
+  osc.frequency.setValueAtTime(from, t)
+  osc.frequency.exponentialRampToValueAtTime(Math.max(to, 40), t + duration)
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.0001, t)
+  gain.gain.exponentialRampToValueAtTime(Math.min(MAX_VOLUME, Math.max(0.001, volume)), t + 0.012)
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duration)
+  osc.connect(gain)
+  gain.connect(output)
+  osc.start(t)
+  osc.stop(t + duration + 0.02)
+  osc.onended = () => {
+    osc.disconnect()
+    gain.disconnect()
+  }
+}
+
+// The sounds of the monochrome page: [from Hz, to Hz, seconds, wave, volume, delay] per glide.
+// k = strength 0..1, hz = base pitch (the meow of each cat)
+const CUES = {
+  pick: () => [[520, 300, 0.09, 'sine', 0.14]], // a chip or cat is grabbed
+  drop: () => [[360, 200, 0.08, 'sine', 0.08]], // a dragged chip is let go
+  jump: () => [[600, 900, 0.1, 'sine', 0.12]], // click or Enter on a chip
+  hit: (k) => [[220 + 120 * k, 90, 0.12, 'triangle', 0.05 + 0.12 * k]], // a chip hits the floor
+  land: (k) => [[180, 90, 0.1, 'triangle', 0.08 + 0.1 * k]], // a cat lands
+  open: () => [[300, 900, 0.18, 'triangle', 0.08]], // a folder opens
+  close: () => [[700, 300, 0.18, 'triangle', 0.08]], // a folder closes
+  zoom: () => [[500, 800, 0.1, 'sine', 0.08]], // an image opens larger
+  meow: (k, hz) => [
+    [hz, hz * 1.35, 0.15, 'sine', 0.09 * k],
+    [hz * 1.35, hz * 0.8, 0.22, 'sine', 0.08 * k, 0.14],
+  ],
+}
+
+/**
+ * Plays one named sound (see CUES), under the same limits as playTok.
+ * @param {keyof typeof CUES} name
+ * @param {{ strength?: number, hz?: number, source?: unknown }} [options]
+ *   strength 0..1 (impact speed for hit and land, loudness for meow), hz = base pitch of a meow,
+ *   source = what made the sound (for the per-source limit)
+ * @returns {boolean} whether it played
+ */
+export function playCue(name, { strength = 1, hz = 620, source } = {}) {
+  const recipe = CUES[name]
+  if (!recipe || !allowed(source)) return false
+  const k = Math.min(1, Math.max(0, strength))
+  for (const [from, to, duration, type, volume, delay] of recipe(k, hz)) glide(from, to, duration, type, volume, delay)
   return true
 }

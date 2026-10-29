@@ -11,8 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Portofolio Aldi Dwi Irawan, Junior Programmer · Web &amp; Mobile: proyek, keahlian, pengalaman, dan kontak." />
     <title>Aldi Dwi Irawan · Portofolio</title>
-    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0d14" media="(prefers-color-scheme: dark)" />
+    <!-- Browser bar color = page background; the script below and ThemeProvider switch it with the theme -->
+    <meta name="theme-color" content="#ffffff" />
     <!-- Link previews (WhatsApp, LinkedIn, X) read these without running JavaScript: one site-wide title,
          text and image for every address (K11). og:image / twitter:image come from vite.config.js
          (absolute address); the app keeps description, og:*, canonical and robots current per page. -->
@@ -31,9 +31,9 @@
     <meta name="twitter:title" content="Aldi Dwi Irawan · Portofolio" />
     <meta name="twitter:description" content="Portofolio Aldi Dwi Irawan, Junior Programmer · Web &amp; Mobile: proyek, keahlian, pengalaman, dan kontak." />
     <script>
-      // Public pages only: apply the saved (or device) theme and language before the first render, so
-      // the page does not flash in the wrong theme. Login and admin (/admin…) are left untouched.
-      // Keys: THEME_STORAGE_KEY (ThemeProvider.jsx) and LANGUAGE_STORAGE_KEY (I18nProvider.jsx).
+      // Public pages only: apply the saved theme (light when none is saved) and language before the
+      // first render, so the page does not flash in the wrong theme. Login and admin (/admin…) are left
+      // untouched. Keys: THEME_STORAGE_KEY (ThemeProvider.jsx) and LANGUAGE_STORAGE_KEY (I18nProvider.jsx).
       (function () {
         if (/^\/admin(\/|$)/.test(location.pathname)) return
         var root = document.documentElement
@@ -43,10 +43,9 @@
           theme = localStorage.getItem('aldi-portfolio-theme')
           lang = localStorage.getItem('aldi-portfolio-lang')
         } catch (e) {}
-        if (theme !== 'light' && theme !== 'dark') {
-          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        }
+        if (theme !== 'dark') theme = 'light'
         root.setAttribute('data-pub-theme', theme)
+        if (theme === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0a0a0a')
         if (lang === 'en') root.lang = 'en'
       })()
     </script>

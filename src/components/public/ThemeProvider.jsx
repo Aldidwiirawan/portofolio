@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useMediaQuery } from '../../lib/useMediaQuery'
 import { readStorage, writeStorage } from '../../lib/safeStorage'
 import { ThemeContext } from './publicContexts'
 
 // Also read by the inline script in index.html, which sets data-pub-theme before the first render
 export const THEME_STORAGE_KEY = 'aldi-portfolio-theme'
 const THEMES = ['light', 'dark']
+// Browser bar color per theme (= --bg of the monochrome palette, public.css)
+const BAR_COLORS = { light: '#ffffff', dark: '#0a0a0a' }
 
 function storedTheme() {
   const value = readStorage(THEME_STORAGE_KEY)
@@ -13,15 +14,14 @@ function storedTheme() {
 }
 
 /**
- * Theme of the public pages: follows the device (prefers-color-scheme) until the visitor picks one
- * with the toggle; that choice is remembered in the browser. The theme is also written to
- * <html data-pub-theme> (page background and native scrollbars) and removed again when the public
- * pages unmount, so login and admin never see it.
+ * Theme of the public pages: light until the visitor picks one with the toggle; that choice is
+ * remembered in the browser. The theme is also written to <html data-pub-theme> (page background and
+ * native scrollbars) and to the theme-color meta tag (browser bar), and both are put back when the
+ * public pages unmount, so login and admin never see them.
  */
 function ThemeProvider({ children }) {
-  const systemDark = useMediaQuery('(prefers-color-scheme: dark)')
   const [chosen, setChosen] = useState(storedTheme)
-  const theme = chosen ?? (systemDark ? 'dark' : 'light')
+  const theme = chosen ?? 'light'
 
   const toggleTheme = useCallback(() => {
     const next = theme === 'dark' ? 'light' : 'dark'
@@ -31,8 +31,13 @@ function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement
+    const bar = document.querySelector('meta[name="theme-color"]')
     root.setAttribute('data-pub-theme', theme)
-    return () => root.removeAttribute('data-pub-theme')
+    bar?.setAttribute('content', BAR_COLORS[theme])
+    return () => {
+      root.removeAttribute('data-pub-theme')
+      bar?.setAttribute('content', BAR_COLORS.light)
+    }
   }, [theme])
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme])

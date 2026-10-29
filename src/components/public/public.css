@@ -1,22 +1,21 @@
 /* ==========================================================================
-   HALAMAN PUBLIK — akar .pub, reset lokal, tata letak, dan komponen dasar
-   Acuan: design-system/aldi-portfolio/pages/public.md dan MASTER.md. Semua aturan diawali .pub /
+   HALAMAN PUBLIK — akar .pub, palet monokrom, reset lokal, tata letak, dan komponen dasar
+   Acuan: MASTER.md §16 (gaya monokrom, rombakan Oktober 2026). Semua aturan diawali .pub /
    :where(.pub) / html[data-pub-theme] / html:has(.pub), jadi tidak bocor ke login atau admin
-   walau stylesheet ini termuat di tab yang sama. Hanya token --ds-* (dan --pub-* di bawah).
+   walau stylesheet ini termuat di tab yang sama.
    ========================================================================== */
 
 /* Latar <html> dan scrollbar mengikuti tema publik. data-pub-theme dipasang skrip kecil di
    index.html sebelum render pertama (mencegah kilatan) dan oleh ThemeProvider; dilepas saat keluar
-   dari halaman publik. Pengecualian terdokumentasi seperti latar login: <html> berada di luar
-   elemen ber-data-theme, jadi memakai primitive. */
+   dari halaman publik. <html> berada di luar .pub, jadi nilainya ditulis langsung (= --bg). */
 html[data-pub-theme='dark'] {
   color-scheme: dark;
-  background-color: var(--palette-navy-950);
+  background-color: #0a0a0a;
 }
 
 html[data-pub-theme='light'] {
   color-scheme: light;
-  background-color: var(--palette-slate-75);
+  background-color: #ffffff;
 }
 
 html[data-pub-theme] body {
@@ -30,9 +29,15 @@ html:has(.pub) #root {
   overflow-x: clip;
 }
 
-/* Navbar 64 px + jarak: section yang dituju tidak tertutup navbar */
+/* Navbar (--pub-nav-h) + jarak: section yang dituju tidak tertutup navbar */
 html:has(.pub) {
   scroll-padding-top: 5rem;
+}
+
+@media (min-width: 1060px) {
+  html:has(.pub) {
+    scroll-padding-top: 6.25rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -41,16 +46,109 @@ html:has(.pub) {
   }
 }
 
+/* --- Palet monokrom -------------------------------------------------------
+   Token utama: --bg (latar), --fg (tinta), --soft (latar lembut), --mute (teks kedua), --hair (garis
+   grid), --line (garis tipis), --ok (titik status hijau, satu-satunya warna selain status galat).
+   Bagian "terbalik" (.pub-invert: Proyek, Kontak, header detail proyek) memakai palet tema yang lain,
+   jadi latarnya --fg tema ini dan teksnya --bg. Elemen yang memaksa tema sendiri di dalam .pub
+   (data-theme pada lightbox) juga mendapat palet monokrom.
+   Token --ds-* (Blueprint, index.css) dipetakan ke palet yang sama di sini, supaya komponen yang
+   belum dirombak ikut monokrom. Login dan admin tidak berada di dalam .pub, jadi tidak berubah. */
+
+.pub[data-theme='light'],
+.pub [data-theme='light'],
+.pub[data-theme='dark'] .pub-invert {
+  color-scheme: light;
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --soft: #f3f3f1;
+  --mute: #55555e;
+  --hair: rgb(10 10 10 / 0.07);
+  --line: rgb(10 10 10 / 0.14);
+  --ok: #22c55e;
+
+  --ds-text: #1d1d21;
+  --ds-text-subtle: #63636c;
+  --ds-border-control: #71717a;
+  --ds-danger-text: #b91c1c;
+  --ds-danger-bg: #fef2f2;
+  --ds-danger-border: #dc2626;
+  --ds-success-text: #15803d;
+  --ds-success-bg: #f0fdf4;
+  --ds-shadow-sm: 0 1px 2px rgb(10 10 10 / 0.08);
+  --ds-shadow-md: 0 4px 12px rgb(10 10 10 / 0.1);
+  --ds-shadow-lg: 0 16px 40px rgb(10 10 10 / 0.14);
+}
+
+.pub[data-theme='dark'],
+.pub [data-theme='dark'],
+.pub[data-theme='light'] .pub-invert {
+  color-scheme: dark;
+  --bg: #0a0a0a;
+  --fg: #fafafa;
+  --soft: #18181b;
+  --mute: #a1a1aa;
+  --hair: rgb(250 250 250 / 0.06);
+  --line: rgb(250 250 250 / 0.16);
+  --ok: #22c55e;
+
+  --ds-text: #e4e4e7;
+  --ds-text-subtle: #8e8e97;
+  --ds-border-control: #71717a;
+  --ds-danger-text: #fca5a5;
+  --ds-danger-bg: #2b1418;
+  --ds-danger-border: #f87171;
+  --ds-success-text: #4ade80;
+  --ds-success-bg: #0f2a1a;
+  --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --ds-shadow-md: 0 4px 12px rgb(0 0 0 / 0.45);
+  --ds-shadow-lg: 0 16px 40px rgb(0 0 0 / 0.55);
+}
+
+/* Token --ds-* yang sama di kedua palet: dihitung di elemen yang sama dengan palet di atas */
+.pub[data-theme],
+.pub [data-theme],
+.pub .pub-invert {
+  --ds-canvas: var(--bg);
+  --ds-surface: var(--bg);
+  --ds-surface-raised: var(--bg);
+  --ds-inset: var(--soft);
+  --ds-border: color-mix(in srgb, var(--fg) 13%, var(--bg));
+  --ds-text-strong: var(--fg);
+  --ds-text-muted: var(--mute);
+  --ds-accent: var(--fg);
+  --ds-accent-hover: color-mix(in srgb, var(--fg) 82%, var(--bg));
+  --ds-accent-subtle: var(--soft);
+  --ds-on-accent: var(--bg);
+  --ds-accent-text: var(--fg);
+  --ds-focus-ring: var(--fg);
+  --ds-brand-from: var(--fg);
+  --ds-brand-to: var(--fg);
+}
+
+.pub-invert {
+  background-color: var(--bg);
+  color: var(--ds-text);
+}
+
 /* --- Akar dan token komponen ------------------------------------------- */
 
 .pub {
+  /* Tipografi monokrom: Space Grotesk (huruf utama), JetBrains Mono tetap untuk kode */
+  --ds-font-sans: 'Space Grotesk Variable', 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ds-fw-heavy: 700; /* Space Grotesk paling tebal 700 */
+  --ds-focus-ring-width: 3px;
+  --ds-focus-ring-offset: 3px;
+
   --pub-max: 75rem; /* 1200px */
   --pub-gutter: var(--space-4);
   --pub-nav-h: 4rem;
   --pub-section-y: var(--space-16);
-  --pub-radius: 4px;
-  --pub-radius-card: var(--radius-sm);
-  --pub-tag-radius: 2px;
+  --pub-border: 2.5px; /* garis kartu dan tombol */
+  --pub-radius: 12px; /* kolom isian, tombol kotak kecil */
+  --pub-radius-card: 28px;
+  --pub-tag-radius: 8px;
+  --pub-grid: 46px;
   /* Pelat putih di balik logo instansi yang diunggah (logo biasanya dibuat untuk latar putih), sama
      di kedua tema. Pengecualian terdokumentasi: primitive di token komponen. */
   --pub-logo-plate: var(--palette-white);
@@ -74,11 +172,11 @@ html:has(.pub) {
   flex-direction: column;
   min-height: 100vh;
   min-height: 100svh;
-  background-color: var(--ds-canvas);
+  background-color: var(--bg);
   color: var(--ds-text);
   font-family: var(--ds-font-sans);
-  font-size: var(--ds-fs-md);
-  line-height: var(--ds-lh-normal);
+  font-size: 1.0625rem; /* 17px */
+  line-height: 1.6;
 }
 
 @media (min-width: 768px) {
@@ -92,6 +190,12 @@ html:has(.pub) {
   .pub {
     --pub-gutter: var(--space-8);
     --pub-section-y: var(--space-24);
+  }
+}
+
+@media (min-width: 1060px) {
+  .pub {
+    --pub-nav-h: 5.25rem; /* 84px */
   }
 }
 
@@ -139,11 +243,11 @@ html:has(.pub) {
 }
 
 :where(.pub) ::selection {
-  background-color: var(--ds-accent);
-  color: var(--ds-on-accent);
+  background-color: var(--fg);
+  color: var(--bg);
 }
 
-/* Fokus keyboard: outline asli (terlihat juga di forced-colors) */
+/* Fokus keyboard: outline asli 3 px (terlihat juga di forced-colors) */
 .pub :focus-visible {
   outline: var(--ds-focus-ring-width) solid var(--ds-focus-ring);
   outline-offset: var(--ds-focus-ring-offset);
@@ -159,6 +263,16 @@ html:has(.pub) {
 }
 
 /* --- Tata letak ---------------------------------------------------------- */
+
+/* Latar putih (atau hitam) dengan grid tipis 46 px. Bagian terbalik dan kartu menutupnya dengan latar
+   sendiri. */
+.pub-main,
+.pub-grid-bg {
+  background-image:
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+  background-size: var(--pub-grid) var(--pub-grid);
+}
 
 .pub-main {
   flex: 1 0 auto;
@@ -237,37 +351,47 @@ html:has(.pub) {
   }
 }
 
+/* Judul besar: huruf kapital tebal yang rapat (judul section, judul halaman) */
+.pub-h2,
+.pub-display {
+  color: var(--fg);
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
 .pub-h2 {
-  font-size: clamp(1.875rem, 1.25rem + 2.2vw, 2.75rem);
-  font-weight: var(--ds-fw-heavy);
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  font-size: clamp(3.25rem, 1.6rem + 5.6vw, 7rem); /* 52–112px */
+  /* Huruf kapital rapat butuh sedikit ruang di kanan agar huruf terakhir tidak terpotong */
+  padding-right: 0.04em;
 }
 
 .pub-lead {
-  max-width: 62ch;
-  color: var(--ds-text-muted);
-  font-size: var(--ds-fs-lg);
+  max-width: 32em;
+  color: var(--mute);
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem); /* 17–19px */
   line-height: var(--ds-lh-relaxed);
 }
 
-/* --- Tag blueprint (label section, badge kecil) ---------------------------- */
+/* --- Label section dan badge ------------------------------------------------ */
 
+/* Label kecil berbentuk pil (dipakai section yang belum dirombak) */
 .pub-tag {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   justify-self: start;
   width: fit-content;
-  padding: 0.3rem 0.65rem;
-  background: var(--pub-brackets);
-  background-repeat: no-repeat;
-  color: var(--ds-accent-text);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  font-weight: var(--ds-fw-semibold);
-  line-height: 1.4;
-  letter-spacing: var(--ds-tracking-wide);
+  min-height: 2rem;
+  padding: 0 0.875rem;
+  border: 2px solid var(--fg);
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -275,21 +399,18 @@ html:has(.pub) {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.125rem 0.45rem;
-  border-radius: var(--pub-tag-radius);
-  background-color: var(--ds-inset);
-  color: var(--ds-text-muted);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  font-weight: var(--ds-fw-semibold);
-  line-height: 1.5;
-  letter-spacing: 0.04em;
+  min-height: 1.75rem;
+  padding: 0 0.7rem;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--mute);
+  font-size: 0.71875rem; /* 11.5px */
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.pub[data-theme='dark'] .pub-badge {
-  background-color: var(--ds-surface-raised);
 }
 
 .pub .pub-badge--accent {
@@ -318,42 +439,66 @@ html:has(.pub) {
 .pub-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 1.75rem;
-  padding: 0.125rem 0.55rem;
-  border: 1px solid var(--ds-border);
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1.5px solid var(--line);
   border-radius: var(--pub-tag-radius);
-  background-color: var(--ds-surface);
-  color: var(--ds-text-muted);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  line-height: 1.4;
+  background-color: var(--soft);
+  color: var(--fg);
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .pub-chip--more {
   border-style: dashed;
+  background-color: transparent;
 }
 
-/* --- Tombol dan tautan ---------------------------------------------------- */
+/* --- Kartu ------------------------------------------------------------------ */
+
+.pub-card {
+  border: var(--pub-border) solid var(--fg);
+  border-radius: var(--pub-radius-card);
+  background-color: var(--bg);
+  padding: clamp(1.5rem, 1rem + 1.4vw, 2.25rem);
+}
+
+/* Bayangan kotak (tanpa blur) untuk kartu yang ditonjolkan */
+.pub-card--shadow {
+  box-shadow: 6px 6px 0 var(--fg);
+}
+
+/* --- Tombol dan tautan ----------------------------------------------------
+   Pil huruf kapital dengan bayangan kotak: bergeser ke kiri atas saat hover (bayangan memanjang) dan
+   turun ke bayangannya saat ditekan. */
 
 .pub-btn {
+  --pub-btn-shadow: var(--fg);
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: 0.625rem;
   min-height: var(--ds-control-height);
-  padding: 0 1.25rem;
-  border: 1px solid transparent;
-  border-radius: var(--pub-radius);
-  background-color: transparent;
-  font-size: var(--ds-fs-md);
-  font-weight: var(--ds-fw-semibold);
+  padding: 0 1.5rem;
+  border: 2px solid var(--fg);
+  border-radius: 999px;
+  background-color: var(--bg);
+  color: var(--fg);
+  box-shadow: 4px 4px 0 var(--pub-btn-shadow);
+  font-size: 0.875rem;
+  font-weight: 700;
   line-height: 1.2;
+  letter-spacing: 0.1em;
   text-align: center;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition:
+    transform var(--ds-duration-base) var(--ds-ease-out),
+    box-shadow var(--ds-duration-base) var(--ds-ease-out),
     background-color var(--ds-duration-fast) ease,
-    border-color var(--ds-duration-fast) ease,
     color var(--ds-duration-fast) ease;
 }
 
@@ -361,48 +506,53 @@ html:has(.pub) {
   flex-shrink: 0;
 }
 
-.pub-btn--primary,
-.pub-btn--primary:hover {
-  color: var(--ds-on-accent);
+.pub-btn:hover {
+  color: var(--fg);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--pub-btn-shadow);
 }
 
+.pub-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--pub-btn-shadow);
+}
+
+/* Tombol isi: latar tinta, bayangan tinta yang lebih tipis supaya bentuknya tetap terbaca */
 .pub-btn--primary {
-  background-color: var(--ds-accent);
-  box-shadow: var(--ds-shadow-sm);
+  --pub-btn-shadow: color-mix(in srgb, var(--fg) 38%, transparent);
+
+  background-color: var(--fg);
+  color: var(--bg);
 }
 
 .pub-btn--primary:hover {
-  background-color: var(--ds-accent-hover);
+  color: var(--bg);
 }
 
-.pub-btn--secondary,
-.pub-btn--secondary:hover {
-  color: var(--ds-text-strong);
+/* Tanpa garis dan bayangan: latar lembut saat hover */
+.pub-btn--ghost {
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
 }
 
-.pub-btn--secondary {
-  border-color: var(--ds-border-control);
-  background-color: color-mix(in srgb, var(--ds-surface) 70%, transparent);
-}
-
-.pub-btn--secondary:hover {
-  border-color: var(--ds-text-muted);
-  background-color: var(--ds-surface-raised);
-}
-
-.pub-btn--ghost,
-.pub-btn--ghost:hover {
-  color: var(--ds-text-strong);
-}
-
-.pub-btn--ghost:hover {
-  background-color: var(--ds-inset);
+.pub-btn--ghost:hover,
+.pub-btn--ghost:active {
+  background-color: var(--soft);
+  box-shadow: none;
+  transform: none;
 }
 
 .pub-btn--sm {
+  gap: 0.5rem;
   min-height: 2.5rem;
-  padding: 0 0.875rem;
-  font-size: var(--ds-fs-sm);
+  padding: 0 1rem;
+  font-size: 0.78125rem; /* 12.5px */
+  box-shadow: 3px 3px 0 var(--pub-btn-shadow);
+}
+
+.pub-btn--sm:hover {
+  box-shadow: 5px 5px 0 var(--pub-btn-shadow);
 }
 
 /* Small buttons stay 44 px tall on touch screens (target size, MASTER §4) */
@@ -412,43 +562,41 @@ html:has(.pub) {
   }
 }
 
-.pub-btn:active {
-  transform: translateY(1px);
-}
-
 .pub-btn[aria-disabled='true'] {
   cursor: progress;
   opacity: 0.75;
 }
 
-/* Tombol ikon 44 × 44 */
+/* Tombol ikon bulat 44 × 44 di latar lembut */
 .pub-icon-btn {
   display: inline-grid;
   place-items: center;
   width: var(--ds-target-min);
   height: var(--ds-target-min);
   padding: 0;
-  border: 1px solid var(--ds-border);
-  border-radius: var(--pub-radius);
-  background-color: transparent;
-  color: var(--ds-text-muted);
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--soft);
+  color: var(--fg);
   cursor: pointer;
   transition:
-    background-color var(--ds-duration-fast) ease,
-    border-color var(--ds-duration-fast) ease,
-    color var(--ds-duration-fast) ease;
+    transform var(--ds-duration-base) var(--ds-ease-out),
+    background-color var(--ds-duration-fast) ease;
 }
 
 .pub-icon-btn:hover {
-  border-color: var(--ds-border-control);
-  background-color: var(--ds-inset);
-  color: var(--ds-text-strong);
+  color: var(--fg);
+  transform: scale(1.06);
 }
 
-/* Tautan teks beraksen */
+.pub-icon-btn:active {
+  transform: scale(0.96);
+}
+
+/* Tautan teks */
 .pub-link,
 .pub-link:hover {
-  color: var(--ds-accent-text);
+  color: var(--fg);
 }
 
 .pub-link {
@@ -465,7 +613,7 @@ html:has(.pub) {
 /* Tautan dengan panah: garis bawah muncul saat hover */
 .pub-arrow-link,
 .pub-arrow-link:hover {
-  color: var(--ds-accent-text);
+  color: var(--fg);
 }
 
 .pub-arrow-link {
@@ -473,7 +621,7 @@ html:has(.pub) {
   align-items: center;
   gap: var(--space-2);
   min-height: var(--ds-target-min);
-  font-weight: var(--ds-fw-semibold);
+  font-weight: 700;
 }
 
 .pub-arrow-link svg {
@@ -514,10 +662,11 @@ html:has(.pub) {
   top: var(--space-2);
   left: var(--space-2);
   z-index: 300;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--pub-radius);
-  background-color: var(--ds-accent);
-  font-weight: var(--ds-fw-semibold);
+  padding: var(--space-3) var(--space-5);
+  border-radius: 999px;
+  background-color: var(--fg);
+  color: var(--bg);
+  font-weight: 700;
   transform: translateY(-200%);
 }
 
@@ -572,13 +721,16 @@ html:has(.pub) {
   flex: 1 1 14rem;
 }
 
-/* Gerak dekoratif berhenti total saat reduced motion */
+/* Gerak dekoratif berhenti total saat reduced motion (tombol tetap berubah bayangan, tanpa bergeser) */
 @media (prefers-reduced-motion: reduce) {
   .pub-skeleton {
     animation: none;
   }
 
-  .pub-btn:active {
+  .pub-btn:hover,
+  .pub-btn:active,
+  .pub-icon-btn:hover,
+  .pub-icon-btn:active {
     transform: none;
   }
 }

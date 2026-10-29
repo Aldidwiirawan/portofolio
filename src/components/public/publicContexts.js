@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
 /** { theme: 'light' | 'dark', toggleTheme } of the public pages (ThemeProvider). */
-export const ThemeContext = createContext({ theme: 'dark', toggleTheme: () => {} })
+export const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {} })
 
 export function useTheme() {
   return useContext(ThemeContext)

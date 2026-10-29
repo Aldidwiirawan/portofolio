@@ -41,7 +41,28 @@ colors:
   on-accent: "#FFFFFF"
   brand-sky: "#38BDF8"
   brand-emerald: "#34D399"
+  # Halaman publik sejak rombakan monokrom (MASTER §16)
+  pub-bg-light: "#FFFFFF"
+  pub-fg-light: "#0A0A0A"
+  pub-soft-light: "#F3F3F1"
+  pub-mute-light: "#55555E"
+  pub-bg-dark: "#0A0A0A"
+  pub-fg-dark: "#FAFAFA"
+  pub-soft-dark: "#18181B"
+  pub-mute-dark: "#A1A1AA"
+  pub-ok: "#22C55E"
 typography:
+  pub-display:
+    fontFamily: "Space Grotesk Variable, Space Grotesk, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+    fontSize: "clamp(3.25rem, 1.6rem + 5.6vw, 7rem)"
+    fontWeight: 700
+    lineHeight: 0.88
+    letterSpacing: "-0.055em"
+  pub-body:
+    fontFamily: "Space Grotesk Variable, Space Grotesk, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.6
   headline:
     fontFamily: "Inter Variable, Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
     fontSize: "2.25rem"
@@ -164,6 +185,24 @@ components:
     height: "44px"
   subnav-tab-active:
     textColor: "{colors.text-strong-light}"
+  pub-button:
+    backgroundColor: "{colors.pub-bg-light}"
+    textColor: "{colors.pub-fg-light}"
+    typography: "{typography.pub-body}"
+    rounded: "{rounded.full}"
+    padding: "0 24px"
+    height: "48px"
+  pub-button-primary:
+    backgroundColor: "{colors.pub-fg-light}"
+    textColor: "{colors.pub-bg-light}"
+    typography: "{typography.pub-body}"
+    rounded: "{rounded.full}"
+    padding: "0 24px"
+    height: "48px"
+  pub-card:
+    backgroundColor: "{colors.pub-bg-light}"
+    rounded: "28px"
+    padding: "24px"
 ---
 
 > **Ringkasan, bukan acuan utama.** File ini hanya ringkasan design system untuk impeccable.
@@ -172,7 +211,8 @@ components:
 > **Bila ada perbedaan antara file ini dan MASTER.md, yang berlaku MASTER.md.** Jangan mengubah MASTER.md
 > berdasarkan isi file ini; perbarui file ini mengikuti MASTER.md. Sumber token di kode: `src/index.css`
 > (blok "DESIGN SYSTEM BLUEPRINT v1") dan `src/components/admin/ui/admin-ui.css` (token `--adm-*`).
-> Diringkas 17 Oktober 2026 dari MASTER.md v1.2.
+> Diringkas 17 Oktober 2026 dari MASTER.md v1.2; bagian "Halaman publik: monokrom" ditambahkan 30 Oktober 2026
+> dari MASTER.md v1.4 §16 (palet publik di `src/components/public/public.css`).
 
 # Design System: Blueprint (Aldi Portfolio)
 
@@ -188,8 +228,8 @@ mengganggu isi, keyboard, atau pengguna yang mengurangi gerak.
 **Satu identitas, dua tema.** Halaman publik berkarakter (navy, nama raksasa satu warna, grid blueprint,
 aksen monospace). Login dan admin memakai tema terang untuk kerja yang tenang. Keduanya memakai token semantic
 yang sama (`--ds-*`), dipilih lewat atribut `data-theme` yang boleh bersarang (mis. sidebar admin dan panel
-brand login gelap di dalam halaman terang). Status saat ini: login, seluruh admin, dan halaman publik (sejak tahap 3A,
-mengikuti tema perangkat dengan tombol gelap/terang) memakai Blueprint.
+brand login gelap di dalam halaman terang). Status saat ini: login dan seluruh admin memakai Blueprint. Halaman
+publik dirombak ke **gaya monokrom** sejak 30 Oktober 2026 (lihat "Halaman publik: monokrom" di bawah).
 
 Identitasnya khas dan punya kepribadian: logo monogram stensil yang merakit diri, maskot robot **a+**, karakter
 ayam dan bebek, dan transisi jepret kamera. Semuanya diperlakukan sebagai komponen brand yang bisa dipakai ulang,
@@ -202,10 +242,27 @@ bukan hiasan sekali pakai.
 - Admin bersudut tajam (4 px kontrol, 2 px tag) dengan bracket sudut dan bayangan offset aksen.
 - Aksesibel secara default: WCAG 2.2 AA, fokus berupa outline asli, target sentuh ≥44 px, reduced motion dihormati.
 
+## Halaman publik: monokrom
+
+**Creative North Star (publik): "Monokrom berani".** Hitam di atas putih (atau sebaliknya di tema gelap), huruf
+kapital tebal yang rapat, garis tebal, sudut membulat, dan bayangan kotak tanpa blur. Satu-satunya warna adalah
+status. Rincian dan alasannya di MASTER §16; ringkasnya:
+
+- **Palet:** pub-bg, pub-fg, pub-soft, pub-mute per tema; grid tipis 46 px di latar; titik status pub-ok. Bagian
+  terbalik (Proyek, Kontak, header detail) memakai palet tema yang lain. Teks tidak pernah lebih pucat dari pub-mute.
+- **Huruf:** Space Grotesk (pub-display untuk judul besar, pub-body 17 px untuk isi), JetBrains Mono untuk kode.
+- **Komponen:** kartu bergaris 2,5 px bersudut 28 px (sebagian dengan bayangan kotak 6 px), tombol pil huruf
+  kapital dengan bayangan kotak yang bergeser saat hover dan ditekan, tombol ikon bulat di latar lembut, fokus
+  `outline` 3 px.
+- **Kerangka:** navbar dengan tanda inisial, menu tengah, suara, tema, ID/EN, dan "Unduh CV"; tema bawaan terang;
+  suara bawaan mati.
+- **Tetap berlaku dari Blueprint:** aturan aksesibilitas, target sentuh ≥44 px, reduced motion, dan "Not Color
+  Alone". Komponen Blueprint (kursor viewfinder, latar blueprint, layar pembuka) tidak dipakai di publik.
+
 ## Colors
 
 Palet dingin dan teknis: navy dan slate sebagai netral, satu biru sebagai aksen kerja, dan gradien sky ke
-emerald sebagai tanda identitas yang dekoratif saja.
+emerald sebagai tanda identitas yang dekoratif saja (login dan admin; publik lihat bagian di atas).
 
 ### Primary
 - **Biru Kerja** (accent, hover accent-hover): latar tombol utama dan penanda aktif di kedua tema. Teks putih di
@@ -252,8 +309,9 @@ badge, bar judul kartu, dan kode. Keduanya dimuat self-hosted lewat Fontsource.
 - **Label** (600, 12 px mono, tracking 0.08em, huruf besar): badge dan caption; 12 px adalah batas minimum.
 
 ### Named Rules
-**The Inter Rule.** Inter adalah keputusan pemilik yang dikunci (17 Oktober 2026). Jangan menggantinya dengan
-font lain, termasuk saat detektor menandai Inter sebagai font yang terlalu umum.
+**The Inter Rule.** Inter adalah keputusan pemilik yang dikunci (17 Oktober 2026) untuk login dan admin. Jangan
+menggantinya dengan font lain di sana, termasuk saat detektor menandai Inter sebagai font yang terlalu umum.
+Halaman publik memakai Space Grotesk sejak rombakan monokrom (keputusan pemilik, 30 Oktober 2026).
 **The Wide Tracking Rule.** Tracking lebar hanya untuk label kecil huruf besar; tracking teks isi tidak diubah.
 
 ## Layout
