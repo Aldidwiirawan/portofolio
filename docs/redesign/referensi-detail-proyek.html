@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Detail proyek: gaya monokrom</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+.md{--bg:#ffffff;--fg:#0a0a0a;--soft:#f3f3f1;--mute:#55555e;--hair:rgba(10,10,10,.07);--line:rgba(10,10,10,.14);--out:cubic-bezier(.16,1,.3,1);--pad:clamp(16px,4vw,48px);font-family:'Space Grotesk',system-ui,sans-serif;font-size:17px;line-height:1.6;color:var(--fg);background:var(--bg)}
+.md *{box-sizing:border-box}
+.md a{color:inherit;text-decoration:none}
+.md button{font-family:inherit;color:inherit}
+.md :focus-visible{outline:3px solid var(--fg);outline-offset:3px;border-radius:6px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.wrap{max-width:1240px;margin:0 auto;padding:0 var(--pad)}
+.grid-bg{background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);background-size:46px 46px}
+
+.bar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:2px solid var(--fg)}
+.bar .wrap{display:flex;align-items:center;gap:16px;height:68px}
+.back{display:inline-flex;align-items:center;gap:10px;height:44px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-right:auto}
+.back svg{width:18px;height:18px;transition:transform .3s var(--out)}
+.back:hover svg{transform:translateX(-4px)}
+.count{font:600 13px 'JetBrains Mono',monospace;color:var(--mute)}
+.gbtn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border:2px solid var(--fg);border-radius:999px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;box-shadow:3px 3px 0 var(--fg);transition:transform .2s var(--out),box-shadow .2s var(--out)}
+.gbtn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--fg)}
+.gbtn svg{width:16px;height:16px}
+
+.head{background:var(--fg);color:var(--bg);padding:clamp(48px,6vw,88px) 0 clamp(36px,4vw,56px)}
+.labs{display:flex;flex-wrap:wrap;gap:10px}
+.lab{display:inline-flex;height:32px;align-items:center;padding:0 14px;border:2px solid var(--bg);border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.lab.fill{background:var(--bg);color:var(--fg)}
+.h1{margin:22px 0 0;font-size:clamp(44px,6.4vw,92px);line-height:.9;font-weight:700;letter-spacing:-.05em;text-transform:uppercase;max-width:13em}
+.lead{margin:22px 0 0;max-width:38em;font-size:clamp(17px,1.7vw,20px);color:#d4d4d8}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:clamp(28px,3.5vw,44px);border-top:2px solid #3f3f46}
+.meta div{padding:14px 16px 0 0}
+.meta div + div{padding-left:16px;border-left:2px solid #3f3f46}
+.meta b{display:block;font-size:17px;line-height:1.3}
+.meta span{font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#a1a1aa;text-transform:uppercase}
+
+.body{padding:clamp(48px,6vw,80px) 0}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:24px;align-items:start}
+.card{border:2px solid var(--fg);border-radius:24px;background:var(--bg)}
+.viewer{overflow:hidden;box-shadow:6px 6px 0 var(--fg)}
+.vtop{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px;border-bottom:2px solid var(--fg)}
+.tabs{display:flex;border:2px solid var(--fg);border-radius:999px;padding:3px}
+.tab{height:36px;padding:0 16px;border:0;border-radius:999px;background:transparent;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .25s,color .25s}
+.tab small{font:600 11px 'JetBrains Mono',monospace;opacity:.7}
+.tab.on{background:var(--fg);color:var(--bg)}
+.sub{display:flex;gap:6px}
+.sub button{height:34px;padding:0 13px;border:2px solid var(--fg);border-radius:10px;background:transparent;font-size:13px;font-weight:700;cursor:pointer}
+.sub button.on{background:var(--fg);color:var(--bg)}
+.stage{position:relative;aspect-ratio:16 / 10;background:var(--soft);display:grid;place-items:center;overflow:hidden}
+.stage img{width:100%;height:100%;object-fit:contain;display:block;animation:in .45s var(--out) both}
+@keyframes in{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border:2px solid var(--fg);border-radius:50%;background:var(--bg);display:grid;place-items:center;cursor:pointer;box-shadow:3px 3px 0 var(--fg)}
+.arrow svg{width:18px;height:18px}
+.arrow.l{left:14px}.arrow.r{right:14px}
+.vbot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-top:2px solid var(--fg);font-size:15px;font-weight:600}
+.vbot .cnt{font:600 13px 'JetBrains Mono',monospace;color:var(--mute);margin-left:10px}
+.zoom{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:2px solid var(--fg);border-radius:999px;background:var(--fg);color:var(--bg)!important;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.zoom svg{width:15px;height:15px}
+.thumbs{display:flex;gap:10px;padding:14px;border-top:2px solid var(--fg);overflow-x:auto}
+.th{flex:none;width:118px;aspect-ratio:16 / 10;border:2px solid var(--fg);border-radius:10px;overflow:hidden;padding:0;background:var(--soft);cursor:pointer;opacity:.55;transition:opacity .2s,transform .2s var(--out)}
+.th:hover{opacity:1}
+.th.on{opacity:1;transform:translateY(-3px);box-shadow:3px 3px 0 var(--fg)}
+.th img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+
+.side{display:flex;flex-direction:column;gap:22px}
+.info{padding:24px}
+.ptitle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:14px;border-bottom:2px solid var(--fg)}
+.ptitle h2{margin:0;font-size:20px;line-height:1.1;text-transform:uppercase;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.ptitle h2 svg{width:20px;height:20px}
+.dl{display:grid;grid-template-columns:104px minmax(0,1fr);margin:0}
+.dl dt,.dl dd{padding:10px 0;border-top:1.5px dashed var(--line);font-size:15px}
+.dl dt:first-of-type,.dl dd:first-of-type{border-top:0;padding-top:0}
+.dl dt{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding-top:13px}
+.dl dt:first-of-type{padding-top:3px}
+.dl dd{margin:0;font-weight:600}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tags span{height:30px;padding:0 11px;border:1.5px solid var(--fg);border-radius:8px;display:inline-flex;align-items:center;font-size:13px;font-weight:600}
+
+.live{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px;border:1.5px solid var(--fg);border-radius:999px;font:600 11.5px 'JetBrains Mono',monospace;letter-spacing:.04em}
+.live i{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:ping 2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.repo{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px}
+.repo b{font-family:'JetBrains Mono',monospace;font-size:14px}
+.repo span{font-size:13px;color:var(--mute)}
+.lang{margin-top:16px}
+.lang .lt{display:flex;justify-content:space-between;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.lang .lt b{color:var(--fg)}
+.lbar{display:flex;height:14px;margin-top:10px;border:1.5px solid var(--fg);border-radius:999px;overflow:hidden}
+.lbar span{display:block;height:100%;transform-origin:left;animation:grow 1s var(--out) both}
+.lbar span + span{border-left:1.5px solid var(--bg)}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.c1{background:var(--fg)}
+.c2{background:color-mix(in srgb,var(--fg) 62%,var(--bg))}
+.c3{background:color-mix(in srgb,var(--fg) 38%,var(--bg))}
+.c4{background:color-mix(in srgb,var(--fg) 20%,var(--bg))}
+.c5{background:repeating-linear-gradient(45deg,var(--fg) 0 2px,var(--bg) 2px 5px)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-size:13px}
+.legend span{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.legend i{width:11px;height:11px;border-radius:3px;border:1.5px solid var(--fg)}
+.legend em{font:500 11.5px 'JetBrains Mono',monospace;font-style:normal;color:var(--mute)}
+.det{margin-top:18px;padding-top:14px;border-top:1.5px dashed var(--line)}
+.det h3{margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--mute);text-transform:uppercase}
+.det .tags span{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;border-color:var(--line)}
+.rlink{display:flex;justify-content:space-between;align-items:center;margin-top:18px;height:48px;padding:0 16px;border-radius:12px;background:var(--fg);color:var(--bg);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.rlink svg{width:16px;height:16px}
+
+.about{padding:clamp(56px,7vw,96px) 0 0}
+.h2{margin:0;font-size:clamp(40px,5vw,68px);line-height:.92;font-weight:700;letter-spacing:-.045em;text-transform:uppercase}
+.points{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:40px}
+.pt{padding:clamp(22px,2.4vw,32px);transition:transform .3s var(--out),box-shadow .3s var(--out)}
+.pt:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--fg)}
+.pt .n{font-size:64px;font-weight:700;line-height:.9;letter-spacing:-.04em;color:transparent;-webkit-text-stroke:2px var(--fg)}
+.pt h3{margin:14px 0 0;font-size:24px;text-transform:uppercase;letter-spacing:-.02em}
+.pt p{margin:10px 0 0;color:var(--mute)}
+.pt ul{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.pt li{display:flex;gap:10px;align-items:baseline;color:var(--mute)}
+.pt li::before{content:"";flex:none;width:8px;height:8px;border-radius:2px;background:var(--fg);transform:translateY(-1px)}
+.pn{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:clamp(56px,7vw,96px)}
+.pn a{display:flex;flex-direction:column;gap:6px;padding:22px 24px;border:2px solid var(--fg);border-radius:22px;transition:background .25s,color .25s}
+.pn a:hover{background:var(--fg);color:var(--bg)}
+.pn span{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.pn b{font-size:21px;text-transform:uppercase;letter-spacing:-.02em;line-height:1.1}
+.pn a.nx{text-align:right}
+
+.lb{position:fixed;inset:0;z-index:60;background:rgba(10,10,10,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;opacity:0;pointer-events:none;transition:opacity .3s}
+.lb.open{opacity:1;pointer-events:auto}
+.lb img{max-width:min(1200px,100%);max-height:80vh;object-fit:contain;border:2px solid #fafafa;border-radius:14px;background:#fff}
+.lb p{margin:0;color:#e4e4e7;font-weight:600}
+.x{position:absolute;top:18px;right:18px;width:46px;height:46px;border:2px solid #fafafa;border-radius:50%;background:transparent;color:#fafafa!important;display:grid;place-items:center;cursor:pointer}
+.x svg{width:18px;height:18px}
+
+@media (max-width:980px){
+ .grid,.points{grid-template-columns:1fr}
+ .meta{grid-template-columns:1fr 1fr}
+ .meta div:nth-child(3){padding-left:0;border-left:0}
+ .count{display:none}
+}
+@media (max-width:560px){
+ .tabs{width:100%}.tab{flex:1;justify-content:center;padding:0 8px}
+ .pn{grid-template-columns:1fr}.pn a.nx{text-align:left}
+ .bar .gbtn span{display:none}
+}
+@media (prefers-reduced-motion:reduce){.md *,.md *::before,.md *::after{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</helmet>
+<div class="md">
+  <header class="bar">
+    <div class="wrap">
+      <a class="back" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m11 6-6 6 6 6"></path></svg>Kembali ke proyek</a>
+      <span class="count">Proyek 03 / 05</span>
+      <a class="gbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5"></path><path d="M15 21v-3.5a3 3 0 0 0-.9-2.4c3-.3 6-1.5 6-6.6a5.2 5.2 0 0 0-1.4-3.6 4.8 4.8 0 0 0-.1-3.6s-1.1-.3-3.6 1.4a12.4 12.4 0 0 0-6.4 0C6.1 1 5 1.3 5 1.3a4.8 4.8 0 0 0-.1 3.6A5.2 5.2 0 0 0 3.5 8.5c0 5.1 3 6.3 6 6.6a3 3 0 0 0-.9 2.4V21"></path></svg><span>GitHub</span></a>
+    </div>
+  </header>
+
+  <section class="head">
+    <div class="wrap">
+      <div class="labs"><span class="lab fill">Proyek PKL</span><span class="lab">Selesai</span><span class="lab">Web</span></div>
+      <h1 class="h1">Madura Mart: Toko Online dan Sistem Stok</h1>
+      <p class="lead">Website toko sembako dengan tiga jenis pengguna: pembeli, admin, dan owner. Saya buat saat PKL di Diskominfo Kabupaten Kediri.</p>
+      <div class="meta"><div><b>Jun – Agu 2025</b><span>Waktu</span></div><div><b>Diskominfo Kab. Kediri</b><span>Tempat PKL</span></div><div><b>Toko Madura Mart</b><span>Mitra</span></div><div><b>Selesai</b><span>Status</span></div></div>
+    </div>
+  </section>
+
+  <main class="body grid-bg">
+    <div class="wrap">
+      <div class="grid">
+        <section class="card viewer" aria-label="Media proyek">
+          <div class="vtop">
+            <div class="tabs" role="tablist" aria-label="Jenis media"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" class="tab {{t.on}}" aria-selected="{{t.sel}}" onClick="{{t.go}}">{{t.label}}<small>{{t.count}}</small></button></sc-for></div>
+            <sc-if value="{{isDiagram}}" hint-placeholder-val="{{ false }}"><div class="sub" role="group" aria-label="Pilih diagram"><sc-for list="{{diagrams}}" as="g" hint-placeholder-count="3"><button type="button" class="{{g.on}}" aria-pressed="{{g.sel}}" onClick="{{g.go}}">{{g.label}}</button></sc-for></div></sc-if>
+          </div>
+          <div class="stage">
+            <sc-for list="{{current}}" as="m" hint-placeholder-count="1"><img src="{{m.src}}" alt="{{m.alt}}"></sc-for>
+            <sc-if value="{{isGallery}}" hint-placeholder-val="{{ false }}">
+              <button type="button" class="arrow l" onClick="{{prev}}" aria-label="Gambar sebelumnya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></button>
+              <button type="button" class="arrow r" onClick="{{next}}" aria-label="Gambar berikutnya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg></button>
+            </sc-if>
+          </div>
+          <div class="vbot"><span>{{caption}}<span class="cnt">{{counter}}</span></span><button type="button" class="zoom" onClick="{{openZoom}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>Perbesar</button></div>
+          <sc-if value="{{isGallery}}" hint-placeholder-val="{{ false }}"><div class="thumbs" role="group" aria-label="Pilih tangkapan layar"><sc-for list="{{gallery}}" as="g" hint-placeholder-count="5"><button type="button" class="th {{g.on}}" aria-label="{{g.alt}}" aria-pressed="{{g.sel}}" onClick="{{g.go}}"><img src="{{g.src}}" alt=""></button></sc-for></div></sc-if>
+        </section>
+
+        <aside class="side">
+          <div class="card info">
+            <div class="ptitle"><h2>Info proyek</h2></div>
+            <dl class="dl">
+              <dt>Jenis</dt><dd>Aplikasi web</dd>
+              <dt>Bagian saya</dt><dd>Halaman pembeli, admin, dan owner</dd>
+              <dt>Teknologi</dt><dd><span class="tags"><span>PHP</span><span>Laravel</span><span>MySQL</span><span>Bootstrap</span><span>Midtrans</span></span></dd>
+            </dl>
+          </div>
+
+          <div class="card info">
+            <div class="ptitle"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5"></path><path d="m16 7 5 5-5 5"></path></svg>Repositori GitHub</h2><span class="live"><i aria-hidden="true"></i>Live API</span></div>
+            <div class="repo"><b>Aldidwiirawan/sembako</b><span>Diperbarui 23 Okt 2026</span></div>
+            <div class="lang">
+              <div class="lt"><span>Bahasa utama</span><b>Blade</b></div>
+              <div class="lbar" role="img" aria-label="Komposisi bahasa: Blade 57,4 persen, CSS 23,9 persen, PHP 14,6 persen, SCSS 2,9 persen, JavaScript 1,2 persen">
+                <span class="c1" style="width: 57.4%"></span><span class="c2" style="width: 23.9%"></span><span class="c3" style="width: 14.6%"></span><span class="c4" style="width: 2.9%"></span><span class="c5" style="width: 1.2%"></span>
+              </div>
+              <div class="legend"><span><i class="c1"></i>Blade <em>57,4%</em></span><span><i class="c2"></i>CSS <em>23,9%</em></span><span><i class="c3"></i>PHP <em>14,6%</em></span><span><i class="c4"></i>SCSS <em>2,9%</em></span><span><i class="c5"></i>JavaScript <em>1,2%</em></span></div>
+            </div>
+            <div class="det">
+              <h3>Framework dan library terdeteksi</h3>
+              <div class="tags"><span>Laravel 11</span><span>Laravel Fortify</span><span>Midtrans PHP</span><span>Laravel Excel</span><span>DomPDF</span><span>Vite</span></div>
+            </div>
+            <a class="rlink" href="#">Buka repositori<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M8 7h9v9"></path></svg></a>
+          </div>
+        </aside>
+      </div>
+
+      <section class="about">
+        <h2 class="h2">Tentang proyek</h2>
+        <div class="points">
+          <article class="card pt"><div class="n" aria-hidden="true">01</div><h3>Latar belakang</h3><p>Proyek ini saya kerjakan selama PKL di Diskominfo Kabupaten Kediri, Juni sampai Agustus 2025. Mitranya Toko Madura Mart, sebuah toko sembako.</p></article>
+          <article class="card pt"><div class="n" aria-hidden="true">02</div><h3>Permasalahan</h3><p>Toko membutuhkan cara untuk menerima pesanan secara online sekaligus mencatat stok dan transaksi di satu tempat.</p></article>
+          <article class="card pt"><div class="n" aria-hidden="true">03</div><h3>Solusi</h3><p>Website dengan tiga jenis akun. Pembeli memesan dan membayar lewat Midtrans atau bayar di tempat, admin mengelola produk, stok, dan pesanan, dan owner melihat laporan penjualan serta keuntungan.</p></article>
+          <article class="card pt"><div class="n" aria-hidden="true">04</div><h3>Fitur utama</h3><ul><li>Katalog, pencarian, keranjang, dan wishlist</li><li>Pembayaran Midtrans atau bayar di tempat</li><li>Stok masuk, stok keluar, dan stok opname</li><li>Validasi dan detail transaksi</li><li>Laporan keuntungan, grafik pendapatan, dan produk terlaris</li><li>Ekspor laporan ke PDF dan Excel</li></ul></article>
+        </div>
+      </section>
+
+      <nav class="pn" aria-label="Proyek lain">
+        <a href="#"><span>Sebelumnya</span><b>JejakPaket: Aplikasi Operator</b></a>
+        <a class="nx" href="#"><span>Berikutnya</span><b>Dwijaya Coffee: Pemesanan Kafe</b></a>
+      </nav>
+    </div>
+  </main>
+
+  <div class="lb {{lbCls}}" role="dialog" aria-modal="true" aria-label="Gambar diperbesar" aria-hidden="{{lbHidden}}">
+    <button type="button" class="x" onClick="{{closeZoom}}" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg></button>
+    <sc-for list="{{current}}" as="m" hint-placeholder-count="1"><img src="{{m.src}}" alt="{{m.alt}}"></sc-for>
+    <p>{{caption}}</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 0, g: 0, dg: 0, zoom: false };
+  }
+  renderVals() {
+    const self = this;
+    const s = this.state || {};
+    const cover = { src: '/_blob/5f726bc3bee4f62a6582ea528dc6ec1b', alt: 'Sampul Madura Mart: halaman pembeli, admin, dan owner', cap: 'Sampul: halaman pembeli, admin, dan owner' };
+    const gal = [
+      { src: '/_blob/7b97f583f4d2846ae109dbebdd71b52b', alt: 'Beranda pembeli dan katalog', cap: 'Pembeli: beranda dan katalog produk' },
+      { src: '/_blob/026e36d446726de28b3499e77f13c386', alt: 'Dashboard admin', cap: 'Admin: dashboard toko' },
+      { src: '/_blob/8236945a4e516f376518863aa7388255', alt: 'Data produk', cap: 'Admin: data produk' },
+      { src: '/_blob/c05a0285b607daa1c6b37d56aa6ad721', alt: 'Stok opname', cap: 'Admin: stok opname' },
+      { src: '/_blob/60506aea8b8fceee356638de3f0b75eb', alt: 'Laporan keuntungan owner', cap: 'Owner: laporan keuntungan' }
+    ];
+    const dia = [
+      { label: 'Use case', src: '/_blob/608a43ee82bf81adadb6fb01089339b6', alt: 'Diagram use case', cap: 'Diagram use case' },
+      { label: 'DFD', src: '/_blob/4d38ed3499b58cb9916c9f56b00d5196', alt: 'Data flow diagram level 0 dan 1', cap: 'DFD level 0 dan 1' },
+      { label: 'ERD', src: '/_blob/7a34e3fbff68561d583835774d4548dd', alt: 'Entity relationship diagram', cap: 'ERD basis data' }
+    ];
+    const tab = s.tab || 0, gi = s.g || 0, di = s.dg || 0;
+    const defs = [['Sampul', ''], ['Galeri', String(gal.length)], ['Diagram', String(dia.length)]];
+    let cur = cover, counter = '';
+    if (tab === 1) { cur = gal[gi]; counter = (gi + 1) + ' / ' + gal.length; }
+    if (tab === 2) { cur = dia[di]; counter = dia[di].label; }
+    return {
+      tabs: defs.map(function (t, i) { return { label: t[0], count: t[1], on: i === tab ? 'on' : '', sel: i === tab ? 'true' : 'false', go: function () { self.setState({ tab: i }); } }; }),
+      isGallery: tab === 1, isDiagram: tab === 2,
+      current: [cur], caption: cur.cap, counter: counter,
+      gallery: gal.map(function (g, i) { return Object.assign({}, g, { on: i === gi ? 'on' : '', sel: i === gi ? 'true' : 'false', go: function () { self.setState({ g: i }); } }); }),
+      diagrams: dia.map(function (g, i) { return { label: g.label, on: i === di ? 'on' : '', sel: i === di ? 'true' : 'false', go: function () { self.setState({ dg: i }); } }; }),
+      prev: function () { self.setState({ g: (gi - 1 + gal.length) % gal.length }); },
+      next: function () { self.setState({ g: (gi + 1) % gal.length }); },
+      openZoom: function () { self.setState({ zoom: true }); },
+      closeZoom: function () { self.setState({ zoom: false }); },
+      lbCls: s.zoom ? 'open' : '', lbHidden: s.zoom ? 'false' : 'true'
+    };
+  }
+}
+</script>
+</body>
+</html>

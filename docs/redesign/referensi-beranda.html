@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Beranda: gaya monokrom</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+html{scroll-behavior:smooth}
+.m{--bg:#ffffff;--fg:#0a0a0a;--soft:#f3f3f1;--mute:#55555e;--faint:#a1a1aa;--hair:rgba(10,10,10,.07);--inv-bg:#0a0a0a;--inv-fg:#fafafa;--inv-mute:#a1a1aa;--inv-line:#3f3f46;--beak:#f59e0b;--comb:#ef4444;--ok:#22c55e;--out:cubic-bezier(.16,1,.3,1);--pad:clamp(16px,4vw,56px);font-family:'Space Grotesk',system-ui,sans-serif;font-size:17px;line-height:1.6;color:var(--fg);background:var(--bg);transition:background .4s,color .4s;overflow-x:clip}
+.m.dark{--bg:#0a0a0a;--fg:#fafafa;--soft:#18181b;--mute:#a1a1aa;--faint:#71717a;--hair:rgba(250,250,250,.06);--inv-bg:#fafafa;--inv-fg:#0a0a0a;--inv-mute:#52525b;--inv-line:#d4d4d8}
+.m *{box-sizing:border-box}
+.m a{color:inherit;text-decoration:none}
+.m button{font-family:inherit;color:inherit}
+.m :focus-visible{outline:3px solid var(--fg);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--pad)}
+.grid-bg{background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);background-size:46px 46px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid color-mix(in srgb,var(--fg) 10%,transparent)}
+.nav .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:84px;max-width:1440px}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:.02em}
+.logo .lm{width:44px;height:44px;border:2.5px solid var(--fg);border-radius:12px;display:grid;place-items:center;font-size:16px;box-shadow:3px 3px 0 var(--fg)}
+.links{display:flex;gap:6px}
+.links a{position:relative;padding:10px 14px;font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.links a::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--out)}
+.links a:hover::after{transform:scaleX(1)}
+.tools{display:flex;gap:10px;justify-content:flex-end;align-items:center}
+.ib{width:52px;height:52px;border-radius:50%;border:0;background:var(--soft);display:grid;place-items:center;cursor:pointer;transition:transform .3s var(--out)}
+.ib:hover{transform:scale(1.06)}
+.ib svg{width:20px;height:20px}
+.lang{display:flex;padding:5px;border-radius:999px;background:var(--soft)}
+.lang button{width:52px;height:42px;border:0;border-radius:999px;background:transparent;color:var(--faint);font-weight:700;font-size:13px;cursor:pointer}
+.lang button.on{background:var(--bg);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+/* hero */
+.hero{position:relative;min-height:calc(100vh - 84px);display:flex;flex-direction:column}
+.arena{position:relative;height:300px;margin-top:clamp(40px,6vw,88px);opacity:0;transition:opacity .4s}
+.arena.ready{opacity:1}
+.pill{position:absolute;left:0;top:0;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:64px;padding:0 30px;border:2.5px solid var(--fg);border-radius:999px;background:var(--bg);font-weight:700;font-size:20px;letter-spacing:.01em;text-transform:uppercase;white-space:nowrap;box-shadow:4px 5px 0 var(--fg);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform}
+.pill:active{cursor:grabbing}
+.pill.fill{background:var(--fg);color:var(--bg);box-shadow:4px 5px 0 color-mix(in srgb,var(--fg) 40%,transparent)}
+.pill.circle{width:92px;height:92px;padding:0;border-radius:50%;font-size:28px}
+.pill svg{width:30px;height:30px}
+.pill .spark{width:20px;height:20px;margin-left:-2px}
+.namebox{animation:hname linear both;animation-timeline:scroll(root);animation-range:0px 700px}
+@keyframes hname{to{transform:translateY(-60px) scale(.96);opacity:.2}}
+.name{margin:6px 0 0;padding:0 clamp(12px,2vw,28px);font-weight:700;font-size:clamp(44px,10.6vw,206px);line-height:.86;letter-spacing:-.055em;text-transform:uppercase;white-space:nowrap;text-align:center}
+.name span{display:inline-block;animation:rise 1s var(--out) both}
+.name span:nth-child(2){animation-delay:.08s}.name span:nth-child(3){animation-delay:.16s}
+@keyframes rise{from{transform:translateY(40%);opacity:0}to{transform:none;opacity:1}}
+.code{max-width:1240px;margin:28px auto 0;padding:0 var(--pad);font-size:15.5px;line-height:1.7;color:var(--faint);animation:type 3.2s steps(90) .6s both}
+@keyframes type{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.code b{color:var(--fg);font-weight:700}
+.code i{font-style:normal;color:var(--mute)}
+.code u{text-decoration:none;color:#c4c4c8}
+.m.dark .code u{color:#52525b}
+.strip{margin-top:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2.5px solid var(--fg);border-bottom:2.5px solid var(--fg)}
+.strip span{display:flex;align-items:center;gap:12px;height:76px;padding:0 var(--pad);border-left:2.5px solid var(--fg);font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.strip span:first-child{border-left:0}
+.strip em{font-style:normal;font-weight:500}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(34,197,94,.5);animation:ping 2.2s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+
+/* headings */
+.sec{padding:clamp(88px,10vw,150px) 0}
+.h2{margin:0;font-weight:700;font-size:clamp(52px,7.4vw,112px);line-height:.88;letter-spacing:-.055em;text-transform:uppercase}
+.h2 .w{display:inline-block;overflow:hidden;vertical-align:bottom}
+.h2 .w span{display:inline-block}
+.slead{margin:20px 0 0;max-width:32em;color:var(--mute);font-size:19px}
+.wipe span{animation:wup linear both;animation-timeline:view();animation-range:entry 10% entry 70%}
+@keyframes wup{from{transform:translateY(105%)}to{transform:none}}
+
+/* about */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:28px;margin-top:56px}
+.card{border:2.5px solid var(--fg);border-radius:32px;background:var(--bg);padding:clamp(24px,2.6vw,36px)}
+.rise{animation:cup linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+@keyframes cup{from{opacity:0;transform:translateY(60px) scale(.97)}to{opacity:1;transform:none}}
+.intro{grid-column:span 8}
+.intro .wave{width:64px;height:64px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.intro .wave svg{width:30px;height:30px}
+.intro h3{margin:26px 0 0;font-size:clamp(28px,2.8vw,40px);line-height:1.08;letter-spacing:-.03em;text-transform:uppercase}
+.intro p{margin:18px 0 0;color:var(--mute);font-size:18px;max-width:42em}
+.bbtn{display:inline-flex;align-items:center;gap:12px;height:58px;margin-top:30px;padding:0 30px;border-radius:999px;background:var(--fg);color:var(--bg);font-weight:700;font-size:15px;letter-spacing:.16em;text-transform:uppercase;transition:transform .25s var(--out)}
+.bbtn:hover{transform:translateY(-3px)}
+.bbtn svg{width:18px;height:18px}
+.photo{grid-column:span 4;position:relative;padding:0;overflow:hidden;min-height:440px;background:var(--soft);box-shadow:0 30px 60px -30px rgba(0,0,0,.35);transform:rotate(1.2deg)}
+.photo .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-weight:600;font-size:14px;background-image:radial-gradient(color-mix(in srgb,var(--fg) 18%,transparent) 1.5px,transparent 1.6px);background-size:14px 14px}
+.photo .tag{position:absolute;left:20px;right:20px;bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 14px 14px 20px;border-radius:18px;background:rgba(10,10,10,.82);color:#fafafa;backdrop-filter:blur(8px)}
+.photo .tag b{display:block;font-size:17px}
+.photo .tag small{font-size:12px;letter-spacing:.1em;color:#a1a1aa;text-transform:uppercase}
+.photo .tag a{height:44px;padding:0 18px;border-radius:10px;background:#fafafa;color:#0a0a0a;display:inline-flex;align-items:center;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.edu{grid-column:span 5;display:flex;flex-direction:column;gap:10px;background:var(--soft)}
+.edu .top{display:flex;justify-content:space-between;align-items:center}
+.edu .ic{width:64px;height:64px;border-radius:50%;border:2.5px solid var(--fg);display:grid;place-items:center;background:var(--bg)}
+.edu .ic svg{width:28px;height:28px}
+.edu .yr{height:34px;padding:0 14px;border-radius:999px;background:var(--fg);color:var(--bg);font-size:13px;font-weight:700;display:inline-flex;align-items:center}
+.edu small{margin-top:26px;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
+.edu h3{margin:0;font-size:26px;line-height:1.05;text-transform:uppercase;letter-spacing:-.02em}
+.mini{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.mini span{height:32px;padding:0 12px;border:1.5px solid color-mix(in srgb,var(--fg) 20%,transparent);border-radius:8px;background:var(--bg);display:inline-flex;align-items:center;font-size:13px;font-weight:500}
+.edu .gpa{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:20px;border-top:1.5px solid color-mix(in srgb,var(--fg) 15%,transparent)}
+.edu .gpa b{font-size:64px;line-height:1;letter-spacing:-.05em}
+.edu .gpa span{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--mute);text-transform:uppercase;line-height:1.3}
+.stack{grid-column:span 7;box-shadow:8px 8px 0 var(--fg)}
+.stack .top{display:flex;align-items:center;gap:14px;padding-bottom:20px;border-bottom:1.5px solid color-mix(in srgb,var(--fg) 15%,transparent)}
+.stack .top i{width:52px;height:52px;border-radius:12px;background:var(--fg);color:var(--bg);display:grid;place-items:center;font-style:normal;font-weight:700}
+.stack h3{margin:0;font-size:30px;text-transform:uppercase;letter-spacing:-.02em}
+.stack h4{margin:22px 0 10px;font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+.tags{display:flex;flex-wrap:wrap;gap:10px}
+.tags span{height:44px;padding:0 16px;border:1.5px solid color-mix(in srgb,var(--fg) 15%,transparent);border-radius:10px;background:var(--soft);display:inline-flex;align-items:center;font-size:15.5px;font-weight:600;transition:background .2s,color .2s,transform .2s var(--out)}
+.tags span:hover{background:var(--fg);color:var(--bg);transform:translateY(-2px)}
+.focus{grid-column:span 12;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px;background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.focus h3{margin:0;font-size:40px;text-transform:uppercase;letter-spacing:-.03em}
+.focus p{margin:10px 0 0;opacity:.72;max-width:36em}
+.focus .f{display:flex;flex-wrap:wrap;gap:12px}
+.focus .f span{height:58px;padding:0 24px;border:1.5px solid color-mix(in srgb,var(--bg) 25%,transparent);border-radius:14px;display:inline-flex;align-items:center;font-weight:700;font-size:17px}
+
+/* rail */
+.rail{padding:48px 0;overflow:hidden;border-top:2.5px solid var(--fg)}
+.rail div{white-space:nowrap;font-size:clamp(56px,8vw,120px);font-weight:700;letter-spacing:-.04em;line-height:1;text-transform:uppercase;color:transparent;-webkit-text-stroke:2px var(--fg);animation:pan linear both;animation-timeline:view()}
+.rail div + div{margin-top:10px;color:var(--fg);-webkit-text-stroke:0;animation-name:panr}
+@keyframes pan{from{transform:translateX(5%)}to{transform:translateX(-45%)}}
+@keyframes panr{from{transform:translateX(-45%)}to{transform:translateX(5%)}}
+
+/* projects */
+.pwrap{background:var(--inv-bg);color:var(--inv-fg);animation:curtain linear both;animation-timeline:view();animation-range:entry 0% entry 45%}
+@keyframes curtain{from{clip-path:inset(0 4% 0 4% round 64px)}to{clip-path:inset(0 0 0 0 round 0)}}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:20px;padding-bottom:40px;border-bottom:1px solid var(--inv-line)}
+.phead .slead{color:var(--inv-mute);text-align:right;max-width:26em}
+.pitem{height:110vh;min-height:780px;view-timeline:--pi block}
+.pitem:last-child{height:auto;min-height:0}
+.proj{position:sticky;top:110px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(28px,4vw,64px);align-items:center;padding:clamp(32px,4vw,52px);border:1px solid var(--inv-line);border-radius:36px;background:var(--inv-bg);transform-origin:50% 0;animation:shrink linear both;animation-timeline:--pi;animation-range:exit -10% exit 70%}
+.pitem:last-child .proj{position:relative;top:0;animation:none}
+@keyframes shrink{to{transform:scale(.9);filter:brightness(.45)}}
+.lab{display:inline-flex;height:34px;align-items:center;padding:0 14px;border:1.5px solid var(--inv-line);border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--inv-mute)}
+.proj h3{margin:22px 0 0;font-size:clamp(36px,4vw,60px);line-height:.95;font-weight:700;letter-spacing:-.04em;text-transform:uppercase}
+.proj p{margin:20px 0 0;color:var(--inv-mute);max-width:32em}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:26px}
+.facts div{padding:2px 16px;border-left:1.5px solid var(--inv-line)}
+.facts b{display:block;font-size:17px;line-height:1.25}
+.facts span{font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--inv-mute);text-transform:uppercase}
+.ptags{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.ptags span{height:36px;padding:0 13px;border:1px solid var(--inv-line);border-radius:8px;display:inline-flex;align-items:center;font-size:13.5px;font-weight:700}
+.pacts{display:flex;flex-wrap:wrap;gap:24px;align-items:center;margin-top:30px}
+.plink{display:inline-flex;align-items:center;gap:10px;font-weight:700}
+.plink svg{width:18px;height:18px}
+.pbtn{height:50px;padding:0 22px;background:var(--inv-fg);color:var(--inv-bg);display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s var(--out)}
+.pbtn:hover{transform:translateY(-2px)}
+.pbtn svg{width:16px;height:16px}
+.shot{border-radius:22px;overflow:hidden;border:1px solid var(--inv-line);aspect-ratio:16 / 10;background:#fff;transition:transform .6s var(--out)}
+.proj:hover .shot{transform:rotate(-1deg) scale(1.015)}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+
+/* journey */
+.jhead{text-align:center}
+.jhead .h2{position:relative;display:inline-block}
+.jhead .h2::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:14px;background:color-mix(in srgb,var(--fg) 12%,transparent);z-index:-1;transform-origin:left;animation:hl linear both;animation-timeline:view();animation-range:entry 30% entry 90%}
+@keyframes hl{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.jhead .slead{margin-left:auto;margin-right:auto}
+.tl{position:relative;margin-top:clamp(64px,8vw,110px);view-timeline:--tl block}
+.track,.fill{position:absolute;left:50%;top:0;bottom:0;width:3px;transform:translateX(-1.5px)}
+.track{background:color-mix(in srgb,var(--fg) 10%,transparent)}
+.fill{background:var(--fg);transform-origin:50% 0;animation:drop linear both;animation-timeline:--tl;animation-range:entry 40% exit 60%}
+.fill::after{content:"";position:absolute;left:50%;bottom:-9px;width:18px;height:18px;border-radius:50%;background:var(--fg);transform:translateX(-50%)}
+@keyframes drop{from{transform:translateX(-1.5px) scaleY(0)}to{transform:translateX(-1.5px) scaleY(1)}}
+.ev{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:center;padding:56px 0}
+.ev.rev .side{order:2}
+.side{display:flex;flex-direction:column;align-items:center}
+.year{font-size:clamp(88px,10vw,150px);font-weight:700;line-height:.9;letter-spacing:-.03em;color:transparent;-webkit-text-stroke:2.5px var(--fg);position:relative}
+.folder{position:relative;width:180px;height:150px;margin-top:-18px;border:0;padding:0;background:transparent;cursor:pointer}
+.folder .back{position:absolute;left:0;right:0;bottom:0;height:118px;border-radius:12px;background:var(--fg)}
+.folder .back::before{content:"";position:absolute;left:0;top:-18px;width:66px;height:24px;border-radius:10px 10px 0 0;background:var(--fg)}
+.folder .front{position:absolute;left:-6px;right:-6px;bottom:0;height:96px;border-radius:10px;background:var(--fg);transform-origin:50% 100%;transition:transform .5s var(--out);box-shadow:0 -2px 0 color-mix(in srgb,var(--bg) 30%,transparent) inset;z-index:3}
+.folder.open .front{transform:perspective(500px) rotateX(-32deg)}
+.folder .ph{position:absolute;left:50%;bottom:30px;width:130px;aspect-ratio:4 / 3;margin-left:-65px;border:5px solid #fff;border-radius:6px;background:#d4d4d8;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.3);transform:translateY(20px) scale(.6);opacity:0;transition:transform .6s var(--out),opacity .3s;z-index:2;display:grid;place-items:center;color:#52525b;font-size:11px;font-weight:700}
+.folder .ph img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;filter:grayscale(1)}
+.folder.open .ph{opacity:1}
+.folder.open .ph:nth-of-type(2){transform:translate(-120px,-150px) rotate(-14deg)}
+.folder.open .ph:nth-of-type(3){transform:translate(0,-190px) rotate(2deg);transition-delay:.06s}
+.folder.open .ph:nth-of-type(4){transform:translate(120px,-150px) rotate(13deg);transition-delay:.12s}
+.ftxt{margin-top:22px;text-align:center}
+.ftxt b{display:block;font-size:15px;letter-spacing:.24em;text-transform:uppercase}
+.ftxt span{display:inline-block;margin-top:8px;padding-top:8px;border-top:2px solid color-mix(in srgb,var(--fg) 12%,transparent);font-size:13px;color:var(--mute)}
+.evc{border:2.5px solid var(--fg);border-radius:28px;background:var(--bg);padding:clamp(24px,2.6vw,38px);box-shadow:8px 8px 0 var(--fg);animation:tirai linear both;animation-timeline:view();animation-range:entry 5% entry 60%}
+@keyframes tirai{from{clip-path:inset(0 -14px 100% 0 round 28px)}to{clip-path:inset(0 -14px -14px 0 round 28px)}}
+.evc .k{display:inline-flex;height:32px;align-items:center;padding:0 14px;border-radius:999px;background:var(--fg);color:var(--bg);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.evc h3{margin:18px 0 0;font-size:30px;line-height:1.05;text-transform:uppercase;letter-spacing:-.02em}
+.evc .at{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
+.evc .at svg{width:16px;height:16px}
+.evc p{margin:16px 0 0;color:var(--mute);font-size:17px}
+.evc .also{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--soft);font-size:15px}
+.evc .also b{font-weight:700}
+.evc .tags{margin-top:20px;padding-top:20px;border-top:1.5px solid color-mix(in srgb,var(--fg) 12%,transparent)}
+.evc .tags span{height:36px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:transparent}
+
+/* certificates */
+.chead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:20px}
+.chead .slead{max-width:26em;text-align:right}
+.cgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:56px}
+.cert{display:flex;flex-direction:column;border:2.5px solid var(--fg);border-radius:28px;background:var(--bg);overflow:hidden;transition:transform .3s var(--out),box-shadow .3s var(--out)}
+.cert:hover{transform:translate(-4px,-4px);box-shadow:10px 10px 0 var(--fg)}
+.paper{position:relative;aspect-ratio:4 / 3;border:0;border-bottom:2.5px solid var(--fg);background:var(--soft);display:grid;place-items:center;cursor:zoom-in;padding:22px}
+.sheet{position:relative;height:100%;aspect-ratio:3 / 4;background:#fff;color:#0a0a0a;border-radius:4px;box-shadow:0 14px 30px -12px rgba(0,0,0,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;transition:transform .45s var(--out)}
+.cert:hover .sheet{transform:rotate(-2.5deg) scale(1.04)}
+.sheet b{font-size:14px;text-transform:uppercase;letter-spacing:.06em;text-align:center}
+.sheet i{display:block;width:70%;height:5px;border-radius:3px;background:#e4e4e7}
+.sheet i:nth-of-type(2){width:50%}
+.sheet small{margin-top:6px;font-size:10px;color:#71717a;text-align:center}
+.cbody{display:flex;flex-direction:column;gap:6px;padding:24px;flex:1}
+.ck{align-self:flex-start;height:30px;padding:0 12px;border-radius:999px;background:var(--fg);color:var(--bg);display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.cbody h3{margin:10px 0 0;font-size:22px;line-height:1.12;text-transform:uppercase;letter-spacing:-.02em}
+.iss{font-size:14px;font-weight:700;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+.cdate{display:grid;grid-template-columns:1fr 1fr;margin:14px 0 0;border-top:1.5px solid color-mix(in srgb,var(--fg) 14%,transparent);border-bottom:1.5px solid color-mix(in srgb,var(--fg) 14%,transparent)}
+.cdate div{padding:12px 0}
+.cdate div + div{padding-left:14px;border-left:1.5px solid color-mix(in srgb,var(--fg) 14%,transparent)}
+.cdate dt{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--mute);text-transform:uppercase}
+.cdate dd{margin:2px 0 0;font-weight:700}
+.cact{margin-top:auto;padding-top:18px}
+.pdf{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 20px;border:2px solid var(--fg);border-radius:999px;font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;transition:background .2s,color .2s}
+.pdf:hover{background:var(--fg);color:var(--bg)}
+.pdf svg{width:17px;height:17px}
+.cmore{display:flex;justify-content:center;margin-top:44px}
+.morebtn{display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 26px;border:2.5px solid var(--fg);border-radius:999px;background:var(--bg);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;box-shadow:4px 5px 0 var(--fg);cursor:pointer;transition:transform .2s var(--out),box-shadow .2s var(--out)}
+.morebtn:hover{transform:translate(-2px,-2px);box-shadow:6px 7px 0 var(--fg)}
+.morebtn svg{width:18px;height:18px}
+.clb{position:fixed;inset:0;z-index:70;background:rgba(10,10,10,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;animation:fadeb .3s var(--out) both}
+@keyframes fadeb{from{opacity:0}to{opacity:1}}
+.clbsheet{height:min(72vh,760px);aspect-ratio:3 / 4;max-width:100%;background:#fff;color:#0a0a0a;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;text-align:center;animation:zin .45s var(--out) both}
+@keyframes zin{from{transform:scale(.9) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+.clbsheet b{font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.clbsheet span{font-size:14px;color:#52525b;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.clbsheet i{display:block;width:70%;height:7px;border-radius:4px;background:#e4e4e7}
+.clbsheet small{margin-top:8px;color:#71717a}
+.clbpdf{height:50px;padding:0 22px;border:2px solid #fafafa;border-radius:999px;color:#fafafa;display:inline-flex;align-items:center;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:14px}
+.clx{position:absolute;top:20px;right:20px;width:52px;height:52px;border:2px solid #fafafa;border-radius:50%;background:transparent;color:#fafafa!important;display:grid;place-items:center;cursor:pointer}
+.clx svg{width:20px;height:20px}
+.evc .per{margin-top:4px;font-size:14px;color:var(--mute)}
+
+/* contact */
+.cwrap{background:var(--inv-bg);color:var(--inv-fg)}
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,80px);align-items:start}
+.contact .slead{color:var(--inv-mute)}
+.mlab{margin-top:40px;font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--inv-mute);text-transform:uppercase}
+.mail{display:inline-flex;align-items:center;gap:14px;margin-top:12px;height:64px;padding:0 22px;border:1px solid var(--inv-line);border-radius:16px;font-weight:700;font-size:17px;transition:border-color .2s}
+.mail:hover{border-color:var(--inv-fg)}
+.mail svg{width:20px;height:20px}
+.soc{display:flex;gap:12px;margin-top:12px}
+.soc a{width:56px;height:56px;border:1px solid var(--inv-line);border-radius:16px;display:grid;place-items:center;transition:background .2s,color .2s}
+.soc a:hover{background:var(--inv-fg);color:var(--inv-bg)}
+.soc svg{width:20px;height:20px}
+.form{display:flex;flex-direction:column;gap:16px;padding:clamp(24px,2.6vw,36px);border:1px solid var(--inv-line);border-radius:28px;background:color-mix(in srgb,var(--inv-fg) 4%,transparent)}
+.form label{display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--inv-mute)}
+.form input,.form select,.form textarea{font:500 16px 'Space Grotesk';color:var(--inv-fg);background:color-mix(in srgb,var(--inv-fg) 5%,transparent);border:1px solid var(--inv-line);border-radius:12px;padding:14px 16px}
+.form input:focus,.form select:focus,.form textarea:focus{outline:none;border-color:var(--inv-fg)}
+.form select option{color:#0a0a0a}
+.form textarea{min-height:130px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.send{height:58px;border:0;border-radius:14px;background:var(--inv-fg);color:var(--inv-bg)!important;font:700 15px 'Space Grotesk';letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.send svg{width:18px;height:18px}
+.ok{padding:14px 16px;border-radius:12px;border:1px solid #4ade80;color:#bbf7d0;font-weight:600}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:clamp(64px,8vw,110px);padding:24px 0 140px;border-top:1px solid var(--inv-line);font-size:13px;color:var(--inv-mute)}
+
+/* cats */
+.pets{position:fixed;left:0;right:0;bottom:0;height:0;z-index:45;pointer-events:none}
+.cat{position:absolute;left:0;bottom:-34px;width:116px;border:0;padding:0;background:transparent;color:var(--fg);cursor:grab;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform}
+.cat:active{cursor:grabbing}
+.cat .flip{display:block}
+.cat .bob{display:block;transform-origin:50% 100%}
+.cat.idle .bob{animation:cat-bob 3.2s ease-in-out infinite}
+.cat.walk .bob{animation:cat-walk .34s ease-in-out infinite}
+.cat.held .bob{animation:cat-dangle .5s ease-in-out infinite}
+.cat.air .bob{transform:scaleY(1.05)}
+.cat.susu .bob{animation-delay:-1.4s}
+@keyframes cat-bob{50%{transform:translateY(-6px)}}
+@keyframes cat-walk{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+@keyframes cat-dangle{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.cat svg{width:116px;height:auto;display:block;overflow:visible}
+.f-fg{fill:var(--fg)}.f-bg{fill:var(--bg)}
+.s-fg{fill:none;stroke:var(--fg);stroke-linecap:round;stroke-linejoin:round}
+.s-bg{fill:none;stroke:var(--bg);stroke-linecap:round;stroke-linejoin:round}
+.cst{stroke:var(--fg);stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}
+.tail{transform-box:fill-box;transform-origin:0% 100%;animation:cat-wag 1.8s ease-in-out infinite}
+.cat.walk .tail{animation-duration:.6s}
+@keyframes cat-wag{50%{transform:rotate(14deg)}}
+.blk{transform-box:fill-box;transform-origin:50% 50%;animation:cat-blink 4.4s infinite}
+.cat.susu .blk{animation-delay:-2s}
+@keyframes cat-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+.bubble{position:absolute;bottom:132px;left:50%;transform:translateX(-50%);padding:6px 12px;border:2.5px solid var(--fg);border-radius:12px;background:var(--bg);color:var(--fg);font-weight:700;font-size:14px;white-space:nowrap;box-shadow:3px 3px 0 var(--fg);animation:cat-pop .3s var(--out) both;pointer-events:none}
+@keyframes cat-pop{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.8)}to{opacity:1;transform:translateX(-50%)}}
+
+/* guestbook */
+.gb{position:fixed;right:28px;bottom:28px;z-index:55;display:inline-flex;align-items:center;gap:12px;height:64px;padding:0 12px 0 24px;border:2.5px solid var(--fg);border-radius:999px;background:var(--bg);font-weight:700;font-size:18px;box-shadow:5px 6px 0 var(--fg);cursor:pointer;transition:transform .2s var(--out)}
+.gb:hover{transform:translateY(-2px)}
+.gb svg{width:22px;height:22px}
+.gb b{min-width:38px;height:34px;padding:0 8px;border-radius:10px;border:1.5px solid color-mix(in srgb,var(--fg) 20%,transparent);display:grid;place-items:center;font-size:14px}
+.gpanel{position:fixed;right:28px;bottom:108px;z-index:56;width:min(360px,calc(100% - 32px));padding:22px;border:2.5px solid var(--fg);border-radius:24px;background:var(--bg);box-shadow:6px 6px 0 var(--fg);display:flex;flex-direction:column;gap:12px;animation:pop2 .35s var(--out) both}
+@keyframes pop2{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.gpanel h3{margin:0;font-size:22px;text-transform:uppercase;letter-spacing:-.02em}
+.gpanel p{margin:0;color:var(--mute);font-size:15px}
+.gpanel input,.gpanel textarea{font:500 15px 'Space Grotesk';color:var(--fg);background:var(--soft);border:1.5px solid color-mix(in srgb,var(--fg) 18%,transparent);border-radius:10px;padding:11px 13px}
+.gpanel textarea{min-height:80px;resize:vertical}
+.gpanel .row{display:flex;gap:10px;justify-content:flex-end}
+.gpanel button{height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--fg);background:transparent;font-weight:700;cursor:pointer}
+.gpanel button.fill{background:var(--fg);color:var(--bg)}
+
+@media (max-width:1060px){
+ .links{display:none}
+ .nav .wrap{grid-template-columns:1fr auto}
+ .strip{grid-template-columns:1fr 1fr}
+ .strip span{height:60px;font-size:14px}
+ .strip span:nth-child(3){border-left:0}
+ .strip span:nth-child(n+3){border-top:2.5px solid var(--fg)}
+ .intro,.photo,.edu,.stack{grid-column:span 12}
+ .photo{transform:none}
+ .proj,.contact{grid-template-columns:1fr}
+ .cgrid{grid-template-columns:1fr 1fr}
+ .chead .slead{text-align:left}
+ .pitem{height:auto;min-height:0;margin-bottom:24px}
+ .proj{position:relative;top:0;animation:none}
+ .track,.fill{left:20px}
+ .ev{grid-template-columns:1fr;gap:28px;padding-left:52px}
+ .ev.rev .side{order:0}
+ .side{align-items:flex-start}
+}
+@media (max-width:620px){
+ .ib.snd{display:none}
+ .arena{height:330px}
+ .pill{height:50px;padding:0 18px;font-size:15px}
+ .pill.circle{width:68px;height:68px}
+ .facts{grid-template-columns:1fr;gap:12px}
+ .cgrid{grid-template-columns:1fr}
+ .two{grid-template-columns:1fr}
+ .gb span{display:none}
+ .cat{width:84px}.cat svg{width:84px}
+ .phead .slead{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .m *,.m *::before,.m *::after{animation:none!important;transition-duration:.01ms!important}
+}
+@supports not (animation-timeline:view()){
+ .namebox,.proj,.rail div,.pwrap,.fill,.evc,.rise,.wipe span{animation:none!important}
+ .pitem{height:auto;min-height:0;margin-bottom:24px}
+ .proj{position:relative;top:0}
+}
+</style>
+</helmet>
+<div class="m {{themeCls}}">
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="#beranda"><span class="lm" aria-hidden="true">AD</span><span class="sr" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Aldi Dwi Irawan</span></a>
+      <nav class="links" aria-label="Navigasi utama">
+        <a href="#beranda">Beranda</a><a href="#tentang">Tentang</a><a href="#proyek">Proyek</a><a href="#perjalanan">Perjalanan</a><a href="#sertifikat">Sertifikat</a><a href="#kontak">Kontak</a>
+      </nav>
+      <div class="tools">
+        <button type="button" class="ib snd" onClick="{{toggleSound}}" aria-pressed="{{soundPressed}}" aria-label="{{soundLabel}}">
+          <sc-if value="{{soundOn}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18.5 5.5a9 9 0 0 1 0 13"></path></svg></sc-if>
+          <sc-if value="{{soundOff}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"></path><path d="m22 9-6 6"></path><path d="m16 9 6 6"></path></svg></sc-if>
+        </button>
+        <button type="button" class="ib" onClick="{{toggleTheme}}" aria-label="{{themeLabel}}">
+          <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg></sc-if>
+          <sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></sc-if>
+        </button>
+        <div class="lang" role="group" aria-label="Bahasa"><button type="button" aria-pressed="false">EN</button><button type="button" class="on" aria-pressed="true">ID</button></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero grid-bg" id="beranda">
+      <div class="wrap" style="width: 100%; max-width: 1440px">
+        <div class="arena" ref="{{arenaRef}}" aria-label="Chip yang bisa diseret dan dilempar">
+          <sc-for list="{{pills}}" as="p" hint-placeholder-count="8">
+            <button type="button" class="pill {{p.cls}}" ref="{{p.ref}}" onPointerDown="{{p.down}}" onPointerMove="{{p.move}}" onPointerUp="{{p.up}}" onPointerCancel="{{p.up}}" onClick="{{p.tap}}" aria-label="{{p.aria}}">
+              <sc-if value="{{p.isCode}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 7-5 5 5 5"></path><path d="m16 7 5 5-5 5"></path><path d="m14 4-4 16"></path></svg></sc-if>
+              <sc-if value="{{p.isStar}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18"></path><path d="M4.2 7.5l15.6 9"></path><path d="M4.2 16.5l15.6-9"></path></svg></sc-if>
+              <sc-if value="{{p.isText}}" hint-placeholder-val="{{ true }}"><span>{{p.label}}</span></sc-if>
+              <sc-if value="{{p.isSpark}}" hint-placeholder-val="{{ false }}"><svg class="spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.9 5.6 3.4 8.1 10 10-6.6 1.9-9.1 4.4-10 10-.9-5.6-3.4-8.1-10-10 6.6-1.9 9.1-4.4 10-10z" fill="currentColor"></path></svg></sc-if>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div class="namebox">
+        <h1 class="name" aria-label="Aldi Dwi Irawan"><span aria-hidden="true">Aldi&#160;</span><span aria-hidden="true">Dwi&#160;</span><span aria-hidden="true">Irawan</span></h1>
+        <p class="code" aria-hidden="true"><b>const</b> INIT_PORTOFOLIO <u>=</u> <b>async</b> <u>() =&gt; {</u> <b>const</b> developer <u>= {</u> <u>nama:</u> <i>"ALDI_DWI_IRAWAN"</i>, <u>asal:</u> <i>"Kediri_Indonesia"</i>, <u>peran:</u> <i>"Junior_Programmer"</i>, <u>fokus:</u> <i>"Web_Mobile_dan_IT_Support"</i> <u>};</u> <b>await</b> developer.siapBekerja<u>();</u> <u>}</u></p>
+      </div>
+      <div class="strip">
+        <span><span class="dot" aria-hidden="true"></span>Terbuka untuk kerja</span>
+        <span><em>Berbasis di</em>&#160;Kediri, ID</span>
+        <span>Hari ini:&#160;<em>29 Okt 2026</em></span>
+        <span>Gulir ke bawah</span>
+      </div>
+    </section>
+
+    <section class="sec grid-bg" id="tentang">
+      <div class="wrap">
+        <h2 class="h2 wipe"><span class="w"><span>Tentang</span></span> <span class="w"><span>saya</span></span></h2>
+        <div class="bento">
+          <div class="card intro rise">
+            <span class="wave" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v1"></path><path d="M14 10V4a2 2 0 0 0-4 0v2"></path><path d="M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg></span>
+            <h3>Hai, saya Aldi Dwi Irawan.</h3>
+            <p>Junior Programmer lulusan D3 Manajemen Informatika Politeknik Negeri Malang. Saya membangun aplikasi web dan mobile, mulai dari merancang tampilan di Figma sampai menulis kode dan menghubungkannya ke basis data.</p>
+            <p>Saat magang di CV Adisatya IT Consultant, saya ikut mengembangkan versi awal sistem bukti packing yang kini dirilis sebagai Jeejak. Saya juga terbiasa menangani jaringan dan perangkat kerja sehari-hari.</p>
+            <a class="bbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"></path><path d="m7 10 5 5 5-5"></path><path d="M5 20h14"></path></svg>Unduh CV lengkap</a>
+          </div>
+          <div class="card photo rise">
+            <span class="ph">[Foto profil Aldi]</span>
+            <div class="tag"><span><b>Aldi Dwi Irawan</b><small>Siap bekerja</small></span><a href="#kontak">Rekrut saya</a></div>
+          </div>
+          <div class="card edu rise">
+            <div class="top"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"></path><path d="M6 12v5c3 2 9 2 12 0v-5"></path></svg></span><span class="yr">Lulus 2026</span></div>
+            <small>Politeknik Negeri Malang, PSDKU Kediri</small>
+            <h3>D3 Manajemen Informatika</h3>
+            <div class="mini"><span>Pemrograman Web</span><span>Basis Data</span><span>Analisis Sistem</span><span>Jaringan Komputer</span></div>
+            <div class="gpa"><b>3,54</b><span>IPK<br>dari 4,00</span></div>
+          </div>
+          <div class="card stack rise">
+            <div class="top"><i aria-hidden="true">&gt;_</i><h3>Tech stack</h3></div>
+            <h4>Bahasa dan frontend</h4><div class="tags"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>PHP</span><span>Python</span><span>React.js</span><span>Tailwind</span><span>Bootstrap</span></div>
+            <h4>Backend dan mobile</h4><div class="tags"><span>Laravel</span><span>FastAPI</span><span>REST API</span><span>Midtrans</span><span>Flutter</span><span>Dart</span></div>
+            <h4>Data dan alat</h4><div class="tags"><span>MySQL</span><span>PostgreSQL</span><span>Supabase</span><span>Figma</span><span>Git</span><span>Postman</span><span>MikroTik</span></div>
+          </div>
+          <div class="card focus rise">
+            <div><h3>Fokus saya</h3><p>Membangun aplikasi web dan mobile yang rapi dipakai sehari-hari, dari rancangan tampilan sampai database, ditambah dukungan IT dan jaringan.</p></div>
+            <div class="f"><span>Web dan mobile</span><span>UI/UX</span><span>IT Support</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rail" aria-hidden="true">
+      <div>Laravel · React · Flutter · FastAPI · Figma · MySQL · Laravel · React · Flutter</div>
+      <div>Web · Mobile · UI/UX · Jaringan · IT Support · Web · Mobile · UI/UX · Jaringan</div>
+    </div>
+
+    <section class="pwrap" id="proyek">
+      <div class="wrap sec">
+        <div class="phead"><h2 class="h2 wipe"><span class="w"><span>Karya</span></span><br><span class="w"><span>terpilih</span></span></h2><p class="slead">Sistem yang saya bangun saat magang dan kuliah. Dua di antaranya kini dipakai di dunia nyata.</p></div>
+        <div style="margin-top: 64px">
+          <sc-for list="{{projects}}" as="p" hint-placeholder-count="5">
+            <div class="pitem">
+              <article class="proj">
+                <div>
+                  <span class="lab">{{p.label}}</span>
+                  <h3>{{p.title}}</h3>
+                  <p>{{p.desc}}</p>
+                  <div class="facts"><div><b>{{p.role}}</b><span>Peran</span></div><div><b>{{p.year}}</b><span>Tahun</span></div><div><b>{{p.client}}</b><span>Klien</span></div></div>
+                  <div class="ptags"><sc-for list="{{p.tags}}" as="t" hint-placeholder-count="4"><span>{{t}}</span></sc-for></div>
+                  <div class="pacts">
+                    <a class="plink" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>Baca studi kasus</a>
+                    <sc-if value="{{p.hasSite}}" hint-placeholder-val="{{ true }}"><a class="pbtn" href="#">Kunjungi<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M8 7h9v9"></path></svg></a></sc-if>
+                  </div>
+                </div>
+                <div class="shot"><img src="{{p.img}}" alt="{{p.alt}}"></div>
+              </article>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec grid-bg" id="perjalanan">
+      <div class="wrap">
+        <div class="jhead"><h2 class="h2 wipe"><span class="w"><span>Perjalanan</span></span> <span class="w"><span>saya</span></span></h2><p class="slead">Dari ruang kuliah di Kediri sampai sistem yang dipakai di lingkungan kerja nyata.</p></div>
+        <div class="tl">
+          <span class="track" aria-hidden="true"></span><span class="fill" aria-hidden="true"></span>
+          <sc-for list="{{events}}" as="e" hint-placeholder-count="4">
+            <div class="ev {{e.rev}}">
+              <div class="side">
+                <div class="year" aria-hidden="true">{{e.year}}</div>
+<sc-if value="{{e.hasPhotos}}" hint-placeholder-val="{{ true }}">
+                <button type="button" class="folder {{e.open}}" onClick="{{e.toggle}}" aria-expanded="{{e.expanded}}" aria-label="{{e.folderLabel}}">
+                  <span class="back"></span>
+                  <sc-for list="{{e.photos}}" as="ph" hint-placeholder-count="3"><span class="ph"><sc-if value="{{ph.hasImg}}" hint-placeholder-val="{{ true }}"><img src="{{ph.src}}" alt="{{ph.alt}}"></sc-if><sc-if value="{{ph.noImg}}" hint-placeholder-val="{{ false }}">{{ph.alt}}</sc-if></span></sc-for>
+                  <span class="front"></span>
+                </button>
+                <div class="ftxt"><b>Arsip {{e.year}}</b><span>{{e.hint}}</span></div>
+                </sc-if>
+                <sc-if value="{{e.noPhotos}}" hint-placeholder-val="{{ false }}"><div class="ftxt"><span>{{e.period}}</span></div></sc-if>
+              </div>
+              <article class="evc">
+                <span class="k">{{e.kind}}</span>
+                <h3>{{e.title}}</h3>
+                <div class="at"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>{{e.at}}</div><div class="per">{{e.period}}</div>
+                <p>{{e.desc}}</p>
+                <div class="tags"><sc-for list="{{e.tags}}" as="t" hint-placeholder-count="3"><span>{{t}}</span></sc-for></div>
+              </article>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec grid-bg" id="sertifikat" style="border-top: 2.5px solid var(--fg)">
+      <div class="wrap">
+        <div class="chead"><h2 class="h2 wipe"><span class="w"><span>Sertifikat</span></span></h2><p class="slead">Sertifikasi kompetensi dan pelatihan yang bisa diverifikasi. Klik kartu untuk melihat sertifikatnya lebih besar.</p></div>
+        <div class="cgrid">
+          <sc-for list="{{certs}}" as="c" hint-placeholder-count="3">
+            <article class="cert rise">
+              <button type="button" class="paper" onClick="{{c.zoom}}" aria-label="{{c.zoomLabel}}"><span class="sheet"><b>{{c.short}}</b><i></i><i></i><i></i><small>[Gambar sertifikat dari admin]</small></span></button>
+              <div class="cbody">
+                <span class="ck">{{c.kind}}</span>
+                <h3>{{c.title}}</h3>
+                <div class="iss">{{c.issuer}}</div>
+                <dl class="cdate"><div><dt>Terbit</dt><dd>{{c.issued}}</dd></div><div><dt>Berlaku sampai</dt><dd>{{c.valid}}</dd></div></dl>
+                <div class="cact"><a class="pdf" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>Lihat PDF</a></div>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+        <div class="cmore"><button type="button" class="morebtn" onClick="{{toggleCerts}}" aria-expanded="{{certAllExp}}">{{certMoreLabel}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{certChevron}}"></path></svg></button></div>
+      </div>
+    </section>
+
+    <section class="cwrap" id="kontak">
+      <div class="wrap sec" style="padding-bottom: 0">
+        <div class="contact">
+          <div>
+            <h2 class="h2 wipe"><span class="w"><span>Mari mulai</span></span><br><span class="w"><span>bekerja sama</span></span></h2>
+            <p class="slead">Terbuka untuk posisi Junior Programmer, IT Support, dan kerja sama proyek. Isi formulir atau kirim email langsung.</p>
+            <div class="mlab">Email langsung</div>
+            <a class="mail" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>Kirim email</a>
+            <div class="mlab">Profil lain</div>
+            <div class="soc">
+              <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M8 10v7"></path><path d="M8 7v.01"></path><path d="M12 17v-4a2 2 0 0 1 4 0v4"></path><path d="M12 10v7"></path></svg></a>
+              <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5"></path><path d="M15 21v-3.5a3 3 0 0 0-.9-2.4c3-.3 6-1.5 6-6.6a5.2 5.2 0 0 0-1.4-3.6 4.8 4.8 0 0 0-.1-3.6s-1.1-.3-3.6 1.4a12.4 12.4 0 0 0-6.4 0C6.1 1 5 1.3 5 1.3a4.8 4.8 0 0 0-.1 3.6A5.2 5.2 0 0 0 3.5 8.5c0 5.1 3 6.3 6 6.6a3 3 0 0 0-.9 2.4V21"></path></svg></a>
+              <a href="#" aria-label="Unduh CV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg></a>
+            </div>
+          </div>
+          <form class="form" onSubmit="{{send}}">
+            <div class="two"><label>Nama<input type="text" name="nama" autocomplete="name"></label><label>Email<input type="email" name="email" autocomplete="email"></label></div>
+            <label>Topik<select name="topik"><option>Tawaran kerja</option><option>Kerja sama proyek</option><option>Pertanyaan umum</option></select></label>
+            <label>Pesan<textarea name="pesan"></textarea></label>
+            <sc-if value="{{sent}}" hint-placeholder-val="{{ false }}"><div class="ok" role="status">Pesan terkirim. Saya akan membalas lewat email.</div></sc-if>
+            <button type="submit" class="send">Kirim pesan<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"></path><path d="M22 2 11 13"></path></svg></button>
+          </form>
+        </div>
+        <div class="foot"><span>© 2026 Aldi Dwi Irawan</span><span>Berbasis di Kediri, ID</span><span>Terbuka untuk kerja penuh waktu</span></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="pets">
+    <button type="button" class="cat kopi idle" ref="{{kopi.ref}}" onPointerDown="{{kopi.down}}" onPointerMove="{{kopi.move}}" onPointerUp="{{kopi.up}}" onPointerCancel="{{kopi.up}}" onClick="{{kopi.click}}" aria-label="Kucing hitam Kopi. Bisa diseret dan dilempar, klik untuk menyapa">
+      <sc-if value="{{kopi.talking}}" hint-placeholder-val="{{ false }}"><span class="bubble">Meong! Lihat proyekku</span></sc-if>
+      <span class="flip" ref="{{kopi.flipRef}}"><span class="bob"><svg viewBox="0 0 120 112" aria-hidden="true">
+        <path class="tail s-fg" d="M98 104 C118 96 118 70 106 62" stroke-width="7"></path>
+        <path d="M28 50 L34 14 L58 36 Z M92 50 L86 14 L62 36 Z" class="f-fg"></path>
+        <path d="M36 36 L38 24 L47 33 Z M84 36 L82 24 L73 33 Z" class="f-bg"></path>
+        <path d="M22 112 C22 62 38 32 60 32 C82 32 98 62 98 112 Z" class="f-fg"></path>
+        <g class="blk"><ellipse cx="46" cy="64" rx="9" ry="10" class="f-bg"></ellipse><g ref="{{kopi.p1}}"><circle cx="46" cy="65" r="5" class="f-fg"></circle></g></g>
+        <g class="blk"><ellipse cx="74" cy="64" rx="9" ry="10" class="f-bg"></ellipse><g ref="{{kopi.p2}}"><circle cx="74" cy="65" r="5" class="f-fg"></circle></g></g>
+        <path d="M56.5 79 L63.5 79 L60 83 Z" class="f-bg"></path>
+        <path d="M60 83 C58 88 54 88 52 85 M60 83 C62 88 66 88 68 85 M30 78 H44 M31 85 L44 82 M76 78 H90 M76 82 L89 85" class="s-bg" stroke-width="2.4"></path>
+        <ellipse cx="34" cy="106" rx="13" ry="8" class="f-fg"></ellipse><ellipse cx="86" cy="106" rx="13" ry="8" class="f-fg"></ellipse>
+      </svg></span></span>
+    </button>
+    <button type="button" class="cat susu idle" ref="{{susu.ref}}" onPointerDown="{{susu.down}}" onPointerMove="{{susu.move}}" onPointerUp="{{susu.up}}" onPointerCancel="{{susu.up}}" onClick="{{susu.click}}" aria-label="Kucing putih Susu. Bisa diseret dan dilempar, klik untuk menyapa">
+      <sc-if value="{{susu.talking}}" hint-placeholder-val="{{ false }}"><span class="bubble">Miaw! Salam kenal</span></sc-if>
+      <span class="flip" ref="{{susu.flipRef}}"><span class="bob"><svg viewBox="0 0 120 112" aria-hidden="true">
+        <path class="tail s-fg" d="M98 104 C118 96 118 70 106 62" stroke-width="11"></path>
+        <path class="tail s-bg" d="M98 104 C118 96 118 70 106 62" stroke-width="4.5"></path>
+        <path d="M28 50 L34 14 L58 36 Z M92 50 L86 14 L62 36 Z" class="f-bg cst"></path>
+        <path d="M36 36 L38 24 L47 33 Z M84 36 L82 24 L73 33 Z" class="f-fg"></path>
+        <path d="M22 112 C22 62 38 32 60 32 C82 32 98 62 98 112 Z" class="f-bg cst"></path>
+        <g class="blk"><ellipse cx="46" cy="64" rx="7" ry="8.5" class="f-fg"></ellipse><g ref="{{susu.p1}}"><circle cx="47.5" cy="62" r="2.4" class="f-bg"></circle></g></g>
+        <g class="blk"><ellipse cx="74" cy="64" rx="7" ry="8.5" class="f-fg"></ellipse><g ref="{{susu.p2}}"><circle cx="75.5" cy="62" r="2.4" class="f-bg"></circle></g></g>
+        <path d="M56.5 79 L63.5 79 L60 83 Z" class="f-fg"></path>
+        <path d="M60 83 C58 88 54 88 52 85 M60 83 C62 88 66 88 68 85 M30 78 H44 M31 85 L44 82 M76 78 H90 M76 82 L89 85" class="s-fg" stroke-width="2.4"></path>
+        <ellipse cx="34" cy="106" rx="13" ry="8" class="f-bg cst"></ellipse><ellipse cx="86" cy="106" rx="13" ry="8" class="f-bg cst"></ellipse>
+      </svg></span></span>
+    </button>
+  </div>
+
+  <sc-if value="{{certOpen}}" hint-placeholder-val="{{ false }}">
+    <div class="clb" role="dialog" aria-modal="true" aria-label="Sertifikat diperbesar">
+      <button type="button" class="clx" onClick="{{closeCert}}" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
+      </button>
+      <div class="clbsheet"><b>{{certSel.title}}</b><span>{{certSel.issuer}}</span><i></i><i></i><i></i><i></i><small>[Gambar sertifikat ukuran penuh dari admin]</small></div>
+      <a class="clbpdf" href="#">Buka PDF di tab baru</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{gbOpen}}" hint-placeholder-val="{{ false }}">
+    <div class="gpanel" role="dialog" aria-label="Buku tamu">
+      <h3>Buku tamu</h3>
+      <p>Tinggalkan sapaan atau kesan setelah melihat portofolio ini.</p>
+      <input type="text" aria-label="Nama" placeholder="Nama">
+      <textarea aria-label="Pesan" placeholder="Pesan singkat"></textarea>
+      <div class="row"><button type="button" onClick="{{toggleGb}}">Tutup</button><button type="button" class="fill" onClick="{{toggleGb}}">Kirim</button></div>
+    </div>
+  </sc-if>
+  <button type="button" class="gb" onClick="{{toggleGb}}" aria-expanded="{{gbExp}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg><span>Buku Tamu</span><b>[n]</b></button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":9400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { dark: false, sound: true, folder: -1, sent: false, gb: false, talk: '', certAll: false, cert: -1 };
+    const self = this;
+    this.defs = [
+      { label: 'UI/UX', cls: '', fx: 0.02, y: 220 },
+      { label: 'Kota Kediri', cls: '', fx: 0.13, y: 220 },
+      { label: 'Aldi', cls: '', fx: 0.40, y: 0, spark: true },
+      { label: 'Junior Programmer', cls: '', fx: 0.32, y: 220 },
+      { label: 'Manajemen Informatika', cls: '', fx: 0.555, y: 220 },
+      { label: 'Web & Mobile', cls: '', fx: 0.67, y: 40 },
+      { label: '', cls: 'fill circle', fx: 0.83, y: 220, icon: 'code' },
+      { label: '', cls: 'circle', fx: 0.935, y: 220, icon: 'star' }
+    ];
+    this.els = [];
+    this.pRefs = this.defs.map(function (d, i) { return function (el) { self.els[i] = el; }; });
+    this.arena = null;
+    this.arenaRef = function (el) { self.arena = el; };
+    this.catEls = [null, null];
+    this.flipEls = [null, null];
+    this.pupils = [[null, null], [null, null]];
+    this.catRefs = [0, 1].map(function (i) { return function (el) { self.catEls[i] = el; }; });
+    this.flipRefs = [0, 1].map(function (i) { return function (el) { self.flipEls[i] = el; }; });
+    this.pupilRefs = [0, 1].map(function (i) { return [0, 1].map(function (j) { return function (el) { self.pupils[i][j] = el; }; }); });
+    this.catDefs = [{ key: 'kopi', fx: 0.22, offset: -70, base: 620 }, { key: 'susu', fx: 0.64, offset: 70, base: 820 }];
+    this.C = [];
+    this.catRaf = 0;
+    this.lastMove = 0;
+    this.P = [];
+    this.drag = null;
+    this.raf = 0;
+    this.lastHit = 0;
+    this.mouse = null;
+  }
+
+  componentDidMount() {
+    const self = this;
+    this.onResize = function () { self.measure(false); };
+    this.onMove = function (e) {
+      self.mouse = { x: e.clientX, y: e.clientY };
+      self.lastMove = performance.now();
+    };
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('pointermove', this.onMove, { passive: true });
+    setTimeout(function () { self.measure(true); }, 120);
+    this.initCats();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('pointermove', this.onMove);
+    cancelAnimationFrame(this.raf);
+    cancelAnimationFrame(this.catRaf);
+    clearTimeout(this.talkT);
+  }
+
+  measure(first) {
+    if (!this.arena) return;
+    this.W = this.arena.clientWidth;
+    this.H = this.arena.clientHeight;
+    const self = this;
+    this.defs.forEach(function (d, i) {
+      const el = self.els[i];
+      if (!el) return;
+      const w = el.offsetWidth, h = el.offsetHeight;
+      if (first || !self.P[i]) {
+        self.P[i] = { x: Math.min(d.fx * self.W, self.W - w), y: d.y, vx: 0, vy: 0, w: w, h: h, r: 0 };
+      } else {
+        const p = self.P[i];
+        p.w = w; p.h = h;
+        p.x = Math.min(Math.max(p.x, 0), self.W - w);
+      }
+    });
+    this.silent = true;
+    for (let k = 0; k < 500; k++) this.step();
+    this.silent = false;
+    this.P.forEach(function (p) { p.vx = 0; p.vy = 0; p.r = 0; });
+    this.paint();
+    this.arena.classList.add('ready');
+  }
+
+  step() {
+    const P = this.P, W = this.W, H = this.H, d = this.drag;
+    let energy = 0;
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i];
+      if (!p) continue;
+      if (d && d.i === i) continue;
+      p.vy += 0.6;
+      p.vx *= 0.992;
+      p.x += p.vx; p.y += p.vy;
+      if (p.y + p.h > H) {
+        if (p.vy > 6) this.hit(Math.min(p.vy / 20, 1));
+        p.y = H - p.h; p.vy *= -0.3; p.vx *= 0.86;
+        if (Math.abs(p.vy) < 0.7) p.vy = 0;
+      }
+      if (p.y < -260) { p.y = -260; p.vy = 0; }
+      if (p.x < 0) { p.x = 0; p.vx *= -0.5; }
+      if (p.x + p.w > W) { p.x = W - p.w; p.vx *= -0.5; }
+    }
+    for (let a = 0; a < P.length; a++) {
+      for (let b = a + 1; b < P.length; b++) {
+        const A = P[a], B = P[b];
+        if (!A || !B) continue;
+        const ox = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x);
+        const oy = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y);
+        if (ox <= 0 || oy <= 0) continue;
+        const aFixed = d && d.i === a, bFixed = d && d.i === b;
+        if (ox < oy) {
+          const dir = (A.x + A.w / 2) < (B.x + B.w / 2) ? -1 : 1;
+          if (aFixed) { B.x -= dir * ox; } else if (bFixed) { A.x += dir * ox; } else { A.x += dir * ox / 2; B.x -= dir * ox / 2; }
+          const t = A.vx; A.vx = B.vx * 0.6; B.vx = t * 0.6;
+        } else {
+          const top = (A.y + A.h / 2) < (B.y + B.h / 2) ? A : B;
+          const bot = top === A ? B : A;
+          const topFixed = (top === A && aFixed) || (top === B && bFixed);
+          const botFixed = (bot === A && aFixed) || (bot === B && bFixed);
+          const grounded = bot.y + bot.h >= H - 0.5;
+          if (topFixed) { bot.y += oy; } else if (botFixed || grounded) { top.y -= oy; } else { top.y -= oy / 2; bot.y += oy / 2; }
+          if (top.vy > 0) top.vy *= -0.2;
+          if (Math.abs(top.vy) < 0.7) top.vy = 0;
+          top.vx *= 0.9;
+        }
+      }
+    }
+    for (let i = 0; i < P.length; i++) { const p = P[i]; if (p) energy += Math.abs(p.vx) + Math.abs(p.vy); }
+    return energy;
+  }
+
+  paint() {
+    for (let i = 0; i < this.P.length; i++) {
+      const p = this.P[i], el = this.els[i];
+      if (!p || !el) continue;
+      const target = Math.max(-14, Math.min(14, p.vx * 1.6));
+      p.r += (target - p.r) * 0.25;
+      el.style.transform = 'translate(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px) rotate(' + p.r.toFixed(2) + 'deg)';
+    }
+  }
+
+  wake() {
+    if (this.raf) return;
+    const self = this;
+    let calm = 0;
+    const loop = function () {
+      const e = self.step();
+      self.paint();
+      calm = (e < 0.08 && !self.drag) ? calm + 1 : 0;
+      if (calm > 40) { self.raf = 0; return; }
+      self.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+
+  local(e) {
+    const r = this.arena.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  ac() {
+    if (!this.state.sound) return null;
+    try {
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return this.ctx;
+    } catch (e) { return null; }
+  }
+  tone(f1, f2, dur, type, vol, delay) {
+    const c = this.ac(); if (!c) return;
+    const t = c.currentTime + (delay || 0);
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(f1, t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(f2, 40), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  hit(k) {
+    const now = performance.now();
+    if (this.silent || now - this.lastHit < 70) return;
+    this.lastHit = now;
+    this.tone(220 + 120 * k, 90, 0.12, 'triangle', 0.05 + 0.12 * k);
+  }
+
+  initCats() {
+    const self = this, W = window.innerWidth;
+    this.reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.C = this.catDefs.map(function (d, i) {
+      return { x: Math.max(10, Math.min(W - 126, d.fx * W)), y: 0, vx: 0, vy: 0, dir: i ? -1 : 1, mode: 'idle', t: 140 + i * 110, tx: 0, cls: '', fdir: 0, grab: null };
+    });
+    const loop = function () { self.catStep(); self.catRaf = requestAnimationFrame(loop); };
+    this.catRaf = requestAnimationFrame(loop);
+  }
+
+  catStep() {
+    const W = window.innerWidth, H = window.innerHeight, CW = 116, m = this.mouse, now = performance.now();
+    const near = !!m && now - this.lastMove < 3500 && m.y > H - 280 && !this.reduced;
+    const self = this;
+    this.C.forEach(function (c, i) {
+      const el = self.catEls[i];
+      if (!el) return;
+      let moving = false;
+      if (c.mode === 'held') {
+        moving = false;
+      } else if (c.mode === 'air') {
+        c.vy -= 0.9; c.x += c.vx; c.y += c.vy; c.vx *= 0.995;
+        if (c.x < 0) { c.x = 0; c.vx *= -0.5; }
+        if (c.x > W - CW) { c.x = W - CW; c.vx *= -0.5; }
+        if (c.y <= 0) {
+          c.y = 0;
+          if (c.vy < -9) { self.land(i, Math.min(1, -c.vy / 30)); c.vy = -c.vy * 0.32; c.vx *= 0.7; }
+          else { c.vy = 0; c.vx = 0; c.mode = 'idle'; c.t = 90; }
+        }
+      } else if (near) {
+        const target = Math.min(W - CW, Math.max(0, m.x - CW / 2 + self.catDefs[i].offset));
+        const dx = target - c.x;
+        if (Math.abs(dx) > 6) { c.x += Math.sign(dx) * Math.min(Math.abs(dx), 3.6); c.dir = Math.sign(dx); moving = true; c.mode = 'walk'; }
+        else { c.mode = 'idle'; }
+      } else if (!self.reduced) {
+        c.t -= 1;
+        if (c.mode === 'walk') {
+          const dx = c.tx - c.x;
+          if (Math.abs(dx) < 2) { c.mode = 'idle'; c.t = 160 + Math.random() * 260; }
+          else { c.x += Math.sign(dx) * 1.5; c.dir = Math.sign(dx); moving = true; }
+        } else if (c.t <= 0) {
+          c.tx = 20 + Math.random() * Math.max(40, W - CW - 40); c.mode = 'walk';
+        }
+      }
+      if (!moving && m && c.mode !== 'air') c.dir = m.x > c.x + CW / 2 ? 1 : -1;
+      const rot = c.mode === 'air' ? Math.max(-25, Math.min(25, c.vx * 1.5)) : 0;
+      el.style.transform = 'translate(' + c.x.toFixed(1) + 'px,' + (-c.y).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+      const st = c.mode === 'held' ? 'held' : c.mode === 'air' ? 'air' : moving ? 'walk' : 'idle';
+      if (c.cls !== st) { el.classList.remove('idle', 'walk', 'air', 'held'); el.classList.add(st); c.cls = st; }
+      const f = self.flipEls[i];
+      if (f && c.fdir !== c.dir) { f.style.transform = 'scaleX(' + c.dir + ')'; f.style.display = 'block'; c.fdir = c.dir; }
+      if (m) {
+        self.pupils[i].forEach(function (p) {
+          if (!p || !p.parentNode) return;
+          const r = p.parentNode.getBoundingClientRect();
+          const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          const a = Math.atan2(m.y - cy, m.x - cx);
+          const d = Math.min(1, Math.hypot(m.x - cx, m.y - cy) / 160) * (i === 0 ? 4 : 2.6);
+          p.style.transform = 'translate(' + (Math.cos(a) * d * c.dir).toFixed(2) + 'px,' + (Math.sin(a) * d).toFixed(2) + 'px)';
+        });
+      }
+    });
+  }
+
+  meow(i, vol) {
+    const b = this.catDefs[i].base, v = vol || 1;
+    this.tone(b, b * 1.35, 0.15, 'sine', 0.09 * v);
+    this.tone(b * 1.35, b * 0.8, 0.22, 'sine', 0.08 * v, 0.14);
+  }
+  land(i, k) {
+    this.tone(180, 90, 0.1, 'triangle', 0.08 + 0.1 * k);
+    if (k > 0.5) this.meow(i, 0.7);
+  }
+  say(i) {
+    const self = this;
+    this.meow(i, 1);
+    clearTimeout(this.talkT);
+    this.setState({ talk: this.catDefs[i].key });
+    this.talkT = setTimeout(function () { self.setState({ talk: '' }); }, 1500);
+  }
+  catHandlers(i) {
+    const self = this;
+    return {
+      ref: this.catRefs[i], flipRef: this.flipRefs[i], p1: this.pupilRefs[i][0], p2: this.pupilRefs[i][1],
+      talking: (this.state || {}).talk === this.catDefs[i].key,
+      down: function (e) {
+        const c = self.C[i]; if (!c) return;
+        if (e.preventDefault) e.preventDefault();
+        try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
+        c.mode = 'held';
+        c.grab = { sx: e.clientX, sy: e.clientY, x0: c.x, y0: c.y, lx: e.clientX, ly: e.clientY, moved: false };
+        self.meow(i, 0.5);
+      },
+      move: function (e) {
+        const c = self.C[i]; if (!c || c.mode !== 'held' || !c.grab) return;
+        const g = c.grab, W = window.innerWidth;
+        c.x = Math.max(0, Math.min(W - 116, g.x0 + (e.clientX - g.sx)));
+        c.y = Math.max(0, g.y0 - (e.clientY - g.sy));
+        c.vx = e.clientX - g.lx; c.vy = -(e.clientY - g.ly);
+        g.lx = e.clientX; g.ly = e.clientY;
+        if (Math.abs(e.clientX - g.sx) + Math.abs(e.clientY - g.sy) > 6) g.moved = true;
+      },
+      up: function () {
+        const c = self.C[i]; if (!c || c.mode !== 'held') return;
+        const g = c.grab; c.grab = null;
+        self.tapAt = performance.now();
+        c.mode = 'air';
+        if (!g || !g.moved) { c.vx = 0; c.vy = 12; self.say(i); }
+        else { c.vx = Math.max(-30, Math.min(30, c.vx)); c.vy = Math.max(-30, Math.min(30, c.vy)); }
+      },
+      click: function () {
+        if (performance.now() - (self.tapAt || 0) < 400) return;
+        const c = self.C[i]; if (!c) return;
+        c.mode = 'air'; c.vy = 12; c.vx = 0; self.say(i);
+      }
+    };
+  }
+
+  renderVals() {
+    const self = this;
+    const s = this.state || {};
+    const pills = this.defs.map(function (d, i) {
+      return {
+        label: d.label, cls: d.cls, ref: self.pRefs[i],
+        isCode: d.icon === 'code', isStar: d.icon === 'star', isText: !d.icon, isSpark: !!d.spark,
+        aria: (d.label || (d.icon === 'code' ? 'Ikon kode' : 'Ikon bintang')) + ', bisa diseret, klik untuk melompat',
+        down: function (e) {
+          if (!self.arena || !self.P[i]) return;
+          const q = self.local(e), p = self.P[i];
+          try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
+          self.drag = { i: i, ox: q.x - p.x, oy: q.y - p.y, sx: q.x, sy: q.y, moved: false };
+          self.tone(520, 300, 0.09, 'sine', 0.14);
+          self.wake();
+        },
+        move: function (e) {
+          const dr = self.drag;
+          if (!dr || dr.i !== i) return;
+          const q = self.local(e), p = self.P[i];
+          if (Math.abs(q.x - dr.sx) + Math.abs(q.y - dr.sy) > 5) dr.moved = true;
+          const nx = Math.max(0, Math.min(self.W - p.w, q.x - dr.ox));
+          const ny = Math.max(-260, Math.min(self.H - p.h, q.y - dr.oy));
+          p.vx = Math.max(-28, Math.min(28, nx - p.x));
+          p.vy = Math.max(-28, Math.min(28, ny - p.y));
+          p.x = nx; p.y = ny;
+        },
+        up: function () {
+          const dr = self.drag;
+          if (!dr || dr.i !== i) return;
+          self.lastMoved = dr.moved;
+          self.drag = null;
+          if (dr.moved) self.tone(360, 200, 0.08, 'sine', 0.08);
+          self.wake();
+        },
+        tap: function () {
+          if (self.lastMoved) { self.lastMoved = false; return; }
+          const p = self.P[i];
+          if (!p) return;
+          p.vy = -15; p.vx = (Math.random() - 0.5) * 8;
+          self.tone(600, 900, 0.1, 'sine', 0.12);
+          self.wake();
+        }
+      };
+    });
+    const projects = [
+      { label: 'Produksi, aplikasi web', title: 'Jeejak: Konsol Web Bukti Packing', desc: 'Konsol untuk seller Shopee dan TikTok Shop: impor pesanan, pantau pengemasan, dan simpan bukti packing. Saya ikut mengembangkan versi awalnya saat magang.', role: 'UI/UX dan frontend', year: '2026', client: 'CV Adisatya', tags: ['FastAPI', 'Jinja2', 'Tailwind CSS', 'Figma'], img: '/_blob/f911cb7f368fb7d4532f7746514dcce8', alt: 'Dashboard konsol web Jeejak', hasSite: true },
+      { label: 'Produksi, aplikasi mobile', title: 'JejakPaket: Aplikasi Operator', desc: 'Aplikasi Android dan iPhone untuk operator gudang: scan resi, foto isi paket, dan serah terima ke kurir, lalu sinkron ke konsol web.', role: 'Flutter, bersama tim', year: '2026', client: 'CV Adisatya', tags: ['Flutter', 'Dart', 'REST API'], img: '/_blob/e5ae435682fd141e7897a6d8e0df6137', alt: 'Layar aplikasi JejakPaket', hasSite: true },
+      { label: 'Selesai, aplikasi web', title: 'Madura Mart: Toko Online dan Stok', desc: 'Toko online sembako dengan tiga peran, pembeli, admin, dan owner: katalog, pembayaran Midtrans, stok, dan laporan keuntungan.', role: 'Semua peran, sendiri', year: '2025', client: 'Diskominfo Kediri', tags: ['Laravel', 'MySQL', 'Bootstrap', 'Midtrans'], img: '/_blob/5f726bc3bee4f62a6582ea528dc6ec1b', alt: 'Halaman pembeli, admin, dan owner Madura Mart', hasSite: false },
+      { label: 'Selesai, aplikasi web', title: 'Dwijaya Coffee: Pemesanan Kafe', desc: 'Website kafe dengan katalog menu, keranjang, pembayaran Midtrans, serta panel admin dan owner untuk pesanan dan laporan.', role: 'Ketua tim 4 orang', year: '2025', client: 'Dwijaya Coffee', tags: ['Laravel', 'Blade', 'MySQL', 'Midtrans'], img: '/_blob/bd270024aa8ccdaa4b610e07273911bd', alt: 'Halaman website Dwijaya Coffee', hasSite: false },
+      { label: 'Selesai, aplikasi web', title: 'SI-Arsip: Arsip Surat Desa', desc: 'Aplikasi web untuk mengelola arsip surat desa dalam bentuk PDF, dibuat untuk uji kompetensi LSP Polinema.', role: 'Dikerjakan sendiri', year: '2025', client: 'LSP Polinema', tags: ['Laravel', 'Blade', 'MySQL'], img: '/_blob/da26d702998030965e77e081193e838c', alt: 'Halaman aplikasi SI-Arsip', hasSite: false }
+    ];
+    const ph = function (src, alt) { return { src: src || '', alt: alt, hasImg: !!src, noImg: !src }; };
+    const evs = [
+      { year: '2026', kind: 'Magang', title: 'Programmer Intern', at: 'CV Adisatya IT Consultant, Kediri', period: 'Jan – Jul 2026', desc: 'Merancang UI/UX konsol web di Figma, membangun dasbor dan sinkronisasi scan resi, serta ikut mengembangkan aplikasi Flutter. Versi awalnya kini dirilis sebagai Jeejak.', tags: ['Figma', 'FastAPI', 'Flutter', 'Tailwind'], photos: [ph('/_blob/f911cb7f368fb7d4532f7746514dcce8', 'Konsol Jeejak'), ph('', '[Foto magang]'), ph('/_blob/e5ae435682fd141e7897a6d8e0df6137', 'Aplikasi JejakPaket')] },
+      { year: '2025', kind: 'Magang', title: 'Web Developer Intern', at: 'Diskominfo Kabupaten Kediri', period: 'Jun – Agu 2025', desc: 'Membangun Madura Mart dengan tiga peran: pembeli, admin, dan owner. Membantu aktivasi SSL situs desa dan kecamatan serta migrasi portal Pemkab Kediri.', tags: ['Laravel', 'Midtrans', 'SSL'], photos: [ph('/_blob/5f726bc3bee4f62a6582ea528dc6ec1b', 'Madura Mart'), ph('', '[Foto PKL]'), ph('/_blob/7b97f583f4d2846ae109dbebdd71b52b', 'Halaman pembeli')] },
+      { year: '2023', kind: 'Pendidikan', title: 'D3 Manajemen Informatika', at: 'Politeknik Negeri Malang, PSDKU Kediri', period: '2023 – 2026', desc: 'Lulus 2026 dengan IPK 3,54. Tugas akhir: sistem monitoring pengiriman barang berbasis pemindaian barcode pada AyamBebek Pakan dan Ternak.', tags: ['Sistem Informasi', 'Basis Data', 'Pemrograman Web'], photos: [ph('', '[Foto kampus]'), ph('', '[Foto sidang]'), ph('', '[Foto wisuda]')] },
+      { year: '2023', kind: 'Kerja', title: 'Admin', at: 'JF Interior, Kediri', period: 'Apr – Jun 2023, sebelum kuliah', desc: 'Mencatat dan merekap pesanan pelanggan di komputer, mencatat stok bahan seperti kayu, HPL, dan aksesoris, merekap pemasukan dan pengeluaran, serta mengelola media sosial dan foto hasil kerja untuk promosi.', tags: ['Administrasi', 'Excel', 'Media Sosial'], photos: [] },
+      { year: '2021', kind: 'PKL SMK', title: 'Siswa PKL, Teknisi CCTV', at: 'BM Multimedia Kediri', period: '6 bulan, SMK PGRI 1 Kota Kediri (TKJ)', desc: 'Memasang dan membongkar pasang CCTV di lokasi pelanggan, mengatur CCTV online agar bisa dipantau lewat HP, memperbaiki kamera bermasalah, memasang running text, serta melayani pelanggan dan menjaga toko.', tags: ['CCTV', 'Jaringan', 'Instalasi', 'Troubleshooting'], photos: [ph('', '[Foto instalasi]'), ph('', '[Foto toko]'), ph('', '[Foto servis]')] }
+    ];
+    const folder = typeof s.folder === 'number' ? s.folder : -1;
+    const events = evs.map(function (e, i) {
+      return Object.assign({}, e, {
+        hasPhotos: e.photos.length > 0, noPhotos: e.photos.length === 0,
+        rev: i % 2 ? 'rev' : '', open: folder === i ? 'open' : '', expanded: folder === i ? 'true' : 'false',
+        hint: folder === i ? 'Klik untuk menutup' : 'Klik folder',
+        folderLabel: (folder === i ? 'Tutup' : 'Buka') + ' arsip foto ' + e.year,
+        toggle: function () { const open = self.state.folder === i; self.tone(open ? 700 : 300, open ? 300 : 900, 0.18, 'triangle', 0.08); self.setState({ folder: open ? -1 : i }); }
+      });
+    });
+    const certDefs = [
+      { kind: 'Kompetensi', short: 'LSP', title: 'Pemrograman Software Komputer', issuer: 'LSP Politeknik Negeri Malang', issued: 'Okt 2025', valid: 'Okt 2028' },
+      { kind: 'Jaringan', short: 'MTCNA', title: 'MikroTik Certified Network Associate', issuer: 'MikroTik', issued: 'Okt 2024', valid: 'Okt 2027' },
+      { kind: 'Bahasa', short: 'TOEIC', title: 'TOEIC', issuer: 'ETS', issued: 'Mei 2026', valid: 'Mei 2028' },
+      { kind: '[Kategori]', short: '[Sertifikat 4]', title: '[Sertifikat lain dari admin]', issuer: '[Penerbit]', issued: '[Terbit]', valid: '[Berlaku]' },
+      { kind: '[Kategori]', short: '[Sertifikat 5]', title: '[Sertifikat lain dari admin]', issuer: '[Penerbit]', issued: '[Terbit]', valid: '[Berlaku]' }
+    ];
+    const shownCerts = (s.certAll ? certDefs : certDefs.slice(0, 3)).map(function (c, i) {
+      return Object.assign({}, c, { zoomLabel: 'Perbesar sertifikat ' + c.title, zoom: function () { self.tone(500, 800, 0.1, 'sine', 0.08); self.setState({ cert: i }); } });
+    });
+    const ci = typeof s.cert === 'number' ? s.cert : -1;
+    return {
+      certs: shownCerts,
+      certAllExp: s.certAll ? 'true' : 'false',
+      certMoreLabel: s.certAll ? 'Tampilkan lebih sedikit' : 'Lihat semua (2 lagi)',
+      certChevron: s.certAll ? 'm6 15 6-6 6 6' : 'm6 9 6 6 6-6',
+      toggleCerts: function () { self.setState({ certAll: !self.state.certAll }); },
+      certOpen: ci >= 0, certSel: ci >= 0 ? certDefs[ci] : certDefs[0],
+      closeCert: function () { self.setState({ cert: -1 }); },
+      pills: pills, arenaRef: this.arenaRef,
+      kopi: this.catHandlers(0), susu: this.catHandlers(1),
+      projects: projects, events: events,
+      themeCls: s.dark ? 'dark' : '', isDark: !!s.dark, isLight: !s.dark,
+      themeLabel: s.dark ? 'Ganti ke tema terang' : 'Ganti ke tema gelap',
+      toggleTheme: function () { self.setState({ dark: !self.state.dark }); },
+      soundOn: !!s.sound, soundOff: !s.sound, soundPressed: s.sound ? 'true' : 'false',
+      soundLabel: s.sound ? 'Matikan suara' : 'Nyalakan suara',
+      toggleSound: function () { self.setState({ sound: !self.state.sound }); },
+      gbOpen: !!s.gb, gbExp: s.gb ? 'true' : 'false',
+      toggleGb: function () { self.setState({ gb: !self.state.gb }); },
+      sent: !!s.sent,
+      send: function (e) { if (e && e.preventDefault) e.preventDefault(); self.setState({ sent: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
