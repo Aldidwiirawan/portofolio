@@ -79,20 +79,14 @@
   font-size: var(--ds-fs-sm);
 }
 
-/* Sampul: 16:9 di HP, 16:10 di layar lebar; gambarnya diatur ProjectImage (potret tampil utuh) */
+/* Sampul: 16:10 di semua lebar, sama seperti kartu; gambarnya diatur ProjectImage (potret tampil utuh) */
 .pub-detail-cover {
   overflow: hidden;
   margin-top: var(--space-10);
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   border: 1px solid var(--ds-border);
   border-radius: var(--pub-radius-card);
   background-color: var(--ds-inset);
-}
-
-@media (min-width: 768px) {
-  .pub-detail-cover {
-    aspect-ratio: 16 / 10;
-  }
 }
 
 .pub-detail-body {

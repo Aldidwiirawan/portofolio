@@ -45,9 +45,10 @@
   border-color: var(--ds-border-control);
 }
 
-/* Dua kolom sama lebar untuk kartu biasa maupun terbalik; kartu terbalik hanya menukar urutan (order),
-   jadi sampul semua kartu berukuran sama persis. Sampul dan teks sama-sama di tengah secara vertikal. */
-@media (min-width: 768px) {
+/* Dua kolom (mulai 900 px) sama lebar untuk kartu biasa maupun terbalik; kartu terbalik hanya menukar
+   urutan (order), jadi sampul semua kartu berukuran sama persis. Sampul dan teks sama-sama di tengah
+   secara vertikal. */
+@media (min-width: 900px) {
   .pub-case {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: center;
@@ -156,7 +157,7 @@
   background-color: var(--ds-inset);
 }
 
-/* HP: sampul selebar kartu di atas teks */
+/* Satu kolom (HP dan tablet, di bawah 900 px): sampul selebar kartu di atas teks, tanpa jarak bingkai */
 .pub-case-cover {
   min-width: 0;
   border-bottom: 1px solid var(--ds-border);
@@ -164,7 +165,7 @@
 
 /* Dua kolom: sampul berbingkai sendiri di tengah kolomnya. Tingginya terkunci 16:10 (align-self
    center, bukan stretch), jadi bila teks lebih tinggi sampul tidak ikut memanjang. */
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .pub-case-cover {
     align-self: center;
     margin: var(--space-4);
@@ -231,7 +232,7 @@
   border-radius: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .pub-case--skeleton .pub-case-cover {
     border-radius: var(--pub-radius);
   }
