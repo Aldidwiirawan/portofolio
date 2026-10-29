@@ -259,6 +259,9 @@ status. Rincian dan alasannya di MASTER §16; ringkasnya:
 - **Hero:** chip pil berfisika yang bisa diseret (bintang ✦ dan dua lingkaran ikon dari kode), nama kapital satu
   baris selebar layar (jarak huruf -0,03em agar tidak menempel), baris kode yang diketik sekali, bar status
   empat kolom bergaris.
+- **Tentang dan Proyek:** bento kartu bergaris (perkenalan, foto, pendidikan dengan IPK besar, tech stack, kartu
+  hitam Fokus), pita teks besar yang bergeser mengikuti scroll, lalu bagian hitam berisi kartu proyek yang menumpuk
+  (sticky) di layar lebar dan daftar biasa di HP; tanpa angka metrik.
 - **Tetap berlaku dari Blueprint:** aturan aksesibilitas, target sentuh ≥44 px, reduced motion, dan "Not Color
   Alone". Komponen Blueprint (kursor viewfinder, latar blueprint, layar pembuka) tidak dipakai di publik.
 

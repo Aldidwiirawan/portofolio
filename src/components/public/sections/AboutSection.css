@@ -1,162 +1,372 @@
-/* Section Tentang */
+/* "Tentang saya" — bento monokrom (MASTER §16) */
 
-.pub-about-grid {
+.pub-about-bento {
   display: grid;
-  gap: var(--space-10);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(1rem, 0.5rem + 1.6vw, 1.75rem);
+  margin-top: clamp(2.5rem, 1.5rem + 3vw, 3.5rem);
 }
 
-@media (min-width: 1024px) {
-  .pub-about-grid {
-    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-    align-items: start;
-    gap: var(--space-16);
-  }
-}
-
-/* Foto berbingkai bracket (rasio 4:5, ukuran tetap supaya tata letak tidak bergeser) */
-.pub-about-photo {
-  position: relative;
-  width: min(100%, 15rem);
-  margin: 0;
-  padding: var(--space-3);
-}
-
-.pub-about-photo::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  --pub-bracket: var(--ds-accent-text);
-  --pub-bracket-len: 18px;
-  --pub-bracket-w: 2px;
-  background: var(--pub-brackets);
-  background-repeat: no-repeat;
-  pointer-events: none;
-}
-
-.pub-about-photo img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border-radius: 2px;
-  background-color: var(--ds-inset);
-}
-
-@media (min-width: 1024px) {
-  .pub-about-photo {
-    position: sticky;
-    top: calc(var(--pub-nav-h) + var(--space-8));
-    width: 100%;
-  }
-}
-
-.pub-about-photo-skeleton {
-  width: min(100%, 15rem);
-  aspect-ratio: 4 / 5;
-}
-
-.pub-about-body {
-  display: grid;
-  gap: var(--space-8);
+.pub-about-bento > * {
+  grid-column: span 12;
   min-width: 0;
 }
 
-.pub-about-body .pub-section-head {
-  margin-bottom: 0;
+/* Perkenalan */
+.pub-about-wave {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background-color: var(--soft);
+  color: var(--fg);
+}
+
+.pub-about-wave svg {
+  width: 1.875rem;
+  height: 1.875rem;
+}
+
+.pub-about-hello {
+  margin-top: 1.625rem;
+  color: var(--fg);
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
 }
 
 .pub-about-bio {
-  max-width: 68ch;
-  color: var(--ds-text);
-  font-size: var(--ds-fs-lg);
-  line-height: var(--ds-lh-relaxed);
-  white-space: pre-line;
+  max-width: 42em;
+  margin-top: 1.125rem;
+  color: var(--mute);
+  font-size: 1.125rem;
+  line-height: 1.65;
 }
 
-/* Tiga fakta: kotak bergaris tipis seperti tabel judul gambar kerja */
-.pub-about-facts {
-  display: grid;
+.pub-about-cv {
+  margin-top: 1.875rem;
+}
+
+/* Foto: miring sedikit di layar lebar, label nama di bawah dengan tombol "Rekrut saya" */
+.pub-about-photo {
+  position: relative;
+  min-height: 27.5rem;
   margin: 0;
-  border: 1px solid var(--ds-border);
-  background-color: var(--ds-surface);
+  overflow: hidden;
+  padding: 0;
+  background-color: var(--soft);
+  box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.35);
 }
 
-@media (min-width: 768px) {
-  .pub-about-facts {
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  }
+.pub-about-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
 }
 
-.pub-about-fact {
-  display: grid;
-  align-content: start;
-  gap: var(--space-2);
-  padding: var(--space-5);
-  border-bottom: 1px solid var(--ds-border);
+.pub-about-tag {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  padding: 0.875rem 0.875rem 0.875rem 1.25rem;
+  border-radius: 18px;
+  background-color: rgb(10 10 10 / 0.84);
+  color: #fafafa;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
-.pub-about-fact:last-child {
-  border-bottom: 0;
+.pub-about-tag b {
+  display: block;
+  font-size: 1.0625rem;
+  line-height: 1.25;
 }
 
-@media (min-width: 768px) {
-  .pub-about-fact {
-    border-bottom: 0;
-    border-right: 1px solid var(--ds-border);
-  }
-
-  .pub-about-fact:last-child {
-    border-right: 0;
-  }
-}
-
-.pub-about-fact-label {
-  color: var(--ds-text-subtle);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  font-weight: var(--ds-fw-semibold);
-  letter-spacing: var(--ds-tracking-wide);
+.pub-about-tag small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #d4d4d8;
   text-transform: uppercase;
 }
 
-.pub-about-fact dd {
+.pub-about-hire,
+.pub-about-hire:hover {
+  color: #0a0a0a;
+}
+
+.pub-about-hire {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.125rem;
+  border-radius: 10px;
+  background-color: #fafafa;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pub-about-hire:focus-visible {
+  outline-color: #fafafa;
+}
+
+/* Pendidikan */
+.pub-about-edu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  background-color: var(--soft);
+}
+
+.pub-about-edu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pub-about-edu-icon {
   display: grid;
-  gap: var(--space-1);
-  margin: 0;
-  color: var(--ds-text-muted);
-  font-size: var(--ds-fs-sm);
-  line-height: var(--ds-lh-normal);
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: var(--pub-border) solid var(--fg);
+  border-radius: 50%;
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
-.pub-about-fact-main {
-  color: var(--ds-text-strong);
-  font-size: var(--ds-fs-md);
-  font-weight: var(--ds-fw-semibold);
+.pub-about-edu-year {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.125rem;
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  background-color: var(--fg);
+  color: var(--bg);
+  font-size: 0.8125rem;
+  font-weight: 700;
 }
 
-.pub-about-fact-note {
-  color: var(--ds-accent-text);
+.pub-about-edu-school {
+  margin-top: 1.625rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pub-about-edu-title {
+  color: var(--fg);
+  font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.625rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.pub-about-edu-thesis {
+  color: var(--mute);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.pub-about-gpa {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1.5px solid var(--line);
+}
+
+.pub-about-gpa b {
+  color: var(--fg);
+  font-size: 4rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.pub-about-gpa span {
+  max-width: 7em;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Tech stack */
+.pub-about-stack {
+  scroll-margin-top: 6.5rem;
+}
+
+.pub-about-stack-top {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1.5px solid var(--line);
+}
+
+.pub-about-stack-icon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 12px;
+  background-color: var(--fg);
+  color: var(--bg);
   font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-sm);
-  font-weight: var(--ds-fw-semibold);
+  font-weight: 700;
 }
 
-.pub-about-langs {
-  display: grid;
-  gap: var(--space-1);
+.pub-about-stack h3 {
+  color: var(--fg);
+  font-size: clamp(1.5rem, 1.2rem + 0.8vw, 1.875rem);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.pub-about-stack h4 {
+  margin: 1.375rem 0 0.625rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pub-about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
   list-style: none;
 }
 
-.pub-about-hobbies {
-  display: grid;
-  gap: var(--space-3);
+.pub-about-tags li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background-color: var(--soft);
+  color: var(--fg);
+  font-size: 0.96875rem;
+  font-weight: 600;
+  transition:
+    background-color var(--ds-duration-fast) ease,
+    color var(--ds-duration-fast) ease,
+    transform var(--ds-duration-base) var(--ds-ease-out);
 }
 
-.pub-about-hobbies-title {
-  color: var(--ds-text-subtle);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  font-weight: var(--ds-fw-semibold);
-  letter-spacing: var(--ds-tracking-wide);
+.pub-about-tags li:hover {
+  background-color: var(--fg);
+  color: var(--bg);
+  transform: translateY(-2px);
+}
+
+/* Fokus saya (kartu hitam) */
+.pub-about-focus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-color: var(--bg);
+}
+
+.pub-about-focus h3 {
+  color: var(--fg);
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  letter-spacing: -0.03em;
   text-transform: uppercase;
+}
+
+.pub-about-focus p {
+  max-width: 36em;
+  margin-top: 0.625rem;
+  color: var(--mute);
+}
+
+.pub-about-focus-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.pub-about-focus-list li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3.625rem;
+  padding: 0 1.5rem;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  color: var(--fg);
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+@media (min-width: 1060px) {
+  .pub-about-intro {
+    grid-column: span 8;
+  }
+
+  .pub-about-intro[data-wide] {
+    grid-column: span 12;
+  }
+
+  .pub-about-photo {
+    grid-column: span 4;
+    transform: rotate(1.2deg);
+  }
+
+  .pub-about-edu {
+    grid-column: span 5;
+  }
+
+  .pub-about-stack {
+    grid-column: span 7;
+    box-shadow: 8px 8px 0 var(--fg);
+  }
+
+  /* Pendidikan tanpa tech stack (atau sebaliknya) memakai seluruh baris */
+  .pub-about-edu:last-child,
+  .pub-about-edu:has(+ .pub-about-focus),
+  .pub-about-stack:not(.pub-about-edu + .pub-about-stack) {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 619px) {
+  .pub-about-photo {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  .pub-about-gpa b {
+    font-size: 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-about-tags li:hover {
+    transform: none;
+  }
 }

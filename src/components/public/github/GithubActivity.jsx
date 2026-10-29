@@ -59,6 +59,15 @@ function GithubActivity() {
 
   const { username, total, weeks } = state.data
   const number = formatNumber(total)
+  // Weeks where a month begins. A month gets its label only when the next month begins at least three
+  // weeks later: the first, partial month of the calendar often lasts one or two weeks, and its label
+  // would otherwise run into the next one ("OktNov").
+  const monthStarts = weeks
+    .map((days, index) => (index === 0 || monthOf(days[0].date) !== monthOf(weeks[index - 1][0].date) ? index : -1))
+    .filter((index) => index >= 0)
+  const labelled = new Set(
+    monthStarts.filter((index, position) => (monthStarts[position + 1] ?? weeks.length) - index >= 3)
+  )
   const href = `https://github.com/${encodeURIComponent(username)}`
 
   return (
@@ -83,7 +92,7 @@ function GithubActivity() {
         <div className="pub-gh-grid">
           {weeks.map((days, index) => {
             const first = days[0].date
-            const newMonth = index === 0 || monthOf(first) !== monthOf(weeks[index - 1][0].date)
+            const newMonth = labelled.has(index)
             // Phones start at the first recent week: it gets its month there too, unless a new month
             // begins within the next two weeks (the labels would overlap)
             const recentStart =
@@ -94,7 +103,7 @@ function GithubActivity() {
             const label = shortMonth(Number(first.slice(5, 7)) - 1)
             return (
               <div key={first} className="pub-gh-week" data-old={index < weeks.length - RECENT_WEEKS || undefined}>
-                {newMonth && index < weeks.length - 2 && <span className="pub-gh-month">{label}</span>}
+                {newMonth && <span className="pub-gh-month">{label}</span>}
                 {!newMonth && recentStart && <span className="pub-gh-month pub-gh-month--phone">{label}</span>}
                 {offset > 0 && <span className="pub-gh-pad" style={{ gridRow: `span ${offset}` }} />}
                 {days.map((day) => (

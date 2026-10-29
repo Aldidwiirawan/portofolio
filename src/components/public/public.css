@@ -456,9 +456,10 @@ html:has(.pub) {
   background-color: transparent;
 }
 
-/* --- Kartu ------------------------------------------------------------------ */
+/* --- Kartu ------------------------------------------------------------------
+   .pub-tile (bukan .pub-card: nama itu masih dipakai kartu Prestasi/Organisasi lama) */
 
-.pub-card {
+.pub-tile {
   border: var(--pub-border) solid var(--fg);
   border-radius: var(--pub-radius-card);
   background-color: var(--bg);
@@ -466,7 +467,7 @@ html:has(.pub) {
 }
 
 /* Bayangan kotak (tanpa blur) untuk kartu yang ditonjolkan */
-.pub-card--shadow {
+.pub-tile--shadow {
   box-shadow: 6px 6px 0 var(--fg);
 }
 
@@ -637,6 +638,26 @@ html:has(.pub) {
 
 .pub-arrow-link:hover svg {
   transform: translateX(3px);
+}
+
+/* --- Muncul saat digulir ----------------------------------------------------------
+   Kartu dan judul naik sedikit saat masuk layar (CSS scroll-driven animation). Hanya di browser yang
+   mendukung animation-timeline dan tanpa reduced motion; selain itu langsung tampil dalam keadaan akhir. */
+@keyframes pub-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(60px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .pub-reveal {
+      animation: pub-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
 }
 
 /* --- Titik status --------------------------------------------------------------

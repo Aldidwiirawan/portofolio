@@ -70,7 +70,8 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   Inggris, SEO, Vercel) sudah di `main` dan online. **Rombakan monokrom** halaman publik berjalan di branch
   `feat/redesign-monokrom` per fase (`design-system/aldi-portfolio/plans/rombakan-monokrom.md`, MASTER §16): fase 1
   (rencana dan SQL), fase 2 (fondasi visual: palet, Space Grotesk, navbar, tema bawaan terang), dan fase 3 (hero:
-  chip berfisika, nama besar, baris kode, bar status) selesai.
+  chip berfisika, nama besar, baris kode, bar status), dan fase 4 (bento Tentang, pita teknologi, Proyek yang
+  menumpuk) selesai.
 
 ## Capabilities and Constraints
 

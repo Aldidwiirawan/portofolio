@@ -8,7 +8,7 @@
 
 const FIELDS = {
   profile: { texts: ['tagline', 'bio', 'primary_role'], lists: ['secondary_roles', 'hero_keywords', 'hobbies', 'contact_topics'] },
-  projects: { texts: ['title', 'description', 'solution'], names: ['client_name'] },
+  projects: { texts: ['title', 'description', 'solution', 'my_role'], names: ['client_name'] },
   experiences: { texts: ['role', 'description'], names: ['company'], lists: ['responsibilities'] },
   educations: { texts: ['degree', 'field_of_study', 'thesis_title'] },
   certifications: { texts: ['name'], names: ['issuer'] },

@@ -1,6 +1,6 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 3 selesai, menunggu persetujuan pemilik untuk Fase 4 · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 4 selesai, menunggu persetujuan pemilik untuk Fase 5 · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -137,7 +137,13 @@ laporan akhir.
       pemilik: warna bar login/admin kembali, font dimuat per halaman (meta + skrip, hash CSP baru), suara bawaan
       menyala. Uji: lint, build, cek hero 6 lebar, uji chip (seret, Enter, reduced motion, suara setelah gestur),
       screenshot 1440/390 × terang/gelap dengan semua gambar termuat
-- [ ] Fase 4. Tentang, pita teknologi, Proyek
+- [x] Fase 4. Tentang (bento), pita teknologi, Proyek (bagian hitam, kartu menumpuk dengan `timeline-scope`,
+      Peran/Tahun/Klien sesuai data, "Kunjungi" hanya untuk demo publik), Proyek lainnya, grafik GitHub (label
+      bulan); `my_role` dan `links` masuk query daftar proyek; Keahlian berjalan dihapus (`#keahlian` = kartu tech
+      stack); kelas kartu dasar `.pub-tile`. Uji: lint, build, cek proyek (tumpukan 1440, daftar 390 dan reduced
+      motion, fakta dan Kunjungi vs data live, label bulan dengan data tiruan), uji hero/chip ulang, login identik
+      dengan `main`, screenshot 1440/390 × terang/gelap + saat menumpuk
+- Catatan Fase 7 (pemilik): uji juga seret chip dengan sentuhan (emulasi touch Playwright) di 390.
 - [ ] Fase 5. Perjalanan, Sertifikat, Kontak, Buku tamu, Kucing (+ admin foto)
 - [ ] Fase 6. Detail proyek, `api/github-repo.js` (+ admin proyek)
 - [ ] Fase 7. Validasi dan laporan akhir

@@ -1,191 +1,197 @@
-/* Section Proyek: kartu studi kasus, sampul/placeholder, daftar ringkas */
+/* "Proyek pilihan" — bagian hitam (terbalik) dengan kartu yang menumpuk (MASTER §16) */
 
-/* Ruang ayam (cameo 3B) di kanan kepala section, yang lebarnya maks. 44rem: hanya ≥1024 px, di mana
-   sisa ruang di kanan judul ≥256 px. Tidak menangkap klik. */
-.pub-cameo-slot {
-  position: absolute;
-  top: 0;
-  right: var(--pub-gutter);
-  display: none;
-  width: 16rem;
-  height: 9.5rem;
-  overflow: hidden;
-  pointer-events: none;
+.pub-projects {
+  /* Bagian ini selalu dirender: kartu sticky butuh tinggi aslinya, bukan perkiraan content-visibility */
+  content-visibility: visible;
 }
 
-@media (min-width: 1024px) {
-  .pub-cameo-slot {
-    display: block;
+.pub-projects-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.pub-projects-head .pub-lead {
+  max-width: 26em;
+}
+
+/* Lead di kanan, juga saat turun ke baris di bawah judul */
+@media (min-width: 620px) {
+  .pub-projects-head .pub-lead {
+    margin-left: auto;
+    text-align: right;
   }
 }
 
-.pub-cases {
+/* --- Tumpukan kartu ------------------------------------------------------------ */
+
+.pub-stack {
   display: grid;
-  gap: var(--space-8);
+  gap: 1.5rem;
+  margin-top: clamp(2.5rem, 1.5rem + 3vw, 4rem);
   list-style: none;
 }
 
-@media (min-width: 1024px) {
-  .pub-cases {
-    gap: var(--space-10);
-  }
-}
-
-.pub-case {
-  position: relative;
+.pub-project {
   display: grid;
-  overflow: hidden;
-  border: 1px solid var(--ds-border);
-  border-radius: var(--pub-radius-card);
-  background-color: var(--ds-surface);
-  transition: border-color var(--ds-duration-base) ease;
+  gap: clamp(1.75rem, 1rem + 2.5vw, 4rem);
+  align-items: center;
+  padding: clamp(1.5rem, 0.75rem + 2.4vw, 3.25rem);
+  border: 1px solid var(--line);
+  border-radius: 36px;
+  background-color: var(--bg);
+  transform-origin: 50% 0;
 }
 
-.pub-case[data-linked='true']:hover {
-  border-color: var(--ds-border-control);
-}
-
-/* Dua kolom (mulai 900 px) sama lebar untuk kartu biasa maupun terbalik; kartu terbalik hanya menukar
-   urutan (order), jadi sampul semua kartu berukuran sama persis. Sampul dan teks sama-sama di tengah
-   secara vertikal. */
-@media (min-width: 900px) {
-  .pub-case {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: center;
-  }
-
-  .pub-case[data-flip='true'] .pub-case-cover {
-    order: 2;
-  }
-}
-
-.pub-case-body {
-  display: grid;
-  align-self: center;
-  align-content: center;
-  justify-items: start;
-  gap: var(--space-4);
-  padding: var(--space-6) var(--space-5);
+.pub-project-body {
   min-width: 0;
 }
 
-@media (min-width: 1024px) {
-  .pub-case-body {
-    padding: var(--space-10);
-  }
-}
-
-.pub-case-meta {
-  display: flex;
-  flex-wrap: wrap;
+.pub-project-label {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2) var(--space-3);
+  min-height: 2.125rem;
+  padding: 0 0.875rem;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  color: var(--mute);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.pub-case-facts {
-  color: var(--ds-text-muted);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  line-height: 1.5;
+.pub-project-title {
+  margin-top: 1.375rem;
+  color: var(--fg);
+  font-size: clamp(2rem, 1.4rem + 1.8vw, 3.25rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
 }
 
-/* Judul maks. 2 baris dan ringkasan maks. 3 baris, supaya tinggi kartu seragam */
-.pub-case-title {
+.pub-project-summary {
+  max-width: 32em;
+  margin-top: 1.25rem;
+  color: var(--mute);
+}
+
+/* Tahun / Klien berdampingan, Peran selebar kartu (isinya sering satu paragraf): nilainya di atas,
+   labelnya kecil di bawah. Peran dipotong 3 baris di kartu supaya kartu muat di layar dan bisa
+   menumpuk; teks lengkapnya tetap ada untuk pembaca layar dan di halaman detail. */
+.pub-project-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 0;
+  margin: 1.625rem 0 0;
+}
+
+.pub-project-facts > .pub-project-fact--wide {
+  grid-column: 1 / -1;
+}
+.pub-project-fact--wide dd {
   display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
   overflow: hidden;
-  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
-  line-height: 1.2;
-}
-
-.pub-case-link,
-.pub-case-link:hover {
-  color: var(--ds-text-strong);
-}
-
-/* Seluruh kartu bisa diklik lewat satu tautan (judul) yang diperluas */
-.pub-case-link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.pub-case-link:focus-visible {
-  outline: none;
-}
-
-.pub-case-link:focus-visible::after {
-  outline: var(--ds-focus-ring-width) solid var(--ds-focus-ring);
-  outline-offset: -2px;
-  border-radius: var(--pub-radius-card);
-}
-
-.pub-case-summary {
-  display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   line-clamp: 3;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.pub-project-summary {
+  display: -webkit-box;
   overflow: hidden;
-  max-width: 60ch;
-  color: var(--ds-text-muted);
-  line-height: var(--ds-lh-relaxed);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
-.pub-case-more {
-  min-height: 0;
-  margin-top: var(--space-1);
+.pub-project-facts > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.125rem 1rem;
+  border-left: 1.5px solid var(--line);
 }
 
-.pub-case[data-linked='true']:hover .pub-case-more span {
+.pub-project-facts dt {
+  color: var(--mute);
+  font-size: 0.71875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.pub-project-facts dd {
+  margin: 0;
+  color: var(--fg);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.pub-project-tech {
+  margin-top: 1.5rem;
+}
+
+.pub-project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-top: 1.875rem;
+}
+
+.pub-project-case,
+.pub-project-case:hover {
+  color: var(--fg);
+}
+
+.pub-project-case {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: var(--ds-target-min);
+  font-weight: 700;
+}
+
+.pub-project-case:hover span:first-of-type {
   text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
 }
 
-.pub-case[data-linked='true']:hover .pub-case-more svg {
-  transform: translateX(3px);
-}
-
-/* Sampul: 16:10 di semua lebar. Tingginya hanya dari rasio ini, tidak pernah dari gambar atau dari
-   teks di sebelahnya (gambarnya diatur ProjectImage: lanskap memenuhi, potret utuh di atas grid). */
+/* Sampul 16:10 di semua lebar (tingginya hanya dari rasio, tidak pernah dari teks di sebelahnya) */
 .pub-cover {
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  background-color: var(--ds-inset);
+  background-color: var(--soft);
 }
 
-/* Satu kolom (HP dan tablet, di bawah 900 px): sampul selebar kartu di atas teks, tanpa jarak bingkai */
-.pub-case-cover {
+.pub-project-cover {
+  display: block;
   min-width: 0;
-  border-bottom: 1px solid var(--ds-border);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  transition: transform 600ms var(--ds-ease-out);
 }
 
-/* Dua kolom: sampul berbingkai sendiri di tengah kolomnya. Tingginya terkunci 16:10 (align-self
-   center, bukan stretch), jadi bila teks lebih tinggi sampul tidak ikut memanjang. */
-@media (min-width: 900px) {
-  .pub-case-cover {
-    align-self: center;
-    margin: var(--space-4);
-    border: 1px solid var(--ds-border);
-    border-radius: var(--pub-radius);
-  }
+.pub-project:hover .pub-project-cover {
+  transform: rotate(-1deg) scale(1.015);
 }
 
-@media (min-width: 1024px) {
-  .pub-case-cover {
-    margin: var(--space-6);
-  }
-}
-
-/* Gambar lanskap memenuhi bingkai dari bagian atas (kepala halaman di screenshot tetap terlihat);
-   potret tetap utuh di tengah (cadangan ProjectImage) */
-.pub-cover img {
-  transition: transform var(--ds-duration-slow) var(--ds-ease-out);
-}
-
+/* Gambar lanskap memenuhi bingkai dari bagian atas; potret tetap utuh di tengah (ProjectImage) */
 .pub-cover.pub-media img {
   object-position: top center;
 }
@@ -194,11 +200,7 @@
   object-position: center;
 }
 
-.pub-case[data-linked='true']:hover .pub-cover img {
-  transform: scale(1.03);
-}
-
-/* Placeholder: sub-grid blueprint + logo + jenis proyek */
+/* Tanpa gambar sampul: grid tipis + logo + jenis proyek */
 .pub-cover-placeholder {
   position: absolute;
   inset: 0;
@@ -207,126 +209,194 @@
   justify-items: center;
   gap: var(--space-3);
   background-image:
-    linear-gradient(color-mix(in srgb, var(--ds-text-strong) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--ds-text-strong) 7%, transparent) 1px, transparent 1px);
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
   background-size: 24px 24px;
   background-position: center;
-  color: var(--ds-accent-text);
-}
-
-.pub-cover-placeholder .brand-logo {
-  opacity: 0.85;
+  color: var(--fg);
 }
 
 .pub-cover-caption {
-  color: var(--ds-text-muted);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  letter-spacing: var(--ds-tracking-wide);
+  color: var(--mute);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.pub-case--skeleton .pub-case-cover {
-  display: block;
+.pub-project--skeleton .pub-project-cover {
   aspect-ratio: 16 / 10;
-  border-radius: 0;
 }
 
-@media (min-width: 900px) {
-  .pub-case--skeleton .pub-case-cover {
-    border-radius: var(--pub-radius);
+@media (min-width: 1060px) {
+  .pub-project {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   }
 }
 
-/* Daftar ringkas "Proyek lainnya" */
+@media (max-width: 619px) {
+  .pub-project {
+    border-radius: 24px;
+  }
+
+  .pub-project-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .pub-project-fact--wide dd {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+}
+
+/* --- Proyek lainnya ------------------------------------------------------------ */
+
 .pub-others {
-  display: grid;
-  gap: var(--space-4);
-  margin-top: var(--space-12);
+  margin-top: clamp(3rem, 2rem + 3vw, 4.5rem);
 }
 
 .pub-others-title {
-  color: var(--ds-text-subtle);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
-  font-weight: var(--ds-fw-semibold);
-  letter-spacing: var(--ds-tracking-wide);
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .pub-others-list {
+  margin-top: 1rem;
+  border-bottom: 1px solid var(--line);
   list-style: none;
-  border-top: 1px solid var(--ds-border);
 }
 
 .pub-row {
-  border-bottom: 1px solid var(--ds-border);
+  border-top: 1px solid var(--line);
 }
 
 .pub-row-link,
 .pub-row-link:hover {
-  color: var(--ds-text-strong);
+  color: var(--fg);
 }
 
 .pub-row-link {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-4);
-  min-height: 4rem;
-  padding: var(--space-3) var(--space-2);
-}
-
-a.pub-row-link:hover {
-  background-color: var(--ds-surface);
+  gap: 0.5rem 1.5rem;
+  min-height: 4.5rem;
+  padding-block: 0.75rem;
 }
 
 .pub-row-title {
-  font-weight: var(--ds-fw-semibold);
+  flex: 1 1 18rem;
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 .pub-row-facts {
-  grid-column: 1;
-  color: var(--ds-text-muted);
-  font-family: var(--ds-font-mono);
-  font-size: var(--ds-fs-xs);
+  color: var(--mute);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .pub-row-arrow {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  color: var(--ds-accent-text);
+  flex-shrink: 0;
   transition: transform var(--ds-duration-base) var(--ds-ease-out);
 }
 
-.pub-row-link:hover .pub-row-arrow {
-  transform: translateX(3px);
+a.pub-row-link:hover .pub-row-arrow {
+  transform: translateX(4px);
 }
 
-@media (min-width: 768px) {
-  .pub-row-link {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    padding-inline: var(--space-3);
-  }
+/* --- Gerak: tirai bagian dan tumpukan kartu ---------------------------------------
+   Hanya dengan dukungan animation-timeline dan tanpa reduced motion. Tanpa itu: bagian langsung selebar
+   layar dan kartu tampil berurutan biasa. */
 
-  .pub-row-facts {
-    grid-column: 2;
-    grid-row: 1;
+@keyframes pub-projects-curtain {
+  from {
+    clip-path: inset(0 4% 0 4% round 64px);
   }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+}
 
-  .pub-row-arrow {
-    grid-column: 3;
-    grid-row: 1;
+@keyframes pub-stack-shrink {
+  to {
+    transform: scale(0.9);
+    filter: brightness(0.45);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .pub-projects {
+      animation: pub-projects-curtain linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
+
+/* Tumpukan: semua item menempel (sticky) di dalam daftar yang sama, jadi item berikutnya naik dan
+   menutupi item yang sudah menempel, masing-masing 12 px lebih rendah supaya tepi kartu lama terlihat.
+   Kartu lama mengecil dan meredup mengikuti linimasa item berikutnya (timeline-scope di daftar), yaitu
+   saat item itu masuk dari bawah layar. Untuk paling banyak 8 kartu (unggulan); setelah itu kartu tetap
+   menumpuk tanpa mengecil. Hanya di layar ≥ 1060 × 820 px: di layar lebih pendek bagian bawah kartu
+   yang menempel bisa tertutup sebelum terbaca. */
+@media (min-width: 1060px) and (min-height: 820px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) and (timeline-scope: --pub-a) {
+    .pub-stack {
+      display: block;
+      timeline-scope: --pub-card-1, --pub-card-2, --pub-card-3, --pub-card-4, --pub-card-5, --pub-card-6, --pub-card-7, --pub-card-8;
+    }
+
+    .pub-stack-item {
+      position: sticky;
+      top: calc(var(--pub-nav-h) + 1.625rem);
+      margin-bottom: 20vh;
+    }
+
+    .pub-stack-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .pub-stack-item:nth-child(1) { view-timeline-name: --pub-card-1; }
+    .pub-stack-item:nth-child(2) { view-timeline-name: --pub-card-2; top: calc(var(--pub-nav-h) + 1.625rem + 12px); }
+    .pub-stack-item:nth-child(3) { view-timeline-name: --pub-card-3; top: calc(var(--pub-nav-h) + 1.625rem + 24px); }
+    .pub-stack-item:nth-child(4) { view-timeline-name: --pub-card-4; top: calc(var(--pub-nav-h) + 1.625rem + 36px); }
+    .pub-stack-item:nth-child(5) { view-timeline-name: --pub-card-5; top: calc(var(--pub-nav-h) + 1.625rem + 48px); }
+    .pub-stack-item:nth-child(6) { view-timeline-name: --pub-card-6; top: calc(var(--pub-nav-h) + 1.625rem + 60px); }
+    .pub-stack-item:nth-child(7) { view-timeline-name: --pub-card-7; top: calc(var(--pub-nav-h) + 1.625rem + 72px); }
+    .pub-stack-item:nth-child(8) { view-timeline-name: --pub-card-8; top: calc(var(--pub-nav-h) + 1.625rem + 84px); }
+
+    .pub-stack-item:not(:last-child) .pub-project {
+      animation: pub-stack-shrink linear both;
+      animation-range: entry 0% entry 100%;
+    }
+
+    .pub-stack-item:nth-child(1) .pub-project { animation-timeline: --pub-card-2; }
+    .pub-stack-item:nth-child(2) .pub-project { animation-timeline: --pub-card-3; }
+    .pub-stack-item:nth-child(3) .pub-project { animation-timeline: --pub-card-4; }
+    .pub-stack-item:nth-child(4) .pub-project { animation-timeline: --pub-card-5; }
+    .pub-stack-item:nth-child(5) .pub-project { animation-timeline: --pub-card-6; }
+    .pub-stack-item:nth-child(6) .pub-project { animation-timeline: --pub-card-7; }
+    .pub-stack-item:nth-child(7) .pub-project { animation-timeline: --pub-card-8; }
+    .pub-stack-item:nth-child(n + 8) .pub-project { animation: none; }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pub-cover img,
+  .pub-project-cover,
   .pub-row-arrow {
     transition: none;
   }
 
-  .pub-case[data-linked='true']:hover .pub-cover img {
+  .pub-project:hover .pub-project-cover,
+  a.pub-row-link:hover .pub-row-arrow {
     transform: none;
   }
 }

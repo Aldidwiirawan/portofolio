@@ -14,8 +14,9 @@ import { restInsert, restSelect } from '../lib/publicApi'
 const PROFILE_COLUMNS =
   'full_name, tagline, primary_role, secondary_roles, hero_keywords, bio, location, email, github_url, github_username, linkedin_url, instagram_url, avatar_url, is_available, cv_file_url, resume_link, hobbies, contact_topics'
 
+// my_role and links feed the project cards of the monochrome page (Peran fact, "Kunjungi" button)
 const PROJECT_LIST_COLUMNS =
-  'id, slug, title, description, solution, thumbnail_url, status, year, project_type, client_name, tech_stack, is_featured, sort_order'
+  'id, slug, title, description, solution, thumbnail_url, status, year, project_type, client_name, my_role, tech_stack, links, is_featured, sort_order'
 
 const PROJECT_DETAIL_COLUMNS =
   'id, slug, title, description, content, thumbnail_url, status, year, project_type, client_name, my_role, problem, solution, outcome, tech_stack, gallery, links'
@@ -36,11 +37,12 @@ const TABLES = {
   projects: {
     table: 'projects',
     columns: PROJECT_LIST_COLUMNS,
-    enColumns: 'title_en, description_en, solution_en, client_name_en',
+    enColumns: 'title_en, description_en, solution_en, client_name_en, my_role_en',
     order: [['sort_order'], ['created_at', { ascending: false }]],
     normalize: (row) => ({
       ...row,
       tech_stack: toTextList(row.tech_stack),
+      links: publicLinks(row.links),
       summary: text(row.description) || text(row.solution),
     }),
   },

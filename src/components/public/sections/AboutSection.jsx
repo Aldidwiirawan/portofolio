@@ -1,135 +1,157 @@
+import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
+import CvButton from '../CvButton'
+import { CapIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SkeletonBlock } from '../Section'
+import { groupSkills } from '../skillGroups'
 import './AboutSection.css'
 
+function WaveIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 11V6a2 2 0 0 0-4 0v1" />
+      <path d="M14 10V4a2 2 0 0 0-4 0v2" />
+      <path d="M10 10.5V6a2 2 0 0 0-4 0v8" />
+      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+    </svg>
+  )
+}
+
 /**
- * "Tentang saya": photo in a blueprint frame, bio, three facts (education, languages, city) and
- * hobbies. Only rendered when the profile exists; profile errors are shown once, in the hero.
+ * "Tentang saya" as a bento (monochrome redesign, phase 4), only from the admin's data:
+ * - introduction: greeting with the first name, the bio, "Unduh CV" (when a CV exists);
+ * - photo with the name, "Terbuka untuk kerja" (when available) and "Rekrut saya" (to Kontak);
+ * - education: the first visible entry, year of graduation and the GPA in large type;
+ * - tech stack: the visible skills per category (id "keahlian", so old /#keahlian links land here);
+ * - black "Fokus saya" card: the tagline and the hero keywords (or the supporting roles).
+ * Cards whose data is empty are left out. Cards rise in while scrolling (public.css .pub-reveal).
  */
 function AboutSection() {
   const data = usePublicData()
-  const { t, formatGpa, storedLabel } = useI18n()
+  const { t, formatGpa, skillCategory } = useI18n()
   const { status, data: profile } = data.profile
   if (status === 'loading') return <AboutSkeleton />
   if (!profile) return null
 
+  const firstName = (profile.full_name || '').split(/\s+/)[0]
+  const bio = (profile.bio || '').split(/\n+/).map((part) => part.trim()).filter(Boolean)
   const education = data.educations.data[0]
-  const languages = data.languages.data
-  const mainField = education?.field_of_study ? 'field_of_study' : 'degree'
-  const facts = [
-    education && {
-      key: 'education',
-      label: t('about.education'),
-      body: (
-        <>
-          <p className="pub-about-fact-main" lang={langOf(education, mainField)}>
-            {education[mainField]}
-          </p>
-          <p>
-            {education.field_of_study && education.degree && (
-              <>
-                <span lang={langOf(education, 'degree')}>{education.degree}</span>
-                {' · '}
-              </>
-            )}
-            {education.institution}
-          </p>
-          {education.gpa != null && <p className="pub-about-fact-note">{t('about.gpa', { gpa: formatGpa(education.gpa) })}</p>}
-        </>
-      ),
-    },
-    languages.length > 0 && {
-      key: 'languages',
-      label: t('about.languages'),
-      body: (
-        <ul className="pub-about-langs">
-          {languages.map((language) => {
-            const level = storedLabel('langLevel', language.proficiency_level)
-            // A standard level is translated by the dictionary; only a free-text level stays Indonesian
-            const levelLang = level === language.proficiency_level ? langOf(language, 'proficiency_level') : undefined
-            return (
-              <li key={language.id}>
-                <span className="pub-about-fact-main" lang={langOf(language, 'language_name')}>
-                  {language.language_name}
-                </span>
-                {level && (
-                  <span>
-                    {' · '}
-                    <span lang={levelLang}>{level}</span>
-                  </span>
-                )}
-              </li>
-            )
-          })}
-        </ul>
-      ),
-    },
-    profile.location && {
-      key: 'based',
-      label: t('about.basedIn'),
-      body: (
-        <>
-          <p className="pub-about-fact-main">{profile.location}</p>
-          <p>Indonesia</p>
-        </>
-      ),
-    },
-  ].filter(Boolean)
+  const skillGroups = groupSkills(data.skills.data)
+  const focusChips = profile.hero_keywords.length > 0 ? 'hero_keywords' : 'secondary_roles'
 
   return (
     <section id="tentang" className="pub-section pub-about" aria-labelledby="tentang-judul">
-      <div className="pub-container pub-about-grid">
-        {profile.avatar_url && (
-          <figure className="pub-about-photo">
-            <img
-              src={profile.avatar_url}
-              alt={t('about.photoAlt', { name: profile.full_name })}
-              width="480"
-              height="600"
-              loading="lazy"
-              decoding="async"
-            />
-          </figure>
-        )}
+      <div className="pub-container">
+        <h2 id="tentang-judul" className="pub-h2 pub-reveal">
+          {t('about.title')}
+        </h2>
 
-        <div className="pub-about-body">
-          <div className="pub-section-head">
-            <p className="pub-tag">{t('about.tag')}</p>
-            <h2 id="tentang-judul" className="pub-h2">
-              {t('about.title')}
-            </h2>
-          </div>
+        <div className="pub-about-bento">
+          <article className="pub-tile pub-about-intro pub-reveal" data-wide={!profile.avatar_url || undefined}>
+            <span className="pub-about-wave" aria-hidden="true">
+              <WaveIcon />
+            </span>
+            {firstName && <h3 className="pub-about-hello">{t('about.hello', { name: profile.full_name })}</h3>}
+            {bio.map((paragraph, index) => (
+              <p key={index} className="pub-about-bio" lang={langOf(profile, 'bio')}>
+                {paragraph}
+              </p>
+            ))}
+            <CvButton variant="primary" className="pub-about-cv" />
+          </article>
 
-          {profile.bio && (
-            <p className="pub-about-bio" lang={langOf(profile, 'bio')}>
-              {profile.bio}
-            </p>
+          {profile.avatar_url && (
+            <figure className="pub-tile pub-about-photo pub-reveal">
+              <img
+                src={profile.avatar_url}
+                alt={t('about.photoAlt', { name: profile.full_name })}
+                width="480"
+                height="600"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption className="pub-about-tag">
+                <span>
+                  <b>{profile.full_name}</b>
+                  {profile.is_available && <small>{t('hero.available')}</small>}
+                </span>
+                <Link to={{ pathname: '/', hash: '#kontak' }} className="pub-about-hire">
+                  {t('about.hire')}
+                </Link>
+              </figcaption>
+            </figure>
           )}
 
-          {facts.length > 0 && (
-            <dl className="pub-about-facts">
-              {facts.map((fact) => (
-                <div key={fact.key} className="pub-about-fact">
-                  <dt className="pub-about-fact-label">{fact.label}</dt>
-                  <dd>{fact.body}</dd>
+          {education && (
+            <article className="pub-tile pub-about-edu pub-reveal">
+              <div className="pub-about-edu-top">
+                <span className="pub-about-edu-icon" aria-hidden="true">
+                  <CapIcon size={28} />
+                </span>
+                {(education.is_current || education.end_year) && (
+                  <span className="pub-about-edu-year">
+                    {education.is_current ? t('about.studying') : t('about.graduated', { year: education.end_year })}
+                  </span>
+                )}
+              </div>
+              <p className="pub-about-edu-school">{education.institution}</p>
+              <h3 className="pub-about-edu-title">
+                <span lang={langOf(education, 'degree')}>{education.degree}</span>{' '}
+                <span lang={langOf(education, 'field_of_study')}>{education.field_of_study}</span>
+              </h3>
+              {education.thesis_title && (
+                <p className="pub-about-edu-thesis" lang={langOf(education, 'thesis_title')}>
+                  {t('about.thesis')}: {education.thesis_title}
+                </p>
+              )}
+              {education.gpa != null && (
+                <p className="pub-about-gpa">
+                  <b>{formatGpa(education.gpa)}</b>
+                  <span>{t('about.gpaOf', { max: formatGpa(4) })}</span>
+                </p>
+              )}
+            </article>
+          )}
+
+          {skillGroups.length > 0 && (
+            <article id="keahlian" className="pub-tile pub-tile--shadow pub-about-stack pub-reveal" aria-labelledby="keahlian-judul">
+              <div className="pub-about-stack-top">
+                <span className="pub-about-stack-icon" aria-hidden="true">
+                  &gt;_
+                </span>
+                <h3 id="keahlian-judul">{t('about.stack')}</h3>
+              </div>
+              {skillGroups.map((group) => (
+                <div key={group.category} className="pub-about-stack-group">
+                  <h4>{skillCategory(group.category)}</h4>
+                  <ul className="pub-about-tags">
+                    {group.skills.map((skill) => (
+                      <li key={skill.id}>{skill.name}</li>
+                    ))}
+                  </ul>
                 </div>
               ))}
-            </dl>
+            </article>
           )}
 
-          {profile.hobbies.length > 0 && (
-            <div className="pub-about-hobbies">
-              <h3 className="pub-about-hobbies-title">{t('about.hobbies')}</h3>
-              <ul className="pub-chips">
-                {profile.hobbies.map((hobby, index) => (
-                  <li key={`${hobby}-${index}`} className="pub-chip" lang={langOf(profile, 'hobbies', index)}>
-                    {hobby}
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {(profile.tagline || profile[focusChips].length > 0) && (
+            <article className="pub-tile pub-invert pub-about-focus pub-reveal">
+              <div>
+                <h3>{t('about.focus')}</h3>
+                {profile.tagline && <p lang={langOf(profile, 'tagline')}>{profile.tagline}</p>}
+              </div>
+              {profile[focusChips].length > 0 && (
+                <ul className="pub-about-focus-list">
+                  {profile[focusChips].map((item, index) => (
+                    <li key={`${item}-${index}`} lang={langOf(profile, focusChips, index)}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
           )}
         </div>
       </div>
@@ -140,13 +162,11 @@ function AboutSection() {
 function AboutSkeleton() {
   return (
     <section id="tentang" className="pub-section pub-about" aria-hidden="true">
-      <div className="pub-container pub-about-grid">
-        <SkeletonBlock className="pub-about-photo-skeleton" height="auto" />
-        <div className="pub-about-body">
-          <SkeletonBlock width="6rem" height="1.25rem" />
-          <SkeletonBlock width="16rem" height="2.5rem" />
-          <SkeletonBlock height="7rem" />
-          <SkeletonBlock height="6rem" />
+      <div className="pub-container">
+        <SkeletonBlock width="min(36rem, 80%)" height="5rem" />
+        <div className="pub-about-bento">
+          <SkeletonBlock className="pub-about-intro" height="22rem" />
+          <SkeletonBlock className="pub-about-photo" height="22rem" />
         </div>
       </div>
     </section>

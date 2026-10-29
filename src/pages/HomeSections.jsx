@@ -1,6 +1,6 @@
 import AboutSection from '../components/public/sections/AboutSection'
 import ProjectsSection from '../components/public/sections/ProjectsSection'
-import SkillsSection from '../components/public/skills/SkillsSection'
+import TechRibbon from '../components/public/sections/TechRibbon'
 import ExperienceSection from '../components/public/sections/ExperienceSection'
 import EducationSection from '../components/public/sections/EducationSection'
 import CertificatesSection from '../components/public/sections/CertificatesSection'
@@ -11,9 +11,10 @@ import { usePublicData } from '../components/public/publicContexts'
 import { useHashScroll } from '../components/public/useHashScroll'
 
 /**
- * The home page below the hero, in the order of the stage 3A plan (its own chunk, stage 3C: the code
- * and styles of these sections do not delay the first paint). Scrolls to the section in the address
- * (/#proyek) once the data of the sections above it is in.
+ * The home page below the hero (its own chunk, stage 3C: the code and styles of these sections do not
+ * delay the first paint). Monochrome order: Tentang (with the tech stack, /#keahlian), the tech ribbon,
+ * Proyek, then the sections still to be redone. Scrolls to the section in the address (/#proyek) once
+ * the data of the sections above it is in.
  */
 function HomeSections() {
   const data = usePublicData()
@@ -23,9 +24,9 @@ function HomeSections() {
   return (
     <>
       <AboutSection />
+      <TechRibbon />
       <ProjectsSection />
       <ExperienceSection />
-      <SkillsSection />
       <EducationSection />
       <CertificatesSection />
       <AchievementsSection />

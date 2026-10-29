@@ -520,7 +520,7 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
 
 ### Komponen dasar (`public.css`)
 
-- **Kartu** `.pub-card`: garis 2,5 px `--fg`, sudut 28 px, latar `--bg`; `.pub-card--shadow` menambah bayangan kotak
+- **Kartu** `.pub-tile`: garis 2,5 px `--fg`, sudut 28 px, latar `--bg`; `.pub-tile--shadow` menambah bayangan kotak
   `6px 6px 0 var(--fg)` tanpa blur.
 - **Tombol** `.pub-btn`: pil, huruf kapital, garis 2 px, bayangan kotak 4 px. Hover bergeser `-2px` dengan
   bayangan 6 px, ditekan turun `3px` ke bayangannya. `--primary` berlatar `--fg`, `--ghost` tanpa garis, `--sm`
@@ -566,3 +566,25 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
 - **Dilepas dari publik:** `IntroScreen` (dihapus), `ViewfinderCursor` dan `BlueprintBackground` (file tetap untuk
   login dan admin). Fase 3 menghapus panggung label matter-js (dan dependency `matter-js`), kata berganti, ayam dan
   bebek (`characters/`, kecuali `bubble.css` yang masih dipakai robot sampai Fase 5) dan cameo di Proyek.
+  Fase 4 menghapus bagian Keahlian berjalan (`skills/`, logo teknologi): keahlian kini di kartu tech stack.
+
+### Tentang, pita, Proyek (Fase 4)
+
+- **Muncul saat digulir:** kelas umum `.pub-reveal` (naik + memudar masuk, `animation-timeline: view()` di dalam
+  `@supports`, mati saat reduced motion).
+- **Tentang** (`AboutSection`, bento 12 kolom ≥ 1060 px, satu kolom di bawahnya), hanya dari data admin:
+  perkenalan (sapaan, bio, Unduh CV), foto + "Terbuka untuk kerja" + "Rekrut saya" (ke Kontak), pendidikan
+  pertama (lulus/sedang kuliah, tugas akhir, IPK besar), tech stack per kategori (`id="keahlian"`), kartu hitam
+  "Fokus saya" (tagline + kata berganti, atau peran pendukung). Kartu yang datanya kosong tidak dibuat. Bahasa dan
+  hobi tidak ditampilkan lagi (tidak ada di desain referensi).
+- **Pita teknologi** (`TechRibbon`): keahlian unggulan (bergaris tepi) dan kategori keahlian (isi), bergeser
+  berlawanan arah mengikuti scroll; diam tanpa dukungan atau dengan reduced motion. `aria-hidden`.
+- **Proyek pilihan** (`ProjectsSection`, `.pub-invert`): bagian melebar dari kartu bersudut ke layar penuh saat
+  masuk. Kartu proyek unggulan: label status · jenis, judul, ringkasan (4 baris), fakta Peran (selebar kartu,
+  3 baris) / Tahun / Klien hanya yang terisi, chip teknologi, "Baca studi kasus", "Kunjungi" hanya untuk tautan
+  demo publik, sampul 16:10. Tanpa angka metrik.
+- **Tumpukan** (≥ 1060 × 820 px, ada dukungan, tanpa reduced motion): semua item sticky di dalam satu daftar
+  (12 px lebih rendah per kartu), kartu lama mengecil ke 0,9 dan meredup mengikuti linimasa item berikutnya
+  (`timeline-scope`, maks. 8 kartu). Selain itu daftar biasa.
+- **Proyek lainnya** daftar ringkas; **grafik GitHub** monokrom, label bulan hanya untuk bulan yang lebarnya ≥ 3
+  minggu (bulan pertama yang terpotong tidak lagi menempel ke bulan berikutnya).
