@@ -17,19 +17,3 @@ export function groupSkills(skills) {
   const unknown = [...groups.keys()].filter((category) => !(category in SKILL_CATEGORY_KEYS))
   return [...known, ...unknown].map((category) => ({ category, skills: groups.get(category) }))
 }
-
-/**
- * Labels for the hero stage: featured skills (all skills when none is featured), taken in turns from
- * each category so the stage shows the whole range (programming and IT support), at most `max`.
- */
-export function pickStageSkills(skills, max = 8) {
-  const featured = skills.filter((skill) => skill.is_featured)
-  const lists = groupSkills(featured.length > 0 ? featured : skills).map((group) => group.skills)
-  const picked = []
-  for (let round = 0; picked.length < max && lists.some((list) => list[round]); round += 1) {
-    for (const list of lists) {
-      if (list[round] && picked.length < max) picked.push(list[round])
-    }
-  }
-  return picked
-}

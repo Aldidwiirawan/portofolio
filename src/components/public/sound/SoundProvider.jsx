@@ -9,14 +9,14 @@ export const SOUND_STORAGE_KEY = 'aldi-portfolio-sound'
 const GESTURES = ['pointerdown', 'pointerup', 'keydown', 'touchend']
 
 /**
- * Sound switch of the public pages (BRIEF §5): off by default, the visitor's choice is remembered in
- * the browser. All sounds are made with the Web Audio API (no audio files): the short "tok" and the
- * named cues of the monochrome page (tokSynth.playCue: chips, cats, folders). Nothing plays before a
- * visitor gesture. Turning it on plays one tok as a sign that it works. The audio pauses while the
- * tab is hidden.
+ * Sound switch of the public pages: on by default (owner, phase 3 of the monochrome redesign), the
+ * visitor's choice is remembered in the browser. All sounds are made with the Web Audio API (no audio
+ * files): the short "tok" and the named cues of the monochrome page (tokSynth.playCue: chips, cats,
+ * folders). Nothing plays before a visitor gesture: the audio starts on the first click, tap or key
+ * press. Turning it on plays one tok as a sign that it works. The audio pauses while the tab is hidden.
  */
 function SoundProvider({ children }) {
-  const [enabled, setEnabled] = useState(() => readStorage(SOUND_STORAGE_KEY) === 'on')
+  const [enabled, setEnabled] = useState(() => readStorage(SOUND_STORAGE_KEY) !== 'off')
   const enabledRef = useRef(enabled)
   const pageHidden = usePageHidden()
 

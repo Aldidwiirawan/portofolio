@@ -351,13 +351,14 @@ html:has(.pub) {
   }
 }
 
-/* Judul besar: huruf kapital tebal yang rapat (judul section, judul halaman) */
+/* Judul besar: huruf kapital tebal yang rapat (judul section, judul halaman). -0,04em, bukan -0,055em
+   referensi: dengan nilai itu "AN" dan "LD" nyaris menempel. */
 .pub-h2,
 .pub-display {
   color: var(--fg);
   font-weight: 700;
   line-height: 0.88;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.04em;
   text-transform: uppercase;
 }
 
@@ -638,6 +639,45 @@ html:has(.pub) {
   transform: translateX(3px);
 }
 
+/* --- Titik status --------------------------------------------------------------
+   Titik hijau (--ok: terbuka untuk kerja, Live API, pesan terkirim) dengan cincin yang membesar dan
+   memudar (transform + opacity, berhenti saat reduced motion) */
+.pub-dot {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: var(--ok);
+}
+
+.pub-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: var(--ok);
+  animation: pub-dot-ping 2.2s var(--ds-ease-out) infinite;
+}
+
+@keyframes pub-dot-ping {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+/* Pengganti tak terlihat selama data dimuat: menjaga tempat, jadi tidak ada pergeseran tata letak */
+.pub-ph-hidden {
+  visibility: hidden;
+}
+
 /* --- Bantuan aksesibilitas ------------------------------------------------ */
 
 .pub-sr-only {
@@ -723,7 +763,8 @@ html:has(.pub) {
 
 /* Gerak dekoratif berhenti total saat reduced motion (tombol tetap berubah bayangan, tanpa bergeser) */
 @media (prefers-reduced-motion: reduce) {
-  .pub-skeleton {
+  .pub-skeleton,
+  .pub-dot::after {
     animation: none;
   }
 

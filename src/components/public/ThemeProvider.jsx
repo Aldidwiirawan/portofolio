@@ -16,7 +16,7 @@ function storedTheme() {
 /**
  * Theme of the public pages: light until the visitor picks one with the toggle; that choice is
  * remembered in the browser. The theme is also written to <html data-pub-theme> (page background and
- * native scrollbars) and to the theme-color meta tag (browser bar), and both are put back when the
+ * native scrollbars) and to the theme-color meta tags (browser bar), and both are put back when the
  * public pages unmount, so login and admin never see them.
  */
 function ThemeProvider({ children }) {
@@ -31,12 +31,13 @@ function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement
-    const bar = document.querySelector('meta[name="theme-color"]')
+    const bars = [...document.querySelectorAll('meta[name="theme-color"]')]
     root.setAttribute('data-pub-theme', theme)
-    bar?.setAttribute('content', BAR_COLORS[theme])
+    bars.forEach((bar) => bar.setAttribute('content', BAR_COLORS[theme]))
     return () => {
       root.removeAttribute('data-pub-theme')
-      bar?.setAttribute('content', BAR_COLORS.light)
+      // Login and admin get their own colors back (data-default in index.html)
+      bars.forEach((bar) => bar.dataset.default && bar.setAttribute('content', bar.dataset.default))
     }
   }, [theme])
 

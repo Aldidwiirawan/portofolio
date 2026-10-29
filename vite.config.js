@@ -11,19 +11,26 @@ if (!process.env.VITE_SITE_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
 }
 
 /**
- * Preloads the Space Grotesk font file (latin, variable weight) used by the hero name, so the largest
- * text of the page does not wait for the stylesheet to discover it (stage 3C, LCP; Space Grotesk since
- * the monochrome redesign). Its file name has a build hash, so the link is added to index.html at
- * build time.
+ * Font of the largest text, preloaded so it does not wait for the stylesheet to discover it (stage 3C,
+ * LCP): Space Grotesk (latin, variable) for the hero name of the public pages, Inter for login and
+ * admin. File names have a build hash, so their addresses go into two meta tags at build time and the
+ * inline script of index.html adds the one preload link the page needs (the script itself stays the
+ * same, so its CSP hash does not change with the font files).
  */
 function preloadHeroFont() {
   return {
     name: 'preload-hero-font',
     apply: 'build',
-    transformIndexHtml(html, ctx) {
-      const font = Object.keys(ctx.bundle ?? {}).find((file) => /space-grotesk-latin-wght-normal-[\w-]+\.woff2$/.test(file))
-      if (!font) return html
-      return [{ tag: 'link', attrs: { rel: 'preload', href: `/${font}`, as: 'font', type: 'font/woff2', crossorigin: '' }, injectTo: 'head' }]
+    transformIndexHtml(_html, ctx) {
+      const files = Object.keys(ctx.bundle ?? {})
+      const fonts = [
+        ['font-preload-public', /space-grotesk-latin-wght-normal-[\w-]+\.woff2$/],
+        ['font-preload-admin', /inter-latin-wght-normal-[\w-]+\.woff2$/],
+      ]
+      return fonts
+        .map(([name, pattern]) => [name, files.find((file) => pattern.test(file))])
+        .filter(([, file]) => file)
+        .map(([name, file]) => ({ tag: 'meta', attrs: { name, content: `/${file}` }, injectTo: 'head-prepend' }))
     },
   }
 }

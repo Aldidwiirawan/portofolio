@@ -1,6 +1,6 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 2 selesai, menunggu persetujuan pemilik untuk Fase 3 · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 3 selesai, menunggu persetujuan pemilik untuk Fase 4 · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -30,8 +30,10 @@ mengulang pekerjaan yang sudah di-commit. Commit per fase; jangan push, merge, a
   Catatan Fase 3 (pemilik, saat menyetujui Fase 2): label admin hanya teks, jadi bintang empat sudut ✦ setelah
   "Aldi" dan dua chip lingkaran (hitam berisi `</>`, putih berisi bintang) tetap dibuat kode sesuai referensi.
 - **Laporan tiap fase:** sertakan screenshot 1440 dan 390, tema terang dan gelap. Berhenti setelah tiap fase.
-- **Suara:** catatan persetujuan Fase 2 memuat dua pilihan tanpa memilih salah satu; bawaan tetap mati (pilihan
-  pertama, sama dengan sekarang) sampai pemilik memutuskan lain.
+- **Suara (Fase 3):** menyala sejak awal, bunyi hanya setelah pengunjung berinteraksi.
+- **Catatan Fase 3:** warna bar browser login/admin kembali seperti sebelumnya; Space Grotesk hanya dimuat di
+  halaman publik; nama hero satu baris di desktop dengan huruf yang tidak menempel; screenshot halaman penuh
+  diambil setelah menggulir sampai bawah (gambar lazy-load ikut tampil).
 
 ### Asisten (bisa dikoreksi pemilik)
 - Kalimat pembuka di header detail = `description` (sudah dipakai sebagai deskripsi singkat).
@@ -129,7 +131,12 @@ laporan akhir.
       suara, tema, ID/EN, CV, dialog HP), IntroScreen dihapus, ViewfinderCursor dan BlueprintBackground dilepas
       dari publik, `playCue` di modul suara, MASTER §16 + DESIGN.md + PRODUCT.md. Uji: build, lint, screenshot
       1440/390 × terang/gelap tanpa scroll horizontal dan tanpa error console, login identik dengan `main`
-- [ ] Fase 3. Hero
+- [x] Fase 3. Hero: `HeroChips` + `chipPhysics` (label admin, 6 chip bawaan, ✦ setelah "Aldi", lingkaran `</>` dan
+      bintang), nama satu baris ≥ 768 px (jarak huruf -0,03em, judul section -0,04em), `CodeLine`, `StatusStrip`,
+      nama memudar saat digulir; matter-js, panggung label, kata berganti, ayam/bebek, cameo dihapus. Catatan
+      pemilik: warna bar login/admin kembali, font dimuat per halaman (meta + skrip, hash CSP baru), suara bawaan
+      menyala. Uji: lint, build, cek hero 6 lebar, uji chip (seret, Enter, reduced motion, suara setelah gestur),
+      screenshot 1440/390 × terang/gelap dengan semua gambar termuat
 - [ ] Fase 4. Tentang, pita teknologi, Proyek
 - [ ] Fase 5. Perjalanan, Sertifikat, Kontak, Buku tamu, Kucing (+ admin foto)
 - [ ] Fase 6. Detail proyek, `api/github-repo.js` (+ admin proyek)

@@ -255,7 +255,10 @@ status. Rincian dan alasannya di MASTER §16; ringkasnya:
   kapital dengan bayangan kotak yang bergeser saat hover dan ditekan, tombol ikon bulat di latar lembut, fokus
   `outline` 3 px.
 - **Kerangka:** navbar dengan tanda inisial, menu tengah, suara, tema, ID/EN, dan "Unduh CV"; tema bawaan terang;
-  suara bawaan mati.
+  suara bawaan menyala, bunyi hanya setelah interaksi pertama.
+- **Hero:** chip pil berfisika yang bisa diseret (bintang ✦ dan dua lingkaran ikon dari kode), nama kapital satu
+  baris selebar layar (jarak huruf -0,03em agar tidak menempel), baris kode yang diketik sekali, bar status
+  empat kolom bergaris.
 - **Tetap berlaku dari Blueprint:** aturan aksesibilitas, target sentuh ≥44 px, reduced motion, dan "Not Color
   Alone". Komponen Blueprint (kursor viewfinder, latar blueprint, layar pembuka) tidak dipakai di publik.
 

@@ -1,6 +1,6 @@
-// Tiny event bus for the decorative pieces of the public page, which live in separate lazy chunks
-// (physics labels, chicken and duck, robot). Example: a label hitting the stage floor hard emits
-// 'label-impact' so a character nearby can react. Nothing here is needed for the page to work.
+// Tiny event bus for the decorative pieces of the public page, which live in separate lazy chunks.
+// Example: the footer's "Kembali ke atas" emits 'back-to-top' so the robot can react. Nothing here is
+// needed for the page to work.
 
 const listeners = new Map()
 

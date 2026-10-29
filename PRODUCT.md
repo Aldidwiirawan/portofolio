@@ -69,7 +69,8 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
 - **Status tahapan (30 Okt 2026):** tahap 1 (login), 2/2B (admin), dan 3A–3C (halaman publik Blueprint, isi
   Inggris, SEO, Vercel) sudah di `main` dan online. **Rombakan monokrom** halaman publik berjalan di branch
   `feat/redesign-monokrom` per fase (`design-system/aldi-portfolio/plans/rombakan-monokrom.md`, MASTER §16): fase 1
-  (rencana dan SQL) dan fase 2 (fondasi visual: palet, Space Grotesk, navbar, tema bawaan terang) selesai.
+  (rencana dan SQL), fase 2 (fondasi visual: palet, Space Grotesk, navbar, tema bawaan terang), dan fase 3 (hero:
+  chip berfisika, nama besar, baris kode, bar status) selesai.
 
 ## Capabilities and Constraints
 
@@ -78,16 +79,17 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   self-hosted lewat Fontsource.
 - **Batasan dari pemilik:**
   - tanpa Tailwind atau framework UI; **tanyakan dulu** sebelum menambah library atau font (matter-js 0.20.0
-    untuk label fisika disetujui pemilik untuk tahap 3B dan dimuat lazy; rombakan monokrom hanya boleh menambah
-    `@fontsource-variable/space-grotesk`, dan matter-js dilepas setelah fisika buatan sendiri menggantikannya);
+    untuk label fisika disetujui pemilik untuk tahap 3B; rombakan monokrom hanya boleh menambah
+    `@fontsource-variable/space-grotesk`, dan matter-js sudah dilepas di fase 3 karena chip hero memakai fisika
+    buatan sendiri);
   - jangan mengubah logika auth, hooks data, query Supabase, RLS, atau routing tanpa izin;
   - perubahan database hanya sebagai file migrasi baru di `supabase/migrations/`, dijalankan pemilik;
   - kerjakan di branch terpisah per tahap, commit per bagian, jangan push atau merge;
   - jangan menjalankan `npm run dev` kedua (server pemilik di port 5173);
   - screenshot halaman tidak di-commit.
 - **Performa:** library berat hanya dimuat di publik setelah halaman tampil. Animasi berhenti saat bagiannya tidak
-  terlihat atau tab tidak aktif. Di HP label fisika lebih sedikit dan hanya dilempar dengan ketukan (tanpa seret,
-  keputusan pemilik tahap 3B), jadi menggulir halaman tidak pernah terganggu.
+  terlihat atau tab tidak aktif. Di layar sentuh chip hero bisa diseret ke samping dan diketuk, tetapi geser
+  vertikal tetap menggulir halaman (`touch-action: pan-y`), jadi menggulir tidak terganggu.
 - **Layar uji wajib:** 375, 768, 1024, dan 1440 px tanpa scroll horizontal (rombakan monokrom: 1440, 1024, 899,
   768, dan 390 px, tema terang dan gelap, plus reduced motion).
 - **Privasi:** alamat lengkap dan nomor HP tidak ditampilkan di publik, cukup kota (Kediri). `is_visible` hanya
@@ -116,8 +118,9 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   - **garis kiri yang menyala saat fokus** pada kolom isian (`.adm-control::before` di
     `src/components/admin/ui/admin-ui.css`).
 - **Suara:** bahasa Indonesia sederhana yang mudah dipahami. Karakter boleh jenaka sesuai kepribadiannya. Semua
-  bunyi disintesis dengan Web Audio (tanpa file audio): "tok" dan nada pendek untuk chip, folder, dan kucing,
-  bawaan mati dan hanya setelah pengunjung berinteraksi.
+  bunyi disintesis dengan Web Audio (tanpa file audio): "tok" dan nada pendek untuk chip, folder, dan kucing.
+  Suara bawaan menyala (keputusan pemilik, 30 Okt 2026), tetapi bunyi hanya keluar setelah pengunjung
+  berinteraksi, dan bisa dimatikan dengan tombol speaker.
 - **Orisinalitas:** irfansabrian.vercel.app dan styfensagala.vercel.app hanya sumber inspirasi. Jangan menyalin
   tata letak khasnya: sidebar bernomor dan garis kontur (Irfan); karakter gumpalan hitam (Styfen). Chip pil dengan
   bayangan kotak di hero monokrom berasal dari desain referensi pemilik sendiri (`docs/redesign/`), bukan salinan.

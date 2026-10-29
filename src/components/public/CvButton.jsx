@@ -15,7 +15,7 @@ function CvButton({ variant = 'primary', size, className = '', onClick }) {
   // appears (stage 3C, no layout shift)
   if (profile?.status === 'loading') {
     return (
-      <span className={`${classes} pub-hero-ph-hidden`} aria-hidden="true">
+      <span className={`${classes} pub-ph-hidden`} aria-hidden="true">
         <DownloadIcon size={18} />
         <span>{t('cv.download')}</span>
       </span>

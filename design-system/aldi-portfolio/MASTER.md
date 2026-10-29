@@ -538,9 +538,31 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
   referensi tetapi dipertahankan karena unduhan CV adalah ukuran sukses). Di bawah 1060 px menu menjadi dialog
   layar penuh (fokus terkunci, Esc dan tombol Tutup) berisi semua tombol tadi.
 - **Tema:** bawaan **terang**, pilihan pengunjung disimpan (`aldi-portfolio-theme`). Skrip di `index.html` (hash
-  CSP di `vercel.json`) dan `ThemeProvider` memasang `data-pub-theme` dan warna `theme-color`.
+  CSP di `vercel.json`) dan `ThemeProvider` memasang `data-pub-theme` dan warna `theme-color` di halaman publik;
+  login dan admin memakai warna bar dan tema miliknya sendiri (`data-default`), dikembalikan saat keluar dari
+  publik.
+- **Font per halaman:** skrip yang sama memuat lebih dulu (preload) Space Grotesk di halaman publik dan Inter di
+  login/admin. Alamat file datang dari tag meta `font-preload-public` / `font-preload-admin` yang ditambahkan
+  `vite.config.js` saat build, jadi isi skrip (dan hash CSP-nya) tidak berubah bila file font berganti.
 - **Suara:** satu modul (`sound/tokSynth.js`, Web Audio, tanpa file audio): `playTok` dan `playCue(name)` dengan
   nada `pick`, `drop`, `jump`, `hit`, `land`, `open`, `close`, `zoom`, `meow`, dipanggil lewat
-  `useSound().cue`. Bawaan mati, bunyi hanya setelah gestur pengunjung, berhenti saat tab tersembunyi.
+  `useSound().cue`. **Bawaan menyala** (keputusan pemilik, Fase 3), tetapi bunyi baru keluar setelah gestur
+  pertama pengunjung; berhenti saat tab tersembunyi; pilihan "mati" disimpan.
+
+### Hero (Fase 3)
+
+- **Chip** (`hero/HeroChips.jsx` + `hero/chipPhysics.js`, tanpa library): teks dari "Label panggung hero" di
+  admin (tanpa label: 6 chip bawaan ID/EN di kamus), bintang empat sudut ✦ setelah chip nama depan, dan dua
+  lingkaran dari kode (hitam `</>`, putih bintang). Setiap chip tombol: diseret dan dilempar (mouse; di layar
+  sentuh `touch-action: pan-y`, jadi geser vertikal tetap menggulir), melompat dengan klik/Enter/Spasi, bunyi
+  `pick`/`drop`/`hit`/`jump`. Fisika disimulasikan sebelum frame pertama (tanpa jatuh saat dibuka) dan loop hanya
+  berjalan saat ada yang bergerak. Reduced motion: chip yang dilepas langsung diam di tempatnya, tanpa lompat.
+- **Nama** `h1` satu node, kata naik sekali saat dibuka; ≥ 768 px satu baris (`min(12.2vw, 12.875rem)`), di HP dua
+  baris. Jarak huruf **-0,03em** (judul section -0,04em): nilai referensi -0,055em membuat "AN" nyaris menempel.
+- **Baris kode** JetBrains Mono tanpa ligatur, diketik sekali (CSS `steps`), `aria-hidden`; versi EN di kamus.
+- **Bar status**: empat kolom bergaris (2 × 2 di bawah 1060 px): terbuka untuk kerja (titik `--ok`), kota,
+  tanggal hari ini sesuai bahasa, "Gulir ke bawah" (tautan ke Tentang).
+- **Saat digulir** nama naik sedikit dan memudar (`animation-timeline: scroll(root)` di dalam `@supports`).
 - **Dilepas dari publik:** `IntroScreen` (dihapus), `ViewfinderCursor` dan `BlueprintBackground` (file tetap untuk
-  login dan admin).
+  login dan admin). Fase 3 menghapus panggung label matter-js (dan dependency `matter-js`), kata berganti, ayam dan
+  bebek (`characters/`, kecuali `bubble.css` yang masih dipakai robot sampai Fase 5) dan cameo di Proyek.
