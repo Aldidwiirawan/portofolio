@@ -1,35 +1,27 @@
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
+import { usePrefersReducedMotion } from '../../../lib/useMediaQuery'
 import GithubActivitySlot from '../github/GithubActivitySlot'
-import { ArrowRightIcon, ExternalIcon, FileIcon } from '../icons'
+import { ArrowUpRightIcon, FileTextIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SectionError, SkeletonBlock } from '../Section'
-import ProjectCover from './ProjectCover'
-import TechList from './TechList'
 import './ProjectsSection.css'
-
-const STATUS_TONE = { production: 'success', in_development: 'accent', final_project: 'accent' }
-
-/** Badge for a project status code (Produksi, Selesai, …). Also used by the project page. */
-export function StatusBadge({ status }) {
-  const { code } = useI18n()
-  const label = code('status', status)
-  if (!label) return null
-  const tone = STATUS_TONE[status]
-  return <span className={`pub-badge${tone ? ` pub-badge--${tone}` : ''}`}>{label}</span>
-}
 
 /** The first public demo link of a project (private links have no address here). */
 const demoLinkOf = (project) => project.links?.find((link) => link.type === 'demo' && !link.is_private && link.url)
 
+/** Address of a project's case study (opens as a pop-up over the home page). */
+const caseHref = (project) => `/projects/${encodeURIComponent(project.slug)}`
+
 /**
- * "Proyek pilihan" (monochrome redesign, phase 4): a black section that widens from a rounded card to
- * the full screen as it comes in (CSS scroll-driven). The featured projects (sort_order; the first
- * three when none is featured) are sticky cards that stack from 1060 px: the earlier card shrinks and
- * dims under the next one. Below 1060 px, with reduced motion or without animation support they are a
- * normal list. Then the other projects as a compact list, and the GitHub activity.
- * No made-up numbers: every card shows only the admin's data.
+ * "Proyek pilihan" as the black section of the reference site of phase 8: the title over two lines with
+ * the intro on the right, then every visible project as a card (text on the left, the cover on the right
+ * in a 16:9 frame that leans towards the pointer, with "Lihat studi kasus" on hover), in the order of the
+ * admin (featured first). Each card shows only the admin's data: the kind, the title, the description, the
+ * three facts Peran / Tahun / Klien in the place of the reference's numbers (no made-up metrics), the
+ * technologies, "Baca studi kasus" (the pop-up) and "Kunjungi" for a public demo. Then the GitHub activity.
  */
 function ProjectsSection() {
   const { t } = useI18n()
@@ -39,43 +31,35 @@ function ProjectsSection() {
 
   if (status === 'ready' && projects.length === 0) return null
 
-  const featured = projects.filter((project) => project.is_featured)
-  const cards = featured.length > 0 ? featured : projects.slice(0, 3)
-  const others = projects.filter((project) => !cards.includes(project))
+  const [firstWord, ...restWords] = t('projects.title').split(' ')
 
   return (
-    <section id="proyek" className="pub-section pub-invert pub-projects" aria-labelledby="proyek-judul">
-      <div className="pub-container">
+    <section id="proyek" className="pub-invert pub-projects" aria-labelledby="proyek-judul">
+      <div className="pub-projects-inner">
         <div className="pub-projects-head">
-          <h2 id="proyek-judul" className="pub-h2 pub-reveal">
-            {t('projects.title')}
+          <h2 id="proyek-judul" className="pub-title pub-reveal" data-reveal="title">
+            {firstWord}
+            {restWords.length > 0 && (
+              <>
+                <br />
+                {restWords.join(' ')}
+              </>
+            )}
           </h2>
-          <p className="pub-lead">{t('projects.intro')}</p>
+          <p className="pub-projects-intro pub-reveal" data-reveal="side">
+            {t('projects.intro')}
+          </p>
         </div>
 
         {status === 'loading' && <ProjectsSkeleton />}
         {status === 'error' && <SectionError onRetry={() => reload('projects')} />}
         {status === 'ready' && (
           <>
-            <ol className="pub-stack">
-              {cards.map((project) => (
-                <li key={project.id} className="pub-stack-item">
-                  <ProjectCard project={project} />
-                </li>
+            <div className="pub-projects-list">
+              {projects.map((project) => (
+                <ProjectCard key={project.id} project={project} />
               ))}
-            </ol>
-
-            {others.length > 0 && (
-              <div className="pub-others">
-                <h3 className="pub-others-title">{t('projects.others')}</h3>
-                <ul className="pub-others-list">
-                  {others.map((project) => (
-                    <ProjectRow key={project.id} project={project} />
-                  ))}
-                </ul>
-              </div>
-            )}
-
+            </div>
             {hasGithub && <GithubActivitySlot />}
           </>
         )}
@@ -86,22 +70,43 @@ function ProjectsSection() {
 
 function ProjectCard({ project }) {
   const { t, code } = useI18n()
-  const href = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : null
+  const reducedMotion = usePrefersReducedMotion()
+  const frameRef = useRef(null)
   const demo = demoLinkOf(project)
-  const label = [code('status', project.status), code('type', project.project_type)].filter(Boolean).join(' · ')
+  const label = [code('type', project.project_type), code('status', project.status)].filter(Boolean).join(' · ')
   const facts = [
     project.my_role && { key: 'my_role', label: t('projects.role'), value: project.my_role },
     project.year && { key: 'year', label: t('projects.year'), value: project.year },
     project.client_name && { key: 'client_name', label: t('projects.client'), value: project.client_name },
   ].filter(Boolean)
+  const state = { caseFromHome: true }
+
+  // The cover leans towards the pointer (3D), like the reference; straight again when the pointer leaves
+  const lean = (event) => {
+    const frame = frameRef.current
+    if (!frame || reducedMotion || event.pointerType === 'touch') return
+    const rect = frame.getBoundingClientRect()
+    const x = (event.clientX - rect.left) / rect.width - 0.5
+    const y = (event.clientY - rect.top) / rect.height - 0.5
+    frame.style.transform = `rotateX(${(-y * 12).toFixed(2)}deg) rotateY(${(x * 12).toFixed(2)}deg)`
+  }
+  const straighten = () => {
+    if (frameRef.current) frameRef.current.style.transform = ''
+  }
 
   return (
-    <article className="pub-project" aria-labelledby={`proyek-${project.id}`}>
+    <article className="pub-project pub-reveal" aria-labelledby={`proyek-${project.id}`}>
       <div className="pub-project-body">
-        {label && <span className="pub-project-label">{label}</span>}
-        <h3 id={`proyek-${project.id}`} className="pub-project-title" lang={langOf(project, 'title')}>
-          {project.title}
-        </h3>
+        <div>
+          {label && (
+            <div className="pub-project-label-row">
+              <span className="pub-project-label">{label}</span>
+            </div>
+          )}
+          <h3 id={`proyek-${project.id}`} className="pub-project-title" lang={langOf(project, 'title')}>
+            {project.title}
+          </h3>
+        </div>
         {project.summary && (
           <p className="pub-project-summary" lang={langOf(project, 'summary')}>
             {project.summary}
@@ -110,27 +115,36 @@ function ProjectCard({ project }) {
         {facts.length > 0 && (
           <dl className="pub-project-facts">
             {facts.map((fact) => (
-              <div key={fact.key} className={fact.key === 'my_role' ? 'pub-project-fact--wide' : undefined}>
+              <div key={fact.key}>
                 <dt>{fact.label}</dt>
-                <dd lang={fact.key === 'my_role' ? langOf(project, 'my_role') : undefined}>{fact.value}</dd>
+                <dd lang={fact.key === 'my_role' ? langOf(project, 'my_role') : fact.key === 'client_name' ? langOf(project, 'client_name') : undefined} title={String(fact.value)}>
+                  {fact.value}
+                </dd>
               </div>
             ))}
           </dl>
         )}
-        <TechList items={project.tech_stack} max={6} className="pub-project-tech" />
-        {(href || demo) && (
+        {project.tech_stack?.length > 0 && (
+          <ul className="pub-project-tags" aria-label={t('projects.techLabel')}>
+            {project.tech_stack.map((tech) => (
+              <li key={tech}>{tech}</li>
+            ))}
+          </ul>
+        )}
+        {(project.slug || demo) && (
           <div className="pub-project-actions">
-            {href && (
-              <Link to={href} className="pub-project-case">
-                <FileIcon size={18} />
+            {project.slug && (
+              <Link to={caseHref(project)} state={state} className="pub-project-case">
+                <FileTextIcon size={16} />
                 <span>{t('projects.readCase')}</span>
                 <span className="pub-sr-only">: {project.title}</span>
+                <span className="pub-project-case-line" aria-hidden="true" />
               </Link>
             )}
             {demo && (
-              <a href={demo.url} target="_blank" rel="noopener noreferrer" className="pub-btn pub-btn--primary pub-btn--sm pub-project-visit">
+              <a href={demo.url} target="_blank" rel="noopener noreferrer" className="pub-project-visit">
                 <span>{t('projects.visit')}</span>
-                <ExternalIcon size={16} />
+                <ArrowUpRightIcon size={14} />
                 <span className="pub-sr-only">
                   {project.title} {t('common.newTab')}
                 </span>
@@ -139,47 +153,39 @@ function ProjectCard({ project }) {
           </div>
         )}
       </div>
-      <ProjectCover project={project} className="pub-project-cover" />
-    </article>
-  )
-}
 
-function ProjectRow({ project }) {
-  const { code } = useI18n()
-  const facts = [project.year, code('type', project.project_type), code('status', project.status)].filter(Boolean).join(' · ')
-  const content = (
-    <>
-      <span className="pub-row-title" lang={langOf(project, 'title')}>
-        {project.title}
-      </span>
-      {facts && <span className="pub-row-facts">{facts}</span>}
-    </>
-  )
-  return (
-    <li className="pub-row">
-      {project.slug ? (
-        <Link to={`/projects/${encodeURIComponent(project.slug)}`} className="pub-row-link">
-          {content}
-          <ArrowRightIcon size={18} className="pub-row-arrow" />
+      <div className="pub-project-media" onPointerMove={lean} onPointerLeave={straighten}>
+        {/* The cover opens the case study too (a second way in for the pointer; keyboard users have the link) */}
+        <Link to={project.slug ? caseHref(project) : '#'} state={state} className="pub-project-frame" ref={frameRef} tabIndex={-1} aria-hidden="true">
+          {project.thumbnail_url ? (
+            <img src={project.thumbnail_url} alt="" width="624" height="351" loading="lazy" decoding="async" />
+          ) : (
+            <span className="pub-project-noimage">{label}</span>
+          )}
+          <span className="pub-project-shade" />
+          <span className="pub-project-hover">
+            <span>
+              <FileTextIcon size={16} />
+              {t('projects.viewCase')}
+            </span>
+          </span>
         </Link>
-      ) : (
-        <div className="pub-row-link">{content}</div>
-      )}
-    </li>
+      </div>
+    </article>
   )
 }
 
 function ProjectsSkeleton() {
   return (
-    <div className="pub-stack" aria-hidden="true">
+    <div className="pub-projects-list" aria-hidden="true">
       {[0, 1].map((key) => (
-        <div key={key} className="pub-project pub-project--skeleton">
+        <div key={key} className="pub-project">
           <div className="pub-project-body">
             <SkeletonBlock width="10rem" height="1.5rem" />
             <SkeletonBlock width="80%" height="3rem" />
             <SkeletonBlock height="5rem" />
           </div>
-          <SkeletonBlock className="pub-project-cover" height="auto" />
+          <SkeletonBlock className="pub-project-media" height="20rem" />
         </div>
       ))}
     </div>

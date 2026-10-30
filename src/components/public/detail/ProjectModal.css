@@ -1,0 +1,506 @@
+/* Pop-up studi kasus — ukuran situs acuan Fase 8 (diukur di 1440 dan 390): lebar maks. 896 px, tinggi maks.
+   80% layar (bisa digulir di dalam), sudut 18 px, latar #171717 di atas halaman yang digelapkan 80%.
+   Panel memakai palet kebalikan tema halaman (ProjectModal: data-theme), jadi di tema gelap ia terang. */
+
+.pub-case-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1rem 1rem;
+  background-color: rgb(0 0 0 / 0.8);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: pub-case-fade 200ms ease-out;
+}
+
+.pub[data-theme='dark'] .pub-case-layer {
+  background-color: rgb(255 255 255 / 0.8);
+}
+
+.pub-case {
+  --case-bg: var(--n900);
+  --case-line: var(--n800);
+  --case-text: var(--n300);
+  --case-thumb: #000000;
+
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--case-line);
+  border-radius: 18px;
+  background-color: var(--case-bg);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  color: var(--case-text);
+  animation: pub-case-in 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.pub-case[data-theme='light'] {
+  --case-bg: var(--n100);
+  --case-line: var(--n200);
+  --case-text: var(--n700);
+  --case-thumb: #ffffff;
+}
+
+@keyframes pub-case-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pub-case-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+}
+
+/* Tombol tutup bulat di kanan atas, kaca gelap */
+.pub-case-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 999px;
+  background-color: rgb(0 0 0 / 0.4);
+  color: #ffffff;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    transform 300ms ease;
+}
+
+.pub-case-close:hover {
+  background-color: #ffffff;
+  color: #000000;
+  transform: scale(1.1);
+}
+
+.pub-case[data-theme='light'] .pub-case-close {
+  border-color: rgb(0 0 0 / 0.2);
+  background-color: rgb(255 255 255 / 0.4);
+  color: #000000;
+}
+
+.pub-case[data-theme='light'] .pub-case-close:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* --- Kepala: sampul 60% dengan gradasi gelap, chip "Studi kasus", judul besar ---------------------- */
+
+.pub-case-head {
+  position: relative;
+  height: 12rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--n800);
+  background-color: #000000;
+}
+
+.pub-case-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+}
+
+.pub-case-head::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to top, var(--n900), transparent);
+}
+
+.pub-case-head-text {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 1;
+  right: 1.5rem;
+}
+
+.pub-case-chip {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.pub-case-title {
+  width: 85%;
+  color: #ffffff;
+  font-size: 1.875rem;
+  font-weight: 900;
+  line-height: 2.25rem;
+  letter-spacing: normal;
+  text-transform: uppercase;
+}
+
+.pub-case-title:focus {
+  outline: none;
+}
+
+/* --- Isi ------------------------------------------------------------------------------------------ */
+
+.pub-case-body {
+  display: grid;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+.pub-case-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.pub-case-block {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.pub-case-h {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--fg);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pub-case-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+}
+
+.pub-case-dot--red {
+  background-color: var(--red-500);
+}
+
+.pub-case-dot--green {
+  background-color: var(--green-500);
+}
+
+.pub-case-block p {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  white-space: pre-wrap;
+}
+
+.pub-case-rule {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-color: var(--case-line);
+}
+
+.pub-case-features {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  list-style: none;
+}
+
+.pub-case-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.pub-case-features span {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+  color: var(--fg);
+  line-height: 1.25rem;
+}
+
+/* "Kunjungi situs" (dan tautan publik lain bergaris) di atas garis pemisah */
+.pub-case-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--case-line);
+}
+
+.pub-case-visit,
+.pub-case-visit:hover {
+  color: #000000;
+}
+
+.pub-case-visit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #ffffff;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 150ms ease;
+}
+
+.pub-case-visit:hover {
+  border-color: var(--n300);
+  background-color: var(--n300);
+}
+
+.pub-case-visit--line,
+.pub-case-visit--line:hover {
+  color: var(--fg);
+}
+
+.pub-case-visit--line {
+  border-color: var(--n700);
+  background-color: transparent;
+}
+
+.pub-case-visit--line:hover {
+  border-color: var(--fg);
+  background-color: transparent;
+}
+
+.pub-case[data-theme='light'] .pub-case-visit--line {
+  border-color: var(--n300);
+}
+
+/* --- Tambahan portofolio ini (gaya yang sama): galeri, diagram, GitHub, hasil, peran ---------------- */
+
+.pub-case-more {
+  padding-top: 2rem;
+  border-top: 1px solid var(--case-line);
+}
+
+.pub-case-thumbs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.pub-case-thumb {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--case-line);
+  border-radius: 10px;
+  background-color: var(--case-thumb);
+  color: var(--case-text);
+  text-align: left;
+  cursor: zoom-in;
+  transition: border-color 300ms ease;
+}
+
+.pub-case-thumb:hover {
+  border-color: var(--n500);
+}
+
+.pub-case-thumb img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform 500ms ease;
+}
+
+.pub-case-thumb:hover img {
+  transform: scale(1.04);
+}
+
+.pub-case-thumbs[data-kind='diagram'] .pub-case-thumb img {
+  padding: 0.5rem;
+  background-color: #ffffff;
+  object-fit: contain;
+}
+
+.pub-case-thumb span {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--case-line);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.pub-case-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--case-line);
+}
+
+.pub-case-facts dt {
+  color: var(--n500);
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pub-case[data-theme='light'] .pub-case-facts dt {
+  color: var(--n600);
+}
+
+.pub-case-facts dd {
+  margin: 0;
+  color: var(--fg);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+}
+
+.pub-case-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.pub-case-tech li {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--n700);
+  border-radius: 4px;
+  background-color: var(--n800);
+  color: var(--n300);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 15px;
+}
+
+.pub-case[data-theme='light'] .pub-case-tech li {
+  border-color: var(--n200);
+  background-color: #ffffff;
+  color: var(--n700);
+}
+
+/* Panel GitHub di dalam pop-up: bingkai garis tipis, judul seperti judul blok */
+.pub-case .pub-panel {
+  padding: 1.25rem;
+  border: 1px solid var(--case-line);
+  border-radius: 14px;
+}
+
+.pub-case .pub-panel-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.pub-case .pub-panel-title h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--fg);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Memuat, gagal, tidak ditemukan */
+.pub-case-state {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.pub-case-state-title {
+  color: var(--fg);
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .pub-case-layer {
+    padding-top: 8rem;
+  }
+
+  .pub-case-close {
+    top: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .pub-case-head {
+    height: 16rem;
+  }
+
+  .pub-case-head-text {
+    left: 2.5rem;
+  }
+
+  .pub-case-title {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .pub-case-body {
+    padding: 2.5rem;
+  }
+
+  .pub-case-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pub-case-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pub-case-block--wide {
+    grid-column: span 2;
+  }
+
+  .pub-case-thumbs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-case-layer,
+  .pub-case {
+    animation: none;
+  }
+
+  .pub-case-close:hover,
+  .pub-case-thumb:hover img {
+    transform: none;
+  }
+}
