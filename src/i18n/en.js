@@ -19,7 +19,7 @@ const en = {
   'nav.menuLabel': 'Menu',
   'nav.open': 'Open menu',
   'nav.closeMenu': 'Close menu',
-  'nav.home': '{name}, go to home',
+  'nav.home': '{initials}: {name}, go to home',
   'nav.top': 'Home',
   'nav.about': 'About',
   'nav.projects': 'Projects',
@@ -38,10 +38,8 @@ const en = {
   'cv.download': 'Download CV',
   'cv.hint': '(PDF, new tab)',
 
-  'social.email': 'Email',
   'social.github': 'GitHub',
   'social.linkedin': 'LinkedIn',
-  'social.instagram': 'Instagram',
 
   'hero.available': 'Open to work',
   'hero.basedIn': 'Based in',

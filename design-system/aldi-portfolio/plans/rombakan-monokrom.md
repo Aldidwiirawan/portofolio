@@ -1,6 +1,6 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 6 selesai, menunggu persetujuan pemilik untuk Fase 7 · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 7 selesai (rombakan lengkap), menunggu uji manual, merge, dan deploy oleh pemilik · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -159,4 +159,13 @@ laporan akhir.
       fetch tiruan), uji Fase 6 (38 cek; data diagram dan GitHub tiruan, termasuk gagal), uji hero/chip/proyek/
       Fase 5 ulang, login identik dengan `main`, screenshot detail Madura Mart 1440/390 × terang/gelap. Form admin
       proyek belum diuji di browser (Fase 7)
-- [ ] Fase 7. Validasi dan laporan akhir
+- [x] Fase 7. Validasi dan laporan akhir. Perbaikan: nama aksesibel tanda "AD" diawali teks yang terlihat (WCAG
+      2.5.3, temuan axe), kunci i18n `social.email`/`social.instagram` dan kelas `.pub-display` yang tidak terpakai
+      dihapus. Uji (build `dist-fase7b`): lint; 1440/1280/1024/899/768/390 × terang/gelap + reduced motion, beranda
+      dan detail (36 kunjungan: scroll horizontal 0, error console 0, gambar termuat semua, sampul 1,60, sertifikat
+      `contain`, kontras < 4,5:1 = 0 dari ±300 teks per halaman); seret chip dan kucing dengan sentuhan CDP di 390
+      (21 cek); form admin proyek/pengalaman/pendidikan dengan Supabase tiruan (47 cek: simpan, galeri bertipe,
+      unggah gagal, simpan gagal + rollback, hapus + file storage, keadaan sebelum migrasi; tidak ada request ke
+      live); keyboard (30 cek); axe-core WCAG A/AA 0 pelanggaran; Lighthouse lokal (tanpa kompresi) setara `main`;
+      bundle tanpa token/kunci rahasia, hash CSP cocok; uji Fase 3–6 dan login identik diulang. Catatan: smooth
+      scroll `index.css` + Tab yang ditahan (MASTER §16 Validasi)

@@ -20,7 +20,7 @@ const id = {
   'nav.menuLabel': 'Menu',
   'nav.open': 'Buka menu',
   'nav.closeMenu': 'Tutup menu',
-  'nav.home': '{name}, ke beranda',
+  'nav.home': '{initials}: {name}, ke beranda',
   'nav.top': 'Beranda',
   'nav.about': 'Tentang',
   'nav.projects': 'Proyek',
@@ -39,10 +39,8 @@ const id = {
   'cv.download': 'Unduh CV',
   'cv.hint': '(PDF, tab baru)',
 
-  'social.email': 'Email',
   'social.github': 'GitHub',
   'social.linkedin': 'LinkedIn',
-  'social.instagram': 'Instagram',
 
   'hero.available': 'Terbuka untuk kerja',
   'hero.basedIn': 'Berbasis di',

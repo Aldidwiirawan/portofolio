@@ -514,7 +514,8 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
 
 - **Space Grotesk Variable** (300–700, `@fontsource-variable/space-grotesk`, self-hosted, di-preload untuk nama
   hero) untuk semua teks publik; **JetBrains Mono** untuk baris kode. Tidak ada font dari CDN (CSP).
-- **Judul besar** (`.pub-h2`, `.pub-display`): huruf kapital, 700, `letter-spacing: -0.055em`, `line-height: 0.88`;
+- **Judul besar** (`.pub-h2`): huruf kapital, 700, `letter-spacing: -0.04em` (bukan -0.055em referensi, yang
+  membuat huruf nyaris menempel), `line-height: 0.88`;
   judul section 52–112 px.
 - **Isi** 17 px, `line-height` 1,6. **Label** huruf kapital 11,5–15 px, 700, tracking 0,08–0,14em.
 
@@ -648,3 +649,14 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
 - **Admin `ProjectForm`:** Latar belakang, Fitur utama (maks. 8, EN sejajar), "Masalah" menjadi "Permasalahan",
   galeri sampai 12 gambar dengan Jenis, Perangkat, dan Nama diagram (+EN). Sebelum migrasi: pemberitahuan dan
   batas lama 5 gambar.
+
+### Validasi (Fase 7)
+
+- **Perbaikan dari validasi:** nama aksesibel tanda "AD" di navbar kini diawali teks yang terlihat ("AD: Aldi Dwi
+  Irawan, ke beranda"; WCAG 2.5.3 Label in Name, ditemukan axe); kunci i18n `social.email`/`social.instagram` dan
+  kelas `.pub-display` yang tidak terpakai dihapus.
+- **Catatan yang belum diubah:** `scroll-behavior: smooth` di `index.css` (dipakai bersama admin, sudah ada di
+  `main`). Bila Tab ditekan sangat cepat atau ditahan (jeda ≤ 40 ms), guliran halus untuk elemen sebelumnya bisa
+  menimpa guliran elemen berikutnya, sehingga fokus tertinggal di luar layar sampai Tab berikutnya. Pada kecepatan
+  orang menekan Tab (≥ 250 ms) semua elemen terlihat. Lighthouse menandai kontras teks periode Perjalanan karena
+  `content-visibility` menggeser posisi saat axe menggulir; axe pada halaman yang sudah di-render: 0 pelanggaran.

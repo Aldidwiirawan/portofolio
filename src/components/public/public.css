@@ -348,16 +348,12 @@ html:has(.pub) {
 
 /* Judul besar: huruf kapital tebal yang rapat (judul section, judul halaman). -0,04em, bukan -0,055em
    referensi: dengan nilai itu "AN" dan "LD" nyaris menempel. */
-.pub-h2,
-.pub-display {
+.pub-h2 {
   color: var(--fg);
   font-weight: 700;
   line-height: 0.88;
   letter-spacing: -0.04em;
   text-transform: uppercase;
-}
-
-.pub-h2 {
   font-size: clamp(3.25rem, 1.6rem + 5.6vw, 7rem); /* 52–112px */
   /* Huruf kapital rapat butuh sedikit ruang di kanan agar huruf terakhir tidak terpotong */
   padding-right: 0.04em;

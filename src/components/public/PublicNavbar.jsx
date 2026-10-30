@@ -142,7 +142,8 @@ function PublicNavbar() {
     <>
       <header className="pub-nav" data-scrolled={scrolled}>
         <div className="pub-container pub-nav-bar">
-          <Link to="/" className="pub-nav-brand" aria-label={t('nav.home', { name })} onClick={onBrandClick}>
+          {/* The name starts with the visible initials, so voice control ("click AD") finds the link (WCAG 2.5.3) */}
+          <Link to="/" className="pub-nav-brand" aria-label={t('nav.home', { initials: initialsOf(name), name })} onClick={onBrandClick}>
             <span className="pub-nav-mark" aria-hidden="true">
               {initialsOf(name)}
             </span>
