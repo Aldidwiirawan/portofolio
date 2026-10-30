@@ -362,7 +362,7 @@
 }
 
 .pub-case-facts dt {
-  color: var(--n500);
+  color: var(--n400);
   font-size: 10px;
   line-height: 15px;
   letter-spacing: 0.05em;

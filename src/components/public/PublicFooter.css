@@ -4,7 +4,8 @@
 .pub-footer {
   padding: 0 1rem 6rem;
   background-color: #000000;
-  color: var(--n500);
+  /* Acuan #737373 (4,4:1); di sini #a3a3a3 */
+  color: var(--n400);
 }
 
 .pub[data-theme='dark'] .pub-footer {

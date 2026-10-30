@@ -1,6 +1,7 @@
 # Rencana rombakan monokrom: tampilan publik
 
-> **Status:** Fase 7 selesai (rombakan lengkap), menunggu uji manual, merge, dan deploy oleh pemilik · **Branch:** `feat/redesign-monokrom` (dari
+> **Status:** Fase 8 selesai (tampilan disamakan dengan styfensagala.vercel.app), di-push ke branch ini; menunggu uji
+> manual dan instruksi tambahan pemilik, lalu merge dan deploy oleh pemilik · **Branch:** `feat/redesign-monokrom` (dari
 > `main` a57cf05) · **Tanggal:** 30 Oktober 2026. Acuan: `docs/redesign/PROMPT-rombakan-monokrom.md` (utama untuk
 > rombakan ini), `docs/redesign/referensi-beranda.html`, `docs/redesign/referensi-detail-proyek.html`, `MASTER.md`,
 > `PRODUCT.md`.
@@ -169,3 +170,9 @@ laporan akhir.
       live); keyboard (30 cek); axe-core WCAG A/AA 0 pelanggaran; Lighthouse lokal (tanpa kompresi) setara `main`;
       bundle tanpa token/kunci rahasia, hash CSP cocok; uji Fase 3–6 dan login identik diulang. Catatan: smooth
       scroll `index.css` + Tab yang ditahan (MASTER §16 Validasi)
+- [x] Fase 8. Disamakan dengan styfensagala.vercel.app (`docs/redesign/PROMPT-fase8-samakan-styfen.md`; keputusan
+      pemilik: kredit di footer, pop-up di `/projects/:slug`, Waktu/Tempat/Mitra/Status di pop-up). Navbar dan
+      tombol buku tamu, hero (chip jatuh, nama 13,02vw, bar status), bento Tentang, kartu proyek + pop-up studi
+      kasus (halaman detail lama dihapus), garis waktu + folder, sertifikat bergaya acuan, kontak + footer;
+      pita teknologi dan "Unduh CV" di navbar dihapus. Diukur dengan Playwright (1440/1920/390, terang/gelap)
+      dan dibandingkan per elemen (tabel dan screenshot di scratchpad). Rincian: MASTER §16 "Fase 8".

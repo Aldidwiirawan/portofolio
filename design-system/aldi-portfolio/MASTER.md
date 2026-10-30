@@ -660,3 +660,41 @@ Acuan desain: `docs/redesign/PROMPT-rombakan-monokrom.md` dan dua prototipe refe
   menimpa guliran elemen berikutnya, sehingga fokus tertinggal di luar layar sampai Tab berikutnya. Pada kecepatan
   orang menekan Tab (≥ 250 ms) semua elemen terlihat. Lighthouse menandai kontras teks periode Perjalanan karena
   `content-visibility` menggeser posisi saat axe menggulir; axe pada halaman yang sudah di-render: 0 pelanggaran.
+
+### Fase 8: disamakan dengan styfensagala.vercel.app
+
+Keputusan pemilik (30 Okt 2026, `docs/redesign/PROMPT-fase8-samakan-styfen.md`): tampilan dan perilaku publik
+dibuat sama dengan situs acuan, diukur dengan Playwright di 1440, 1920, 390 (terang dan gelap); isi tetap milik
+Aldi, kredit kecil di footer. Nilai di bawah adalah hasil ukur dan menggantikan aturan monokrom sebelumnya bila
+bertentangan.
+
+- **Palet:** putih/hitam murni, skala abu Tailwind neutral (`--n50`…`--n950` di `public.css`), hijau status
+  `#00c950`; halaman tanpa grid. Radius acuan: 8 (tag), 10, 14 (kartu kecil, tombol), 18 (gambar proyek, pop-up),
+  22 (panel), 32 px (bento).
+- **Navbar:** 80 px + garis 1 px, latar 95% dengan blur, menu 14 px 700 kapital 0,1em di tengah, tombol bulat 40 px,
+  pilihan bahasa 80 × 40 dengan kenop; "Buku Tamu" di menu membuka panel; tanpa "Unduh CV". Menu HP berupa panel di
+  bawah bar, di bawah 1240 px (tujuh menu dengan label Indonesia butuh lebar itu; acuan 768 px).
+- **Hero:** tinggi satu layar; chip jatuh dari atas (fisika AABB sendiri, dua kelompok, chip yang menumpang miring),
+  lantai 26% tinggi hero (HP: tepat di atas nama, acuan menutupi nama); pil 1,1vw 700, garis 2 px, bayangan
+  3 px atau bergaris saja; lingkaran 4,5vw. Nama 13,02vw 900 -0,05em lh 0,7 (lebar sama dengan acuan: 1384 px di
+  1440). Baris kode 0,8vw tanpa opacity (warna lolos 4,5:1). Bar status 4 kolom 52 px, 85 px di atas dasar hero,
+  kolom hitam saat hover. Kucing 56 px di atas bar. Bagian berikutnya naik 85 px dengan sudut 22 px.
+- **Judul section:** 36/72 px 900 -0,05em (Proyek dan Kontak 48 px di HP, Perjalanan 96 px di tengah).
+- **Tentang:** bento tiga kolom, kartu garis 2 px sudut 32 px, bayangan 6 px saat hover; kartu foto gelap 30 px
+  dengan bar bawah dan condong ke penunjuk; pendidikan; tech stack; Fokus hitam.
+- **Proyek:** bagian hitam, semua proyek sebagai kartu (teks 5/12, gambar 16:9 7/12 yang condong 3D, "Lihat studi
+  kasus" saat hover); fakta Peran / Tahun / Klien di tempat angka acuan (tanpa metrik), dipotong dua baris.
+- **Studi kasus:** pop-up 896 px / 80vh, sudut 18 px, palet kebalikan tema, di `/projects/:slug` (halaman detail
+  lama dihapus); Esc, tombol tutup, klik di luar, dan Back menutup.
+- **Perjalanan:** garis 2 px di tengah dengan garis hitam dan ujungnya mengikuti scroll, kartu garis 2 px sudut 14 px
+  bayangan 4 → 12 px, tahun 100 px bergaris tepi dengan ikon yang menyala di tengah layar, folder abu 90 × 72
+  berisi tiga lembar (hanya bila ada foto).
+- **Sertifikat** (tidak ada di acuan): tata letak sendiri dengan kosakata kartu Perjalanan.
+- **Kontak dan footer:** dua kolom, kotak email (tautan + salin), tombol profil 56 px, formulir di panel 22 px;
+  footer garis tipis, 12 px abu.
+- **Muncul saat masuk layar:** sekali, 600 ms (kartu naik 50 px, judul 20 px), satu pengamat (`useReveal.js`).
+- **Disengaja berbeda:** warna yang tidak lolos 4,5:1 dinaikkan satu tingkat (label tech stack, baris kode, petunjuk
+  folder, label fakta proyek, label dan footer di bagian hitam #737373 → #a3a3a3, teks abu di tema gelap); di tema
+  gelap kotak email hitam pekat dan panel formulir abu muda (acuan transparan, tidak terbaca); Esc menutup pop-up
+  (acuan tidak); URL berubah saat pop-up dibuka; chip tidak menutupi nama di HP; foto folder tidak menutupi tahun
+  (aturan Fase 6); menu HP di bawah 1240 px; tombol navbar 40 px seperti acuan.

@@ -22,10 +22,10 @@ brief ini yang dipakai, kecuali pemilik project berkata lain.
     tanda crosshair kecil. Tidak ada lagi garis ukur berangka.
   - `calm` untuk admin: grid tipis diam dan satu garis pindai yang turun perlahan.
   - Pilihan `calm` untuk admin masih bisa berubah nanti.
-- **Orisinalitas:** dua situs referensi (irfansabrian.vercel.app dan styfensagala.vercel.app)
-  hanya sumber inspirasi. Jangan menyalin tata letak khasnya: sidebar bernomor dan garis
-  kontur (Irfan), stiker pil miring dengan bayangan tegas dan karakter gumpalan hitam
-  (Styfen). Ciri khas kita: logo yang merakit diri, transisi jepret, maskot sendiri, jalur
+- **Orisinalitas:** irfansabrian.vercel.app hanya sumber inspirasi (jangan salin sidebar
+  bernomor dan garis kontur). Sejak Fase 8 (keputusan pemilik, 30 Okt 2026) tampilan publik
+  sengaja disamakan dengan styfensagala.vercel.app, dengan kredit di footer; teks, logo, foto,
+  karakter gumpalan hitam, dan aset Styfen tetap tidak disalin (PRODUCT.md, Orisinalitas). Ciri khas kita: logo yang merakit diri, transisi jepret, maskot sendiri, jalur
   sirkuit blueprint, label bergaya tag blueprint.
 
 ## 2. Bahasa dan teks

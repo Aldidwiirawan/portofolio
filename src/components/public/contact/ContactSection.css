@@ -56,9 +56,10 @@
   margin-top: 2.5rem;
 }
 
+/* Label kecil: abu acuan #737373 hanya 4,4:1 di atas hitam; di sini #a3a3a3 (tema gelap: #525252) */
 .pub-contact-label {
   margin-bottom: 1rem;
-  color: var(--n500);
+  color: var(--n400);
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;
@@ -213,7 +214,7 @@
 }
 
 .pub-contact-form-head .pub-hint {
-  color: var(--n500);
+  color: var(--n400);
   font-size: 0.75rem;
   line-height: 1rem;
 }
@@ -229,7 +230,7 @@
 }
 
 .pub-contact-panel .pub-label {
-  color: var(--n500);
+  color: var(--n400);
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;
@@ -271,6 +272,26 @@
   height: 9.625rem;
   min-height: 6rem;
   resize: vertical;
+}
+
+/* Tema gelap: acuan membiarkan kotak email dan panel transparan gelap di atas putih (teks jadi tidak
+   terbaca, 2,4–3,4:1); di sini kotak email hitam pekat dan panel abu sangat muda */
+.pub[data-theme='dark'] .pub-contact-label {
+  color: var(--n600);
+}
+
+.pub[data-theme='dark'] .pub-contact-mailbox {
+  background-color: var(--n900);
+}
+
+.pub[data-theme='dark'] .pub-contact-panel {
+  border-color: var(--n200);
+  background-color: var(--n100);
+}
+
+.pub[data-theme='dark'] .pub-contact-panel .pub-label,
+.pub[data-theme='dark'] .pub-contact-form-head .pub-hint {
+  color: var(--n600);
 }
 
 .pub[data-theme='dark'] .pub-contact-panel .pub-input {

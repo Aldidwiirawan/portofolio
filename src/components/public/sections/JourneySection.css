@@ -424,6 +424,13 @@
   position: relative;
   margin-bottom: 1rem;
   transform: translateY(20px);
+  transition: margin-bottom 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Folder terbuka: tahun memberi ruang setinggi kertas yang mekar, jadi foto tidak menutupi angkanya
+   (keputusan pemilik Fase 6; acuan membiarkan kertas menutupi tahun) */
+.pub-jr-archive:has(.pub-jr-folder[data-open]) .pub-jr-yearbox {
+  margin-bottom: 6.5rem;
 }
 
 .pub-jr-year {
@@ -888,6 +895,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pub-jr-card,
+  .pub-jr-yearbox,
   .pub-jr-folder,
   .pub-jr-folder-wrap,
   .pub-jr-paper,

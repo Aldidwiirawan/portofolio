@@ -124,9 +124,11 @@ Yang tidak bisa diklaim begitu saja oleh lulusan lain:
   bunyi disintesis dengan Web Audio (tanpa file audio): "tok" dan nada pendek untuk chip, folder, dan kucing.
   Suara bawaan menyala (keputusan pemilik, 30 Okt 2026), tetapi bunyi hanya keluar setelah pengunjung
   berinteraksi, dan bisa dimatikan dengan tombol speaker.
-- **Orisinalitas:** irfansabrian.vercel.app dan styfensagala.vercel.app hanya sumber inspirasi. Jangan menyalin
-  tata letak khasnya: sidebar bernomor dan garis kontur (Irfan); karakter gumpalan hitam (Styfen). Chip pil dengan
-  bayangan kotak di hero monokrom berasal dari desain referensi pemilik sendiri (`docs/redesign/`), bukan salinan.
+- **Orisinalitas (diubah pemilik, 30 Okt 2026, Fase 8):** tampilan dan perilaku halaman publik sengaja disamakan
+  dengan styfensagala.vercel.app (`docs/redesign/PROMPT-fase8-samakan-styfen.md`), dengan kredit kecil di footer
+  ("Desain terinspirasi dari styfensagala.vercel.app"). Yang tidak pernah disalin: teks, logo, foto, karakter
+  (gumpalan hitam), dan aset Styfen; semua isi tetap milik Aldi dari database, kucing Kopi & Susu tetap.
+  irfansabrian.vercel.app tetap hanya sumber inspirasi (jangan salin sidebar bernomor dan garis kontur).
 
 ## Evidence on Hand
 

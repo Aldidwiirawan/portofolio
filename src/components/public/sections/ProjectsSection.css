@@ -8,7 +8,8 @@
   --proj-label-text: var(--n400);
   --proj-label-bg: rgb(23 23 23 / 0.5);
   --proj-mute: var(--n400);
-  --proj-fact-label: var(--n500);
+  /* Acuan: #737373 (4,4:1 di atas hitam); di sini #a3a3a3 */
+  --proj-fact-label: var(--n400);
   --proj-tag-bg: var(--n900);
   --proj-tag-text: var(--n300);
   --proj-title-hover: var(--n300);

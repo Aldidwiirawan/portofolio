@@ -42,7 +42,6 @@ function GuestbookButton() {
         type="button"
         className="pub-gb-fab"
         aria-haspopup="dialog"
-        aria-label={count == null ? t('guestbook.open') : t('guestbook.openLabel', { n: count })}
         onClick={() => setOpen(true)}
         onPointerEnter={loadDrawer}
         onFocus={loadDrawer}
@@ -50,9 +49,13 @@ function GuestbookButton() {
         <NotebookPenIcon size={16} className="pub-gb-fab-icon" />
         <span className="pub-gb-fab-text">{t('guestbook.open')}</span>
         {count != null && (
-          <span className="pub-gb-fab-count" aria-hidden="true">
-            {count}
-          </span>
+          <>
+            <span className="pub-gb-fab-count" aria-hidden="true">
+              {count}
+            </span>
+            {/* The name is the visible text plus the count in words (no aria-label, WCAG 2.5.3) */}
+            <span className="pub-sr-only">, {t('guestbook.countLabel', { n: count })}</span>
+          </>
         )}
       </button>
       {open && (

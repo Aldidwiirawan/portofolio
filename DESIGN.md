@@ -244,34 +244,22 @@ bukan hiasan sekali pakai.
 
 ## Halaman publik: monokrom
 
-**Creative North Star (publik): "Monokrom berani".** Hitam di atas putih (atau sebaliknya di tema gelap), huruf
-kapital tebal yang rapat, garis tebal, sudut membulat, dan bayangan kotak tanpa blur. Satu-satunya warna adalah
-status. Rincian dan alasannya di MASTER §16; ringkasnya:
+**Creative North Star (publik): "Monokrom berani", sejak Fase 8 disamakan dengan styfensagala.vercel.app**
+(keputusan pemilik, 30 Okt 2026; kredit di footer). Hitam di atas putih (atau sebaliknya), huruf kapital 900
+yang rapat, garis 2 px, sudut membulat, bayangan kotak tanpa blur; satu-satunya warna adalah status. Ukuran pastinya
+di MASTER §16 "Fase 8"; ringkasnya:
 
-- **Palet:** pub-bg, pub-fg, pub-soft, pub-mute per tema; grid tipis 46 px di latar; titik status pub-ok. Bagian
-  terbalik (Proyek, Kontak, header detail) memakai palet tema yang lain. Teks tidak pernah lebih pucat dari pub-mute.
-- **Huruf:** Space Grotesk (pub-display untuk judul besar, pub-body 17 px untuk isi), JetBrains Mono untuk kode.
-- **Komponen:** kartu bergaris 2,5 px bersudut 28 px (sebagian dengan bayangan kotak 6 px), tombol pil huruf
-  kapital dengan bayangan kotak yang bergeser saat hover dan ditekan, tombol ikon bulat di latar lembut, fokus
-  `outline` 3 px.
-- **Kerangka:** navbar dengan tanda inisial, menu tengah, suara, tema, ID/EN, dan "Unduh CV"; tema bawaan terang;
-  suara bawaan menyala, bunyi hanya setelah interaksi pertama.
-- **Hero:** chip pil berfisika yang bisa diseret (bintang ✦ dan dua lingkaran ikon dari kode), nama kapital satu
-  baris selebar layar (jarak huruf -0,03em agar tidak menempel), baris kode yang diketik sekali, bar status
-  empat kolom bergaris.
-- **Tentang dan Proyek:** bento kartu bergaris (perkenalan, foto, pendidikan dengan IPK besar, tech stack, kartu
-  hitam Fokus), pita teks besar yang bergeser mengikuti scroll, lalu bagian hitam berisi kartu proyek yang menumpuk
-  (sticky) di layar lebar dan daftar biasa di HP; tanpa angka metrik.
-- **Perjalanan, Sertifikat, Kontak:** garis waktu dengan tahun bergaris tepi dan folder foto berkipas, kartu
-  sertifikat bergambar utuh dengan lightbox, bagian kontak hitam dengan formulir di panel tipis, footer hitam
-  sederhana. Kucing Kopi (hitam) dan Susu (putih) mengintip di bawah layar dan tidak pernah menutupi tombol,
-  formulir, atau bar status; tombol buku tamu berbentuk pil mengambang.
-- **Detail proyek:** header hitam (label, judul, lead, meta Waktu/Tempat/Mitra/Status), media bertab
-  Sampul/Galeri/Diagram di panggung 16:10, panel bergaris (Info proyek, Repositori GitHub dengan bar bahasa
-  abu-abu bertingkat, Tautan), empat poin bernomor yang hanya tampil bila terisi, catatan Hasil, dan navigasi
-  sebelumnya/berikutnya.
-- **Tetap berlaku dari Blueprint:** aturan aksesibilitas, target sentuh ≥44 px, reduced motion, dan "Not Color
-  Alone". Komponen Blueprint (kursor viewfinder, latar blueprint, layar pembuka) tidak dipakai di publik.
+- **Palet:** putih/hitam murni dan skala abu neutral; halaman polos tanpa grid; bagian Proyek dan Kontak terbalik.
+  Warna acuan yang lebih pucat dari 4,5:1 dinaikkan satu tingkat.
+- **Huruf:** Space Grotesk untuk semua teks publik (judul 900, isi 16 px).
+- **Kerangka:** navbar 80 px dengan inisial, menu tengah (termasuk Buku Tamu), suara, tema, ID/EN; tombol buku tamu
+  pil mengambang yang selalu terlihat; tema bawaan terang; suara menyala, bunyi hanya setelah interaksi.
+- **Hero:** satu layar; chip yang jatuh dan bisa diseret; nama selebar layar; baris kode; bar status 4 kolom di
+  dasar layar pertama; kucing Kopi & Susu 56 px di atas bar.
+- **Isi:** bento Tentang (kartu 32 px), kartu proyek dengan gambar 16:9 yang condong dan pop-up studi kasus,
+  garis waktu dengan folder foto, sertifikat dengan kosakata kartu yang sama, kontak dua kolom, footer tipis.
+- **Tetap berlaku dari Blueprint:** aturan aksesibilitas, reduced motion, dan "Not Color Alone". Tombol navbar
+  mengikuti acuan (40 px), di bawah target 44 px yang dipakai admin.
 
 ## Colors
 
