@@ -79,7 +79,7 @@ function ProjectCard({ project }) {
     project.year && { key: 'year', label: t('projects.year'), value: project.year },
     project.client_name && { key: 'client_name', label: t('projects.client'), value: project.client_name },
   ].filter(Boolean)
-  const state = { caseFromHome: true }
+  const state = { fromHome: true }
 
   // The cover leans towards the pointer (3D), like the reference; straight again when the pointer leaves
   const lean = (event) => {

@@ -9,6 +9,7 @@ import { AdminPageFallback } from './components/admin/AdminLoading'
 // and its pages, with the access check, auth and supabase-js, are separate chunks
 const AdminShell = lazy(() => import('./components/admin/AdminShell'))
 const AdminPage = lazy(() => import('./components/admin/AdminPage'))
+const ProjectDetailPage = lazy(() => import('./pages/ProjectDetailPage'))
 
 // Admin addresses and the page each one opens (AdminPage.jsx). Other /admin… addresses get the 404 page.
 const ADMIN_ROUTES = {
@@ -47,11 +48,11 @@ function App() {
           ))}
         </Route>
 
-        {/* Public pages sharing one frame (theme, language, data): the portfolio (a project address
-            opens the home page with that case study as a pop-up) and the 404 page for unknown addresses */}
+        {/* Public pages sharing one frame (theme, language, data): the portfolio, project detail
+            and the 404 page for unknown addresses */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<PublicHomePage />} />
-          <Route path="/projects/:slug" element={<PublicHomePage />} />
+          <Route path="/projects/:slug" element={<ProjectDetailPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

@@ -181,7 +181,7 @@ function ExperienceCard({ item, year }) {
           </ul>
         )}
         {project && (
-          <Link to={`/projects/${encodeURIComponent(project.slug)}`} state={{ caseFromHome: true }} className="pub-jr-project">
+          <Link to={`/projects/${encodeURIComponent(project.slug)}`} state={{ fromHome: true }} className="pub-jr-project">
             <span>
               <Phrase id="experience.viewProject" vars={{ title: { text: project.title, lang: langOf(project, 'title') } }} />
             </span>
