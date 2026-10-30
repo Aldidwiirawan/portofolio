@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
-import { ArrowRightIcon, MapPinIcon } from '../icons'
+import { ArrowRightIcon, BriefcaseIcon, CalendarIcon, CapIcon, MapPinIcon } from '../icons'
+import LazyLightbox from '../LazyLightbox'
 import { langOf } from '../localize'
 import Phrase from '../Phrase'
 import { usePublicData } from '../publicContexts'
 import { SectionError, SkeletonBlock } from '../Section'
+import { useLightbox } from '../useLightbox'
 import JourneyFolder from './JourneyFolder'
 import { Period, YearPeriod } from './Period'
 import './JourneySection.css'
@@ -30,19 +32,19 @@ function journeyEntries(experiences, educations) {
 }
 
 /**
- * "Perjalanan saya" (monochrome redesign, phase 5): the visible experiences and educations on one
- * timeline (certificates have their own section). A grey line runs down the middle with a black line
- * and dot that follow the scroll; each card opens like a curtain from the top as it comes in (both CSS
- * scroll-driven; without support or with reduced motion everything is simply shown). Each row has its
- * year in large outlined type, the photo folder when the entry has photos (otherwise its period), and
- * the card: kind, position, place, period, text and tags. Old links /#pengalaman and /#pendidikan land
- * here.
+ * "Perjalanan saya" laid out like the timeline of the reference site of phase 8: a thin grey line down
+ * the middle with a black line (and its tip) that follows the scroll, a dot per entry, the card on one side
+ * (alternating) and on the other the year in large outlined type with an icon, which light up as the entry
+ * passes the middle of the screen (CSS scroll-driven; without support they simply show). The photo folder
+ * ("Arsip proyek / Klik folder") appears under the year only when the entry has photos; its photos open in
+ * the image viewer. Old links /#pengalaman and /#pendidikan land here.
  */
 function JourneySection() {
   const { t } = useI18n()
   const data = usePublicData()
   const experiences = data.experiences
   const educations = data.educations
+  const { viewer, openLightbox, closeLightbox } = useLightbox()
   const loading = experiences.status === 'loading' || educations.status === 'loading'
   const entries = journeyEntries(experiences.data, educations.data)
   const failed = [experiences, educations].some((table) => table.status === 'error')
@@ -50,21 +52,22 @@ function JourneySection() {
   if (!loading && !failed && entries.length === 0) return null
 
   return (
-    <section id="perjalanan" className="pub-section pub-journey" aria-labelledby="perjalanan-judul">
+    <section id="perjalanan" className="pub-journey" aria-labelledby="perjalanan-judul">
       <span id="pengalaman" className="pub-anchor" aria-hidden="true" />
       <span id="pendidikan" className="pub-anchor" aria-hidden="true" />
-      <div className="pub-container">
-        <div className="pub-journey-head">
-          <h2 id="perjalanan-judul" className="pub-h2 pub-journey-title">
-            <span>{t('journey.title')}</span>
+      <div className="pub-journey-grid" aria-hidden="true" />
+      <div className="pub-journey-inner">
+        <div className="pub-journey-head pub-reveal" data-reveal="title">
+          <h2 id="perjalanan-judul" className="pub-journey-title">
+            {t('journey.title')}
           </h2>
-          <p className="pub-lead">{t('journey.intro')}</p>
+          <p className="pub-journey-intro">{t('journey.intro')}</p>
         </div>
 
         {loading && (
           <div className="pub-jr" aria-hidden="true">
             {[0, 1].map((key) => (
-              <SkeletonBlock key={key} height="14rem" />
+              <SkeletonBlock key={key} height="18rem" />
             ))}
           </div>
         )}
@@ -79,128 +82,140 @@ function JourneySection() {
         {!loading && entries.length > 0 && (
           <div className="pub-jr">
             <span className="pub-jr-track" aria-hidden="true" />
-            <span className="pub-jr-fill" aria-hidden="true" />
+            <span className="pub-jr-fill" aria-hidden="true">
+              <span className="pub-jr-tip" />
+            </span>
             <ol className="pub-jr-list">
               {entries.map((entry, index) => (
-                <li key={entry.key} className="pub-jr-item" data-flip={index % 2 === 1 || undefined}>
-                  <div className="pub-jr-side">
-                    {entry.year && (
-                      <p className="pub-jr-year" aria-hidden="true">
-                        {entry.year}
-                      </p>
-                    )}
-                    {entry.item.photos?.length > 0 ? (
-                      <JourneyFolder photos={entry.item.photos} year={entry.year} />
-                    ) : (
-                      <p className="pub-jr-folder-text">
-                        <span>
-                          <EntryPeriod entry={entry} />
-                        </span>
-                      </p>
-                    )}
+                <li key={entry.key} className="pub-jr-item" data-flip={index % 2 === 0 || undefined}>
+                  <div className="pub-jr-card-side pub-reveal">
+                    {entry.type === 'experience' ? <ExperienceCard item={entry.item} year={entry.year} /> : <EducationCard item={entry.item} year={entry.year} />}
                   </div>
-                  {entry.type === 'experience' ? <ExperienceCard item={entry.item} /> : <EducationCard item={entry.item} />}
+                  <span className="pub-jr-dot" aria-hidden="true">
+                    <span className="pub-jr-dot-ring" />
+                    <span className="pub-jr-dot-core" />
+                  </span>
+                  <div className="pub-jr-side">
+                    <div className="pub-jr-archive">
+                      {entry.year && (
+                        <div className="pub-jr-yearbox" aria-hidden="true">
+                          <span className="pub-jr-year">{entry.year}</span>
+                          <span className="pub-jr-icon">{entry.type === 'experience' ? <BriefcaseIcon size={24} /> : <CapIcon size={24} />}</span>
+                        </div>
+                      )}
+                      {entry.item.photos?.length > 0 && <JourneyFolder photos={entry.item.photos} year={entry.year} onOpenPhoto={openLightbox} />}
+                    </div>
+                  </div>
                 </li>
               ))}
             </ol>
           </div>
         )}
       </div>
+      <LazyLightbox viewer={viewer} onClose={closeLightbox} />
     </section>
   )
 }
 
-function EntryPeriod({ entry }) {
-  const { item } = entry
-  return entry.type === 'experience' ? (
-    <Period start={item.start_date} end={item.end_date} current={item.is_current} />
-  ) : (
-    <YearPeriod start={item.start_year} end={item.end_year} current={item.is_current} />
+function CardTop({ year, kind }) {
+  return (
+    <div className="pub-jr-chips">
+      {year && <span className="pub-jr-year-chip">{year}</span>}
+      {kind && <span className="pub-jr-kind">{kind}</span>}
+    </div>
   )
 }
 
-function Place({ children }) {
+function Meta({ icon, children }) {
   return (
-    <p className="pub-jr-place">
-      <MapPinIcon size={16} />
+    <p className="pub-jr-meta">
+      {icon}
       <span>{children}</span>
     </p>
   )
 }
 
-function ExperienceCard({ item }) {
+function ExperienceCard({ item, year }) {
   const { t, storedLabel } = useI18n()
   const projects = usePublicData().projects.data
   const project = projects.find((p) => p.id === item.related_project_id && p.slug)
 
   return (
     <article className="pub-jr-card">
-      {item.experience_type && <span className="pub-jr-kind">{storedLabel('exp', item.experience_type)}</span>}
-      <h3 className="pub-jr-role" lang={langOf(item, 'role')}>
-        {item.role}
-      </h3>
-      {(item.company || item.location) && (
-        <Place>
-          {item.company && <span lang={langOf(item, 'company')}>{item.company}</span>}
-          {item.company && item.location && ', '}
-          {item.location}
-        </Place>
-      )}
-      <p className="pub-jr-period">
-        <Period start={item.start_date} end={item.end_date} current={item.is_current} />
-      </p>
-      {item.description && (
-        <p className="pub-jr-text" lang={langOf(item, 'description')}>
-          {item.description}
-        </p>
-      )}
-      {item.responsibilities.length > 0 && (
-        <ul className="pub-jr-tasks" aria-label={t('experience.tasks')}>
-          {item.responsibilities.map((task, index) => (
-            <li key={`${task}-${index}`} lang={langOf(item, 'responsibilities', index)}>
-              {task}
-            </li>
-          ))}
-        </ul>
-      )}
-      {item.skill_tags.length > 0 && (
-        <ul className="pub-jr-tags" aria-label={t('experience.skills')}>
-          {item.skill_tags.map((tag) => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
-      )}
-      {project && (
-        <Link to={`/projects/${encodeURIComponent(project.slug)}`} className="pub-arrow-link pub-jr-project">
-          <span>
-            <Phrase id="experience.viewProject" vars={{ title: { text: project.title, lang: langOf(project, 'title') } }} />
-          </span>
-          <ArrowRightIcon size={18} />
-        </Link>
-      )}
+      <div className="pub-jr-card-inner">
+        <CardTop year={year} kind={item.experience_type ? storedLabel('exp', item.experience_type) : null} />
+        <div className="pub-jr-heading">
+          <h3 className="pub-jr-role" lang={langOf(item, 'role')}>
+            {item.role}
+          </h3>
+          {(item.company || item.location) && (
+            <Meta icon={<MapPinIcon size={12} strokeWidth={2} />}>
+              {item.company && <span lang={langOf(item, 'company')}>{item.company}</span>}
+              {item.company && item.location && ', '}
+              {item.location}
+            </Meta>
+          )}
+          <Meta icon={<CalendarIcon size={12} strokeWidth={2} />}>
+            <Period start={item.start_date} end={item.end_date} current={item.is_current} />
+          </Meta>
+        </div>
+        {item.description && (
+          <p className="pub-jr-text" lang={langOf(item, 'description')}>
+            {item.description}
+          </p>
+        )}
+        {item.responsibilities.length > 0 && (
+          <ul className="pub-jr-tasks" aria-label={t('experience.tasks')}>
+            {item.responsibilities.map((task, index) => (
+              <li key={`${task}-${index}`} lang={langOf(item, 'responsibilities', index)}>
+                {task}
+              </li>
+            ))}
+          </ul>
+        )}
+        {item.skill_tags.length > 0 && (
+          <ul className="pub-jr-tags" aria-label={t('experience.skills')}>
+            {item.skill_tags.map((tag) => (
+              <li key={tag}>{tag}</li>
+            ))}
+          </ul>
+        )}
+        {project && (
+          <Link to={`/projects/${encodeURIComponent(project.slug)}`} state={{ caseFromHome: true }} className="pub-jr-project">
+            <span>
+              <Phrase id="experience.viewProject" vars={{ title: { text: project.title, lang: langOf(project, 'title') } }} />
+            </span>
+            <ArrowRightIcon size={14} />
+          </Link>
+        )}
+      </div>
     </article>
   )
 }
 
-function EducationCard({ item }) {
+function EducationCard({ item, year }) {
   const { t, formatGpa } = useI18n()
   return (
     <article className="pub-jr-card">
-      <span className="pub-jr-kind">{t('journey.education')}</span>
-      <h3 className="pub-jr-role">
-        <span lang={langOf(item, 'degree')}>{item.degree}</span>{' '}
-        <span lang={langOf(item, 'field_of_study')}>{item.field_of_study}</span>
-      </h3>
-      {item.institution && <Place>{item.institution}</Place>}
-      <p className="pub-jr-period">
-        <YearPeriod start={item.start_year} end={item.end_year} current={item.is_current} />
-      </p>
-      {item.gpa != null && <p className="pub-jr-text">{t('journey.gpa', { gpa: formatGpa(item.gpa) })}</p>}
-      {item.thesis_title && (
-        <p className="pub-jr-also">
-          <b>{t('about.thesis')}:</b> <span lang={langOf(item, 'thesis_title')}>{item.thesis_title}</span>
-        </p>
-      )}
+      <div className="pub-jr-card-inner">
+        <CardTop year={year} kind={t('journey.education')} />
+        <div className="pub-jr-heading">
+          <h3 className="pub-jr-role">
+            <span lang={langOf(item, 'degree')}>{item.degree}</span>{' '}
+            <span lang={langOf(item, 'field_of_study')}>{item.field_of_study}</span>
+          </h3>
+          {item.institution && <Meta icon={<MapPinIcon size={12} strokeWidth={2} />}>{item.institution}</Meta>}
+          <Meta icon={<CalendarIcon size={12} strokeWidth={2} />}>
+            <YearPeriod start={item.start_year} end={item.end_year} current={item.is_current} />
+          </Meta>
+        </div>
+        {item.gpa != null && <p className="pub-jr-text">{t('journey.gpa', { gpa: formatGpa(item.gpa) })}</p>}
+        {item.thesis_title && (
+          <p className="pub-jr-text">
+            <b>{t('about.thesis')}:</b> <span lang={langOf(item, 'thesis_title')}>{item.thesis_title}</span>
+          </p>
+        )}
+      </div>
     </article>
   )
 }
