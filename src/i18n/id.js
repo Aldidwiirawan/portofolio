@@ -234,7 +234,6 @@ const id = {
 
   'footer.rights': '© {year} {name}.',
   'footer.basedIn': 'Berbasis di {city}, ID',
-  'footer.credit': 'Desain terinspirasi dari {site}',
   'cats.label': '{name}. Bisa diseret dan dilempar; tekan Enter untuk menyapa',
   'cats.kopiName': 'Kopi, kucing hitam',
   'cats.susuName': 'Susu, kucing putih',

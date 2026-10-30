@@ -1,5 +1,5 @@
-/* Footer publik — seperti situs acuan Fase 8: garis tipis #171717, teks 12 px #737373, hak cipta di kiri,
-   kota, status, dan kredit desain di kanan; menyambung bagian kontak yang hitam. */
+/* Footer publik: garis tipis #171717, teks 12 px #737373, hak cipta di kiri,
+   kota dan status di kanan; menyambung bagian kontak yang hitam. */
 
 .pub-footer {
   padding: 0 1rem 6rem;
@@ -33,22 +33,6 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem 1.5rem;
-}
-
-.pub-footer-credit,
-.pub-footer-credit:hover {
-  color: inherit;
-}
-
-.pub-footer-credit {
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 3px;
-  transition: text-decoration-color 150ms ease;
-}
-
-.pub-footer-credit:hover {
-  text-decoration-color: currentColor;
 }
 
 @media (min-width: 768px) {

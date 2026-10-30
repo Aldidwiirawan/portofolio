@@ -233,7 +233,6 @@ const en = {
 
   'footer.rights': '© {year} {name}.',
   'footer.basedIn': 'Based in {city}, ID',
-  'footer.credit': 'Design inspired by {site}',
   'cats.label': '{name}. Drag and throw it; press Enter to say hi',
   'cats.kopiName': 'Kopi, the black cat',
   'cats.susuName': 'Susu, the white cat',

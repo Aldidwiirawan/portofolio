@@ -136,7 +136,7 @@ function ProjectDetailPage() {
       </div>
 
       <header className="pub-invert pub-detail-head">
-        <div className="pub-container pub-reveal" data-reveal="title">
+        <div className="pub-container">
           {labels.length > 0 && (
             <ul className="pub-detail-labels">
               {labels.map((label) => (
@@ -168,7 +168,7 @@ function ProjectDetailPage() {
       </header>
 
       <div className="pub-container pub-detail-body">
-        <div className="pub-detail-grid pub-reveal">
+        <div className="pub-detail-grid">
           <MediaViewer key={project.slug} project={project} onZoom={openLightbox} />
 
           <aside className="pub-detail-side">
@@ -215,12 +215,12 @@ function ProjectDetailPage() {
 
         {points.length > 0 && (
           <section className="pub-detail-about" aria-labelledby="tentang-proyek">
-            <h2 id="tentang-proyek" className="pub-detail-h2 pub-reveal" data-reveal="title">
+            <h2 id="tentang-proyek" className="pub-detail-h2">
               {t('detail.about')}
             </h2>
             <div className="pub-detail-points">
               {points.map((point, index) => (
-                <article key={point.key} className="pub-detail-point pub-reveal">
+                <article key={point.key} className="pub-detail-point">
                   <p className="pub-detail-point-n" aria-hidden="true">
                     {pad(index + 1)}
                   </p>
@@ -242,14 +242,14 @@ function ProjectDetailPage() {
         )}
 
         {project.outcome?.trim() && (
-          <section className="pub-detail-outcome pub-reveal" aria-labelledby="hasil-proyek">
+          <section className="pub-detail-outcome" aria-labelledby="hasil-proyek">
             <h2 id="hasil-proyek">{t('detail.outcome')}</h2>
             <p lang={langOf(project, 'outcome')}>{project.outcome}</p>
           </section>
         )}
 
         {(previous || next) && (
-          <nav className="pub-detail-pn pub-reveal" aria-label={t('detail.otherProjects')}>
+          <nav className="pub-detail-pn" aria-label={t('detail.otherProjects')}>
             {previous ? (
               <Link to={`/projects/${encodeURIComponent(previous.slug)}`} className="pub-detail-pn-link" rel="prev">
                 <span>{t('detail.prev')}</span>
