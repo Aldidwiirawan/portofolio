@@ -69,7 +69,7 @@ const en = {
   'about.graduated': 'Graduated {year}',
   'about.studying': 'Studying',
   'about.thesis': 'Final project',
-  'about.gpaOf': 'GPA out of {max}',
+  'about.gpaOf': '/ {max} GPA',
   'about.stack': 'Tech stack',
   'about.focus': 'My focus',
 

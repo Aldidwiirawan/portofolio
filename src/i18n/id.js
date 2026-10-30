@@ -70,7 +70,7 @@ const id = {
   'about.graduated': 'Lulus {year}',
   'about.studying': 'Sedang kuliah',
   'about.thesis': 'Tugas akhir',
-  'about.gpaOf': 'IPK dari {max}',
+  'about.gpaOf': '/ {max} IPK',
   'about.stack': 'Tech stack',
   'about.focus': 'Fokus saya',
 

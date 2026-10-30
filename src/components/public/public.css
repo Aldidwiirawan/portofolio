@@ -649,23 +649,47 @@ html:has(.pub) {
   height: 0;
 }
 
-/* --- Muncul saat digulir ----------------------------------------------------------
-   Kartu dan judul naik sedikit saat masuk layar (CSS scroll-driven animation). Hanya di browser yang
-   mendukung animation-timeline dan tanpa reduced motion; selain itu langsung tampil dalam keadaan akhir. */
-@keyframes pub-reveal {
-  from {
+/* --- Muncul saat masuk layar ------------------------------------------------------
+   Seperti situs acuan Fase 8: kartu naik 50 px dan judul 20 px sambil memudar masuk, sekali, saat
+   pertama kali masuk layar (useReveal memasang data-revealed). Elemen hanya disembunyikan setelah
+   pengamatnya berjalan (html.pub-reveal-on) dan tanpa reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html.pub-reveal-on .pub-reveal:not([data-revealed]) {
     opacity: 0;
-    transform: translateY(60px) scale(0.97);
+    transform: translateY(50px);
+  }
+
+  html.pub-reveal-on .pub-reveal[data-reveal='title']:not([data-revealed]) {
+    transform: translateY(20px);
+  }
+
+  html.pub-reveal-on .pub-reveal[data-reveal='side']:not([data-revealed]) {
+    transform: translateX(-20px);
+  }
+
+  html.pub-reveal-on .pub-reveal {
+    transition:
+      opacity 600ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      transform 600ms cubic-bezier(0.25, 0.1, 0.25, 1),
+      box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 150ms ease;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .pub-reveal {
-      animation: pub-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
-    }
+/* Judul section (Tentang, Proyek, Kontak): 36 px di HP, 72 px mulai 768 px, 900, kapital, -0,05em */
+.pub-title {
+  color: var(--fg);
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 2.5rem;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .pub-title {
+    font-size: 4.5rem;
+    line-height: 1;
   }
 }
 

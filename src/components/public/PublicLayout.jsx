@@ -11,6 +11,7 @@ import PublicFooter from './PublicFooter'
 import PublicNavbar from './PublicNavbar'
 import SoundProvider from './sound/SoundProvider'
 import { personFromProfile, usePersonJsonLd } from './usePageMeta'
+import { useRevealObserver } from './useReveal'
 
 /**
  * Frame of every public page (home, project detail, 404): theme, language and sound providers, the public
@@ -43,6 +44,7 @@ function PublicShell() {
   const { theme } = useTheme()
   const { t } = useI18n()
   const data = usePublicData()
+  useRevealObserver()
 
   // Structured data about the owner for search engines (stage 3C), from the loaded profile
   usePersonJsonLd(useMemo(() => personFromProfile(data.profile.data, data.educations.data ?? []), [data.profile.data, data.educations.data]))
