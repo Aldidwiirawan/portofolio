@@ -201,6 +201,8 @@ const en = {
   'contact.intro': 'Open to job offers and project collaboration. Messages sent with this form go straight to my inbox.',
   'contact.emailLabel': 'Direct email',
   'contact.profilesLabel': 'Other profiles',
+  'contact.copy': 'Copy email address',
+  'contact.copied': 'Email address copied',
   'contact.formTitle': 'Send a message',
 
   'form.name': 'Name',
@@ -239,6 +241,7 @@ const en = {
 
   'footer.rights': '© {year} {name}.',
   'footer.basedIn': 'Based in {city}, ID',
+  'footer.credit': 'Design inspired by {site}',
   'cats.label': '{name}. Drag and throw it; press Enter to say hi',
   'cats.kopiName': 'Kopi, the black cat',
   'cats.susuName': 'Susu, the white cat',

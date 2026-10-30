@@ -1,44 +1,66 @@
-/* Footer sederhana, hitam (lanjutan bagian Kontak di beranda) */
+/* Footer publik — seperti situs acuan Fase 8: garis tipis #171717, teks 12 px #737373, hak cipta di kiri,
+   kota, status, dan kredit desain di kanan; menyambung bagian kontak yang hitam. */
 
 .pub-footer {
-  flex-shrink: 0;
+  padding: 0 1rem 6rem;
+  background-color: #000000;
+  color: var(--n500);
 }
 
-/* Ruang bawah untuk tombol buku tamu dan kucing yang mengambang, supaya baris terakhir tidak tertutup */
+.pub[data-theme='dark'] .pub-footer {
+  background-color: #ffffff;
+  color: var(--n600);
+}
+
 .pub-footer-inner {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-  padding-top: 1.5rem;
-  padding-bottom: 7rem;
-  border-top: 1px solid var(--line);
-  color: var(--mute);
-  font-size: 0.8125rem;
+  gap: 1rem;
+  max-width: 70rem;
+  margin-inline: auto;
+  padding-top: 2rem;
+  border-top: 1px solid var(--n900);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: center;
 }
 
-.pub-footer-top,
-.pub-footer-top:hover {
-  color: var(--fg);
+.pub-footer-right {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.5rem;
 }
 
-.pub-footer-top {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: var(--ds-target-min);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
+.pub-footer-credit,
+.pub-footer-credit:hover {
+  color: inherit;
 }
 
-.pub-footer-top:hover span {
+.pub-footer-credit {
   text-decoration: underline;
-  text-underline-offset: 0.25em;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.pub-footer-credit:hover {
+  text-decoration-color: currentColor;
+}
+
+@media (min-width: 768px) {
+  .pub-footer {
+    padding-bottom: 8rem;
+  }
+
+  .pub-footer-inner {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .pub-footer-right {
+    justify-content: flex-end;
+  }
 }

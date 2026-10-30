@@ -51,13 +51,13 @@ function CertificatesSection() {
   }
 
   return (
-    <section id="sertifikat" className="pub-section pub-certs-section" aria-labelledby="sertifikat-judul">
-      <div className="pub-container">
+    <section id="sertifikat" className="pub-certs-section" aria-labelledby="sertifikat-judul">
+      <div className="pub-certs-inner">
         <div className="pub-certs-head">
-          <h2 id="sertifikat-judul" className="pub-h2 pub-reveal">
+          <h2 id="sertifikat-judul" className="pub-title pub-reveal" data-reveal="title">
             {t('certificates.title')}
           </h2>
-          <p className="pub-lead">{t('certificates.intro')}</p>
+          <p className="pub-certs-intro">{t('certificates.intro')}</p>
         </div>
 
         {status === 'error' && <SectionError onRetry={() => data.reload('certifications')} />}
@@ -65,7 +65,7 @@ function CertificatesSection() {
           <>
             <ul id="sertifikat-daftar" className="pub-certs">
               {shown.map((cert, index) => (
-                <li key={cert.id}>
+                <li key={cert.id} className="pub-reveal">
                   <CertificateCard cert={cert} headingRef={index === primary.length ? firstExtraRef : undefined} onOpenImage={() => open(cert)} />
                 </li>
               ))}
@@ -136,7 +136,7 @@ function CertificateCard({ cert, headingRef, onOpenImage }) {
           <div className="pub-cert-actions">
             {cert.pdf_url && (
               <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer" className="pub-cert-pdf">
-                <FileIcon size={17} />
+                <FileIcon size={14} />
                 <span>{t('certificates.pdf')}</span>
                 <span className="pub-sr-only">
                   {cert.name} {t('common.newTab')}
@@ -144,8 +144,8 @@ function CertificateCard({ cert, headingRef, onOpenImage }) {
               </a>
             )}
             {cert.credential_url && (
-              <a href={cert.credential_url} target="_blank" rel="noopener noreferrer" className="pub-arrow-link pub-cert-verify">
-                <BadgeCheckIcon size={18} />
+              <a href={cert.credential_url} target="_blank" rel="noopener noreferrer" className="pub-cert-verify">
+                <BadgeCheckIcon size={16} />
                 <span>{t('certificates.verify')}</span>
                 <span className="pub-sr-only">{t('common.newTab')}</span>
               </a>

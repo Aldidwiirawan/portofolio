@@ -1,78 +1,157 @@
-/* "Kontak" — bagian hitam dengan formulir yang sudah ada (MASTER §16) */
+/* "Kontak" — bagian hitam situs acuan Fase 8 (diukur di 1440 dan 390): dua kolom 512 px berjarak 96 px;
+   kiri judul 72 px dua baris, ajakan 18 px, kotak email, tombol profil 56 px; kanan formulir di panel
+   bergaris tipis bersudut 22 px dengan label kapital 12 px. Di tema gelap bagian ini putih; kotak email
+   dan panel formulir tetap gelap, seperti acuan. Footer menyusul (PublicFooter.css). */
 
 .pub-contact {
-  padding-bottom: clamp(4rem, 3rem + 3vw, 6rem);
+  position: relative;
+  overflow: hidden;
+  padding-top: 6rem;
+  background-color: #000000;
+  color: #ffffff;
+  transition: background-color 300ms ease;
+}
+
+.pub[data-theme='dark'] .pub-contact {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.pub-contact-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
 .pub-contact-grid {
   display: grid;
-  gap: clamp(2rem, 1rem + 4vw, 5rem);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4rem;
+  margin-bottom: 6rem;
 }
 
-@media (min-width: 1060px) {
-  .pub-contact-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
+.pub-contact .pub-title {
+  margin-bottom: 1.5rem;
+  color: inherit;
+  font-size: 3rem;
+  line-height: 3rem;
 }
 
-.pub-contact-intro {
-  min-width: 0;
+.pub-contact-lead {
+  max-width: 28rem;
+  margin-bottom: 3rem;
+  color: var(--n400);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 
-.pub-contact-intro .pub-lead {
-  margin-top: 1.25rem;
+/* Tema gelap: abu acuan (#a3a3a3) di atas putih terlalu pucat; di sini #525252 */
+.pub[data-theme='dark'] .pub-contact-lead {
+  color: var(--n600);
+}
+
+.pub-contact-block + .pub-contact-block {
+  margin-top: 2.5rem;
 }
 
 .pub-contact-label {
-  margin-top: 2.5rem;
-  color: var(--mute);
+  margin-bottom: 1rem;
+  color: var(--n500);
   font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  line-height: 1rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+/* Kotak email: ikon dalam lingkaran, alamat 18 px tebal, tombol salin */
+.pub-contact-mailbox {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--n800);
+  border-radius: 14px;
+  background-color: rgb(23 23 23 / 0.5);
+  color: #ffffff;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.pub-contact-mailbox:hover {
+  border-color: var(--n700);
+  background-color: var(--n800);
 }
 
 .pub-contact-mail,
 .pub-contact-mail:hover {
-  color: var(--fg);
+  color: #ffffff;
 }
 
 .pub-contact-mail {
-  display: inline-flex;
+  display: flex;
+  flex: 1;
   align-items: center;
-  gap: 0.875rem;
-  max-width: 100%;
-  min-height: 4rem;
-  margin-top: 0.75rem;
-  padding: 0 1.375rem;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-  transition: border-color var(--ds-duration-fast) ease;
+  gap: 1rem;
+  min-width: 0;
 }
 
-.pub-contact-mail svg {
+.pub-contact-mail-icon {
+  display: grid;
   flex-shrink: 0;
+  place-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--n800);
+  border-radius: 999px;
+  background-color: #000000;
+  transition: border-color 150ms ease;
 }
 
-.pub-contact-mail:hover {
-  border-color: var(--fg);
+.pub-contact-mailbox:hover .pub-contact-mail-icon {
+  border-color: #ffffff;
 }
 
+.pub-contact-mail-text {
+  overflow: hidden;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.75rem;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pub-contact-copy {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--n500);
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.pub-contact-mailbox:hover .pub-contact-copy,
+.pub-contact-copy:focus-visible {
+  color: #ffffff;
+}
+
+/* Profil lain: kotak 56 px bergaris tipis, terbalik saat hover */
 .pub-contact-profiles {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
+  gap: 1rem;
   list-style: none;
 }
 
 .pub-contact-profile,
 .pub-contact-profile:hover {
-  color: var(--fg);
+  color: inherit;
 }
 
 .pub-contact-profile {
@@ -80,76 +159,200 @@
   place-items: center;
   width: 3.5rem;
   height: 3.5rem;
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--n800);
+  border-radius: 14px;
+  background-color: #000000;
+  color: #ffffff;
   transition:
-    background-color var(--ds-duration-fast) ease,
-    color var(--ds-duration-fast) ease;
+    background-color 300ms ease,
+    color 300ms ease;
 }
 
 .pub-contact-profile:hover {
-  background-color: var(--fg);
-  color: var(--bg);
+  background-color: #ffffff;
+  color: #000000;
 }
 
-/* Formulir: panel bergaris tipis di atas latar hitam */
+.pub[data-theme='dark'] .pub-contact-profile {
+  border-color: var(--n200);
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.pub[data-theme='dark'] .pub-contact-profile:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* --- Panel formulir (logika ContactForm tidak diubah) ---------------------------------------------- */
+
+.pub-contact-panel {
+  position: relative;
+  padding: 2rem;
+  border: 1px solid var(--n800);
+  border-radius: 22px;
+  background-color: rgb(23 23 23 / 0.3);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
 .pub-contact-form {
-  display: grid;
-  gap: 1rem;
-  min-width: 0;
-  padding: clamp(1.5rem, 1rem + 1.4vw, 2.25rem);
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  background-color: color-mix(in srgb, var(--fg) 4%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.pub-contact-form-head {
-  display: grid;
-  gap: 0.25rem;
+/* Judul formulir hanya untuk pembaca layar (acuan tidak menampilkan judul); catatan wajib tetap kecil */
+.pub-contact-form-head h3 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-.pub-contact-form-title {
-  color: var(--fg);
-  font-size: 1.375rem;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-.pub-contact-form .pub-label {
-  color: var(--mute);
+.pub-contact-form-head .pub-hint {
+  color: var(--n500);
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.pub-contact-form .pub-input {
-  border-color: var(--line);
-  background-color: color-mix(in srgb, var(--fg) 5%, transparent);
-  color: var(--fg);
-}
-
-.pub-contact-form .pub-input:hover,
-.pub-contact-form .pub-input:focus-visible {
-  border-color: var(--fg);
-}
-
-.pub-contact-form select.pub-input option {
-  background-color: var(--bg);
-  color: var(--fg);
+  line-height: 1rem;
 }
 
 .pub-contact-form-row {
   display: grid;
+  gap: 1.5rem;
+}
+
+.pub-contact-panel .pub-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.pub-contact-panel .pub-label {
+  color: var(--n500);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1rem;
+  letter-spacing: normal;
+  text-transform: uppercase;
+}
+
+.pub-contact-panel .pub-control {
+  display: block;
+}
+
+.pub-contact-panel .pub-input {
+  width: 100%;
+  min-height: 0;
+  padding: 1rem;
+  border: 1px solid var(--n800);
+  border-radius: 10px;
+  background-color: #000000;
+  box-shadow: none;
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  transition: border-color 150ms ease;
+}
+
+.pub-contact-panel .pub-input::placeholder {
+  color: var(--n500);
+}
+
+.pub-contact-panel .pub-input:hover {
+  border-color: var(--n700);
+}
+
+.pub-contact-panel .pub-input:focus {
+  border-color: #ffffff;
+}
+
+.pub-contact-panel .pub-textarea {
+  height: 9.625rem;
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.pub[data-theme='dark'] .pub-contact-panel .pub-input {
+  border-color: var(--n200);
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.pub[data-theme='dark'] .pub-contact-panel .pub-input:focus {
+  border-color: #000000;
+}
+
+.pub-contact-panel .pub-field[data-invalid] .pub-input {
+  border-color: var(--ds-danger-border);
+}
+
+.pub-contact-form-foot {
+  display: grid;
   gap: 1rem;
 }
 
-@media (min-width: 620px) {
+/* Kirim: tombol putih selebar formulir, 16 px tebal, sudut 14 px */
+.pub-contact-panel .pub-btn {
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  border: 0;
+  border-radius: 14px;
+  background-color: #ffffff;
+  box-shadow: none;
+  color: #000000;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  transform: none;
+  transition: background-color 150ms ease;
+}
+
+.pub-contact-panel .pub-btn:hover {
+  background-color: var(--n200);
+  box-shadow: none;
+  color: #000000;
+  transform: none;
+}
+
+.pub[data-theme='dark'] .pub-contact-panel .pub-btn {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.pub[data-theme='dark'] .pub-contact-panel .pub-btn:hover {
+  background-color: var(--n800);
+  color: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .pub-contact {
+    padding-top: 8rem;
+  }
+
+  .pub-contact .pub-title {
+    font-size: 4.5rem;
+    line-height: 4.5rem;
+  }
+
+  .pub-contact-mailbox {
+    width: auto;
+    display: inline-flex;
+  }
+
   .pub-contact-form-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.pub-contact-form-foot .pub-btn {
-  width: 100%;
+@media (min-width: 1024px) {
+  .pub-contact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6rem;
+  }
 }

@@ -202,6 +202,8 @@ const id = {
   'contact.intro': 'Terbuka untuk tawaran kerja dan kerja sama proyek. Pesan lewat formulir ini langsung masuk ke kotak masuk saya.',
   'contact.emailLabel': 'Email langsung',
   'contact.profilesLabel': 'Profil lain',
+  'contact.copy': 'Salin alamat email',
+  'contact.copied': 'Alamat email disalin',
   'contact.formTitle': 'Kirim pesan',
 
   'form.name': 'Nama',
@@ -240,6 +242,7 @@ const id = {
 
   'footer.rights': '© {year} {name}.',
   'footer.basedIn': 'Berbasis di {city}, ID',
+  'footer.credit': 'Desain terinspirasi dari {site}',
   'cats.label': '{name}. Bisa diseret dan dilempar; tekan Enter untuk menyapa',
   'cats.kopiName': 'Kopi, kucing hitam',
   'cats.susuName': 'Susu, kucing putih',
