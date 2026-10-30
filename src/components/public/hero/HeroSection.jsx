@@ -9,9 +9,9 @@ import StatusStrip from './StatusStrip'
 import './Hero.css'
 
 /**
- * Hero of the home page (monochrome redesign, phase 3): the draggable chips, the name as the page's h1
- * in one large line on wide screens (each word rises in once), the line of code typed once, and the
- * status bar. The name is one and the same h1 while the profile loads and after (the site name is the
+ * Hero of the home page, laid out like the reference site of phase 8: one screen high, the chips that
+ * fall in and can be dragged, the name as the page's h1 in one line from edge to edge, the line of code
+ * typed once, and the status bar near the bottom. The name is one and the same h1 while the profile loads and after (the site name is the
  * owner's name), so the first painted text stays the largest element (LCP). When the profile fails,
  * a short message with "Coba lagi" appears under the name instead of made-up data.
  */

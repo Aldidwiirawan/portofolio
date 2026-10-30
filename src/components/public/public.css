@@ -10,7 +10,7 @@
    dari halaman publik. <html> berada di luar .pub, jadi nilainya ditulis langsung (= --bg). */
 html[data-pub-theme='dark'] {
   color-scheme: dark;
-  background-color: #0a0a0a;
+  background-color: #000000;
 }
 
 html[data-pub-theme='light'] {
@@ -55,17 +55,36 @@ html:has(.pub) {
    Token --ds-* (Blueprint, index.css) dipetakan ke palet yang sama di sini, supaya komponen yang
    belum dirombak ikut monokrom. Login dan admin tidak berada di dalam .pub, jadi tidak berubah. */
 
+/* Skala abu Tailwind (neutral) yang dipakai situs acuan Fase 8 (styfensagala.vercel.app), sama di
+   kedua tema; komponen memilih tingkatnya per tema. Hijau status dan titik merah/hijau studi kasus. */
+.pub {
+  --n50: #fafafa;
+  --n100: #f5f5f5;
+  --n200: #e5e5e5;
+  --n300: #d4d4d4;
+  --n400: #a3a3a3;
+  --n500: #737373;
+  --n600: #525252;
+  --n700: #404040;
+  --n800: #262626;
+  --n900: #171717;
+  --n950: #0a0a0a;
+  --green-400: #05df72;
+  --green-500: #00c950;
+  --red-500: #fb2c36;
+}
+
 .pub[data-theme='light'],
 .pub [data-theme='light'],
 .pub[data-theme='dark'] .pub-invert {
   color-scheme: light;
   --bg: #ffffff;
-  --fg: #0a0a0a;
-  --soft: #f3f3f1;
-  --mute: #55555e;
-  --hair: rgb(10 10 10 / 0.07);
-  --line: rgb(10 10 10 / 0.14);
-  --ok: #22c55e;
+  --fg: #000000;
+  --soft: #f5f5f5;
+  --mute: #525252;
+  --hair: rgb(0 0 0 / 0.07);
+  --line: #e5e5e5;
+  --ok: #00c950;
 
   --ds-text: #1d1d21;
   --ds-text-subtle: #63636c;
@@ -84,13 +103,13 @@ html:has(.pub) {
 .pub [data-theme='dark'],
 .pub[data-theme='light'] .pub-invert {
   color-scheme: dark;
-  --bg: #0a0a0a;
-  --fg: #fafafa;
-  --soft: #18181b;
-  --mute: #a1a1aa;
-  --hair: rgb(250 250 250 / 0.06);
-  --line: rgb(250 250 250 / 0.16);
-  --ok: #22c55e;
+  --bg: #000000;
+  --fg: #ffffff;
+  --soft: #171717;
+  --mute: #a3a3a3;
+  --hair: rgb(255 255 255 / 0.06);
+  --line: #262626;
+  --ok: #00c950;
 
   --ds-text: #e4e4e7;
   --ds-text-subtle: #8e8e97;
@@ -142,7 +161,7 @@ html:has(.pub) {
 
   --pub-max: 75rem; /* 1200px */
   --pub-gutter: var(--space-4);
-  --pub-nav-h: 4rem;
+  --pub-nav-h: 5rem; /* 80 px + garis bawah 1 px, sama di semua lebar (situs acuan Fase 8) */
   --pub-section-y: var(--space-16);
   --pub-border: 2.5px; /* garis kartu dan tombol */
   --pub-radius: 12px; /* kolom isian, tombol kotak kecil */
@@ -175,8 +194,8 @@ html:has(.pub) {
   background-color: var(--bg);
   color: var(--ds-text);
   font-family: var(--ds-font-sans);
-  font-size: 1.0625rem; /* 17px */
-  line-height: 1.6;
+  font-size: 1rem; /* 16px, seperti situs acuan Fase 8 */
+  line-height: 1.5;
 }
 
 @media (min-width: 768px) {
@@ -190,12 +209,6 @@ html:has(.pub) {
   .pub {
     --pub-gutter: var(--space-8);
     --pub-section-y: var(--space-24);
-  }
-}
-
-@media (min-width: 1060px) {
-  .pub {
-    --pub-nav-h: 5.25rem; /* 84px */
   }
 }
 
@@ -264,9 +277,8 @@ html:has(.pub) {
 
 /* --- Tata letak ---------------------------------------------------------- */
 
-/* Latar putih (atau hitam) dengan grid tipis 46 px. Bagian terbalik dan kartu menutupnya dengan latar
-   sendiri. */
-.pub-main,
+/* Grid tipis 46 px (hanya untuk elemen yang memintanya; halaman sendiri polos putih/hitam seperti situs
+   acuan Fase 8) */
 .pub-grid-bg {
   background-image:
     linear-gradient(var(--hair) 1px, transparent 1px),
@@ -675,19 +687,16 @@ html:has(.pub) {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background-color: var(--ok);
-  animation: pub-dot-ping 2.2s var(--ds-ease-out) infinite;
+  background-color: var(--green-400);
+  opacity: 0.75;
+  animation: pub-dot-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @keyframes pub-dot-ping {
-  0% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  70%,
+  75%,
   100% {
     opacity: 0;
-    transform: scale(2.4);
+    transform: scale(2);
   }
 }
 

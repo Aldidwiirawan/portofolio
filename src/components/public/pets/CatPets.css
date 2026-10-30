@@ -11,10 +11,11 @@
 }
 
 .pub-cat {
-  --pub-cat-w: 7.25rem; /* 116px */
+  /* 56 px, seukuran karakter situs acuan Fase 8 (50 px) */
+  --pub-cat-w: 3.5rem;
 
   position: absolute;
-  bottom: -2.125rem;
+  bottom: -1rem;
   left: 0;
   width: var(--pub-cat-w);
   will-change: transform;
@@ -138,14 +139,8 @@
   transform: translateX(-50%);
 }
 
-/* HP: lebih kecil dan lebih rendah */
+/* HP: balon kata lebih kecil */
 @media (max-width: 619px) {
-  .pub-cat {
-    --pub-cat-w: 4.75rem; /* 76px */
-
-    bottom: -1.5rem;
-  }
-
   .pub-cat-bubble {
     font-size: 0.75rem;
   }

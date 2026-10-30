@@ -103,6 +103,47 @@ export const ArrowUpIcon = (p) => (
   </Icon>
 )
 
+export const ArrowDownIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <path d="M12 5v14M19 12l-7 7-7-7" />
+  </Icon>
+)
+
+export const ArrowUpRightIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <path d="M7 7h10v10M7 17 17 7" />
+  </Icon>
+)
+
+// Page with lines (case study)
+export const FileTextIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+    <path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8" />
+  </Icon>
+)
+
+export const CopyIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <rect x="8" y="8" width="14" height="14" rx="2" />
+    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+  </Icon>
+)
+
+export const TerminalIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <path d="m4 17 6-6-6-6M12 19h8" />
+  </Icon>
+)
+
+// Building with columns (university)
+export const UniversityIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <path d="M14 21v-3a2 2 0 0 0-4 0v3M18 12h.01M18 16h.01M22 7a1 1 0 0 0-1-1h-2a2 2 0 0 1-1.1-.3L12.6 2.2a1 1 0 0 0-1.2 0L6 5.7A2 2 0 0 1 5 6H3a1 1 0 0 0-1 1v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2zM6 12h.01M6 16h.01" />
+    <circle cx="12" cy="10" r="2" />
+  </Icon>
+)
+
 export const ExternalIcon = (p) => (
   <Icon {...p}>
     <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
@@ -165,6 +206,15 @@ export const ChatIcon = (p) => (
   <Icon {...p}>
     <path d="M4 5.5h16v10H9.5L5 19.5v-4H4Z" />
     <path d="M8 9.5h8M8 12.5h5" />
+  </Icon>
+)
+
+// Notebook with a pen (the guestbook button)
+export const NotebookPenIcon = (p) => (
+  <Icon strokeWidth={2} {...p}>
+    <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" />
+    <path d="M2 6h4M2 10h4M2 14h4M2 18h4" />
+    <path d="M21.4 5.6a1 1 0 1 0-3-3l-5 5a2 2 0 0 0-.5.9l-.9 2.9a.5.5 0 0 0 .6.6l2.9-.9a2 2 0 0 0 .9-.5z" />
   </Icon>
 )
 

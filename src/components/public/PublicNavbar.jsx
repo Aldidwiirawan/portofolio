@@ -1,23 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useFocusTrap } from '../admin/ui/useFocusTrap'
-import { useScrollLock } from '../admin/ui/useScrollLock'
 import { useMediaQuery, prefersReducedMotion } from '../../lib/useMediaQuery'
 import { useI18n } from '../../i18n/i18nContext'
-import CvButton from './CvButton'
 import { CloseIcon, MenuIcon } from './icons'
+import { openGuestbook } from './guestbook/guestbookEvents'
 import { usePublicData } from './publicContexts'
 import { SITE_NAME } from './publicFormat'
 import { LangToggle, SoundToggle, ThemeToggle } from './Toggles'
 import './PublicNavbar.css'
 
-// Sections in the menu, with the data that decides whether the section exists (null = always)
+// Sections in the menu, with the data that decides whether the section exists (null = always).
+// "Buku Tamu" is not a section: it opens the guestbook panel (on another page: /#bukutamu, which
+// opens it once the home page is there).
 const NAV_SECTIONS = [
   { id: 'beranda', label: 'nav.top', data: null },
   { id: 'tentang', label: 'nav.about', data: 'profile' },
   { id: 'proyek', label: 'nav.projects', data: 'projects' },
   { id: 'perjalanan', label: 'nav.journey', data: ['experiences', 'educations'] },
   { id: 'sertifikat', label: 'nav.certificates', data: 'certifications' },
+  { id: 'bukutamu', label: 'nav.guestbook', data: null, guestbook: true },
   { id: 'kontak', label: 'nav.contact', data: null },
 ]
 
@@ -67,9 +69,10 @@ function useActiveSection(ids, enabled, refreshKey) {
 }
 
 /**
- * Sticky navbar of the public pages: initials mark on the left, the section menu in the middle, and
- * sound, theme, language and "Unduh CV" (only when a CV exists) on the right. Below 1060 px the menu
- * opens as a full-screen dialog with focus kept inside; Escape, the close button or choosing a section
+ * Navbar of the public pages, laid out like the reference site of phase 8: the initials on the left, the
+ * menu in the middle, and sound, theme and language on the right. Below 1240 px (seven items with
+ * Indonesian labels need that width) the menu button opens a panel under the bar; while it is open the
+ * bar and the panel keep the focus, and Escape, the close button, a click outside or choosing an item
  * closes it.
  */
 function PublicNavbar() {
@@ -78,10 +81,9 @@ function PublicNavbar() {
   const { pathname, hash } = useLocation()
   const navigate = useNavigate()
   const isHome = pathname === '/'
-  const isDesktop = useMediaQuery('(min-width: 1060px)')
+  const isDesktop = useMediaQuery('(min-width: 1240px)')
   const [menuOpen, setMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const menuRef = useRef(null)
+  const headerRef = useRef(null)
 
   const name = data.profile.data?.full_name || SITE_NAME
   const items = NAV_SECTIONS.filter((item) => hasSection(data, item.data))
@@ -89,33 +91,24 @@ function PublicNavbar() {
     .map((key) => data[key]?.status ?? '')
     .join('|')
   const active = useActiveSection(
-    items.map((item) => item.id),
+    items.filter((item) => !item.guestbook).map((item) => item.id),
     isHome,
     statusKey
   )
 
-  // The full-screen menu only exists on small screens (it closes when the window grows past 1060 px)
+  // The panel only exists on small screens (it closes when the window grows past 1240 px)
   const menuShown = menuOpen && !isDesktop
   const closeMenu = () => setMenuOpen(false)
-  useFocusTrap(menuRef, menuShown, { onEscape: closeMenu })
-  useScrollLock(menuShown)
+  useFocusTrap(headerRef, menuShown, { onEscape: closeMenu })
 
   useEffect(() => {
-    let frame = 0
-    const update = () => {
-      frame = 0
-      setScrolled(window.scrollY > 4)
+    if (!menuShown) return undefined
+    const onPointer = (event) => {
+      if (!headerRef.current?.contains(event.target)) setMenuOpen(false)
     }
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', onScroll)
-    }
-  }, [])
+    document.addEventListener('pointerdown', onPointer)
+    return () => document.removeEventListener('pointerdown', onPointer)
+  }, [menuShown])
 
   const onBrandClick = (event) => {
     if (!isHome) return
@@ -124,14 +117,23 @@ function PublicNavbar() {
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
   }
 
-  const links = (onChoose) =>
+  const onItemClick = (item) => (event) => {
+    closeMenu()
+    if (item.guestbook && isHome) {
+      event.preventDefault()
+      openGuestbook()
+    }
+  }
+
+  const links = (className) =>
     items.map((item) => (
       <li key={item.id}>
         <Link
           to={{ pathname: '/', hash: `#${item.id}` }}
-          className="pub-nav-link"
+          className={className}
           aria-current={active === item.id ? 'location' : undefined}
-          onClick={onChoose}
+          aria-haspopup={item.guestbook ? 'dialog' : undefined}
+          onClick={onItemClick(item)}
         >
           {t(item.label)}
         </Link>
@@ -139,63 +141,42 @@ function PublicNavbar() {
     ))
 
   return (
-    <>
-      <header className="pub-nav" data-scrolled={scrolled}>
-        <div className="pub-container pub-nav-bar">
-          {/* The name starts with the visible initials, so voice control ("click AD") finds the link (WCAG 2.5.3) */}
-          <Link to="/" className="pub-nav-brand" aria-label={t('nav.home', { initials: initialsOf(name), name })} onClick={onBrandClick}>
-            <span className="pub-nav-mark" aria-hidden="true">
-              {initialsOf(name)}
-            </span>
-          </Link>
+    <header ref={headerRef} className="pub-nav" data-menu-open={menuShown || undefined}>
+      <div className="pub-nav-bar">
+        {/* The name starts with the visible initials, so voice control ("click AD") finds the link (WCAG 2.5.3) */}
+        <Link to="/" className="pub-nav-brand" aria-label={t('nav.home', { initials: initialsOf(name), name })} onClick={onBrandClick}>
+          <span className="pub-nav-mark" aria-hidden="true">
+            {initialsOf(name)}
+          </span>
+        </Link>
 
-          <nav className="pub-nav-links" aria-label={t('nav.label')}>
-            <ul>{links()}</ul>
-          </nav>
+        <nav className="pub-nav-links" aria-label={t('nav.label')}>
+          <ul>{links('pub-nav-link')}</ul>
+        </nav>
 
-          <div className="pub-nav-actions">
-            <SoundToggle className="pub-nav-sound" />
-            <ThemeToggle />
-            <LangToggle />
-            <CvButton size="sm" variant="primary" className="pub-nav-cv" />
-            <button
-              type="button"
-              className="pub-icon-btn pub-nav-menu-btn"
-              aria-expanded={menuShown}
-              aria-controls="pub-menu"
-              aria-label={t('nav.open')}
-              onClick={() => setMenuOpen(true)}
-            >
-              <MenuIcon size={22} />
-            </button>
-          </div>
+        <div className="pub-nav-actions">
+          <SoundToggle className="pub-nav-btn" />
+          <ThemeToggle className="pub-nav-btn" />
+          <LangToggle />
+          <button
+            type="button"
+            className="pub-nav-menu-btn"
+            aria-expanded={menuShown}
+            aria-controls="pub-menu"
+            aria-label={t(menuShown ? 'nav.closeMenu' : 'nav.open')}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuShown ? <CloseIcon size={28} /> : <MenuIcon size={28} />}
+          </button>
         </div>
-      </header>
+      </div>
 
       {menuShown && (
-        <div id="pub-menu" ref={menuRef} className="pub-menu pub-grid-bg" role="dialog" aria-modal="true" aria-labelledby="pub-menu-title">
-          <div className="pub-container pub-menu-head">
-            <p id="pub-menu-title" className="pub-menu-title">
-              {t('nav.menuLabel')}
-            </p>
-            <button type="button" className="pub-icon-btn" aria-label={t('nav.closeMenu')} onClick={closeMenu}>
-              <CloseIcon size={22} />
-            </button>
-          </div>
-          <nav className="pub-container" aria-label={t('nav.label')}>
-            <ul className="pub-menu-list">{links(closeMenu)}</ul>
-          </nav>
-          <div className="pub-container pub-menu-foot">
-            <CvButton variant="primary" className="pub-menu-cv" onClick={closeMenu} />
-            <div className="pub-menu-switches">
-              <SoundToggle />
-              <ThemeToggle />
-              <LangToggle />
-            </div>
-          </div>
-        </div>
+        <nav id="pub-menu" className="pub-menu" aria-label={t('nav.label')}>
+          <ul>{links('pub-menu-link')}</ul>
+        </nav>
       )}
-    </>
+    </header>
   )
 }
 

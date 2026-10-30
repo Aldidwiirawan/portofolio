@@ -132,7 +132,7 @@ function CatPets() {
 
   useEffect(() => {
     const width = window.innerWidth
-    catsRef.current = CATS.map((cat, index) => createCat(Math.max(10, Math.min(width - 130, cat.share * width)), index))
+    catsRef.current = CATS.map((cat, index) => createCat(Math.max(10, Math.min(width - 70, cat.share * width)), index))
     const onPointer = (event) => {
       pointerRef.current = { x: event.clientX, y: event.clientY, at: performance.now() }
     }
@@ -271,7 +271,7 @@ function CatPets() {
     const cat = catsRef.current?.[index]
     if (!cat || cat.mode !== 'held' || !cat.grab) return
     const grab = cat.grab
-    const catWidth = catRefs.current[index]?.offsetWidth ?? 116
+    const catWidth = catRefs.current[index]?.offsetWidth ?? 56
     cat.x = Math.max(0, Math.min(window.innerWidth - catWidth, grab.x0 + (event.clientX - grab.sx)))
     cat.y = Math.max(0, grab.y0 - (event.clientY - grab.sy))
     cat.vx = event.clientX - grab.lx

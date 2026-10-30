@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useI18n } from '../../../i18n/i18nContext'
 import { usePrefersReducedMotion } from '../../../lib/useMediaQuery'
 import { useSound } from '../sound/soundContext'
-import { createWorld, place, resize, settle, step } from './chipPhysics'
+import { createWorld, grounded, place, resize, settle, step } from './chipPhysics'
 
 // Chips shown while "Label panggung hero" in the admin is empty (owner's brief, ID/EN in the dictionary)
 const DEFAULT_CHIPS = ['hero.chip.uiux', 'hero.chip.city', 'hero.chip.name', 'hero.chip.role', 'hero.chip.study', 'hero.chip.focus']
@@ -45,10 +45,12 @@ function SparkMark() {
  * dragged and thrown with a mouse or finger, and jumps on click, Enter or Space; sounds come from the
  * shared sound module (on by default, only after a visitor gesture).
  *
- * The physics (chipPhysics.js) runs before the first frame, so the pile is already in place when the
- * page shows (no falling on load), and the loop only runs while something moves. With reduced motion
- * nothing moves by itself: a dragged chip drops into place at once and chips do not jump.
- * `labels` is null while the profile loads (the arena keeps its height, empty).
+ * When the page opens the chips fall in from above the hero and pile up on the floor of the arena (the
+ * reference site of phase 8 does the same); chips that end up on another chip lie at an angle. The loop
+ * only runs while something moves. With reduced motion nothing moves by itself: the chips are in their
+ * pile at once, a dragged chip drops into place at once and chips do not jump. Tags alternate between
+ * white with a hard shadow and outlined (black on hover), like the reference.
+ * `labels` is null while the profile loads (the arena stays empty).
  */
 function HeroChips({ labels, firstName }) {
   const { t } = useI18n()
@@ -76,6 +78,7 @@ function HeroChips({ labels, firstName }) {
         kind: label.shape === 'circle' ? 'round' : 'tag',
         text: label.text,
         spark: label.shape !== 'circle' && Boolean(firstName) && sameWord(label.text, firstName),
+        outline: index % 2 === 1,
       })),
       { key: 'code', kind: 'code', aria: t('hero.chip.codeName') },
       { key: 'star', kind: 'star', aria: t('hero.chip.starName') },
@@ -83,17 +86,41 @@ function HeroChips({ labels, firstName }) {
   }, [labels, firstName, t])
   const itemsKey = items.map((item) => `${item.kind}:${item.text ?? ''}`).join('|')
 
-  const paint = useCallback(() => {
-    worldRef.current.bodies.forEach((body, index) => {
+  // Chips in the air lean with their speed; at rest a chip on the floor is straight and one lying on
+  // another chip takes its resting angle
+  const paint = useCallback((instant = false) => {
+    const world = worldRef.current
+    world.bodies.forEach((body, index) => {
       const el = chipRefs.current[index]
       if (!el) return
-      const tilt = Math.max(-14, Math.min(14, body.vx * 1.6))
-      body.r += (tilt - body.r) * 0.25
+      const moving = Math.abs(body.vx) + Math.abs(body.vy) > 0.3 || world.drag?.index === index
+      const target = moving ? Math.max(-14, Math.min(14, body.vx * 1.6)) : grounded(world, body) ? 0 : body.rest
+      body.r = instant ? target : body.r + (target - body.r) * 0.2
       el.style.transform = `translate(${body.x.toFixed(1)}px, ${body.y.toFixed(1)}px) rotate(${body.r.toFixed(2)}deg)`
     })
   }, [])
 
-  // Reads the arena and chip sizes; a new set of chips starts from fresh positions
+  // The frame loop runs only while something moves or a chip is held
+  const wake = useCallback(() => {
+    if (frameRef.current) return
+    let calm = 0
+    const onHit = (index, strength) => cueRef.current('hit', { strength, source: `chip-${index}` })
+    const loop = () => {
+      const world = worldRef.current
+      const energy = step(world, onHit)
+      paint()
+      calm = energy < 0.08 && !world.drag ? calm + 1 : 0
+      if (calm > 40) {
+        frameRef.current = 0
+        return
+      }
+      frameRef.current = requestAnimationFrame(loop)
+    }
+    frameRef.current = requestAnimationFrame(loop)
+  }, [paint])
+
+  // Reads the arena and chip sizes. A new set of chips starts above the arena and falls in (at once with
+  // reduced motion); a resize while they fall or are held does not cut the fall short.
   const measure = useCallback(
     (fresh) => {
       const arena = arenaRef.current
@@ -102,16 +129,28 @@ function HeroChips({ labels, firstName }) {
       world.width = arena.clientWidth
       world.height = arena.clientHeight
       const sizes = chipRefs.current.slice(0, items.length).map((el) => ({ w: el?.offsetWidth ?? 0, h: el?.offsetHeight ?? 0 }))
-      if (fresh || world.bodies.length !== sizes.length) place(world, sizes)
-      else resize(world, sizes)
-      if (!world.drag) settle(world)
-      paint()
-      arena.dataset.ready = 'true'
+      if (fresh || world.bodies.length !== sizes.length) {
+        place(world, sizes)
+        if (reducedRef.current) {
+          settle(world)
+          paint(true)
+        } else {
+          paint(true)
+          wake()
+        }
+      } else {
+        resize(world, sizes)
+        if (!world.drag && !frameRef.current) {
+          settle(world)
+          paint(true)
+        }
+      }
+      if (sizes.length > 0) arena.dataset.ready = 'true'
     },
-    [items.length, paint]
+    [items.length, paint, wake]
   )
 
-  // Before the first frame: chips placed and settled
+  // Before the first frame: chips placed above the arena (or in their pile with reduced motion)
   useLayoutEffect(() => {
     measure(true)
   }, [itemsKey, measure])
@@ -136,26 +175,13 @@ function HeroChips({ labels, firstName }) {
     }
   }, [itemsKey, items.length, measure])
 
-  useEffect(() => () => cancelAnimationFrame(frameRef.current), [])
-
-  // The frame loop runs only while something moves or a chip is held
-  const wake = useCallback(() => {
-    if (frameRef.current) return
-    let calm = 0
-    const onHit = (index, strength) => cueRef.current('hit', { strength, source: `chip-${index}` })
-    const loop = () => {
-      const world = worldRef.current
-      const energy = step(world, onHit)
-      paint()
-      calm = energy < 0.08 && !world.drag ? calm + 1 : 0
-      if (calm > 40) {
-        frameRef.current = 0
-        return
-      }
-      frameRef.current = requestAnimationFrame(loop)
-    }
-    frameRef.current = requestAnimationFrame(loop)
-  }, [paint])
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(frameRef.current)
+      frameRef.current = 0
+    },
+    []
+  )
 
   const localPoint = (event) => {
     const rect = arenaRef.current.getBoundingClientRect()
@@ -189,7 +215,7 @@ function HeroChips({ labels, firstName }) {
     body.vy = Math.max(-MAX_THROW, Math.min(MAX_THROW, y - body.y))
     body.x = x
     body.y = y
-    if (reducedRef.current) paint()
+    if (reducedRef.current) paint(true)
   }
 
   const onPointerUp = (index) => () => {
@@ -201,7 +227,7 @@ function HeroChips({ labels, firstName }) {
     if (drag.moved) cue('drop')
     if (reducedRef.current) {
       settle(world)
-      paint()
+      paint(true)
     } else {
       wake()
     }
@@ -229,7 +255,7 @@ function HeroChips({ labels, firstName }) {
             chipRefs.current[index] = el
           }}
           type="button"
-          className={`pub-hero-chip pub-hero-chip--${item.kind}`}
+          className={`pub-hero-chip pub-hero-chip--${item.kind}${item.outline ? ' pub-hero-chip--outline' : ''}`}
           aria-label={t('hero.chipHint', { label: item.text ?? item.aria })}
           onPointerDown={onPointerDown(index)}
           onPointerMove={onPointerMove(index)}

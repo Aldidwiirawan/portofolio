@@ -17,40 +17,41 @@ export function createWorld() {
   return { width: 0, height: 0, bodies: [], drag: null }
 }
 
-// Wide arenas: rows fill only part of the width and start at different places, so the upper rows land
-// partly on the chips below and partly on the floor (a pile, not one straight line)
-const ROW_SHARE = 0.6
-const ROW_STARTS = [0, 0.32, 0.1, 0.45]
+// Where chips start (share of the free width): two groups, left and middle, like the pile of the
+// reference site of phase 8 (chips land partly on each other). Narrow arenas use the whole width.
+const GROUPS = [
+  [0, 0.28],
+  [0.38, 0.56],
+]
 
 /**
- * Starting positions before the first frame: rows from left to right, each row above the previous
- * one, with a small fixed offset per chip so the pile looks dropped rather than lined up. settle()
- * then lets them fall into place.
+ * Starting positions above the arena (the chips fall in when the page opens, like the reference site of
+ * phase 8): alternately in the two groups, spread inside a group by the golden ratio, at a few different
+ * heights so they land one after the other. Each chip gets a fixed resting angle for when it ends up lying
+ * on another chip. settle() lets them fall at once (reduced motion).
  */
 export function place(world, sizes) {
   const wide = world.width > 700
-  const rowWidth = wide ? world.width * ROW_SHARE : world.width
-  const rowStart = (row) => (wide ? world.width * ROW_STARTS[row % ROW_STARTS.length] : 0)
-  let row = 0
-  let x = rowStart(0)
   world.bodies = sizes.map(({ w, h }, index) => {
-    if (x + w > rowStart(row) + rowWidth && x > rowStart(row)) {
-      row += 1
-      x = rowStart(row)
-    }
-    const jitter = ((index * 37) % 23) - 11
-    const body = {
-      x: Math.min(Math.max(0, x + jitter), Math.max(0, world.width - w)),
-      y: world.height - h - row * (h + 12) - (index % 3) * 18,
+    const [from, to] = wide ? GROUPS[index % 2] : [0, 1]
+    const share = from + ((0.13 + index * 0.618034) % 1) * (to - from)
+    const sign = index % 2 === 0 ? 1 : -1
+    return {
+      x: share * Math.max(0, world.width - w),
+      y: Math.max(CEILING, -h - 10 - (index % 4) * 60),
       vx: 0,
       vy: 0,
       w,
       h,
       r: 0,
+      rest: sign * (8 + ((index * 7) % 15)),
     }
-    x += w + 8
-    return body
   })
+}
+
+/** Whether a chip lies on the floor (not on another chip). */
+export function grounded(world, body) {
+  return body.y + body.h >= world.height - 0.5
 }
 
 /** New sizes (font loaded, window resized) without moving the chips more than needed. */

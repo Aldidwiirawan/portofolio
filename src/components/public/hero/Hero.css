@@ -1,39 +1,51 @@
-/* Hero beranda — gaya monokrom (MASTER §16): chip berfisika, nama besar, baris kode, bar status */
+/* Hero beranda — tata letak dan ukuran situs acuan Fase 8 (styfensagala.vercel.app, diukur di 1440×900,
+   1920×1080, 390×844): tinggi satu layar, chip berfisika yang jatuh di bagian atas, nama selebar layar
+   di 30% tinggi, baris kode tepat di bawahnya, bar status empat kolom 85 px di atas dasar hero (bagian
+   berikutnya naik 85 px menutupi sisanya, lihat AboutSection.css). */
 
 .pub-hero {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - var(--pub-nav-h));
-  min-height: calc(100svh - var(--pub-nav-h));
-  overflow-x: clip;
-}
-
-/* --- Chip yang bisa diseret ------------------------------------------------- */
-
-/* Di atas nama: kotak huruf nama yang besar menjorok ke atas lantai chip dan tidak boleh menangkap klik */
-.pub-hero-stage {
-  position: relative;
   z-index: 1;
   width: 100%;
-  max-width: calc(90rem + var(--pub-gutter) * 2);
-  margin: clamp(2.5rem, 6vw, 5.5rem) auto 0;
-  padding-inline: var(--pub-gutter);
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
 }
 
-/* Lantai chip. Chip boleh dilempar ke atas melewati tepinya (overflow terlihat). Sebelum diukur (frame
-   pertama) chip tidak terlihat, lalu muncul sekaligus dalam posisi diam. */
+@media (min-width: 768px) {
+  .pub-hero {
+    height: 100dvh;
+  }
+}
+
+/* --- Chip yang bisa diseret ------------------------------------------------------------------------ */
+
+/* Lapisan chip seluas hero, di atas nama; hanya chip yang menangkap klik */
+.pub-hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Lantai chip: 26% tinggi hero di layar ≥ 768 px (seperti acuan), di HP tepat di atas nama (acuan
+   membiarkan chip menutupi nama di HP; di sini tidak) */
 .pub-hero-arena {
-  position: relative;
-  height: 18.75rem; /* 300px */
-  opacity: 0;
-  transition: opacity 400ms ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(32% - 0.75rem);
 }
 
-.pub-hero-arena[data-ready] {
-  opacity: 1;
+@media (min-width: 768px) {
+  .pub-hero-arena {
+    height: 26%;
+  }
 }
 
+/* Pil: huruf 10 px (≥ 768: 1,1vw) tebal kapital, garis 2 px, jarak 16 × 8 px (≥ 768: 1,5vw × 0,7vw).
+   Bergantian putih dengan bayangan kotak 3 px dan bergaris saja (hitam saat hover). */
 .pub-hero-chip {
   position: absolute;
   top: 0;
@@ -41,143 +53,196 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
-  height: 4rem;
-  padding: 0 1.875rem;
-  border: var(--pub-border) solid var(--fg);
+  gap: 0.35em;
+  padding: 0.5rem 1rem;
+  border: 2px solid #000000;
   border-radius: 999px;
-  background-color: var(--bg);
-  color: var(--fg);
-  box-shadow: 4px 5px 0 var(--fg);
-  font-size: 1.25rem;
+  background-color: #ffffff;
+  box-shadow: 3px 3px 0 #000000;
+  color: #000000;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.01em;
+  line-height: 1.5;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: grab;
+  pointer-events: auto;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
   will-change: transform;
 }
 
+.pub-hero-chip > span,
+.pub-hero-chip > svg {
+  transition: transform 300ms ease-out;
+}
+
+.pub-hero-chip:hover > span,
+.pub-hero-chip:hover > svg {
+  transform: scale(1.05);
+}
+
 .pub-hero-chip:active {
   cursor: grabbing;
 }
 
-.pub-hero-chip svg {
-  flex-shrink: 0;
-  width: 1.875rem;
-  height: 1.875rem;
+.pub-hero-chip--outline {
+  background-color: transparent;
+  box-shadow: none;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
-.pub-hero-chip .pub-hero-chip-spark {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-left: -2px;
+.pub-hero-chip--outline:hover {
+  background-color: #000000;
+  color: #ffffff;
 }
 
-/* Lingkaran: hitam berisi </>, putih berisi bintang, dan label berbentuk lingkaran dari admin */
+.pub-hero-chip-spark {
+  width: 0.85em;
+  height: 0.85em;
+}
+
+/* Lingkaran 40 px (≥ 768: 4,5vw): putih berisi bintang, hitam berisi </>, bayangan lembut besar */
 .pub-hero-chip--code,
 .pub-hero-chip--star,
 .pub-hero-chip--round {
-  width: 5.75rem;
-  height: 5.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0;
-  border-radius: 50%;
-  font-size: 1.75rem;
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .pub-hero-chip--code {
-  background-color: var(--fg);
-  color: var(--bg);
-  box-shadow: 4px 5px 0 color-mix(in srgb, var(--fg) 40%, transparent);
+  background-color: #000000;
+  color: #ffffff;
 }
 
-/* Layar sentuh: geser vertikal tetap menggulir halaman; chip diseret ke samping atau diketuk */
-@media (pointer: coarse) {
-  .pub-hero-chip {
-    touch-action: pan-y;
-  }
+.pub-hero-chip--star svg {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
-@media (max-width: 619px) {
-  .pub-hero-arena {
-    height: 20.625rem; /* 330px */
-  }
+.pub-hero-chip--code svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
 
+.pub[data-theme='dark'] .pub-hero-chip {
+  border-color: var(--n700);
+  background-color: var(--n900);
+  box-shadow: 3px 3px 0 rgb(255 255 255 / 0.2);
+  color: #ffffff;
+}
+
+.pub[data-theme='dark'] .pub-hero-chip--outline {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.pub[data-theme='dark'] .pub-hero-chip--outline:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.pub[data-theme='dark'] .pub-hero-chip--code,
+.pub[data-theme='dark'] .pub-hero-chip--star,
+.pub[data-theme='dark'] .pub-hero-chip--round {
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.pub[data-theme='dark'] .pub-hero-chip--code {
+  border-color: transparent;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+@media (min-width: 768px) {
   .pub-hero-chip {
-    gap: 0.5rem;
-    height: 3.125rem;
-    padding: 0 1.125rem;
-    font-size: 0.9375rem;
+    padding: 0.7vw 1.5vw;
+    font-size: 1.1vw;
   }
 
   .pub-hero-chip--code,
   .pub-hero-chip--star,
   .pub-hero-chip--round {
-    width: 4.25rem;
-    height: 4.25rem;
+    width: 4.5vw;
+    height: 4.5vw;
     padding: 0;
-    font-size: 1.25rem;
   }
 
-  .pub-hero-chip svg {
-    width: 1.5rem;
-    height: 1.5rem;
+  .pub-hero-chip--star svg {
+    width: 2vw;
+    height: 2vw;
   }
 
-  .pub-hero-chip .pub-hero-chip-spark {
-    width: 1rem;
-    height: 1rem;
+  .pub-hero-chip--code svg {
+    width: 1.8vw;
+    height: 1.8vw;
   }
 }
 
-/* --- Nama dan baris kode ------------------------------------------------------ */
+/* --- Nama dan baris kode ------------------------------------------------------------------------- */
 
+/* 32% tinggi hero di HP, 30% mulai 768 px; di bawah lapisan chip dan tidak menangkap klik */
 .pub-hero-namebox {
-  margin-bottom: clamp(2.5rem, 5vw, 4rem);
-  padding-inline: clamp(0.75rem, 2vw, 1.75rem);
-}
-
-/* Nama: di HP boleh dua baris; mulai 768 px satu baris yang mengisi lebar layar. Jarak huruf -0,03em:
-   rapat seperti referensi, tetapi huruf tidak menempel (jarak tinta terkecil, "AN", ±3,4% ukuran huruf;
-   dengan -0,055em referensi hanya ±0,6%). */
-.pub-hero-name {
-  margin: 0.375rem 0 0;
-  color: var(--fg);
-  font-size: 18vw;
-  font-weight: 700;
-  line-height: 0.86;
-  letter-spacing: -0.03em;
-  text-align: center;
-  text-transform: uppercase;
-  text-wrap: balance;
+  position: absolute;
+  top: 32%;
+  left: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {
-  .pub-hero-name {
-    font-size: min(12.2vw, 12.875rem); /* "ALDI DWI IRAWAN" ±7,6 × ukuran huruf: hampir selebar layar */
-    white-space: nowrap;
+  .pub-hero-namebox {
+    top: 30%;
   }
 }
 
-.pub-hero-word {
-  display: inline-block;
+/* Space Grotesk 900 kapital, jarak huruf -0,05em, tinggi baris 0,7, satu baris dari tepi ke tepi. Acuan
+   memakai 14vw untuk 13 huruf; nama ini lebih panjang, jadi ukurannya diskalakan agar lebar totalnya
+   sama (diukur: 1384 px di 1440, 1845 px di 1920, ± 96% lebar layar). */
+.pub-hero-name {
+  width: 100%;
+  color: var(--fg);
+  font-size: 13.02vw;
+  font-weight: 900;
+  line-height: 0.7;
+  letter-spacing: -0.05em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: color 300ms ease;
 }
 
-/* Baris kode: monospace, kata kunci dan teks tebal berwarna tinta, sisanya abu-abu (semua ≥ 4,5:1) */
+/* Baris kode: 8 px di HP (0,8vw mulai 768), rata kiri-kanan, 85% (80%) lebar. Warna acuan (opacity 30%)
+   terlalu pucat untuk dibaca; di sini kata kunci hitam tebal, nama abu tua, tanda baca abu yang masih
+   lolos kontras 4,5:1. */
 .pub-hero-code {
-  max-width: 77.5rem;
-  margin: 1.75rem auto 0;
-  padding-inline: var(--pub-gutter);
-  color: var(--mute);
-  font-family: var(--ds-font-mono);
-  font-size: clamp(0.8125rem, 0.75rem + 0.35vw, 0.96875rem);
-  line-height: 1.7;
-  font-variant-ligatures: none; /* "=>" tetap dua tanda, bukan panah gabungan */
+  width: 100%;
+  max-width: 85%;
+  margin-top: 1.25rem;
+  color: var(--fg);
+  font-size: 8px;
+  line-height: 1.625;
+  text-align: justify;
   overflow-wrap: anywhere;
+}
+
+.pub-hero-code-text {
+  color: var(--n600);
 }
 
 .pub-code-keyword {
@@ -190,99 +255,136 @@
 }
 
 .pub-code-punct {
-  color: var(--ds-text-subtle);
+  color: var(--n500);
 }
 
-/* --- Bar status ------------------------------------------------------------ */
+.pub[data-theme='dark'] .pub-hero-code-text {
+  color: var(--n300);
+}
+
+.pub[data-theme='dark'] .pub-code-punct {
+  color: var(--n500);
+}
+
+@media (min-width: 768px) {
+  .pub-hero-code {
+    max-width: 80%;
+    margin-top: 2rem;
+    font-size: 0.8vw;
+  }
+}
+
+/* --- Bar status: empat kolom bergaris 2 px, 85 px di atas dasar hero ------------------------------- */
+
+.pub-hero-strip-wrap {
+  position: absolute;
+  bottom: 85px;
+  left: 0;
+  z-index: 5;
+  width: 100%;
+}
 
 .pub-hero-strip {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: auto;
-  border-top: var(--pub-border) solid var(--fg);
-  border-bottom: var(--pub-border) solid var(--fg);
+  border-block: 2px solid #000000;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.05em;
   list-style: none;
+  text-transform: uppercase;
+  transition: background-color 300ms ease;
 }
 
 .pub-hero-strip-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 0.5rem;
   min-width: 0;
-  min-height: 3.75rem;
-  padding: 0.625rem var(--pub-gutter);
-  color: var(--fg);
-  font-size: 0.8125rem;
+  padding: 1rem 0.75rem;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.pub-hero-strip-item + .pub-hero-strip-item {
+  border-left: 2px solid #000000;
+}
+
+.pub-hero-strip-item:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.pub-hero-strip-item strong {
   font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
-.pub-hero-strip-item:nth-child(even) {
-  border-left: var(--pub-border) solid var(--fg);
+.pub-hero-strip-today {
+  display: inline-flex;
+  gap: 0.5rem;
 }
 
-.pub-hero-strip-item:nth-child(n + 3) {
-  border-top: var(--pub-border) solid var(--fg);
-}
-
-.pub-hero-strip em {
-  font-style: normal;
-  font-weight: 500;
+.pub-hero-strip-item--scroll {
+  gap: 0.5rem;
+  animation: pub-hero-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .pub-hero-strip-link,
 .pub-hero-strip-link:hover {
-  color: var(--fg);
+  color: inherit;
 }
 
 .pub-hero-strip-link {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: var(--ds-target-min);
 }
 
-.pub-hero-strip-link:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.25em;
+.pub[data-theme='dark'] .pub-hero-strip {
+  border-color: var(--n700);
+  background-color: var(--n900);
+  color: #ffffff;
 }
 
-@media (min-width: 1060px) {
+.pub[data-theme='dark'] .pub-hero-strip-item + .pub-hero-strip-item {
+  border-left-color: var(--n700);
+}
+
+.pub[data-theme='dark'] .pub-hero-strip-item:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+@keyframes pub-hero-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (min-width: 768px) {
   .pub-hero-strip {
-    grid-template-columns: none;
-    grid-auto-columns: minmax(0, 1fr);
-    grid-auto-flow: column;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    font-size: 0.875rem;
+    line-height: 1.25rem;
   }
 
   .pub-hero-strip-item {
-    min-height: 4.75rem; /* 76px */
-    font-size: 1.0625rem;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
   }
 
-  .pub-hero-strip-item:nth-child(n) {
-    border-top: 0;
-    border-left: var(--pub-border) solid var(--fg);
-  }
-
-  .pub-hero-strip-item:first-child {
-    border-left: 0;
+  .pub-hero-strip-item--scroll {
+    justify-content: center;
   }
 }
 
-/* --- Gerak ------------------------------------------------------------------------
-   Kata nama naik sekali saat halaman dibuka; baris kode diketik sekali. Saat menggulir, nama sedikit
-   naik dan memudar (CSS scroll-driven animation, hanya di browser yang mendukung; yang lain tetap diam
-   dalam keadaan akhir). Semua mati saat reduced motion. */
-
-@keyframes pub-hero-rise {
-  from {
-    opacity: 0;
-    transform: translateY(40%);
-  }
-}
+/* --- Gerak: baris kode diketik sekali saat halaman dibuka ------------------------------------------- */
 
 @keyframes pub-hero-type {
   from {
@@ -293,45 +395,14 @@
   }
 }
 
-@keyframes pub-hero-name-out {
-  to {
-    opacity: 0.2;
-    transform: translateY(-60px) scale(0.96);
-  }
-}
-
 @media (prefers-reduced-motion: no-preference) {
-  .pub-hero-word {
-    animation: pub-hero-rise 1s var(--ds-ease-out) both;
-  }
-
-  .pub-hero-word:nth-of-type(2) {
-    animation-delay: 80ms;
-  }
-
-  .pub-hero-word:nth-of-type(3) {
-    animation-delay: 160ms;
-  }
-
-  .pub-hero-word:nth-of-type(n + 4) {
-    animation-delay: 240ms;
-  }
-
   .pub-hero-code {
     animation: pub-hero-type 3.2s steps(90) 600ms both;
-  }
-
-  @supports (animation-timeline: scroll()) {
-    .pub-hero-namebox {
-      animation: pub-hero-name-out linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0px 700px;
-    }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pub-hero-arena {
-    transition: none;
+  .pub-hero-strip-item--scroll {
+    animation: none;
   }
 }

@@ -1,60 +1,67 @@
-/* Navbar publik (sticky) dan menu layar penuh di HP/tablet — gaya monokrom (MASTER §16) */
+/* Navbar publik dan panel menu HP — ukuran situs acuan Fase 8 (styfensagala.vercel.app, diukur di 1440,
+   1920, 390): tinggi 80 px + garis 1 px, latar 95% dengan blur, menu 14 px tebal kapital 0,1em di tengah,
+   tombol bulat 40 px dan pilihan bahasa 80 × 40 di kanan. */
 
 .pub-nav {
+  --pub-nav-line: var(--n200);
+  --pub-nav-btn-bg: var(--n100);
+  --pub-nav-btn-hover: var(--n200);
+  --pub-nav-knob: #ffffff;
+  --pub-nav-knob-line: var(--n200);
+
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent);
-  background-color: color-mix(in srgb, var(--bg) 92%, transparent);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  /* 80 px di alur halaman; garis 1 px menimpa awal hero, seperti acuan */
+  margin-bottom: -1px;
+  border-bottom: 1px solid var(--pub-nav-line);
+  background-color: rgb(255 255 255 / 0.95);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  transition: background-color 300ms ease;
 }
 
-.pub-nav[data-scrolled='true'] {
-  border-bottom-color: color-mix(in srgb, var(--fg) 16%, transparent);
+.pub[data-theme='dark'] .pub-nav {
+  --pub-nav-line: var(--n800);
+  --pub-nav-btn-bg: var(--n900);
+  --pub-nav-btn-hover: var(--n800);
+  --pub-nav-knob: var(--n800);
+  --pub-nav-knob-line: var(--n700);
+
+  background-color: rgb(0 0 0 / 0.95);
 }
 
-/* HP: tanda di kiri, tombol di kanan. ≥ 1060 px: tiga kolom, menu tepat di tengah. */
+/* Lebar maks. 1280 px dengan jarak 24 px; menu diletakkan tepat di tengah bar */
 .pub-nav-bar {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  max-width: calc(90rem + var(--pub-gutter) * 2);
-  height: var(--pub-nav-h);
+  justify-content: space-between;
+  max-width: 80rem;
+  height: 5rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
 }
 
 .pub-nav-brand {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
-  min-height: var(--ds-target-min);
-  margin-right: auto;
-}
-
-/* Tanda inisial: kotak bergaris tebal dengan bayangan kotak */
-.pub-nav-mark {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: var(--pub-border) solid var(--fg);
-  border-radius: 12px;
-  background-color: var(--bg);
+  flex-shrink: 0;
   color: var(--fg);
-  box-shadow: 3px 3px 0 var(--fg);
-  font-size: 1rem;
+}
+
+/* Inisial "AD" seukuran ikon logo acuan (± 25 × 33 px), tanpa kotak */
+.pub-nav-mark {
+  display: block;
+  color: var(--fg);
+  font-size: 1.375rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
-  transition:
-    transform var(--ds-duration-base) var(--ds-ease-out),
-    box-shadow var(--ds-duration-base) var(--ds-ease-out);
+  line-height: 33px;
+  letter-spacing: -0.07em;
 }
 
-.pub-nav-brand:hover .pub-nav-mark {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--fg);
-}
-
-/* Menu section (desktop) */
 .pub-nav-links {
   display: none;
 }
@@ -62,7 +69,7 @@
 .pub-nav-links ul {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 2rem;
   list-style: none;
 }
 
@@ -72,240 +79,191 @@
 }
 
 .pub-nav-link {
-  --pub-nav-link-x: 0.625rem;
-
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--ds-target-min);
-  padding: 0 var(--pub-nav-link-x);
-  font-size: 0.8125rem; /* 13px */
+  display: inline-block;
+  font-size: 0.875rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  line-height: 1.25rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
+  transition: color 150ms ease;
 }
 
-/* Garis di bawah teks: muncul saat hover dan untuk section yang sedang dibaca (transform saja) */
-.pub-nav-link::after {
-  content: '';
-  position: absolute;
-  left: var(--pub-nav-link-x);
-  right: var(--pub-nav-link-x);
-  bottom: 0.375rem;
-  height: 2px;
-  background-color: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 350ms var(--ds-ease-out);
-}
-
-.pub-nav-link:hover::after,
-.pub-nav-link[aria-current='location']::after {
-  transform: scaleX(1);
+.pub-nav-link:hover {
+  color: var(--n500);
 }
 
 .pub-nav-actions {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 0.5rem;
 }
 
-/* Tombol suara di bar mulai 620 px (di bawahnya ada di menu); "Unduh CV" di bar mulai 1280 px */
-.pub-nav-sound,
-.pub-nav-cv {
-  display: none;
+/* Tombol suara dan tema: lingkaran 40 px bergaris abu muda, ikon 18 px */
+.pub-nav-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--pub-nav-line);
+  border-radius: 999px;
+  background-color: var(--pub-nav-btn-bg);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background-color 150ms ease;
 }
 
-/* Pilihan bahasa ID | EN: dua tombol di dalam pil lembut, yang aktif terangkat */
+.pub-nav-btn:hover {
+  background-color: var(--pub-nav-btn-hover);
+}
+
+/* Pilihan bahasa: pil 80 × 40 dengan kenop putih 36 × 30 yang bergeser ke bahasa aktif */
 .pub-lang {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 2px;
+  width: 5rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  border: 1px solid var(--pub-nav-line, var(--n200));
   border-radius: 999px;
-  background-color: var(--soft);
+  background-color: var(--pub-nav-btn-bg, var(--n100));
+  transition: background-color 300ms ease;
+}
+
+.pub-lang::before {
+  content: '';
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  width: 2.25rem;
+  border: 1px solid var(--pub-nav-knob-line, var(--n200));
+  border-radius: 999px;
+  background-color: var(--pub-nav-knob, #ffffff);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pub-lang[data-lang='en']::before {
+  transform: translateX(2.125rem);
 }
 
 .pub-lang-option {
-  min-width: 2.75rem;
-  height: 2.5rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  height: 100%;
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background-color: transparent;
-  color: var(--mute);
-  font-size: 0.8125rem;
+  background: transparent;
+  color: var(--n600);
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
-  transition:
-    background-color var(--ds-duration-fast) ease,
-    color var(--ds-duration-fast) ease;
+  transition: color 300ms ease;
 }
 
-.pub-lang-option:hover {
+.pub[data-theme='dark'] .pub-lang-option {
+  color: var(--n400);
+}
+
+.pub .pub-lang-option[aria-pressed='true'] {
   color: var(--fg);
 }
 
-.pub-lang-option[aria-pressed='true'] {
-  background-color: var(--bg);
+/* Tombol menu HP: 44 × 44, ikon 28 px tanpa lingkaran */
+.pub-nav-menu-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
   color: var(--fg);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.14);
+  cursor: pointer;
+  transition: background-color 150ms ease;
 }
 
-@media (min-width: 620px) {
-  .pub-nav-sound {
-    display: inline-grid;
+.pub-nav-menu-btn:hover {
+  background-color: var(--pub-nav-btn-bg);
+}
+
+@media (min-width: 768px) {
+  .pub-nav-actions {
+    gap: 0.75rem;
   }
 }
 
-@media (min-width: 1060px) {
-  .pub-nav-bar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-  }
-
-  .pub-nav-brand {
-    justify-self: start;
-    margin-right: 0;
-  }
-
+@media (min-width: 1240px) {
   .pub-nav-links {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     display: block;
+    transform: translate(-50%, -50%);
   }
 
   .pub-nav-menu-btn {
     display: none;
   }
-
-  .pub-nav .pub-icon-btn {
-    width: 3rem;
-    height: 3rem;
-  }
 }
 
-@media (min-width: 1280px) {
-  .pub-nav-cv {
-    display: inline-flex;
-  }
-
-  .pub-nav-link {
-    --pub-nav-link-x: 0.75rem;
-
-    font-size: 0.875rem;
-    letter-spacing: 0.1em;
-  }
-}
-
-@media (min-width: 1440px) {
-  .pub-nav-links ul {
-    gap: 6px;
-  }
-
-  .pub-nav-link {
-    --pub-nav-link-x: 0.875rem;
-
-    font-size: 0.9375rem; /* 15px */
-    letter-spacing: 0.14em;
-  }
-
-  .pub-nav .pub-icon-btn {
-    width: 3.25rem;
-    height: 3.25rem;
-  }
-}
-
-/* --- Menu layar penuh (< 1060 px) ---------------------------------------- */
+/* --- Panel menu HP: tepat di bawah bar, selebar layar ------------------------------------------- */
 
 .pub-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
+  position: absolute;
+  top: 5rem;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--pub-nav-line);
+  background-color: var(--bg);
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.pub-menu ul {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background-color: var(--bg);
-  animation: pub-menu-in var(--ds-duration-slow) var(--ds-ease-out);
-}
-
-@keyframes pub-menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-}
-
-.pub-menu-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: var(--pub-nav-h);
-  border-bottom: var(--pub-border) solid var(--fg);
-}
-
-.pub-menu-title {
-  color: var(--fg);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.pub-menu-list {
-  display: grid;
-  padding-block: var(--space-3);
+  gap: 1rem;
+  padding: 1.5rem;
   list-style: none;
 }
 
-.pub-menu-list .pub-nav-link {
-  display: flex;
-  min-height: 4rem;
-  padding: 0;
-  border-bottom: 1.5px solid var(--line);
-  font-size: clamp(1.75rem, 1rem + 4vw, 2.75rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+.pub-menu-link,
+.pub-menu-link:hover {
+  color: var(--fg);
 }
 
-.pub-menu-list .pub-nav-link::after {
-  display: none;
+.pub-menu-link {
+  display: block;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--n100);
+  font-size: 1.125rem;
+  font-weight: 900;
+  line-height: 1.75rem;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
 }
 
-.pub-menu-list .pub-nav-link[aria-current='location'] {
-  text-decoration: underline;
-  text-decoration-thickness: 3px;
-  text-underline-offset: 0.14em;
+.pub[data-theme='dark'] .pub-menu-link {
+  border-bottom-color: var(--n900);
 }
 
-.pub-menu-foot {
-  display: grid;
-  gap: var(--space-4);
-  margin-top: auto;
-  padding-block: var(--space-6);
-}
-
-.pub-menu-cv {
-  width: 100%;
-}
-
-.pub-menu-switches {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.pub-menu-link:hover {
+  color: var(--n500);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pub-menu {
-    animation: none;
-  }
-
-  .pub-nav-brand:hover .pub-nav-mark {
-    transform: none;
-  }
-
-  .pub-nav-link::after {
+  .pub-lang::before {
     transition: none;
   }
 }

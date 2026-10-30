@@ -6,7 +6,7 @@ import { ThemeContext } from './publicContexts'
 export const THEME_STORAGE_KEY = 'aldi-portfolio-theme'
 const THEMES = ['light', 'dark']
 // Browser bar color per theme (= --bg of the monochrome palette, public.css)
-const BAR_COLORS = { light: '#ffffff', dark: '#0a0a0a' }
+const BAR_COLORS = { light: '#ffffff', dark: '#000000' }
 
 function storedTheme() {
   const value = readStorage(THEME_STORAGE_KEY)

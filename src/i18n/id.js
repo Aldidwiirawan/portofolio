@@ -26,6 +26,7 @@ const id = {
   'nav.projects': 'Proyek',
   'nav.journey': 'Perjalanan',
   'nav.certificates': 'Sertifikat',
+  'nav.guestbook': 'Buku Tamu',
   'nav.contact': 'Kontak',
 
   'theme.toLight': 'Ganti ke tema terang',
@@ -212,7 +213,7 @@ const id = {
   'form.success': 'Pesan terkirim. Terima kasih, saya akan membalas lewat email.',
   'form.failed': 'Pesan belum terkirim. Periksa koneksi internet, lalu coba lagi.',
 
-  'guestbook.open': 'Buku tamu',
+  'guestbook.open': 'Buku Tamu',
   'guestbook.openLabel': 'Buka buku tamu, {n} pesan',
   'guestbook.count': '{n} pesan',
   'guestbook.title': 'Buku tamu',

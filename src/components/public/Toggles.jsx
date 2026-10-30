@@ -10,7 +10,7 @@ export function ThemeToggle({ className = '' }) {
   const label = t(theme === 'dark' ? 'theme.toLight' : 'theme.toDark')
   return (
     <button type="button" className={`pub-icon-btn ${className}`.trim()} onClick={toggleTheme} aria-label={label} title={label}>
-      {theme === 'dark' ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+      {theme === 'dark' ? <SunIcon size={18} /> : <MoonIcon size={18} />}
     </button>
   )
 }
@@ -22,7 +22,7 @@ export function SoundToggle({ className = '' }) {
   const label = t(enabled ? 'sound.off' : 'sound.on')
   return (
     <button type="button" className={`pub-icon-btn ${className}`.trim()} onClick={toggle} aria-label={label} title={label}>
-      {enabled ? <SoundOnIcon size={20} /> : <SoundOffIcon size={20} />}
+      {enabled ? <SoundOnIcon size={18} /> : <SoundOffIcon size={18} />}
     </button>
   )
 }
@@ -33,14 +33,14 @@ const LANGUAGES = [
 ]
 
 /**
- * ID / EN language choice: two buttons in a pill, the active one pressed (aria-pressed). Each spoken
+ * ID / EN language choice: two buttons in a pill with a white knob under the active one (aria-pressed). Each spoken
  * name starts with the letters on the button ("ID, Bahasa Indonesia"), so voice control users can say
  * what they see (WCAG 2.5.3).
  */
 export function LangToggle({ className = '' }) {
   const { lang, setLang, t } = useI18n()
   return (
-    <div className={`pub-lang ${className}`.trim()} role="group" aria-label={t('lang.label')}>
+    <div className={`pub-lang ${className}`.trim()} role="group" aria-label={t('lang.label')} data-lang={lang}>
       {LANGUAGES.map((option) => (
         <button
           key={option.code}
