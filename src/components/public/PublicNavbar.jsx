@@ -20,7 +20,6 @@ const NAV_SECTIONS = [
   { id: 'perjalanan', label: 'nav.journey', data: ['experiences', 'educations'] },
   { id: 'sertifikat', label: 'nav.certificates', data: 'certifications' },
   { id: 'bukutamu', label: 'nav.guestbook', data: null, guestbook: true },
-  { id: 'kontak', label: 'nav.contact', data: null },
 ]
 
 function hasSection(data, key) {
@@ -81,7 +80,7 @@ function PublicNavbar() {
   const { pathname, hash } = useLocation()
   const navigate = useNavigate()
   const isHome = pathname === '/'
-  const isDesktop = useMediaQuery('(min-width: 1240px)')
+  const isDesktop = useMediaQuery('(min-width: 1120px)')
   const [menuOpen, setMenuOpen] = useState(false)
   const headerRef = useRef(null)
 
@@ -158,6 +157,19 @@ function PublicNavbar() {
           <SoundToggle className="pub-nav-btn" />
           <ThemeToggle className="pub-nav-btn" />
           <LangToggle />
+          <a
+            href="/#kontak"
+            className="pub-nav-contact-btn"
+            onClick={(e) => {
+              if (isHome) {
+                e.preventDefault()
+                const el = document.getElementById('kontak')
+                if (el) el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+              }
+            }}
+          >
+            {t('nav.contactMe')}
+          </a>
           <button
             type="button"
             className="pub-nav-menu-btn"
@@ -173,7 +185,25 @@ function PublicNavbar() {
 
       {menuShown && (
         <nav id="pub-menu" className="pub-menu" aria-label={t('nav.label')}>
-          <ul>{links('pub-menu-link')}</ul>
+          <ul>
+            {links('pub-menu-link')}
+            <li className="pub-menu-cta-item">
+              <a
+                href="/#kontak"
+                className="pub-menu-contact-btn"
+                onClick={(e) => {
+                  closeMenu()
+                  if (isHome) {
+                    e.preventDefault()
+                    const el = document.getElementById('kontak')
+                    if (el) el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+                  }
+                }}
+              >
+                {t('nav.contactMe')}
+              </a>
+            </li>
+          </ul>
         </nav>
       )}
     </header>

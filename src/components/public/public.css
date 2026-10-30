@@ -191,6 +191,12 @@ html:has(.pub) {
   min-height: 100vh;
   min-height: 100svh;
   background-color: var(--bg);
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--fg) 8%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+  background-position: 0 0;
   color: var(--ds-text);
   font-family: var(--ds-font-sans);
   font-size: 1rem; /* 16px, seperti situs acuan Fase 8 */

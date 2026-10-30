@@ -1,7 +1,7 @@
 ---
-# RINGKASAN untuk impeccable. Acuan utama: design-system/aldi-portfolio/MASTER.md (bila berbeda, MASTER.md yang berlaku).
-name: Blueprint (Aldi Portfolio)
-description: Satu identitas, dua tema; presisi teknis ala cetak biru dengan konten yang bersih.
+# RINGKASAN: Acuan utama adalah design-system/aldi-portfolio/MASTER.md.
+name: Monokrom Modern (Aldi Portfolio)
+description: Desain hitam-putih modern dengan tipografi kuat, mikro-interaksi dinamis, dan tekstur berkedalaman.
 colors:
   canvas-light: "#F6F8FB"
   surface-light: "#FFFFFF"

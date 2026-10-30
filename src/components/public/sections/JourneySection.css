@@ -8,21 +8,14 @@
   padding-block: 4rem;
   scroll-margin-top: 5rem;
   background-color: var(--bg);
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--fg) 8%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+  background-position: 0 0;
   color: var(--fg);
   transition: background-color 300ms ease;
-}
-
-/* Grid 32 px yang sangat tipis (2%) di latar */
-.pub-journey-grid {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.02;
-  pointer-events: none;
-  background-image:
-    linear-gradient(currentColor 1px, transparent 1px),
-    linear-gradient(90deg, currentColor 1px, transparent 1px);
-  background-size: 32px 32px;
 }
 
 .pub-journey-inner {

@@ -25,6 +25,7 @@ const en = {
   'nav.certificates': 'Certificates',
   'nav.guestbook': 'Guestbook',
   'nav.contact': 'Contact',
+  'nav.contactMe': 'Contact Me',
 
   'theme.toLight': 'Switch to light theme',
   'theme.toDark': 'Switch to dark theme',

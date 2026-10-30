@@ -12,6 +12,25 @@
   overflow: hidden;
 }
 
+.pub-hero::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1000px, 92vw);
+  height: min(550px, 60vh);
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--fg) 5%, transparent) 0%,
+    color-mix(in srgb, var(--fg) 1.5%, transparent) 50%,
+    transparent 75%
+  );
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
 @media (min-width: 768px) {
   .pub-hero {
     height: 100dvh;

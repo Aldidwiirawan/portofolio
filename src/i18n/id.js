@@ -26,6 +26,7 @@ const id = {
   'nav.certificates': 'Sertifikat',
   'nav.guestbook': 'Buku Tamu',
   'nav.contact': 'Kontak',
+  'nav.contactMe': 'Hubungi Saya',
 
   'theme.toLight': 'Ganti ke tema terang',
   'theme.toDark': 'Ganti ke tema gelap',
