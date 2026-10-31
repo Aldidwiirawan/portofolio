@@ -95,6 +95,36 @@ export const PROJECT_OVERRIDES = {
       'Mengurangi tingkat kesalahan kirim dan scan ganda secara signifikan di toko klien. Kini JejakPaket telah resmi didistribusikan di Google Play Store dan Apple App Store sebagai aplikasi mobile resmi ekosistem Jeejak.',
     outcome_en:
       'Significantly reduced mis-shipments and duplicate scans for the pilot client. JejakPaket is now officially distributed on Google Play Store and the Apple App Store as the mobile companion for the Jeejak ecosystem.',
+    gallery: [
+      {
+        url: '/projects/raw/mobile_scan.webp',
+        caption: 'Pemindaian Cepat Barcode Resi: Deteksi otomatis kurir ekspedisi (JNE) dan pop-up konfirmasi resi baru.',
+        caption_en: 'Fast Shipping Label Barcode Scan: Auto-detects courier (JNE) with instant new-tracking confirmation popup.',
+        kind: 'gallery',
+        device: 'mobile',
+      },
+      {
+        url: '/projects/raw/mobile_foto.webp',
+        caption: 'Antrean Packing & Anti-Scan Ganda: Monitoring total resi unik vs duplikat dan alarm peringatan resi belum berfoto.',
+        caption_en: 'Packing Queue & Duplicate Protection: Real-time tracking of unique vs duplicate scans and missing photo alerts.',
+        kind: 'gallery',
+        device: 'mobile',
+      },
+      {
+        url: '/projects/raw/mobile_video.webp',
+        caption: 'Modul Dropping & Serah Terima Kurir: Verifikasi penyerahan paket per ekspedisi dengan bukti video tanpa jeda.',
+        caption_en: 'Courier Dropping & Handover Module: Verified parcel dispatch per courier with unedited video and photo proof.',
+        kind: 'gallery',
+        device: 'mobile',
+      },
+      {
+        url: '/projects/raw/doc_pdf.webp',
+        caption: 'Dokumen Sah Bukti Pengiriman Paket (PDF): Berita acara sengketa marketplace lengkap dengan cap stempel Terlacak dan foto fisik kemasan.',
+        caption_en: 'Official Marketplace Proof PDF Document: Dispute evidence report complete with Terlacak seal and parcel photos.',
+        kind: 'gallery',
+        device: 'mobile',
+      },
+    ],
   },
 }
 

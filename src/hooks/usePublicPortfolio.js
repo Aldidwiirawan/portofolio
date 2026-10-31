@@ -236,7 +236,7 @@ function normalizeProjectDetail(row) {
     tech_stack: toTextList(enriched.tech_stack),
     thumbnail_url: safeAssetUrl(enriched.thumbnail_url),
     // kind: gallery or diagram; device: web or mobile (the media viewer's tabs and "Layar Web / Layar HP")
-    gallery: (Array.isArray(row.gallery) ? row.gallery : [])
+    gallery: (Array.isArray(enriched.gallery) ? enriched.gallery : (Array.isArray(row.gallery) ? row.gallery : []))
       .map((item) => ({
         url: safeAssetUrl(item?.url),
         caption: text(item?.caption),
