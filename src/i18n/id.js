@@ -74,8 +74,9 @@ const id = {
   'about.gpaOf': '/ {max} IPK',
   'about.stack': 'Tech stack',
   'about.focus': 'Fokus saya',
-  'about.focusRole': 'Junior Programmer · Web & Mobile',
   'about.focusDesc': 'Menggabungkan analisis sistem dengan implementasi teknis. Membangun aplikasi web dan mobile yang fungsional, mulai dari desain database hingga peluncuran akhir.',
+  'about.focusPill1': 'Sistem Full-Stack',
+  'about.focusPill2': 'Arsitektur Database',
 
   'projects.title': 'Proyek pilihan',
   'projects.intro': 'Studi kasus dari pekerjaan nyata: masalahnya, solusinya, dan peran saya.',

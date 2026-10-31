@@ -707,16 +707,16 @@
 
 /* --- Fokus saya ------------------------------------------------------------------------------------ */
 
-/* --- Fokus saya (High Contrast Accent) --------------------------- */
+/* --- Fokus saya (Sesuai Referensi Styfen - High Contrast Accent) --------------------------- */
 
 .pub-about-focus {
   grid-column: 1 / -1;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.15rem;
   border-radius: 30px;
-  padding: 2rem;
+  padding: 2.25rem 2.5rem;
   background-color: #000000;
   border: 1.5px solid #000000;
   color: #ffffff;
@@ -739,27 +739,7 @@
   box-shadow: 0 16px 36px -10px rgb(255 255 255 / 0.1);
 }
 
-.pub-about-focus-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-@media (min-width: 900px) {
-  .pub-about-focus-grid {
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 2.5rem;
-  }
-}
-
-.pub-about-focus-lead {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.pub-about-focus-lead h3 {
+.pub-about-focus-heading {
   color: inherit;
   font-size: 1.75rem;
   font-weight: 800;
@@ -769,72 +749,58 @@
   margin: 0;
 }
 
-.pub-about-focus-role {
-  color: #9ca3af;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin: 0;
-}
-
-.pub[data-theme='dark'] .pub-about-focus-role {
-  color: #4b5563;
-}
-
 .pub-about-focus-desc {
-  color: #d1d5db;
-  font-size: 14px;
-  line-height: 1.6;
+  color: #a3a3a3;
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 68ch;
   margin: 0;
 }
 
 .pub[data-theme='dark'] .pub-about-focus-desc {
-  color: #374151;
+  color: #525252;
 }
 
-.pub-about-focus-list {
+.pub-about-focus-pills {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.pub-about-focus-list li {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 0.85rem;
-  padding: 0.85rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.pub-about-focus-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.35rem;
   border-radius: 14px;
   background-color: rgb(255 255 255 / 0.08);
   border: 1px solid rgb(255 255 255 / 0.18);
   color: #ffffff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
 }
 
-.pub-about-focus-list li svg {
+.pub-about-focus-pill svg {
   flex-shrink: 0;
   transition: transform 150ms ease;
 }
 
-.pub-about-focus-list li:hover {
-  transform: translateX(4px);
+.pub-about-focus-pill:hover {
+  transform: translateY(-2px);
   border-color: #ffffff;
   background-color: rgb(255 255 255 / 0.16);
 }
 
-.pub[data-theme='dark'] .pub-about-focus-list li {
+.pub[data-theme='dark'] .pub-about-focus-pill {
   background-color: rgb(0 0 0 / 0.04);
   border-color: rgb(0 0 0 / 0.15);
   color: #000000;
 }
 
-.pub[data-theme='dark'] .pub-about-focus-list li:hover {
+.pub[data-theme='dark'] .pub-about-focus-pill:hover {
   border-color: #000000;
   background-color: rgb(0 0 0 / 0.08);
 }

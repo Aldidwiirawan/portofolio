@@ -246,26 +246,17 @@ function AboutSection() {
 
           {hasFocus && (
             <article className="pub-bento pub-about-focus pub-reveal">
-              <div className="pub-about-focus-grid">
-                <div className="pub-about-focus-lead">
-                  <h3>{t('about.focus')}</h3>
-                  <p className="pub-about-focus-role">{profile.primary_role || t('about.focusRole')}</p>
-                  <p className="pub-about-focus-desc">{t('about.focusDesc')}</p>
+              <h3 className="pub-about-focus-heading">{t('about.focus')}</h3>
+              <p className="pub-about-focus-desc">{t('about.focusDesc')}</p>
+              <div className="pub-about-focus-pills">
+                <div className="pub-about-focus-pill">
+                  <LayoutIcon size={18} />
+                  <span>{t('about.focusPill1')}</span>
                 </div>
-                <ul className="pub-about-focus-list">
-                  <li>
-                    <LayoutIcon size={20} />
-                    <span>Web Development</span>
-                  </li>
-                  <li>
-                    <PhoneIcon size={20} />
-                    <span>Mobile Apps</span>
-                  </li>
-                  <li>
-                    <NetworkIcon size={20} />
-                    <span>Network & IT Support</span>
-                  </li>
-                </ul>
+                <div className="pub-about-focus-pill">
+                  <DatabaseIcon size={18} />
+                  <span>{t('about.focusPill2')}</span>
+                </div>
               </div>
             </article>
           )}

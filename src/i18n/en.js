@@ -73,8 +73,9 @@ const en = {
   'about.gpaOf': '/ {max} GPA',
   'about.stack': 'Tech stack',
   'about.focus': 'My focus',
-  'about.focusRole': 'Junior Programmer · Web & Mobile',
   'about.focusDesc': 'Combining system analysis with technical implementation. Building functional web and mobile applications, from database design to final deployment.',
+  'about.focusPill1': 'Full-Stack Systems',
+  'about.focusPill2': 'Database Architecture',
 
   'projects.title': 'Selected work',
   'projects.intro': 'Case studies from real work: the problem, the solution, and my part in it.',
