@@ -228,16 +228,17 @@
   }
 }
 
-/* Space Grotesk 900 kapital, jarak huruf -0,05em, tinggi baris 0,7, satu baris dari tepi ke tepi. Acuan
-   memakai 14vw untuk 13 huruf; nama ini lebih panjang, jadi ukurannya diskalakan agar lebar totalnya
-   sama (diukur: 1384 px di 1440, 1845 px di 1920, ± 96% lebar layar). */
+/* Inter Display / Tight 900 kapital, jarak huruf -0,04em, tinggi baris 0,72, terbentang rapi dengan margin seimbang */
 .pub-hero-name {
   width: 100%;
+  padding: 0 2vw;
+  box-sizing: border-box;
   color: var(--fg);
-  font-size: 13.02vw;
+  font-family: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 10.8vw;
   font-weight: 900;
-  line-height: 0.7;
-  letter-spacing: -0.05em;
+  line-height: 0.72;
+  letter-spacing: -0.04em;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
