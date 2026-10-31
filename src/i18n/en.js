@@ -74,7 +74,7 @@ const en = {
   'about.stack': 'Tech stack',
   'about.focus': 'My focus',
   'about.focusRole': 'Junior Programmer · Web & Mobile',
-  'about.focusDesc': 'Focusing on developing functional web and mobile applications, supported by database and computer networking fundamentals.',
+  'about.focusDesc': 'Combining system analysis with technical implementation. Building functional web and mobile applications, from database design to final deployment.',
 
   'projects.title': 'Selected work',
   'projects.intro': 'Case studies from real work: the problem, the solution, and my part in it.',

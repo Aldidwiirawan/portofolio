@@ -75,7 +75,7 @@ const id = {
   'about.stack': 'Tech stack',
   'about.focus': 'Fokus saya',
   'about.focusRole': 'Junior Programmer · Web & Mobile',
-  'about.focusDesc': 'Fokus pada pengembangan aplikasi web dan mobile yang fungsional, didukung pemahaman basis data serta infrastruktur jaringan.',
+  'about.focusDesc': 'Menggabungkan analisis sistem dengan implementasi teknis. Membangun aplikasi web dan mobile yang fungsional, mulai dari desain database hingga peluncuran akhir.',
 
   'projects.title': 'Proyek pilihan',
   'projects.intro': 'Studi kasus dari pekerjaan nyata: masalahnya, solusinya, dan peran saya.',
