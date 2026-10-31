@@ -20,12 +20,10 @@
   transform: translateX(-50%);
   width: min(1000px, 92vw);
   height: min(550px, 60vh);
-  background: radial-gradient(
-    ellipse at center,
-    color-mix(in srgb, var(--fg) 5%, transparent) 0%,
-    color-mix(in srgb, var(--fg) 1.5%, transparent) 50%,
-    transparent 75%
-  );
+  background: radial-gradient(ellipse at center,
+      color-mix(in srgb, var(--fg) 5%, transparent) 0%,
+      color-mix(in srgb, var(--fg) 1.5%, transparent) 50%,
+      transparent 75%);
   filter: blur(50px);
   pointer-events: none;
   z-index: 0;
@@ -92,13 +90,13 @@
   will-change: transform;
 }
 
-.pub-hero-chip > span,
-.pub-hero-chip > svg {
+.pub-hero-chip>span,
+.pub-hero-chip>svg {
   transition: transform 300ms ease-out;
 }
 
-.pub-hero-chip:hover > span,
-.pub-hero-chip:hover > svg {
+.pub-hero-chip:hover>span,
+.pub-hero-chip:hover>svg {
   transform: scale(1.05);
 }
 
@@ -239,7 +237,7 @@
   font-weight: 900;
   line-height: 0.72;
   letter-spacing: -0.04em;
-  text-align: center;
+  text-align: justify;
   text-transform: uppercase;
   white-space: nowrap;
   -webkit-user-select: none;
@@ -259,9 +257,11 @@
   font-weight: 300;
   line-height: 1.6;
   letter-spacing: 0.01em;
-  text-align: center;
+  text-align: justify;
+  text-justify: inter-word;
   overflow-wrap: break-word;
-  opacity: 0.32; /* Disamarkan lembut di light mode */
+  opacity: 0.32;
+  /* Disamarkan lembut di light mode */
   transition: opacity 300ms ease;
 }
 
@@ -292,7 +292,8 @@
 
 .pub[data-theme='dark'] .pub-hero-code {
   color: var(--n500);
-  opacity: 0.30; /* Disamarkan lembut di dark mode */
+  opacity: 0.30;
+  /* Disamarkan lembut di dark mode */
 }
 
 .pub[data-theme='dark'] .pub-hero-code-text {
@@ -326,8 +327,15 @@
 }
 
 @keyframes pub-blink {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 @media (min-width: 768px) {
@@ -376,7 +384,7 @@
     color 150ms ease;
 }
 
-.pub-hero-strip-item + .pub-hero-strip-item {
+.pub-hero-strip-item+.pub-hero-strip-item {
   border-left: 2px solid #000000;
 }
 
@@ -416,7 +424,7 @@
   color: #ffffff;
 }
 
-.pub[data-theme='dark'] .pub-hero-strip-item + .pub-hero-strip-item {
+.pub[data-theme='dark'] .pub-hero-strip-item+.pub-hero-strip-item {
   border-left-color: var(--n700);
 }
 
@@ -455,6 +463,7 @@
   from {
     clip-path: inset(0 100% 0 0);
   }
+
   to {
     clip-path: inset(0 0 0 0);
   }
