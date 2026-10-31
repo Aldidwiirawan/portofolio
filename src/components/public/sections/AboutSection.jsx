@@ -76,6 +76,14 @@ const RELEVANT_COURSES = [
   { id: 'oop', name: { id: 'OOP', en: 'OOP' } },
 ]
 
+const formatDegree = (degree) => {
+  if (!degree) return ''
+  if (/Diploma\s*(?:III|3)?\s*(?:\(D3\))?|Associate\s*Degree\s*(?:\(D3\))?/i.test(degree)) {
+    return 'D3'
+  }
+  return degree
+}
+
 /**
  * "Tentang saya" as the bento of the reference site of phase 8, only from the admin's data:
  * - row 1: introduction (greeting, bio, "Unduh CV" when a CV exists) over two columns, and the photo card;
@@ -147,7 +155,7 @@ function AboutSection() {
                   <span>{education.institution}</span>
                 </p>
                 <h3 className="pub-about-edu-title">
-                  <span lang={langOf(education, 'degree')}>{education.degree}</span>{' '}
+                  <span lang={langOf(education, 'degree')}>{formatDegree(education.degree)}</span>{' '}
                   <span lang={langOf(education, 'field_of_study')}>{education.field_of_study}</span>
                 </h3>
 
