@@ -47,7 +47,7 @@ function CodeLine() {
         } else {
           setCharCount(current)
         }
-      }, 35)
+      }, 50)
     }
 
     startTyping()

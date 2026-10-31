@@ -57,7 +57,7 @@ const en = {
   'hero.chip.codeName': 'Code icon',
   'hero.chip.starName': 'Star icon',
   'hero.code':
-    'const INITIALIZE_SYSTEM = async () => { const Developer = { ID: "ALDI_DWI_IRAWAN", Origin: "Kediri_Indonesia", Role: "Junior_Programmer", Mindset: "Systematic_Thinking_With_Problem_Solving" }; await System.load("React", "Next.js", "Tailwind_CSS", "PHP_Laravel", "MySQL"); if (Project.isComplex) return Developer.solveWith(Code + Logic + Dedication); const Mission = "Crafting digital experiences that feel reliable, efficient, and impactful."; const execution = Developer.create({ clarity: true, aesthetics: "Clean_and_Functional", interaction: "Smooth" }); return execution.deploy(); }; //Status: ONLINE | Mode: OPEN_TO_WORK <END_OF_SCRIPT>',
+    'const INITIALIZE_SYSTEM = async () => { const Developer = { ID: "ALDI_DWI_IRAWAN", Origin: "Kediri, Indonesia", Role: "Junior Programmer", Mindset: "Systematic Thinking & Problem Solving" }; await System.load("React", "Next.js", "Tailwind CSS", "PHP Laravel", "MySQL"); if (Project.isComplex) return Developer.solveWith(Code + Logic + Dedication); const Mission = "Crafting digital experiences that feel reliable, efficient, and impactful."; const execution = Developer.create({ clarity: true, aesthetics: "Clean & Functional", interaction: "Smooth" }); return execution.deploy(); }; //Status: ONLINE | Mode: OPEN_TO_WORK <END_OF_SCRIPT>',
 
   'status.label': 'Status',
 

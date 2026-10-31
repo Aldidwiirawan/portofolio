@@ -259,8 +259,8 @@
   font-weight: 300;
   line-height: 1.6;
   letter-spacing: 0.01em;
-  text-align: justify;
-  overflow-wrap: anywhere;
+  text-align: left;
+  overflow-wrap: break-word;
   opacity: 0.32; /* Disamarkan lembut di light mode */
   transition: opacity 300ms ease;
 }
