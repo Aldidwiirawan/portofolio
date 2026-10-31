@@ -247,20 +247,25 @@ function AboutSection() {
           {hasFocus && (
             <article className="pub-bento pub-about-focus pub-reveal">
               <div className="pub-about-focus-grid">
-                <div>
+                <div className="pub-about-focus-lead">
                   <h3>{t('about.focus')}</h3>
-                  {profile.tagline && <p lang={langOf(profile, 'tagline')}>{profile.tagline}</p>}
+                  <p className="pub-about-focus-role">{profile.primary_role || t('about.focusRole')}</p>
+                  <p className="pub-about-focus-desc">{t('about.focusDesc')}</p>
                 </div>
-                {profile[focusChips].length > 0 && (
-                  <ul className="pub-about-focus-list">
-                    {profile[focusChips].map((item, index) => (
-                      <li key={`${item}-${index}`} lang={langOf(profile, focusChips, index)}>
-                        <LayoutIcon size={20} />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <ul className="pub-about-focus-list">
+                  <li>
+                    <LayoutIcon size={20} />
+                    <span>Web Development</span>
+                  </li>
+                  <li>
+                    <PhoneIcon size={20} />
+                    <span>Mobile Apps</span>
+                  </li>
+                  <li>
+                    <NetworkIcon size={20} />
+                    <span>Network & IT Support</span>
+                  </li>
+                </ul>
               </div>
             </article>
           )}
