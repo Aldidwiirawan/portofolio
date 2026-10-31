@@ -106,6 +106,7 @@ const TABLES = {
   },
   organizations: {
     table: 'organizations',
+    
     columns: 'id, name, role, start_date, end_date, description, logo_url, sort_order',
     enColumns: 'role_en, description_en',
     order: [['sort_order'], ['start_date', { ascending: false }]],

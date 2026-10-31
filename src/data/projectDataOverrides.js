@@ -54,6 +54,7 @@ export const PROJECT_OVERRIDES = {
   'jejakpaket': {
     title: 'JejakPaket: Aplikasi Operator Bukti Packing',
     title_en: 'JejakPaket: Packing Proof App for Operators',
+    thumbnail_url: '/projects/jejakpaket-cover.webp',
     description:
       'Aplikasi mobile operasional gudang berbasis Flutter (Android & iOS) untuk operator packing: pemindaian cepat barcode resi dengan deteksi kurir otomatis, alarm anti-scan ganda, pengambilan foto bukti packing, dan pencatatan serah terima kurir dengan mode offline-first. Bagian dari ekosistem Jeejak oleh CV Adisatya IT Consultant.',
     description_en:
