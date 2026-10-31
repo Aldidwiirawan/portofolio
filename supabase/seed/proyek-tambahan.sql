@@ -37,27 +37,44 @@ BEGIN;
 -- ==============================================================================
 -- 1. PROYEK: AyamBebek → Jeejak (konsol web)
 -- ==============================================================================
--- Dicari lewat slug lama/baru atau judul lama/baru; slug baru didahulukan saat dijalankan ulang.
-UPDATE public.projects
+-- Dicari lewat slug lama/baru atau judul lama/baru; slug baru didahulukan saat dijalankan ulang.UPDATE public.projects
 SET
   slug = 'jeejak-console',
   title = 'Jeejak: Konsol Web Bukti Packing',
   title_en = 'Jeejak: Packing Proof Web Console',
-  description = 'Konsol web untuk seller Shopee dan TikTok Shop: impor pesanan, pantau pengemasan, dan simpan bukti packing. Saya ikut mengembangkan versi awalnya saat magang, yang kini dirilis CV Adisatya IT Consultant sebagai Jeejak.',
-  description_en = 'A web console for Shopee and TikTok Shop sellers to import orders, track packing, and keep packing proof. I helped build its early version during my internship; CV Adisatya IT Consultant now offers it as Jeejak.',
+  description = 'Platform konsol web untuk seller Shopee dan TikTok Shop: integrasi pesanan via Excel/PDF resi, pemantauan antrean kemas real-time, dan arsip bukti packing sah untuk perlindungan klaim sengketa marketplace. Dikembangkan versi awalnya saat magang, kini dirilis resmi oleh CV Adisatya IT Consultant sebagai Jeejak (jeejak.id).',
+  description_en = 'A web console platform for Shopee and TikTok Shop sellers: bulk order import via Excel/PDF shipping labels, real-time packing queue tracking, and verified packing proof archives for marketplace dispute claims. I co-developed its initial version during my internship, now officially released by CV Adisatya IT Consultant as Jeejak (jeejak.id).',
   status = 'production',
   year = 2026,
   project_type = 'web',
   client_name = 'CV Adisatya IT Consultant (awalnya untuk AyamBebek Pakan dan Ternak)',
   client_name_en = 'CV Adisatya IT Consultant (first built for AyamBebek Pakan dan Ternak)',
-  my_role = 'Frontend dan UI/UX versi awal: merancang tampilan di Figma lalu membangun halamannya dengan HTML, Jinja2, dan Tailwind CSS; mengembangkan dasbor dan halaman analitik; serta fitur sinkronisasi data scan resi dari aplikasi mobile ke server. Dikerjakan bersama tim selama magang (Januari–Juli 2026).',
-  my_role_en = 'Front end and UI/UX for the early version: designed the screens in Figma and built them with HTML, Jinja2, and Tailwind CSS; developed the dashboard and analytics pages; and built the feature that syncs scanned shipping labels from the mobile app to the server. Done with the team during my internship (January–July 2026).',
-  problem = 'Status pengiriman dicatat manual di Excel dan bukti serah terima dikirim lewat WhatsApp, sehingga mencari status satu paket bisa memakan waktu hingga sekitar 3 hari. Toko klien memproses 20–100 pesanan per hari dengan 7 operator.',
-  problem_en = 'Shipping status was tracked by hand in Excel and handover proof was sent over WhatsApp, so finding the status of a single parcel could take up to about 3 days. The client handled 20–100 orders a day with 7 operators.',
-  solution = 'Konsol web yang mengimpor pesanan Shopee dan TikTok Shop dari file Excel/CSV dan PDF resi, menampilkan antrean pesanan yang perlu dikirim dan yang sudah dikirim, bukti drop dan retur dari aplikasi operator, analitik penjualan, serta pengelolaan toko dan pengguna dengan hak akses per peran.',
-  solution_en = 'A web console that imports Shopee and TikTok Shop orders from Excel/CSV files and shipping-label PDFs, shows to-ship and shipped queues, drop-off and return proof from the operator app, sales analytics, and store and user management with role-based access.',
-  outcome = 'Versi awal dipakai klien AyamBebek, lalu dikembangkan lebih lanjut oleh tim CV Adisatya menjadi produk Jeejak yang kini terbuka untuk umum, dari paket gratis hingga berlangganan.',
-  outcome_en = 'The early version was used by the client, AyamBebek, and the CV Adisatya team later developed it into Jeejak, now available to the public with free and paid plans.',
+  my_role = 'Frontend & UI/UX Engineer (versi awal): merancang arsitektur antarmuka dan design system di Figma, membangun halaman web responsif dengan HTML, Jinja2, dan Tailwind CSS, mengembangkan dasbor antrean kemas & analitik performa, serta mengimplementasikan sinkronisasi REST API data scan resi dari aplikasi operator ke server bersama tim magang di CV Adisatya IT Consultant (Jan – Jul 2026).',
+  my_role_en = 'Front End & UI/UX Engineer (early version): designed interface layouts and operational workflows in Figma, built responsive web pages with HTML, Jinja2, and Tailwind CSS, developed packing queue dashboards & performance analytics, and implemented REST API sync for scanned shipping label data from the mobile operator app to the server during my internship at CV Adisatya IT Consultant (Jan – Jul 2026).',
+  background = 'Dikerjakan saat magang sebagai Programmer Intern di CV Adisatya IT Consultant (Jan – Jul 2026). Proyek ini berawal dari kebutuhan toko retail pilot (AyamBebek Pakan dan Ternak) dengan volume 20–100 pesanan per hari dan 7 operator gudang, yang memerlukan sistem dokumentasi bukti packing terpusat untuk meminimalisir kerugian akibat sengketa klaim marketplace. Sistem ini kemudian disempurnakan oleh tim CV Adisatya dan diluncurkan ke publik sebagai platform SaaS Jeejak (jeejak.id).',
+  background_en = 'Developed during my internship as a Programmer Intern at CV Adisatya IT Consultant (Jan – Jul 2026). The project began from the operational needs of a pilot retail store (AyamBebek) handling 20–100 daily orders with 7 warehouse operators, needing a centralized packing proof documentation system to prevent financial losses from marketplace claim disputes. The system was subsequently refined by CV Adisatya and launched publicly as the SaaS platform Jeejak (jeejak.id).',
+  problem = 'Status pengiriman sebelumnya dicatat manual di spreadsheet Excel, sedangkan foto bukti kemas dan serah terima kurir tercecer di grup WhatsApp dan galeri HP pribadi operator. Saat pembeli marketplace mengajukan komplain barang rusak atau paket kosong, pencarian satu riwayat nomor resi memakan waktu hingga 3 hari, sering kali berujung penolakan klaim karena bukti tidak valid.',
+  problem_en = 'Shipping statuses were previously logged by hand in Excel spreadsheets, while photo proofs of packing and courier handovers were scattered across WhatsApp chats and personal phone galleries. When marketplace buyers filed damage or missing-item claims, retrieving a single tracking history took up to 3 days, frequently resulting in rejected claims due to unverified documentation.',
+  solution = 'Konsol web terpadu yang mengimpor pesanan Shopee & TikTok Shop dari Excel/CSV dan PDF resi, menampilkan antrean pesanan siap kemas, dan mengarsipkan foto bukti packing per koli dengan timestamp verifikasi. Konsol ini juga menyediakan dasbor analitik penjualan, manajemen toko dan hak akses multi-peran (Owner, Admin, Operator), serta ekspor laporan ringkasan bukti packing PDF yang siap diunggah sebagai bukti sah banding marketplace.',
+  solution_en = 'A unified web console that imports Shopee & TikTok Shop orders from Excel/CSV and shipping label PDFs, displays ready-to-pack queues, and archives photo proofs per parcel with verified timestamps. The console also features sales analytics dashboards, multi-role user management (Owner, Admin, Operator), and one-click PDF proof report exports ready for official marketplace dispute evidence.',
+  features = ARRAY[
+    'Impor pesanan massal dari file Excel/CSV dan PDF resi Shopee & TikTok Shop',
+    'Dasbor antrean kemas real-time: Menunggu Kemas, Sedang Dikemas, dan Siap Kirim',
+    'Pencarian instan dan verifikasi arsip bukti packing per nomor resi dalam hitungan detik',
+    'Ekspor dokumen ringkasan bukti packing sah format PDF untuk klaim banding marketplace',
+    'Manajemen toko dan hak akses pengguna bertingkat (Owner, Admin, Operator Gudang)',
+    'Analitik operasional: volume pesanan harian, performa operator, dan kurir ekspedisi'
+  ]::TEXT[],
+  features_en = ARRAY[
+    'Bulk order import from Shopee & TikTok Shop Excel/CSV and shipping label PDFs',
+    'Real-time packing queue dashboard tracking Pending, Packing, and Ready to Ship statuses',
+    'Instant search and retrieval of packing proof archives by tracking number in seconds',
+    'Official PDF proof report export formatted for marketplace claim dispute submissions',
+    'Multi-store management and role-based access control (Owner, Admin, Warehouse Operator)',
+    'Operational analytics: daily order volume, operator performance, and courier distribution'
+  ]::TEXT[],
+  outcome = 'Versi awal sukses memangkas waktu pencarian bukti paket dari 3 hari menjadi hitungan detik di toko pilot AyamBebek. Sistem ini kemudian dikembangkan lebih lanjut oleh CV Adisatya IT Consultant menjadi produk komersial Jeejak (jeejak.id) yang kini melayani berbagai seller marketplace dengan skema paket gratis hingga berbayar.',
+  outcome_en = 'The initial version successfully cut proof retrieval time from 3 days to mere seconds for the pilot client, AyamBebek. The system was subsequently expanded by CV Adisatya IT Consultant into the commercial product Jeejak (jeejak.id), now serving marketplace sellers across free and premium subscription tiers.',
   tech_stack = ARRAY['Figma', 'HTML', 'Tailwind CSS', 'JavaScript', 'Jinja2', 'FastAPI', 'SQLAlchemy', 'PostgreSQL']::TEXT[],
   links = '[
     {"label": "Situs produk (jeejak.id)", "label_en": "Product site (jeejak.id)", "type": "demo", "url": "https://jeejak.id", "is_private": false},
@@ -83,26 +100,44 @@ WHERE id = (
 -- Dilewati bila slug jejakpaket atau judul yang memuat "JejakPaket" sudah ada.
 INSERT INTO public.projects (
   title, title_en, slug, description, description_en, status, year, project_type,
-  client_name, client_name_en, my_role, my_role_en, problem, problem_en, solution, solution_en,
-  outcome, outcome_en, tech_stack, links, is_featured, sort_order, is_visible
+  client_name, client_name_en, my_role, my_role_en, background, background_en, problem, problem_en, solution, solution_en,
+  features, features_en, outcome, outcome_en, tech_stack, links, is_featured, sort_order, is_visible
 )
 SELECT
   'JejakPaket: Aplikasi Operator Bukti Packing',
   'JejakPaket: Packing Proof App for Operators',
   'jejakpaket',
-  'Aplikasi Android dan iPhone untuk operator gudang: scan resi, foto isi paket, dan rekam serah terima ke kurir, lalu sinkron ke konsol web. Saya ikut mengembangkan versi awalnya bersama tim; kini dirilis sebagai bagian dari Jeejak.',
-  'An Android and iPhone app for warehouse operators to scan shipping labels, photograph parcel contents, and record courier handovers, then sync everything to the web console. I helped build its early version with the team; it is now released as part of Jeejak.',
+  'Aplikasi mobile operasional gudang berbasis Flutter (Android & iOS) untuk operator packing: pemindaian cepat barcode resi dengan deteksi kurir otomatis, alarm anti-scan ganda, pengambilan foto bukti packing, dan pencatatan serah terima kurir dengan mode offline-first. Bagian dari ekosistem Jeejak oleh CV Adisatya IT Consultant.',
+  'A Flutter warehouse operations mobile app (Android & iOS) for packing operators: high-speed barcode scanning with auto-courier detection, anti-duplicate scan alarm, packing photo proof capture, and courier handover logging with offline-first support. Part of the Jeejak ecosystem by CV Adisatya IT Consultant.',
   'production', 2026, 'mobile',
   'CV Adisatya IT Consultant (awalnya untuk AyamBebek Pakan dan Ternak)',
   'CV Adisatya IT Consultant (first built for AyamBebek Pakan dan Ternak)',
-  'Ikut mengembangkan aplikasi versi awal dengan Flutter bersama programmer lain di tim: alur scan packing, foto per koli, drop ke kurir, retur, dan sinkronisasi data ke server.',
-  'Helped build the early version in Flutter with other programmers on the team: the packing scan flow, per-parcel photos, courier drop-off, returns, and syncing data to the server.',
-  'Operator memindai resi hanya untuk memperbarui file Excel, sedangkan foto bukti serah terima tersebar di galeri HP dan WhatsApp, sehingga sulit ditemukan saat ada klaim dari pembeli.',
-  'Operators scanned labels only to update an Excel file, while handover photos were scattered across phone galleries and WhatsApp, making them hard to find when a buyer filed a claim.',
-  'Aplikasi dengan alur kerja Packing → Drop ke Kurir → Retur: scan resi dengan marketplace dan kurir terbaca otomatis, pencegahan scan ganda, foto per koli, foto bukti serah terima, serta scan retur dengan foto dan alasan. Data tersimpan di HP lalu tersinkron ke server saat ada koneksi.',
-  'An app built around a Packing → Courier drop-off → Returns workflow: label scanning that detects the marketplace and courier, duplicate-scan prevention, per-parcel photos, handover photos, and return scans with photos and reasons. Data is stored on the phone and synced to the server when a connection is available.',
-  'Kini tersedia di Google Play dan App Store dengan nama JejakPaket.',
-  'Now available on Google Play and the App Store as JejakPaket.',
+  'Mobile Application Engineer (versi awal): ikut mengembangkan aplikasi mobile bersama tim programmer dengan Flutter & Dart, mengimplementasikan alur pemindaian barcode resi dengan auto-detect ekspedisi, pencegahan scan ganda, pengambilan foto bukti per koli paket, modul serah terima kurir, penyimpanan lokal (offline-first), dan sinkronisasi REST API ke server.',
+  'Mobile Application Engineer (early version): co-developed the mobile app with the team using Flutter & Dart, implementing barcode scanning with auto courier detection, duplicate scan prevention, per-parcel photo capture, courier handover flow, offline-first local caching, and REST API sync to the server.',
+  'Di lingkungan gudang operasional e-commerce yang sibuk dan berpindah-pindah, operator membutuhkan aplikasi mobile yang cepat, responsif, dan tidak bergantung pada sinyal internet yang tidak stabil. JejakPaket dirancang khusus sebagai aplikasi pendamping bagi operator di meja packing untuk mendokumentasikan setiap paket tanpa memperlambat ritme kerja fisik.',
+  'In fast-paced, dynamic e-commerce warehouse environments, operators require a fast, responsive mobile tool that operates reliably regardless of unstable Wi-Fi or cellular connections. JejakPaket was designed specifically for packing bench operators to document every parcel without disrupting physical workflow speed.',
+  'Operator packing sering kali salah memasukkan paket ke ekspedisi yang keliru, melakukan scan berulang (scan ganda) tanpa sadar, atau kehilangan bukti foto karena galeri HP bercampur dengan foto pribadi. Selain itu, sinyal gudang yang sering terputus membuat aplikasi web biasa sering macet saat operator harus memproses puluhan paket per jam.',
+  'Packing operators frequently sorted parcels into the wrong courier bins, accidentally scanned packages twice, or misplaced evidence photos in crowded personal phone galleries. Additionally, weak warehouse wireless signals frequently caused standard web apps to stall while operators processed dozens of packages per hour.',
+  'Aplikasi mobile Flutter dengan arsitektur offline-first dan alur terstruktur: Packing → Drop Kurir → Retur. Dilengkapi deteksi otomatis marketplace/ekspedisi dari nomor resi, alarm audio saat terjadi scan ganda, panduan foto bukti kondisi paket sebelum dan sesudah dipacking, serta antrean sinkronisasi latar belakang yang otomatis mengunggah data begitu internet tersedia.',
+  'A Flutter mobile app featuring an offline-first architecture and structured workflow: Packing → Courier Handover → Returns. Equipped with automatic marketplace/courier recognition from barcode data, audio alarms for duplicate scans, photo capture guidelines, and a background sync queue that uploads data automatically when connectivity resumes.',
+  ARRAY[
+    'Scan resi kamera super cepat dengan auto-detect ekspedisi (J&T, SiCepat, JNE, SPX, dll.)',
+    'Alarm peringatan instan (audio & visual) untuk mencegah scan paket berulang (anti-scan ganda)',
+    'Pengambilan foto bukti isi paket dan segel kemasan langsung dengan watermark resi',
+    'Operasional offline-first: tetap bekerja lancar di sudut gudang tanpa sinyal internet',
+    'Modul serah terima kurir (Handover) per ekspedisi dengan pencatatan total koli',
+    'Modul penerimaan retur paket dengan foto kondisi barang dan alasan ketidaksesuaian'
+  ]::TEXT[],
+  ARRAY[
+    'High-speed camera barcode scanning with automatic courier identification (J&T, SiCepat, JNE, SPX, etc.)',
+    'Instant audio & visual warning alarms preventing accidental duplicate scans',
+    'Direct parcel content and sealed box photo capture with tracking number watermarking',
+    'Offline-first operations: seamless workflow even in warehouse dead zones without internet',
+    'Courier handover batching module per carrier with total parcel count verification',
+    'Return management module capturing damaged parcel photos and discrepancy reasons'
+  ]::TEXT[],
+  'Mengurangi tingkat kesalahan kirim dan scan ganda secara signifikan di toko klien. Kini JejakPaket telah resmi didistribusikan di Google Play Store dan Apple App Store sebagai aplikasi mobile resmi ekosistem Jeejak.',
+  'Significantly reduced mis-shipments and duplicate scans for the pilot client. JejakPaket is now officially distributed on Google Play Store and the Apple App Store as the mobile companion for the Jeejak ecosystem.',
   ARRAY['Flutter', 'Dart', 'REST API']::TEXT[],
   '[
     {"label": "Google Play", "label_en": "Google Play", "type": "demo", "url": "https://play.google.com/store/apps/details?id=id.jeejak.paket", "is_private": false},

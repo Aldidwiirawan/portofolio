@@ -7,25 +7,25 @@ export const PROJECT_HIGHLIGHTS = {
   'jeejak-console': {
     id: [
       { value: 'Shopee & TikTok', label: 'Integrasi Marketplace' },
-      { value: 'Real-Time', label: 'Sinkronisasi Resi' },
+      { value: 'Bukti Sah PDF', label: 'Klaim Sengketa' },
       { value: 'CV Adisatya', label: 'Mitra Produksi' },
     ],
     en: [
       { value: 'Shopee & TikTok', label: 'Marketplace Integration' },
-      { value: 'Real-Time', label: 'Tracking Sync' },
+      { value: 'Verified PDF', label: 'Dispute Evidence' },
       { value: 'CV Adisatya', label: 'Production Client' },
     ],
   },
   'jejakpaket': {
     id: [
       { value: 'Android & iOS', label: 'Platform (Flutter)' },
+      { value: 'Anti-Scan Ganda', label: 'Alarm Gudang' },
       { value: 'Offline-First', label: 'Operasional Gudang' },
-      { value: 'Play Store', label: 'Distribusi Resmi' },
     ],
     en: [
       { value: 'Android & iOS', label: 'Platform (Flutter)' },
+      { value: 'Anti-Duplicate', label: 'Warehouse Alarm' },
       { value: 'Offline-First', label: 'Warehouse Mode' },
-      { value: 'Play Store', label: 'Official Release' },
     ],
   },
   'dwijaya-coffee': {

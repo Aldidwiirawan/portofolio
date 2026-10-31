@@ -2,6 +2,7 @@ import { startTransition, useCallback, useEffect, useRef, useState } from 'react
 import { afterFirstPaint } from '../lib/afterFirstPaint'
 import { selectWithEnglish, selectWithOptional } from '../lib/englishColumns'
 import { restInsert, restSelect } from '../lib/publicApi'
+import { enrichProject } from '../data/projectDataOverrides'
 
 // Data of the public pages (stage 3A). The old hooks stay unchanged for the admin. Since stage 3C the
 // requests go through lib/publicApi.js (fetch, no supabase-js in the public bundle).
@@ -43,12 +44,15 @@ const TABLES = {
     columns: PROJECT_LIST_COLUMNS,
     enColumns: 'title_en, description_en, solution_en, client_name_en, my_role_en',
     order: [['sort_order'], ['created_at', { ascending: false }]],
-    normalize: (row) => ({
-      ...row,
-      tech_stack: toTextList(row.tech_stack),
-      links: publicLinks(row.links),
-      summary: text(row.description) || text(row.solution),
-    }),
+    normalize: (row) => {
+      const enriched = enrichProject(row)
+      return {
+        ...enriched,
+        tech_stack: toTextList(enriched.tech_stack),
+        links: publicLinks(enriched.links),
+        summary: text(enriched.description) || text(enriched.solution),
+      }
+    },
   },
   experiences: {
     table: 'experiences',
@@ -219,15 +223,16 @@ function photoList(value) {
 }
 
 function normalizeProjectDetail(row) {
-  const [features, featuresEn] = parallelLists(row.features, row.features_en)
+  const enriched = enrichProject(row)
+  const [features, featuresEn] = parallelLists(enriched.features, enriched.features_en)
   return {
-    ...row,
-    background: text(row.background),
-    background_en: text(row.background_en),
+    ...enriched,
+    background: text(enriched.background),
+    background_en: text(enriched.background_en),
     features,
     features_en: featuresEn,
-    tech_stack: toTextList(row.tech_stack),
-    thumbnail_url: safeAssetUrl(row.thumbnail_url),
+    tech_stack: toTextList(enriched.tech_stack),
+    thumbnail_url: safeAssetUrl(enriched.thumbnail_url),
     // kind: gallery or diagram; device: web or mobile (the media viewer's tabs and "Layar Web / Layar HP")
     gallery: (Array.isArray(row.gallery) ? row.gallery : [])
       .map((item) => ({

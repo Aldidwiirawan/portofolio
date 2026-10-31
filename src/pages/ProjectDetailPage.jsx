@@ -135,12 +135,12 @@ function ProjectDetailPage() {
         )}
       </div>
 
-      <header className="pub-invert pub-detail-head">
+      <header className="pub-detail-head">
         <div className="pub-container">
           {labels.length > 0 && (
             <ul className="pub-detail-labels">
               {labels.map((label) => (
-                <li key={label.key} data-fill={label.fill || undefined}>
+                <li key={label.key} data-fill={label.fill || undefined} data-key={label.key}>
                   {label.text}
                 </li>
               ))}
@@ -157,9 +157,9 @@ function ProjectDetailPage() {
           {meta.length > 0 && (
             <dl className="pub-detail-meta">
               {meta.map((item) => (
-                <div key={item.key}>
-                  <dd>{item.value}</dd>
+                <div key={item.key} className="pub-detail-meta-item">
                   <dt>{item.label}</dt>
+                  <dd>{item.value}</dd>
                 </div>
               ))}
             </dl>
@@ -215,19 +215,24 @@ function ProjectDetailPage() {
 
         {points.length > 0 && (
           <section className="pub-detail-about" aria-labelledby="tentang-proyek">
-            <h2 id="tentang-proyek" className="pub-detail-h2">
-              {t('detail.about')}
-            </h2>
+            <div className="pub-detail-about-head">
+              <span className="pub-detail-eyebrow">Case Study & Overview</span>
+              <h2 id="tentang-proyek" className="pub-detail-h2">
+                {t('detail.about')}
+              </h2>
+            </div>
             <div className="pub-detail-points">
               {points.map((point, index) => (
                 <article key={point.key} className="pub-detail-point">
-                  <p className="pub-detail-point-n" aria-hidden="true">
-                    {pad(index + 1)}
-                  </p>
-                  <h3>{point.title}</h3>
+                  <div className="pub-detail-point-header">
+                    <span className="pub-detail-point-n" aria-hidden="true">
+                      {pad(index + 1)}
+                    </span>
+                    <h3>{point.title}</h3>
+                  </div>
                   {point.text && <p lang={langOf(project, point.key)}>{point.text}</p>}
                   {point.list && (
-                    <ul>
+                    <ul className="pub-detail-point-list">
                       {point.list.map((item, n) => (
                         <li key={`${item}-${n}`} lang={langOf(project, 'features', n)}>
                           {item}
@@ -243,7 +248,9 @@ function ProjectDetailPage() {
 
         {project.outcome?.trim() && (
           <section className="pub-detail-outcome" aria-labelledby="hasil-proyek">
-            <h2 id="hasil-proyek">{t('detail.outcome')}</h2>
+            <div className="pub-detail-outcome-header">
+              <span className="pub-detail-outcome-tag">{t('detail.outcome')}</span>
+            </div>
             <p lang={langOf(project, 'outcome')}>{project.outcome}</p>
           </section>
         )}
@@ -252,7 +259,7 @@ function ProjectDetailPage() {
           <nav className="pub-detail-pn" aria-label={t('detail.otherProjects')}>
             {previous ? (
               <Link to={`/projects/${encodeURIComponent(previous.slug)}`} className="pub-detail-pn-link" rel="prev">
-                <span>{t('detail.prev')}</span>
+                <span>← {t('detail.prev')}</span>
                 <b lang={langOf(previous, 'title')}>{previous.title}</b>
               </Link>
             ) : (
@@ -260,7 +267,7 @@ function ProjectDetailPage() {
             )}
             {next && (
               <Link to={`/projects/${encodeURIComponent(next.slug)}`} className="pub-detail-pn-link pub-detail-pn-link--next" rel="next">
-                <span>{t('detail.next')}</span>
+                <span>{t('detail.next')} →</span>
                 <b lang={langOf(next, 'title')}>{next.title}</b>
               </Link>
             )}
