@@ -10,21 +10,28 @@ import { SkeletonBlock } from '../Section'
 import { groupSkills } from '../skillGroups'
 import './AboutSection.css'
 
-function WaveIcon() {
+function CrownSticker({ className }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M18 11V6a2 2 0 0 0-4 0v1" />
-      <path d="M14 10V4a2 2 0 0 0-4 0v2" />
-      <path d="M10 10.5V6a2 2 0 0 0-4 0v8" />
-      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+    <svg className={className} viewBox="0 0 100 65" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M6 54 L18 18 L40 38 L50 8 L60 38 L82 18 L94 54 Q50 64 6 54 Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <circle cx="18" cy="14" r="4.5" fill="currentColor" />
+      <circle cx="50" cy="5" r="5" fill="currentColor" />
+      <circle cx="82" cy="14" r="4.5" fill="currentColor" />
+      <circle cx="6" cy="54" r="3.5" fill="currentColor" />
+      <circle cx="94" cy="54" r="3.5" fill="currentColor" />
     </svg>
   )
 }
 
 /**
- * The photo card: the photo filling a dark rounded card with a bar at the bottom (name, "Terbuka untuk
- * kerja" when available, "Rekrut saya" to Kontak). It leans a little towards the pointer, like the profile
- * card of the reference site of phase 8 (not with reduced motion).
+ * The photo card: transparent portrait cutout over a halftone dot backdrop,
+ * complete with a crown sticker and a pill badge at the bottom (name + "Rekrut saya").
  */
 function PhotoCard({ profile }) {
   const { t } = useI18n()
@@ -43,10 +50,28 @@ function PhotoCard({ profile }) {
     if (cardRef.current) cardRef.current.style.transform = ''
   }
 
+  // Use clean transparent cutout avatar
+  const photoSrc = '/aldi-avatar-cutout.webp'
+
   return (
     <div className="pub-about-photo pub-reveal" onPointerMove={lean} onPointerLeave={straighten}>
       <figure ref={cardRef} className="pub-about-photo-card">
-        <img src={profile.avatar_url} alt={t('about.photoAlt', { name: profile.full_name })} width="368" height="360" loading="lazy" decoding="async" />
+        {/* Halftone dot pattern background */}
+        <div className="pub-about-photo-halftone" aria-hidden="true" />
+
+        {/* Crown sticker above the head */}
+        <CrownSticker className="pub-about-photo-crown" />
+
+        {/* Clean portrait without red background */}
+        <img
+          src={photoSrc}
+          alt={t('about.photoAlt', { name: profile.full_name })}
+          width="368"
+          height="360"
+          loading="lazy"
+          decoding="async"
+        />
+
         <figcaption className="pub-about-photo-bar">
           <span className="pub-about-photo-text">
             <b>{profile.full_name}</b>
@@ -95,9 +120,9 @@ function AboutSection() {
         <div className="pub-about-bento">
           <article className="pub-bento pub-about-intro pub-reveal" data-wide={!profile.avatar_url || undefined}>
             <div className="pub-about-intro-body">
-              <span className="pub-about-wave" aria-hidden="true">
-                <WaveIcon />
-              </span>
+              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white text-2xl animate-pulse pub-about-wave" aria-hidden="true">
+                👋
+              </div>
               {firstName && <h3 className="pub-about-hello">{t('about.hello', { name: profile.full_name })}</h3>}
               <div className="pub-about-bio">
                 {bio.map((paragraph, index) => (
