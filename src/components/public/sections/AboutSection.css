@@ -337,20 +337,29 @@
   transform: scale(0.95);
 }
 
-/* --- Pendidikan ------------------------------------------------------------------------------------- */
+/* --- Pendidikan (Sesuai Referensi Styfen Sagala) ----------------------------------------------------- */
 
 .pub-about-edu {
-  gap: 1rem;
-  background-color: var(--n100);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background-color: #ffffff;
+  border: 1.5px solid var(--n200);
+  border-radius: 30px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 20px -2px rgb(0 0 0 / 0.04);
 }
 
 .pub[data-theme='dark'] .pub-about-edu {
-  background-color: var(--n800);
+  background-color: #18181b;
+  border-color: var(--n800);
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5);
 }
 
 .pub-about-edu-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
 }
@@ -358,49 +367,54 @@
 .pub-about-edu-icon {
   display: grid;
   place-items: center;
-  padding: 0.75rem;
-  border: 1px solid #000000;
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid var(--n200);
   border-radius: 999px;
   background-color: #ffffff;
-  box-shadow:
-    0 1px 3px rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.04);
   color: #000000;
 }
 
 .pub[data-theme='dark'] .pub-about-edu-icon {
-  border-color: var(--n500);
+  border-color: var(--n700);
   background-color: var(--n900);
   color: #ffffff;
 }
 
 .pub-about-edu-year {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #000000;
+  padding: 0.35rem 0.85rem;
   border-radius: 999px;
   background-color: #000000;
   color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 15px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
+.pub[data-theme='dark'] .pub-about-edu-year {
+  background-color: #ffffff;
+  color: #000000;
+}
+
 .pub-about-edu-main {
-  display: grid;
-  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
 .pub-about-edu-school {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  color: #4b5563;
+  gap: 0.35rem;
+  color: #6b7280;
   font-size: 0.75rem;
   font-weight: 700;
-  line-height: 1rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin: 0;
 }
 
 .pub-about-edu-school svg {
@@ -408,54 +422,152 @@
 }
 
 .pub-about-edu-title {
-  margin-top: -0.5rem;
   color: var(--fg);
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: normal;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
+  margin: 0;
+}
+
+/* Mata Kuliah Relevan (Relevant Coursework) */
+.pub-about-edu-coursework {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.15rem;
+}
+
+.pub-about-edu-coursework-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  margin: 0;
+}
+
+.pub-about-edu-course-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pub-about-edu-course-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  background-color: #f9fafb;
+  border: 1px solid var(--n200);
+  color: var(--fg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+}
+
+.pub-about-edu-course-chip:hover {
+  border-color: #9ca3af;
+  background-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .pub-about-edu-thesis {
-  color: #4b5563;
-  font-size: 0.75rem;
-  line-height: 1.5;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #6b7280;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px dashed var(--n200);
+}
+
+.pub-about-edu-thesis b {
+  color: var(--fg);
+  font-weight: 700;
 }
 
 .pub[data-theme='dark'] .pub-about-edu-school,
+.pub[data-theme='dark'] .pub-about-edu-coursework-title,
 .pub[data-theme='dark'] .pub-about-edu-thesis {
   color: var(--n400);
 }
 
+.pub[data-theme='dark'] .pub-about-edu-course-chip {
+  background-color: var(--n800);
+  border-color: var(--n700);
+  color: #f4f4f5;
+  box-shadow: none;
+}
+
+.pub[data-theme='dark'] .pub-about-edu-course-chip:hover {
+  border-color: var(--n500);
+  background-color: #27272a;
+}
+
+.pub[data-theme='dark'] .pub-about-edu-thesis {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--n800);
+}
+
+/* GPA / IPK Section */
 .pub-about-gpa {
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #d1d5db;
+  align-items: center;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--n200);
+  margin-top: auto;
 }
 
 .pub[data-theme='dark'] .pub-about-gpa {
-  border-top-color: var(--n600);
+  border-top-color: var(--n800);
 }
 
 .pub-about-gpa b {
   color: var(--fg);
-  font-size: 2.25rem;
+  font-size: 2.75rem;
   font-weight: 900;
-  line-height: 2.5rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.pub-about-gpa span {
-  padding-bottom: 0.25rem;
-  color: #4b5563;
-  font-size: 10px;
+.pub-about-gpa-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+}
+
+.pub-about-gpa-pred {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #2563eb;
+}
+
+.pub[data-theme='dark'] .pub-about-gpa-pred {
+  color: #60a5fa;
+}
+
+.pub-about-gpa-denom {
+  font-size: 11px;
   font-weight: 600;
-  line-height: 15px;
+  line-height: 1.2;
+  color: #6b7280;
+  text-transform: uppercase;
 }
 
-.pub[data-theme='dark'] .pub-about-gpa span {
+.pub[data-theme='dark'] .pub-about-gpa-denom {
   color: var(--n400);
 }
 

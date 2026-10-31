@@ -69,6 +69,8 @@ const id = {
   'about.graduated': 'Lulus {year}',
   'about.studying': 'Sedang kuliah',
   'about.thesis': 'Tugas akhir',
+  'about.coursework': 'Mata kuliah relevan:',
+  'about.gpaPredicate': 'Sangat Memuaskan',
   'about.gpaOf': '/ {max} IPK',
   'about.stack': 'Tech stack',
   'about.focus': 'Fokus saya',

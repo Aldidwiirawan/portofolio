@@ -67,6 +67,15 @@ function PhotoCard({ profile }) {
   )
 }
 
+const RELEVANT_COURSES = [
+  { id: 'web', name: { id: 'Pemrograman Web', en: 'Web Programming' } },
+  { id: 'mobile', name: { id: 'Pemrograman Mobile', en: 'Mobile Programming' } },
+  { id: 'db', name: { id: 'Sistem Basis Data', en: 'Database Systems' } },
+  { id: 'network', name: { id: 'Jaringan Komputer', en: 'Computer Networks' } },
+  { id: 'uiux', name: { id: 'UI/UX Design', en: 'UI/UX Design' } },
+  { id: 'oop', name: { id: 'OOP', en: 'OOP' } },
+]
+
 /**
  * "Tentang saya" as the bento of the reference site of phase 8, only from the admin's data:
  * - row 1: introduction (greeting, bio, "Unduh CV" when a CV exists) over two columns, and the photo card;
@@ -79,7 +88,7 @@ function PhotoCard({ profile }) {
  */
 function AboutSection() {
   const data = usePublicData()
-  const { t, formatGpa, skillCategory } = useI18n()
+  const { t, formatGpa, skillCategory, lang } = useI18n()
   const { status, data: profile } = data.profile
   if (status === 'loading') return <AboutSkeleton />
   if (!profile) return null
@@ -134,24 +143,39 @@ function AboutSection() {
               </div>
               <div className="pub-about-edu-main">
                 <p className="pub-about-edu-school">
-                  <UniversityIcon size={12} />
-                  {education.institution}
+                  <UniversityIcon size={13} />
+                  <span>{education.institution}</span>
                 </p>
                 <h3 className="pub-about-edu-title">
                   <span lang={langOf(education, 'degree')}>{education.degree}</span>{' '}
                   <span lang={langOf(education, 'field_of_study')}>{education.field_of_study}</span>
                 </h3>
+
+                <div className="pub-about-edu-coursework">
+                  <h4 className="pub-about-edu-coursework-title">{t('about.coursework')}</h4>
+                  <ul className="pub-about-edu-course-list">
+                    {RELEVANT_COURSES.map((course) => (
+                      <li key={course.id} className="pub-about-edu-course-chip">
+                        {course.name[lang] ?? course.name.id}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
                 {education.thesis_title && (
                   <p className="pub-about-edu-thesis" lang={langOf(education, 'thesis_title')}>
-                    {t('about.thesis')}: {education.thesis_title}
+                    <b>{t('about.thesis')}:</b> {education.thesis_title}
                   </p>
                 )}
               </div>
               {education.gpa != null && (
-                <p className="pub-about-gpa">
+                <div className="pub-about-gpa">
                   <b>{formatGpa(education.gpa)}</b>
-                  <span>{t('about.gpaOf', { max: formatGpa(4) })}</span>
-                </p>
+                  <div className="pub-about-gpa-meta">
+                    <span className="pub-about-gpa-pred">{t('about.gpaPredicate')}</span>
+                    <span className="pub-about-gpa-denom">{t('about.gpaOf', { max: formatGpa(4) })}</span>
+                  </div>
+                </div>
               )}
             </article>
           )}
