@@ -48,6 +48,7 @@ const TABLES = {
       const enriched = enrichProject(row)
       return {
         ...enriched,
+        thumbnail_url: safeAssetUrl(enriched.thumbnail_url),
         tech_stack: toTextList(enriched.tech_stack),
         links: publicLinks(enriched.links),
         summary: text(enriched.description) || text(enriched.solution),
@@ -148,10 +149,10 @@ function parallelLists(idList, enList) {
   return [kept.map(([item]) => item), kept.map(([, translation]) => translation)]
 }
 
-/** A web address (http/https) or null, so no other scheme ever reaches an href or src. */
+/** A web address (http/https) or relative asset path (/...), or null, so no other scheme ever reaches an href or src. */
 function safeAssetUrl(value) {
   const url = text(value)
-  return /^https?:\/\/\S+$/i.test(url) ? url : null
+  return /^https?:\/\/\S+$/i.test(url) || /^\/[a-zA-Z0-9_\-./]+$/i.test(url) ? url : null
 }
 
 /** Labels of the hero stage chosen in the admin (at most 10; empty = the featured skills). */

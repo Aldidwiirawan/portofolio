@@ -9,6 +9,7 @@ export const PROJECT_OVERRIDES = {
   'jeejak-console': {
     title: 'Jeejak: Konsol Web Bukti Packing',
     title_en: 'Jeejak: Packing Proof Web Console',
+    thumbnail_url: '/projects/jeejak-console-cover.webp',
     description:
       'Platform konsol web untuk seller Shopee dan TikTok Shop: integrasi pesanan via Excel/PDF resi, pemantauan antrean kemas real-time, dan arsip bukti packing sah untuk perlindungan klaim sengketa marketplace. Dikembangkan versi awalnya saat magang, kini dirilis resmi oleh CV Adisatya IT Consultant sebagai Jeejak (jeejak.id).',
     description_en:
