@@ -1,0 +1,104 @@
+/**
+ * Custom highlight metrics for projects matching the Styfen Sagala reference.
+ * If a project is not listed here or has no entry, ProjectCard falls back
+ * to the standard database facts (role, year, client).
+ */
+export const PROJECT_HIGHLIGHTS = {
+  'jeejak-console': {
+    id: [
+      { value: 'Shopee & TikTok', label: 'Integrasi Marketplace' },
+      { value: 'Real-Time', label: 'Sinkronisasi Resi' },
+      { value: 'CV Adisatya', label: 'Mitra Produksi' },
+    ],
+    en: [
+      { value: 'Shopee & TikTok', label: 'Marketplace Integration' },
+      { value: 'Real-Time', label: 'Tracking Sync' },
+      { value: 'CV Adisatya', label: 'Production Client' },
+    ],
+  },
+  'jejakpaket': {
+    id: [
+      { value: 'Android & iOS', label: 'Platform (Flutter)' },
+      { value: 'Offline-First', label: 'Operasional Gudang' },
+      { value: 'Play Store', label: 'Distribusi Resmi' },
+    ],
+    en: [
+      { value: 'Android & iOS', label: 'Platform (Flutter)' },
+      { value: 'Offline-First', label: 'Warehouse Mode' },
+      { value: 'Play Store', label: 'Official Release' },
+    ],
+  },
+  'dwijaya-coffee': {
+    id: [
+      { value: 'Midtrans', label: 'Payment Gateway' },
+      { value: '3 Peran', label: 'Hak Akses Sistem' },
+      { value: 'Ketua Tim', label: 'Kepemimpinan (4 Orang)' },
+    ],
+    en: [
+      { value: 'Midtrans', label: 'Payment Gateway' },
+      { value: '3 Roles', label: 'System Access' },
+      { value: 'Team Lead', label: 'Leadership (4 People)' },
+    ],
+  },
+  'sistem-informasi-pengelolaan-data-produk-madura-mart': {
+    id: [
+      { value: '18/18 Uji', label: 'Skenario Lulus' },
+      { value: 'Stok Opname', label: 'Otomatisasi Data' },
+      { value: 'Diskominfo', label: 'Instansi Magang' },
+    ],
+    en: [
+      { value: '18/18 Tests', label: 'Scenarios Passed' },
+      { value: 'Stock Take', label: 'Data Automation' },
+      { value: 'Diskominfo', label: 'Internship Agency' },
+    ],
+  },
+  'madura-mart': {
+    id: [
+      { value: '18/18 Uji', label: 'Skenario Lulus' },
+      { value: 'Stok Opname', label: 'Otomatisasi Data' },
+      { value: 'Diskominfo', label: 'Instansi Magang' },
+    ],
+    en: [
+      { value: '18/18 Tests', label: 'Scenarios Passed' },
+      { value: 'Stock Take', label: 'Data Automation' },
+      { value: 'Diskominfo', label: 'Internship Agency' },
+    ],
+  },
+  'website-portofolio-pribadi': {
+    id: [
+      { value: 'Bilingual', label: 'Dukungan ID & EN' },
+      { value: 'Dual Theme', label: 'Light & Dark Mode' },
+      { value: 'React + Vite', label: 'Modern SPA Engine' },
+    ],
+    en: [
+      { value: 'Bilingual', label: 'ID & EN Support' },
+      { value: 'Dual Theme', label: 'Light & Dark Mode' },
+      { value: 'React + Vite', label: 'Modern SPA Engine' },
+    ],
+  },
+  'aplikasi-arsip-surat': {
+    id: [
+      { value: 'Kompeten', label: 'Sertifikasi BNSP' },
+      { value: 'In-Browser', label: 'Preview Dokumen PDF' },
+      { value: 'Karangduren', label: 'Studi Kasus Nyata' },
+    ],
+    en: [
+      { value: 'Competent', label: 'BNSP Certification' },
+      { value: 'In-Browser', label: 'PDF Document Preview' },
+      { value: 'Karangduren', label: 'Real Case Study' },
+    ],
+  },
+}
+
+export function getProjectHighlights(project, lang) {
+  if (!project?.slug) return null
+  const custom = PROJECT_HIGHLIGHTS[project.slug]
+  if (custom && custom[lang]) {
+    return custom[lang].map((item, idx) => ({
+      key: `custom_${idx}`,
+      label: item.label,
+      value: item.value,
+    }))
+  }
+  return null
+}

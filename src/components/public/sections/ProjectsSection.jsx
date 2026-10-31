@@ -7,6 +7,7 @@ import { ArrowUpRightIcon, FileTextIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SectionError, SkeletonBlock } from '../Section'
+import { getProjectHighlights } from './projectHighlights'
 import './ProjectsSection.css'
 
 /** The first public demo link of a project (private links have no address here). */
@@ -98,7 +99,8 @@ function ProjectCard({ project }) {
   const frameRef = useRef(null)
   const demo = demoLinkOf(project)
   const badge = getCategoryBadge(project, lang)
-  const facts = [
+  const customHighlights = getProjectHighlights(project, lang)
+  const facts = customHighlights || [
     project.my_role && { key: 'my_role', label: t('projects.role'), value: project.my_role },
     project.year && { key: 'year', label: t('projects.year'), value: project.year },
     project.client_name && { key: 'client_name', label: t('projects.client'), value: project.client_name },
