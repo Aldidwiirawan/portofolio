@@ -214,33 +214,39 @@
   margin: 0;
   overflow: hidden;
   border-radius: 30px;
-  background-color: var(--soft);
-  border: 2px solid var(--line);
-  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.15);
+  background-color: #f4f4f5;
+  border: 1.5px solid var(--n200);
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.12);
   transition: transform 1s ease;
 }
 
 .pub[data-theme='dark'] .pub-about-photo-card {
-  background-color: var(--n900);
+  background-color: #18181b;
   border-color: var(--n800);
   box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5);
 }
 
-/* Pola halftone dots hitam tegas dan jelas di belakang siluet kepala */
+/* Pola halftone dots hitam tegas dan jelas sesuai referensi Styfen Sagala */
 .pub-about-photo-halftone {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgb(0 0 0 / 0.72) 3.5px, transparent 4px);
-  background-size: 18px 18px;
-  mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, black 35%, transparent 88%);
-  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, black 35%, transparent 88%);
-  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   z-index: 0;
+  color: rgb(0 0 0 / 0.65);
 }
 
 .pub[data-theme='dark'] .pub-about-photo-halftone {
-  background-image: radial-gradient(circle, rgb(255 255 255 / 0.65) 3.5px, transparent 4px);
+  color: rgb(255 255 255 / 0.60);
+}
+
+.pub-about-halftone-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* Foto potret tanpa background: bahu merata penuh ke tepi kartu dan kepala utuh */

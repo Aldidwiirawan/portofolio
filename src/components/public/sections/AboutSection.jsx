@@ -8,6 +8,7 @@ import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SkeletonBlock } from '../Section'
 import { groupSkills } from '../skillGroups'
+import HalftoneBackdrop from './HalftoneBackdrop'
 import './AboutSection.css'
 
 /**
@@ -37,8 +38,10 @@ function PhotoCard({ profile }) {
   return (
     <div className="pub-about-photo pub-reveal" onPointerMove={lean} onPointerLeave={straighten}>
       <figure ref={cardRef} className="pub-about-photo-card">
-        {/* Halftone dot pattern background */}
-        <div className="pub-about-photo-halftone" aria-hidden="true" />
+        {/* Authentic radial halftone dot backdrop */}
+        <div className="pub-about-photo-halftone" aria-hidden="true">
+          <HalftoneBackdrop className="pub-about-halftone-svg" />
+        </div>
 
         {/* Clean portrait without red background */}
         <img
