@@ -10,28 +10,9 @@ import { SkeletonBlock } from '../Section'
 import { groupSkills } from '../skillGroups'
 import './AboutSection.css'
 
-function CrownSticker({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 100 65" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path
-        d="M6 54 L18 18 L40 38 L50 8 L60 38 L82 18 L94 54 Q50 64 6 54 Z"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <circle cx="18" cy="14" r="4.5" fill="currentColor" />
-      <circle cx="50" cy="5" r="5" fill="currentColor" />
-      <circle cx="82" cy="14" r="4.5" fill="currentColor" />
-      <circle cx="6" cy="54" r="3.5" fill="currentColor" />
-      <circle cx="94" cy="54" r="3.5" fill="currentColor" />
-    </svg>
-  )
-}
-
 /**
- * The photo card: transparent portrait cutout over a halftone dot backdrop,
- * complete with a crown sticker and a pill badge at the bottom (name + "Rekrut saya").
+ * The photo card: transparent portrait cutout over a prominent halftone dot backdrop
+ * and a pill badge at the bottom (name + "Rekrut saya").
  */
 function PhotoCard({ profile }) {
   const { t } = useI18n()
@@ -58,9 +39,6 @@ function PhotoCard({ profile }) {
       <figure ref={cardRef} className="pub-about-photo-card">
         {/* Halftone dot pattern background */}
         <div className="pub-about-photo-halftone" aria-hidden="true" />
-
-        {/* Crown sticker above the head */}
-        <CrownSticker className="pub-about-photo-crown" />
 
         {/* Clean portrait without red background */}
         <img

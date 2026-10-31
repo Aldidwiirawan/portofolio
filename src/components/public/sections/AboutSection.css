@@ -226,43 +226,24 @@
   box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5);
 }
 
-/* Pola halftone dots melingkar di belakang siluet kepala */
+/* Pola halftone dots hitam tegas dan jelas di belakang siluet kepala */
 .pub-about-photo-halftone {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgb(0 0 0 / 0.22) 2.5px, transparent 3px);
-  background-size: 16px 16px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 36%, black 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 36%, black 20%, transparent 75%);
-  opacity: 0.9;
+  background-image: radial-gradient(circle, rgb(0 0 0 / 0.72) 3.5px, transparent 4px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, black 35%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, black 35%, transparent 88%);
+  opacity: 1;
   z-index: 0;
 }
 
 .pub[data-theme='dark'] .pub-about-photo-halftone {
-  background-image: radial-gradient(circle, rgb(255 255 255 / 0.22) 2.5px, transparent 3px);
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.65) 3.5px, transparent 4px);
 }
 
-/* Stiker mahkota melayang di atas kepala */
-.pub-about-photo-crown {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-3deg);
-  width: 56px;
-  height: 36px;
-  z-index: 2;
-  color: #000000;
-  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.2));
-  pointer-events: none;
-}
-
-.pub[data-theme='dark'] .pub-about-photo-crown {
-  color: #ffffff;
-  filter: drop-shadow(0 2px 6px rgb(255 255 255 / 0.3));
-}
-
-/* Foto potret tanpa background: bahu merata penuh ke tepi kartu dan kepala utuh di bawah mahkota */
+/* Foto potret tanpa background: bahu merata penuh ke tepi kartu dan kepala utuh */
 .pub-about-photo-card img {
   position: absolute;
   inset: 0;
