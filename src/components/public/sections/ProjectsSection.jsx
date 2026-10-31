@@ -56,8 +56,19 @@ function ProjectsSection() {
         {status === 'ready' && (
           <>
             <div className="pub-projects-list">
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+              {projects.map((project, index) => (
+                <div key={project.id} className="pub-project-item">
+                  {index > 0 && (
+                    <div className="pub-project-sep" aria-hidden="true">
+                      <span className="pub-project-sep-dot" />
+                      <span className="pub-project-sep-dot" />
+                      <span className="pub-project-sep-icon">&lt;/&gt;</span>
+                      <span className="pub-project-sep-dot" />
+                      <span className="pub-project-sep-dot" />
+                    </div>
+                  )}
+                  <ProjectCard project={project} />
+                </div>
               ))}
             </div>
             {hasGithub && <GithubActivitySlot />}
@@ -68,12 +79,25 @@ function ProjectsSection() {
   )
 }
 
+function getCategoryBadge(project, lang) {
+  if (project.project_type === 'web') {
+    return lang === 'en' ? 'FULL-STACK WEB APP' : 'APLIKASI WEB FULL-STACK'
+  }
+  if (project.project_type === 'mobile') {
+    return lang === 'en' ? 'MOBILE APP · CROSS-PLATFORM' : 'APLIKASI MOBILE · CROSS-PLATFORM'
+  }
+  if (project.project_type === 'desktop') {
+    return lang === 'en' ? 'DESKTOP APP' : 'APLIKASI DESKTOP'
+  }
+  return project.project_type ? String(project.project_type).toUpperCase() : (lang === 'en' ? 'FEATURED PROJECT' : 'PROYEK PILIHAN')
+}
+
 function ProjectCard({ project }) {
-  const { t, code } = useI18n()
+  const { t, lang } = useI18n()
   const reducedMotion = usePrefersReducedMotion()
   const frameRef = useRef(null)
   const demo = demoLinkOf(project)
-  const label = [code('type', project.project_type), code('status', project.status)].filter(Boolean).join(' · ')
+  const badge = getCategoryBadge(project, lang)
   const facts = [
     project.my_role && { key: 'my_role', label: t('projects.role'), value: project.my_role },
     project.year && { key: 'year', label: t('projects.year'), value: project.year },
@@ -98,9 +122,9 @@ function ProjectCard({ project }) {
     <article className="pub-project pub-reveal" aria-labelledby={`proyek-${project.id}`}>
       <div className="pub-project-body">
         <div>
-          {label && (
+          {badge && (
             <div className="pub-project-label-row">
-              <span className="pub-project-label">{label}</span>
+              <span className="pub-project-label">{badge}</span>
             </div>
           )}
           <h3 id={`proyek-${project.id}`} className="pub-project-title" lang={langOf(project, 'title')}>
@@ -160,7 +184,7 @@ function ProjectCard({ project }) {
           {project.thumbnail_url ? (
             <img src={project.thumbnail_url} alt="" width="624" height="351" loading="lazy" decoding="async" />
           ) : (
-            <span className="pub-project-noimage">{label}</span>
+            <span className="pub-project-noimage">{badge}</span>
           )}
           <span className="pub-project-shade" />
           <span className="pub-project-hover">
