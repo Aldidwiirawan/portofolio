@@ -3,7 +3,19 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
 import { usePrefersReducedMotion } from '../../../lib/useMediaQuery'
 import CvButton from '../CvButton'
-import { CapIcon, CodeIcon, LayoutIcon, TerminalIcon, UniversityIcon } from '../icons'
+import {
+  CapIcon,
+  CodeIcon,
+  DatabaseIcon,
+  GithubIcon,
+  LayoutIcon,
+  NetworkIcon,
+  PhoneIcon,
+  ServerIcon,
+  TerminalIcon,
+  UniversityIcon,
+  WrenchIcon,
+} from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SkeletonBlock } from '../Section'
@@ -82,6 +94,19 @@ const formatDegree = (degree) => {
     return 'D3'
   }
   return degree
+}
+
+function getSkillIcon(skill) {
+  const n = (skill.name || '').toLowerCase()
+  const c = (skill.category || '').toLowerCase()
+  if (n.includes('github')) return <GithubIcon size={13} />
+  if (n.includes('database') || n.includes('sql') || n.includes('supabase') || c === 'database') return <DatabaseIcon size={13} />
+  if (n.includes('flutter') || n.includes('dart') || n.includes('mobile') || c === 'mobile') return <PhoneIcon size={13} />
+  if (n.includes('figma') || n.includes('ui') || n.includes('tailwind') || n.includes('bootstrap') || n.includes('react') || n.includes('next')) return <LayoutIcon size={13} />
+  if (n.includes('network') || n.includes('jaringan') || n.includes('mikrotik') || c.includes('jaringan')) return <NetworkIcon size={13} />
+  if (n.includes('git') || n.includes('postman') || n.includes('docker') || n.includes('vite') || c === 'tools') return <WrenchIcon size={13} />
+  if (n.includes('server') || n.includes('api') || n.includes('fastapi') || n.includes('laravel') || c === 'backend') return <ServerIcon size={13} />
+  return <CodeIcon size={13} />
 }
 
 /**
@@ -203,12 +228,12 @@ function AboutSection() {
               </div>
               <div className="pub-about-stack-groups">
                 {skillGroups.map((group) => (
-                  <div key={group.category}>
-                    <h4>{skillCategory(group.category)}</h4>
+                  <div key={group.key || group.category} className="pub-about-stack-group">
+                    <h4>{group.category}</h4>
                     <ul className="pub-about-tags">
                       {group.skills.map((skill) => (
-                        <li key={skill.id}>
-                          <CodeIcon size={14} />
+                        <li key={skill.id || skill.name}>
+                          {getSkillIcon(skill)}
                           <span>{skill.name}</span>
                         </li>
                       ))}
