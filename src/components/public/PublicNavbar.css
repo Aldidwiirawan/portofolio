@@ -51,16 +51,16 @@
   align-items: center;
   flex-shrink: 0;
   color: var(--fg);
+  transition: transform 150ms ease;
 }
 
-/* Inisial "AD" seukuran ikon logo acuan (± 25 × 33 px), tanpa kotak */
-.pub-nav-mark {
+.pub-nav-brand:hover {
+  transform: scale(1.06);
+}
+
+.pub-nav-logo {
   display: block;
   color: var(--fg);
-  font-size: 1.375rem;
-  font-weight: 700;
-  line-height: 33px;
-  letter-spacing: -0.07em;
 }
 
 .pub-nav-links {

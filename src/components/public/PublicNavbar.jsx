@@ -7,6 +7,7 @@ import { CloseIcon, MenuIcon } from './icons'
 import { openGuestbook } from './guestbook/guestbookEvents'
 import { usePublicData } from './publicContexts'
 import { SITE_NAME } from './publicFormat'
+import Logo from '../brand/Logo'
 import { LangToggle, SoundToggle, ThemeToggle } from './Toggles'
 import './PublicNavbar.css'
 
@@ -142,11 +143,9 @@ function PublicNavbar() {
   return (
     <header ref={headerRef} className="pub-nav" data-menu-open={menuShown || undefined}>
       <div className="pub-nav-bar">
-        {/* The name starts with the visible initials, so voice control ("click AD") finds the link (WCAG 2.5.3) */}
+        {/* Logo Monogram Aldi */}
         <Link to="/" className="pub-nav-brand" aria-label={t('nav.home', { initials: initialsOf(name), name })} onClick={onBrandClick}>
-          <span className="pub-nav-mark" aria-hidden="true">
-            {initialsOf(name)}
-          </span>
+          <Logo size={32} trim assemble className="pub-nav-logo" />
         </Link>
 
         <nav className="pub-nav-links" aria-label={t('nav.label')}>

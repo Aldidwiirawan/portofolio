@@ -79,7 +79,7 @@ export function step(world, onHit) {
     p.x += p.vx
     p.y += p.vy
     if (p.y + p.h > height) {
-      if (p.vy > 6 && onHit) onHit(index, Math.min(p.vy / 20, 1))
+      if (p.vy > 3 && onHit) onHit(index, Math.min(p.vy / 14, 1))
       p.y = height - p.h
       p.vy *= -FLOOR_BOUNCE
       p.vx *= FLOOR_FRICTION
@@ -92,10 +92,12 @@ export function step(world, onHit) {
     if (p.x < 0) {
       p.x = 0
       p.vx *= -WALL_BOUNCE
+      if (Math.abs(p.vx) > 3 && onHit) onHit(index, Math.min(Math.abs(p.vx) / 14, 1))
     }
     if (p.x + p.w > width) {
       p.x = width - p.w
       p.vx *= -WALL_BOUNCE
+      if (Math.abs(p.vx) > 3 && onHit) onHit(index, Math.min(Math.abs(p.vx) / 14, 1))
     }
   })
 
@@ -112,6 +114,10 @@ export function step(world, onHit) {
       const bHeld = b === held
       if (ox < oy) {
         const dir = A.x + A.w / 2 < B.x + B.w / 2 ? -1 : 1
+        const relSpeed = Math.abs(A.vx - B.vx)
+        if ((relSpeed > 2.5 || aHeld || bHeld) && onHit) {
+          onHit(a, Math.min(Math.max(relSpeed / 10, 0.4), 1))
+        }
         if (aHeld) B.x -= dir * ox
         else if (bHeld) A.x += dir * ox
         else {
@@ -127,6 +133,9 @@ export function step(world, onHit) {
         const topHeld = (top === A && aHeld) || (top === B && bHeld)
         const bottomHeld = (bottom === A && aHeld) || (bottom === B && bHeld)
         const grounded = bottom.y + bottom.h >= height - 0.5
+        if (Math.abs(top.vy) > 2.5 && onHit) {
+          onHit(top === A ? a : b, Math.min(Math.abs(top.vy) / 10, 1))
+        }
         if (topHeld) bottom.y += oy
         else if (bottomHeld || grounded) top.y -= oy
         else {

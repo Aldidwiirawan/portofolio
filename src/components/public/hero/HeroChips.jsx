@@ -208,9 +208,16 @@ function HeroChips({ labels, firstName }) {
     if (!drag || drag.index !== index) return
     const body = world.bodies[index]
     const point = localPoint(event)
-    if (Math.abs(point.x - drag.sx) + Math.abs(point.y - drag.sy) > 5) drag.moved = true
+    const dist = Math.abs(point.x - drag.sx) + Math.abs(point.y - drag.sy)
+    if (dist > 5) drag.moved = true
     const x = Math.max(0, Math.min(world.width - body.w, point.x - drag.ox))
     const y = Math.max(-260, Math.min(world.height - body.h, point.y - drag.oy))
+    const stepDist = Math.hypot(x - body.x, y - body.y)
+    drag.accumDist = (drag.accumDist || 0) + stepDist
+    if (drag.accumDist > 90) {
+      drag.accumDist = 0
+      cue('slide')
+    }
     body.vx = Math.max(-MAX_THROW, Math.min(MAX_THROW, x - body.x))
     body.vy = Math.max(-MAX_THROW, Math.min(MAX_THROW, y - body.y))
     body.x = x

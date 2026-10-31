@@ -58,7 +58,7 @@ const id = {
   'hero.chip.codeName': 'Ikon kode',
   'hero.chip.starName': 'Ikon bintang',
   'hero.code':
-    'const INIT_PORTOFOLIO = async () => { const developer = { nama: "ALDI_DWI_IRAWAN", asal: "Kediri_Indonesia", peran: "Junior_Programmer", fokus: "Web_Mobile_dan_IT_Support" }; await developer.siapBekerja(); }',
+    'const INITIALIZE_SYSTEM = async () => { const Developer = { ID: "ALDI_DWI_IRAWAN", Origin: "Kediri_Indonesia", Role: "Junior_Programmer", Mindset: "Systematic_Thinking_With_Problem_Solving" }; await System.load("React", "Next.js", "Tailwind_CSS", "PHP_Laravel", "MySQL"); if (Project.isComplex) return Developer.solveWith(Code + Logic + Dedication); const Mission = "Membangun solusi digital yang andal, efisien, dan memberikan dampak nyata."; const execution = Developer.create({ clarity: true, aesthetics: "Clean_and_Functional", interaction: "Smooth" }); return execution.deploy(); }; //Status: ONLINE | Mode: OPEN_TO_WORK <END_OF_SCRIPT>',
 
   'status.label': 'Status',
 

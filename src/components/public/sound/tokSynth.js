@@ -5,7 +5,7 @@
 const MIN_GAP_MS = 45 // between any two sounds
 const MAX_PER_SECOND = 12
 const PER_SOURCE_GAP_MS = 120 // the same label (or character) at most every 120 ms
-const MAX_VOLUME = 0.35
+const MAX_VOLUME = 0.5
 const BASE_HZ = 900
 
 let ctx = null
@@ -160,17 +160,30 @@ function glide(from, to, duration, type, volume, delay = 0) {
 // The sounds of the monochrome page: [from Hz, to Hz, seconds, wave, volume, delay] per glide.
 // k = strength 0..1, hz = base pitch (the meow of each cat)
 const CUES = {
-  pick: () => [[520, 300, 0.09, 'sine', 0.14]], // a chip or cat is grabbed
-  drop: () => [[360, 200, 0.08, 'sine', 0.08]], // a dragged chip is let go
-  jump: () => [[600, 900, 0.1, 'sine', 0.12]], // click or Enter on a chip
-  hit: (k) => [[220 + 120 * k, 90, 0.12, 'triangle', 0.05 + 0.12 * k]], // a chip hits the floor
-  land: (k) => [[180, 90, 0.1, 'triangle', 0.08 + 0.1 * k]], // a cat lands
-  open: () => [[300, 900, 0.18, 'triangle', 0.08]], // a folder opens
-  close: () => [[700, 300, 0.18, 'triangle', 0.08]], // a folder closes
-  zoom: () => [[500, 800, 0.1, 'sine', 0.08]], // an image opens larger
+  pick: () => [
+    [560, 320, 0.08, 'sine', 0.28],
+    [920, 560, 0.04, 'triangle', 0.16],
+  ], // a clear, tactile click when a chip is grabbed
+  drop: () => [
+    [400, 180, 0.09, 'sine', 0.26],
+    [240, 100, 0.06, 'triangle', 0.18],
+  ], // a solid thud when a dragged chip is let go
+  jump: () => [
+    [540, 1040, 0.12, 'sine', 0.3],
+    [320, 720, 0.08, 'triangle', 0.15],
+  ], // energetic pop on click/jump
+  hit: (k) => [
+    [260 + 160 * k, 100, 0.1, 'sine', 0.16 + 0.24 * k],
+    [640 * (0.8 + 0.4 * k), 320, 0.05, 'triangle', 0.12 + 0.16 * k],
+  ], // crisp knocking sound on chip collision or floor landing
+  slide: () => [[480, 420, 0.04, 'sine', 0.16]], // tactile sliding tick
+  land: (k) => [[200, 100, 0.1, 'triangle', 0.12 + 0.15 * k]], // a landing sound
+  open: () => [[300, 900, 0.18, 'triangle', 0.14]], // a folder opens
+  close: () => [[700, 300, 0.18, 'triangle', 0.14]], // a folder closes
+  zoom: () => [[500, 800, 0.1, 'sine', 0.14]], // an image opens larger
   meow: (k, hz) => [
-    [hz, hz * 1.35, 0.15, 'sine', 0.09 * k],
-    [hz * 1.35, hz * 0.8, 0.22, 'sine', 0.08 * k, 0.14],
+    [hz, hz * 1.35, 0.15, 'sine', 0.12 * k],
+    [hz * 1.35, hz * 0.8, 0.22, 'sine', 0.1 * k, 0.14],
   ],
 }
 
