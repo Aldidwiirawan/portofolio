@@ -33,42 +33,10 @@ function journeyEntries(experiences, educations) {
 }
 
 /**
- * Fallback documentation photos so that every milestone renders an interactive 3D folder
- * with 3 fanned sheets, matching Styfen Sagala's reference site 1:1.
+ * Photos of the journey milestone from the database. Empty by default until filled by user via admin panel.
  */
 function getEntryPhotos(entry) {
-  if (entry.item.photos && entry.item.photos.length > 0) {
-    return entry.item.photos
-  }
-  if (entry.year === '2026') {
-    return [
-      { url: '/projects/raw/dashboard.png', caption: 'Konsol Web & Dasbor Manajemen' },
-      { url: '/projects/raw/tracking.png', caption: 'Tracking Scan Resi Mobile & Server' },
-      { url: '/projects/raw/orders.png', caption: 'Antarmuka Manajemen Pesanan' },
-    ]
-  }
-  if (entry.year === '2025') {
-    return [
-      { url: '/projects/raw/madura_admin_products.webp', caption: 'Katalog Produk Madura Mart' },
-      { url: '/projects/raw/madura_admin_stock.webp', caption: 'Manajemen Stok Masuk & Keluar' },
-      { url: '/projects/raw/madura_catalog_customer.webp', caption: 'Antarmuka Portal Pembeli' },
-    ]
-  }
-  if (entry.year === '2023' && entry.type === 'experience') {
-    return [
-      { url: '/projects/raw/dashboard.png', caption: 'Rekapitulasi Administrasi Komputer' },
-      { url: '/projects/raw/orders.png', caption: 'Pencatatan Stok Bahan & Transaksi' },
-      { url: '/projects/raw/toship.png', caption: 'Dokumentasi Operasional Usaha' },
-    ]
-  }
-  if (entry.year === '2021') {
-    return [
-      { url: '/projects/raw/integration.png', caption: 'Instalasi & Konfigurasi Jaringan CCTV' },
-      { url: '/projects/raw/doc_pdf.webp', caption: 'Dokumentasi PKL BM Multimedia' },
-      { url: '/projects/raw/dashboard.png', caption: 'Monitoring Sistem Kamera Online' },
-    ]
-  }
-  return []
+  return entry.item.photos || []
 }
 
 /**
@@ -225,7 +193,7 @@ function JourneySection() {
                             <span className="pub-jr-icon">{yearIcon}</span>
                           </div>
                         )}
-                        {photos.length > 0 && <JourneyFolder photos={photos} year={entry.year} onOpenPhoto={openLightbox} />}
+                        <JourneyFolder photos={photos} year={entry.year} onOpenPhoto={openLightbox} />
                       </div>
                     </div>
                   </li>

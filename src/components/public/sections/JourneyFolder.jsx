@@ -9,16 +9,17 @@ import { useSound } from '../sound/soundContext'
  * photos large in the image viewer (in colour on hover). The photos are hidden from screen readers while
  * the folder is closed.
  */
-function JourneyFolder({ photos, year, onOpenPhoto }) {
+function JourneyFolder({ photos = [], year, onOpenPhoto }) {
   const { t, lang } = useI18n()
   const { cue } = useSound()
   const [open, setOpen] = useState(false)
   const altOf = (photo, index) => {
-    const english = lang === 'en' && photo.caption_en
-    return (english ? photo.caption_en : photo.caption) || t('journey.photoAlt', { year, n: index + 1 })
+    const english = lang === 'en' && photo?.caption_en
+    return (english ? photo.caption_en : photo?.caption) || t('journey.photoAlt', { year, n: index + 1 })
   }
-  const viewerItems = photos.map((photo, index) => ({ ...photo, caption: altOf(photo, index) }))
-  const sheets = [0, 1, 2].map((index) => photos[index] ?? null)
+  const safePhotos = photos || []
+  const viewerItems = safePhotos.map((photo, index) => ({ ...photo, caption: altOf(photo, index) }))
+  const sheets = [0, 1, 2].map((index) => safePhotos[index] ?? null)
 
   const toggle = () => {
     cue(open ? 'close' : 'open')
