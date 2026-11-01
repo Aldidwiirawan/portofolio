@@ -39,9 +39,10 @@ SET
   ]::TEXT[],
   outcome = 'Sistem berhasil diselesaikan melalui siklus penuh 14 minggu (perencanaan, use case, DDL, integrasi Midtrans, pengujian sistem, hingga pelatihan pengguna akhir). Berhasil memotong waktu antrean di kasir, meminimalisir kesalahan pesanan, serta memberikan transparansi omzet 100% bagi pemilik kafe melalui grafik dan ekspor PDF/CSV. Website sempat aktif daring (live) selama sekitar satu tahun dan diuji coba operasional langsung oleh pemilik Coffee Shop Dwijaya.',
   outcome_en = 'Successfully delivered through a complete 14-week lifecycle (planning, use case design, DDL schema, Midtrans integration, system testing, and end-user training). The system eliminated counter bottlenecks, minimized ordering mistakes, and delivered 100% revenue transparency to the café owner via sales charts and PDF/CSV exports. The website was live online for approximately one year and tested in real operations by the owner of Coffee Shop Dwijaya.',
+  thumbnail_url = '/projects/dwijaya-coffee-cover.webp',
   gallery = '[
     {
-      "url": "https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/161aa7cd-d30c-4364-8bcd-ba796573b22c.webp",
+      "url": "/projects/raw/dwijaya_catalog_menu.webp",
       "caption": "Katalog Menu Pembeli: Tampilan pilihan kopi, minuman, dan makanan dengan filter kategori serta status ketersediaan stok menu.",
       "caption_en": "Customer Menu Catalog: Browse coffees, beverages, and meals with category filters and real-time stock availability status.",
       "kind": "gallery",
