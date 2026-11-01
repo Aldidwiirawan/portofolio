@@ -169,6 +169,64 @@ export const PROJECT_OVERRIDES = {
       'Sistem berhasil diselesaikan melalui siklus penuh 14 minggu (perencanaan, use case, DDL, integrasi Midtrans, pengujian sistem, hingga pelatihan pengguna akhir). Berhasil memotong waktu antrean di kasir, meminimalisir kesalahan pesanan, serta memberikan transparansi omzet 100% bagi pemilik kafe melalui grafik dan ekspor PDF/CSV. Website sempat aktif daring (live) selama sekitar satu tahun dan diuji coba operasional langsung oleh pemilik Coffee Shop Dwijaya.',
     outcome_en:
       'Successfully delivered through a complete 14-week lifecycle (planning, use case design, DDL schema, Midtrans integration, system testing, and end-user training). The system eliminated counter bottlenecks, minimized ordering mistakes, and delivered 100% revenue transparency to the café owner via sales charts and PDF/CSV exports. The website was live online for approximately one year and tested in real operations by the owner of Coffee Shop Dwijaya.',
+    gallery: [
+      {
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/161aa7cd-d30c-4364-8bcd-ba796573b22c.webp',
+        caption:
+          'Katalog Menu Pembeli: Tampilan pilihan kopi, minuman, dan makanan dengan filter kategori serta status ketersediaan stok menu.',
+        caption_en:
+          'Customer Menu Catalog: Browse coffees, beverages, and meals with category filters and real-time stock availability status.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/89a50692-daa9-4e4a-824b-eeb96633b002.webp',
+        caption:
+          'Keranjang Pesanan: Konfirmasi pop-up interaktif, pengaturan jumlah pesanan, dan kalkulasi subtotal harga transparan.',
+        caption_en:
+          'Shopping Cart: Interactive confirmation pop-up alert, order quantity adjustment, and transparent subtotal price calculation.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/9be9bc82-faf8-47a5-8bc1-8faac4ecdae0.webp',
+        caption:
+          'Pembayaran Digital Midtrans: Integrasi checkout cashless multi-channel (GoPay, QRIS, Virtual Account BNI) dengan verifikasi otomatis.',
+        caption_en:
+          'Midtrans Payment Gateway: Multi-channel cashless digital checkout (GoPay, QRIS, BNI Virtual Account) with automated payment confirmation.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/dwijaya_dashboard_admin.webp',
+        caption:
+          'Dashboard Admin & Kasir: Navigasi operasional untuk pemrosesan antrean pesanan (Orders), data kategori, stok produk, dan akun kasir.',
+        caption_en:
+          'Admin & Cashier Dashboard: Operations navigation for processing order queues, categories, inventory stock, and cashier accounts.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/dwijaya_dashboard_owner.webp',
+        caption:
+          'Dashboard Owner: Panel eksekutif untuk manajemen hak akses pengguna (Users) dan pemantauan laporan analitik penjualan (Reports).',
+        caption_en:
+          'Owner Dashboard: Executive panel for role-based user management and sales analytics reports monitoring.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/dwijaya_use_case.webp',
+        caption:
+          'Diagram Use Case Sistem: Pemetaan interaksi 3 aktor (Owner, Karyawan/Kasir, dan Customer) pada sistem pemesanan kafe Dwijaya Coffee.',
+        caption_en:
+          'System Use Case Diagram: Interaction mapping across 3 actor roles (Owner, Cashier/Staff, and Customer) on the Dwijaya Coffee ordering system.',
+        kind: 'diagram',
+        label: 'Use Case',
+        label_en: 'Use Case',
+        device: 'web',
+      },
+    ],
   },
 }
 
