@@ -31,13 +31,13 @@ export const PROJECT_HIGHLIGHTS = {
   'dwijaya-coffee': {
     id: [
       { value: 'Midtrans', label: 'Payment Gateway' },
-      { value: '3 Peran', label: 'Hak Akses Sistem' },
-      { value: 'Ketua Tim', label: 'Kepemimpinan (4 Orang)' },
+      { value: '3 Role Aktor', label: 'Owner, Kasir, Tamu' },
+      { value: 'Ekspor Laporan', label: 'Format PDF & CSV' },
     ],
     en: [
       { value: 'Midtrans', label: 'Payment Gateway' },
-      { value: '3 Roles', label: 'System Access' },
-      { value: 'Team Lead', label: 'Leadership (4 People)' },
+      { value: '3 Roles', label: 'Owner, Admin, Customer' },
+      { value: 'Report Export', label: 'PDF & CSV Format' },
     ],
   },
   'sistem-informasi-pengelolaan-data-produk-madura-mart': {
