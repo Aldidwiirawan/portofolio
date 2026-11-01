@@ -275,47 +275,37 @@ export const PROJECT_OVERRIDES = {
       'Successfully delivered through the complete engineering lifecycle (grocery MSME requirement gathering, DFD Level 0–2 modeling, 10-table ERD database schema, Laravel & MySQL implementation, and comprehensive testing). Achieved a 100% pass rate across 18/18 black-box testing scenarios across all Customer, Admin, and Owner modules without critical defects. The system effectively eliminated shelf stock discrepancies, automated real net-profit accounting for the grocery merchant, and served as an applied portfolio milestone presented in the official PKL Report at Diskominfo Kediri.',
     gallery: [
       {
-        url: '/projects/raw/madura_catalog_customer.webp',
-        caption:
-          'Katalog Belanja Sembako: Tampilan etalase produk kebutuhan sehari-hari dengan banner promo countdown timer, kategori bahan pokok, serta filter slider rentang harga dan rating.',
-        caption_en:
-          'Customer Grocery Catalog: Interactive grocery showcase with countdown promo timer banner, basic categories, and price range/rating filters.',
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/1f7e40d8-d711-40e1-b883-d5ca77e1d0ee.webp',
+        caption: 'Halaman katalog',
+        caption_en: 'Catalog page',
         kind: 'gallery',
         device: 'web',
       },
       {
-        url: '/projects/raw/madura_admin_products.webp',
-        caption:
-          'Dashboard Admin - Data Produk: Rekapitulasi harga pokok modal, harga jual, margin keuntungan, serta ringkasan finansial Total Modal (Rp 93.767.500) dan Total Laba (Rp 9.533.000).',
-        caption_en:
-          'Admin Dashboard - Product Data: Management of cost price, selling price, profit margin, and financial summary cards (Total Capital Rp 93,767,500 & Total Profit Rp 9,533,000).',
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/7826dda2-2b36-452a-9a77-d89109b3ed76.webp',
+        caption: 'Halaman data produk',
+        caption_en: 'Product data page',
         kind: 'gallery',
         device: 'web',
       },
       {
-        url: '/projects/raw/madura_owner_reports.webp',
-        caption:
-          'Dashboard Owner - Analisis Keuntungan & Operasional: Perhitungan laba bersih riil dikurangi rincian biaya operasional bulanan, filter transaksi per periode, serta tombol ekspor dokumen PDF dan Excel.',
-        caption_en:
-          'Owner Dashboard - Profit & Operations Analysis: Net profit calculation deducting monthly operational costs, date range filters, and one-click PDF & Excel report exports.',
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/5f1229e8-642f-4c68-8d3b-8a26abad02e5.webp',
+        caption: 'Halaman stok masuk',
+        caption_en: 'Incoming stock page',
         kind: 'gallery',
         device: 'web',
       },
       {
-        url: '/projects/raw/madura_admin_stock.webp',
-        caption:
-          'Manajemen Inventaris Stok: Pencatatan mutasi stok barang masuk dari supplier, integrasi stok keluar transaksi, dan form stok opname rekonsiliasi selisih fisik.',
-        caption_en:
-          'Stock Inventory Management: Tracking incoming stock from suppliers, outgoing transaction deductions, and physical stock-take reconciliation.',
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/818bb00e-f210-42c5-9ed6-39906962c061.webp',
+        caption: 'Halaman stok keluar',
+        caption_en: 'Outgoing stock page',
         kind: 'gallery',
         device: 'web',
       },
       {
-        url: '/projects/raw/madura_login_portal.webp',
-        caption:
-          'Portal Autentikasi Pengguna: Form masuk dan pendaftaran multi-role yang memisahkan hak akses antara Pelanggan, Admin/Penjaga Toko, dan Owner.',
-        caption_en:
-          'User Authentication Portal: Multi-role login and registration separating permissions between Customer, Admin/Staff, and Owner.',
+        url: 'https://lgmmoqnoareadpmjmyyy.supabase.co/storage/v1/object/public/portfolio-assets/gallery/d1539dbe-bd10-46b2-8f73-d3ccf36dc977.webp',
+        caption: 'Halaman kategori',
+        caption_en: 'Category page',
         kind: 'gallery',
         device: 'web',
       },
