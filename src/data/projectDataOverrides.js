@@ -358,3 +358,51 @@ export function enrichProject(row) {
     ...override,
   }
 }
+
+export const EXPERIENCE_OVERRIDES = {
+  // Web Developer Intern · Dinas Komunikasi dan Informatika Kabupaten Kediri
+  '56438a24-ae97-4007-989b-3c08e589f948': {
+    description:
+      'Praktik Kerja Lapangan (PKL) di Diskominfo Kabupaten Kediri bersama tim 3 mahasiswa Politeknik Negeri Malang, berfokus pada pengembangan sistem web e-commerce & rantai pasok Madura Mart serta dukungan infrastruktur portal Pemkab Kediri.',
+    description_en:
+      'Internship (PKL) at Kediri Regency Communication and Informatics Office with a team of 3 students from Politeknik Negeri Malang, focusing on web e-commerce & supply chain development for Madura Mart and municipal portal infrastructure support.',
+  },
+  // Programmer Intern · CV Adisatya IT Consultant
+  '0bb89873-2bb2-480d-a377-c29d37bd0d3e': {
+    description:
+      'Magang industri di CV Adisatya IT Consultant, berkontribusi dalam perancangan UI/UX dan frontend konsol web serta pengembangan aplikasi mobile pencatatan bukti packing paket marketplace (kini dirilis sebagai Jeejak).',
+    description_en:
+      'Industrial internship at CV Adisatya IT Consultant, contributing to the UI/UX and web console frontend design as well as the mobile operator app for marketplace parcel packing verification (now released as Jeejak).',
+  },
+}
+
+export function enrichExperience(row) {
+  if (!row?.id) return row
+  const override = EXPERIENCE_OVERRIDES[row.id]
+  if (!override) return row
+  return {
+    ...row,
+    ...override,
+  }
+}
+
+export const EDUCATION_OVERRIDES = {
+  // Diploma III (D3) · Politeknik Negeri Malang
+  '950e0792-31fa-40d2-8c9d-74c5920f65af': {
+    description:
+      'Menempuh studi D3 Manajemen Informatika PSDKU Kota Kediri dengan fokus rekayasa perangkat lunak web dan mobile, perancangan basis data relasional, serta perancangan sistem monitoring berbasis pemindaian barcode.',
+    description_en:
+      'Studied D3 Informatics Management at PSDKU Kediri, focusing on web & mobile software engineering, relational database design, and barcode scanning-based monitoring systems.',
+  },
+}
+
+export function enrichEducation(row) {
+  if (!row?.id) return row
+  const override = EDUCATION_OVERRIDES[row.id]
+  if (!override) return row
+  return {
+    ...row,
+    ...override,
+  }
+}
+

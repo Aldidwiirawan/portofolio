@@ -63,19 +63,15 @@
   view-timeline: --pub-jr block;
 }
 
-.pub-jr-track,
-.pub-jr-fill {
+.pub-jr-track {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 27px;
   width: 2px;
   border-radius: 999px;
-  transform: translateX(-50%);
-}
-
-.pub-jr-track {
   background-color: var(--n100);
+  transform: translateX(-50%);
 }
 
 .pub[data-theme='dark'] .pub-jr-track {
@@ -83,10 +79,19 @@
 }
 
 .pub-jr-fill {
-  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 27px;
+  z-index: 2;
+  width: 2px;
+  height: 0%;
+  border-radius: 999px;
   background-color: var(--fg);
   box-shadow: 0 0 8px rgb(0 0 0 / 0.15);
-  transform-origin: 50% 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
 }
 
 .pub[data-theme='dark'] .pub-jr-fill {
@@ -95,14 +100,19 @@
 
 .pub-jr-tip {
   position: absolute;
-  bottom: 0;
+  top: 100%;
   left: 50%;
   width: 6px;
   height: 24px;
   border-radius: 999px;
   background-color: var(--fg);
-  box-shadow: 0 4px 10px rgb(0 0 0 / 0.3);
-  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.35);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.pub[data-theme='dark'] .pub-jr-tip {
+  box-shadow: 0 4px 10px rgb(255 255 255 / 0.35);
 }
 
 .pub-jr-list {
@@ -799,91 +809,44 @@
   }
 }
 
-/* --- Gerak: garis mengikuti scroll; tahun, ikon, dan titik menyala saat entri di tengah layar -------- */
+/* --- Interaksi garis dan titik: tahun, ikon, dan titik menyala saat ujung garis tirai melewatinya --- */
 
-@keyframes pub-jr-drop {
-  from {
-    transform: translateX(-50%) scaleY(0);
-  }
-  to {
-    transform: translateX(-50%) scaleY(1);
-  }
+.pub-jr-item .pub-jr-year {
+  transition: opacity 300ms ease, color 300ms ease;
 }
 
-@keyframes pub-jr-year-light {
-  0%,
-  100% {
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 1;
-  }
+.pub-jr-item[data-active="true"] .pub-jr-year {
+  opacity: 1;
+  color: var(--fg);
 }
 
-@keyframes pub-jr-icon-light {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: translate(-50%, calc(-50% + 9px));
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+.pub-jr-item .pub-jr-icon {
+  transition: opacity 300ms ease, transform 300ms ease;
 }
 
-@keyframes pub-jr-dot-light {
-  0%,
-  100% {
-    border-color: #dbdbdb;
-  }
-  50% {
-    border-color: var(--fg);
-  }
+.pub-jr-item[data-active="true"] .pub-jr-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%);
 }
 
-@keyframes pub-jr-ring-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.3);
-  }
+.pub-jr-item .pub-jr-dot-core {
+  transition: border-color 300ms ease, background-color 300ms ease, transform 300ms ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .pub-jr-fill {
-      animation: pub-jr-drop linear both;
-      animation-timeline: --pub-jr;
-      animation-range: entry 40% exit 60%;
-    }
+.pub-jr-item[data-active="true"] .pub-jr-dot-core {
+  border-color: var(--fg);
+  background-color: var(--fg);
+  transform: scale(1.2);
+}
 
-    .pub-jr-year {
-      animation: pub-jr-year-light linear both;
-      animation-timeline: --pub-jr-row;
-      animation-range: cover 15% cover 85%;
-    }
+.pub-jr-item .pub-jr-dot-ring {
+  transition: opacity 300ms ease, transform 300ms ease, background-color 300ms ease;
+}
 
-    .pub-jr-icon {
-      animation: pub-jr-icon-light linear both;
-      animation-timeline: --pub-jr-row;
-      animation-range: cover 15% cover 85%;
-    }
-
-    .pub-jr-dot-core {
-      animation: pub-jr-dot-light linear both;
-      animation-timeline: --pub-jr-row;
-      animation-range: cover 15% cover 85%;
-    }
-
-    .pub-jr-dot-ring {
-      animation: pub-jr-ring-pulse linear both;
-      animation-timeline: --pub-jr-row;
-      animation-range: cover 15% cover 85%;
-    }
-  }
+.pub-jr-item[data-active="true"] .pub-jr-dot-ring {
+  background-color: var(--fg);
+  opacity: 0.25;
+  transform: scale(1.35);
 }
 
 @media (prefers-reduced-motion: reduce) {

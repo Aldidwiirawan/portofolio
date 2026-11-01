@@ -13,7 +13,7 @@ import { IconCap } from '../../components/admin/ui/icons'
 import { RowActions, SectionScreen } from '../../components/admin/ui/SectionScreen'
 import { useReorder } from '../../components/admin/ui/useReorder'
 import { useSectionScreen } from '../../components/admin/ui/useSectionScreen'
-import { assetUrlsOf } from '../../components/admin/ui/useAssetFields'
+import { assetUrlsOf, normalizeGallery } from '../../components/admin/ui/useAssetFields'
 
 /**
  * AdminEducationsPage Component (CRUD)
@@ -186,6 +186,7 @@ function EducationsScreen() {
               ? `${edu.start_year} — ${edu.end_year}`
               : `${edu.start_year}`
           const name = `pendidikan "${edu.degree} — ${edu.field_of_study}"`
+          const photoCount = normalizeGallery(edu.photos).length
 
           return (
             <DataListItem
@@ -209,6 +210,7 @@ function EducationsScreen() {
                   <span>{periodText}</span>
                   {edu.gpa != null && <span>IPK {String(edu.gpa).replace('.', ',')}</span>}
                   {edu.thesis_title && <span>Tugas akhir: {edu.thesis_title}</span>}
+                  {photoCount > 0 && <span>{photoCount} foto</span>}
                 </>
               }
               actions={

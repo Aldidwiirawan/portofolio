@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
 import { ArrowRightIcon, BriefcaseIcon, CalendarIcon, CapIcon, MapPinIcon } from '../icons'
@@ -49,6 +50,67 @@ function JourneySection() {
   const entries = journeyEntries(experiences.data, educations.data)
   const failed = [experiences, educations].some((table) => table.status === 'error')
 
+  const containerRef = useRef(null)
+  const fillRef = useRef(null)
+
+  useEffect(() => {
+    const container = containerRef.current
+    const fill = fillRef.current
+    if (!container || !fill) return
+
+    let rafId = null
+
+    const update = () => {
+      const rect = container.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+
+      // Curtain line starts descending when top reaches viewport center, reaches 100% when bottom reaches viewport center
+      const triggerY = windowHeight * 0.5
+      const total = rect.height
+      const current = triggerY - rect.top
+
+      let progress = total > 0 ? current / total : 0
+      progress = Math.min(Math.max(progress, 0), 1)
+
+      fill.style.height = `${(progress * 100).toFixed(2)}%`
+      fill.style.opacity = progress > 0.002 ? '1' : '0'
+
+      const currentTipY = rect.top + progress * rect.height
+      const items = container.querySelectorAll('.pub-jr-item')
+
+      items.forEach((item) => {
+        const dot = item.querySelector('.pub-jr-dot')
+        if (dot) {
+          const dotRect = dot.getBoundingClientRect()
+          const dotCenter = dotRect.top + dotRect.height * 0.5
+          if (currentTipY >= dotCenter - 6) {
+            item.setAttribute('data-active', 'true')
+          } else {
+            item.removeAttribute('data-active')
+          }
+        }
+      })
+    }
+
+    const onScroll = () => {
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        update()
+        rafId = null
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    update()
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [entries.length])
+
   if (!loading && !failed && entries.length === 0) return null
 
   return (
@@ -80,9 +142,9 @@ function JourneySection() {
           />
         )}
         {!loading && entries.length > 0 && (
-          <div className="pub-jr">
+          <div className="pub-jr" ref={containerRef}>
             <span className="pub-jr-track" aria-hidden="true" />
-            <span className="pub-jr-fill" aria-hidden="true">
+            <span className="pub-jr-fill" ref={fillRef} aria-hidden="true">
               <span className="pub-jr-tip" />
             </span>
             <ol className="pub-jr-list">
@@ -209,6 +271,11 @@ function EducationCard({ item, year }) {
             <YearPeriod start={item.start_year} end={item.end_year} current={item.is_current} />
           </Meta>
         </div>
+        {item.description && (
+          <p className="pub-jr-text" lang={langOf(item, 'description')}>
+            {item.description}
+          </p>
+        )}
         {item.gpa != null && <p className="pub-jr-text">{t('journey.gpa', { gpa: formatGpa(item.gpa) })}</p>}
         {item.thesis_title && (
           <p className="pub-jr-text">

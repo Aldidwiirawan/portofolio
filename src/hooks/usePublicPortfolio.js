@@ -2,7 +2,7 @@ import { startTransition, useCallback, useEffect, useRef, useState } from 'react
 import { afterFirstPaint } from '../lib/afterFirstPaint'
 import { selectWithEnglish, selectWithOptional } from '../lib/englishColumns'
 import { restInsert, restSelect } from '../lib/publicApi'
-import { enrichProject } from '../data/projectDataOverrides'
+import { enrichProject, enrichExperience, enrichEducation } from '../data/projectDataOverrides'
 
 // Data of the public pages (stage 3A). The old hooks stay unchanged for the admin. Since stage 3C the
 // requests go through lib/publicApi.js (fetch, no supabase-js in the public bundle).
@@ -62,11 +62,13 @@ const TABLES = {
       'id, role, company, experience_type, location, start_date, end_date, is_current, description, responsibilities, skill_tags, logo_url, photos, related_project_id, sort_order',
     enColumns: 'role_en, company_en, description_en, responsibilities_en',
     order: [['sort_order'], ['start_date', { ascending: false }]],
-    normalize: (row) => {
+    normalize: (rawRow) => {
+      const row = enrichExperience(rawRow)
       const [responsibilities, responsibilitiesEn] = parallelLists(row.responsibilities, row.responsibilities_en)
       return {
         ...row,
         description: text(row.description),
+        description_en: text(row.description_en),
         responsibilities,
         responsibilities_en: responsibilitiesEn,
         skill_tags: toTextList(row.skill_tags),
@@ -77,12 +79,21 @@ const TABLES = {
   },
   educations: {
     table: 'educations',
-    columns: 'id, institution, degree, field_of_study, start_year, end_year, is_current, gpa, thesis_title, logo_url, sort_order',
+    columns: 'id, institution, degree, field_of_study, start_year, end_year, is_current, gpa, thesis_title, logo_url, sort_order, description',
     enColumns: 'degree_en, field_of_study_en, thesis_title_en',
     // educations.photos comes with migration 20261030000000; until then the page shows no folder
     optional: ['photos'],
     order: [['sort_order'], ['start_year', { ascending: false }]],
-    normalize: (row) => ({ ...row, logo_url: safeAssetUrl(row.logo_url), photos: photoList(row.photos) }),
+    normalize: (rawRow) => {
+      const row = enrichEducation(rawRow)
+      return {
+        ...row,
+        description: text(row.description),
+        description_en: text(row.description_en),
+        logo_url: safeAssetUrl(row.logo_url),
+        photos: photoList(row.photos),
+      }
+    },
   },
   certifications: {
     table: 'certifications',
