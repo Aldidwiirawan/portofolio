@@ -7,6 +7,7 @@ import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
 import { SectionError, SkeletonBlock } from '../Section'
 import { getProjectHighlights } from './projectHighlights'
+import GithubActivitySlot from '../github/GithubActivitySlot'
 import './ProjectsSection.css'
 
 /** The first public demo link of a project (private links have no address here). */
@@ -26,7 +27,8 @@ const caseHref = (project) => `/projects/${encodeURIComponent(project.slug)}`
 function ProjectsSection() {
   const { t } = useI18n()
   const { status, data: projects } = usePublicData().projects
-  const { reload } = usePublicData()
+  const { reload, profile } = usePublicData()
+  const hasGithub = Boolean(profile.data?.github_username)
 
   if (status === 'ready' && projects.length === 0) return null
 
@@ -70,6 +72,7 @@ function ProjectsSection() {
                 </div>
               ))}
             </div>
+            {hasGithub && <GithubActivitySlot />}
           </>
         )}
       </div>
