@@ -54,14 +54,14 @@ export const PROJECT_HIGHLIGHTS = {
   },
   'madura-mart': {
     id: [
-      { value: '18/18 Uji', label: 'Skenario Lulus' },
-      { value: 'Stok Opname', label: 'Otomatisasi Data' },
-      { value: 'Diskominfo', label: 'Instansi Magang' },
+      { value: '18/18 Uji', label: 'Black-Box Testing' },
+      { value: '3 Alur Stok', label: 'Masuk, Keluar, Opname' },
+      { value: '10 Tabel ERD', label: 'Diskominfo Kediri' },
     ],
     en: [
-      { value: '18/18 Tests', label: 'Scenarios Passed' },
-      { value: 'Stock Take', label: 'Data Automation' },
-      { value: 'Diskominfo', label: 'Internship Agency' },
+      { value: '18/18 Tests', label: 'Black-Box Testing' },
+      { value: '3 Stock Flows', label: 'In, Out, Stock-Take' },
+      { value: '10 ERD Tables', label: 'Diskominfo Kediri' },
     ],
   },
   'website-portofolio-pribadi': {
