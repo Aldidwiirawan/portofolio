@@ -163,7 +163,7 @@ const id = {
 
   'experience.viewProject': 'Lihat proyek: {title}',
   'journey.title': 'Perjalanan saya',
-  'journey.intro': 'Tonggak pertumbuhan: Dari lab universitas hingga lingkungan produksi profesional.',
+  'journey.intro': 'Jejak langkah belajar dan berkarya: dari pendidikan vokasi hingga pengalaman industri nyata.',
   'journey.education': 'Pendidikan',
   'journey.gpa': 'IPK {gpa}',
   'journey.archive': 'ARSIP PROYEK',

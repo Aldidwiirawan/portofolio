@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
 import { usePrefersReducedMotion } from '../../../lib/useMediaQuery'
-import GithubActivitySlot from '../github/GithubActivitySlot'
 import { ArrowUpRightIcon, FileTextIcon } from '../icons'
 import { langOf } from '../localize'
 import { usePublicData } from '../publicContexts'
@@ -27,8 +26,7 @@ const caseHref = (project) => `/projects/${encodeURIComponent(project.slug)}`
 function ProjectsSection() {
   const { t } = useI18n()
   const { status, data: projects } = usePublicData().projects
-  const { reload, profile } = usePublicData()
-  const hasGithub = Boolean(profile.data?.github_username)
+  const { reload } = usePublicData()
 
   if (status === 'ready' && projects.length === 0) return null
 
@@ -72,7 +70,6 @@ function ProjectsSection() {
                 </div>
               ))}
             </div>
-            {hasGithub && <GithubActivitySlot />}
           </>
         )}
       </div>

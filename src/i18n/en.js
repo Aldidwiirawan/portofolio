@@ -162,7 +162,7 @@ const en = {
 
   'experience.viewProject': 'View project: {title}',
   'journey.title': 'My journey',
-  'journey.intro': 'Milestones of growth: From university labs to professional production environments.',
+  'journey.intro': 'Steps of learning and creating: from vocational education to real-world industry experience.',
   'journey.education': 'Education',
   'journey.gpa': 'GPA {gpa}',
   'journey.archive': 'PROJECT ARCHIVE',
