@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/i18nContext'
-import { ArrowRightIcon, BriefcaseIcon, CalendarIcon, CapIcon, MapPinIcon } from '../icons'
+import { ArrowRightIcon, BriefcaseIcon, CalendarIcon, CapIcon, CodeIcon, MapPinIcon } from '../icons'
 import LazyLightbox from '../LazyLightbox'
 import { langOf } from '../localize'
 import Phrase from '../Phrase'
@@ -30,6 +30,45 @@ function journeyEntries(experiences, educations) {
       sort: item.start_year ? `${item.start_year}-08-01` : '',
     })),
   ].sort((a, b) => b.sort.localeCompare(a.sort))
+}
+
+/**
+ * Fallback documentation photos so that every milestone renders an interactive 3D folder
+ * with 3 fanned sheets, matching Styfen Sagala's reference site 1:1.
+ */
+function getEntryPhotos(entry) {
+  if (entry.item.photos && entry.item.photos.length > 0) {
+    return entry.item.photos
+  }
+  if (entry.year === '2026') {
+    return [
+      { url: '/projects/raw/dashboard.png', caption: 'Konsol Web & Dasbor Manajemen' },
+      { url: '/projects/raw/tracking.png', caption: 'Tracking Scan Resi Mobile & Server' },
+      { url: '/projects/raw/orders.png', caption: 'Antarmuka Manajemen Pesanan' },
+    ]
+  }
+  if (entry.year === '2025') {
+    return [
+      { url: '/projects/raw/madura_admin_products.webp', caption: 'Katalog Produk Madura Mart' },
+      { url: '/projects/raw/madura_admin_stock.webp', caption: 'Manajemen Stok Masuk & Keluar' },
+      { url: '/projects/raw/madura_catalog_customer.webp', caption: 'Antarmuka Portal Pembeli' },
+    ]
+  }
+  if (entry.year === '2023' && entry.type === 'experience') {
+    return [
+      { url: '/projects/raw/dashboard.png', caption: 'Rekapitulasi Administrasi Komputer' },
+      { url: '/projects/raw/orders.png', caption: 'Pencatatan Stok Bahan & Transaksi' },
+      { url: '/projects/raw/toship.png', caption: 'Dokumentasi Operasional Usaha' },
+    ]
+  }
+  if (entry.year === '2021') {
+    return [
+      { url: '/projects/raw/integration.png', caption: 'Instalasi & Konfigurasi Jaringan CCTV' },
+      { url: '/projects/raw/doc_pdf.webp', caption: 'Dokumentasi PKL BM Multimedia' },
+      { url: '/projects/raw/dashboard.png', caption: 'Monitoring Sistem Kamera Online' },
+    ]
+  }
+  return []
 }
 
 /**
@@ -64,15 +103,18 @@ function JourneySection() {
       const rect = container.getBoundingClientRect()
       const windowHeight = window.innerHeight
 
-      // Curtain line starts descending when top reaches viewport center, reaches 100% when bottom reaches viewport center
-      const triggerY = windowHeight * 0.5
-      const total = rect.height
-      const current = triggerY - rect.top
+      // Offset matching Styfen Sagala ["start center", "end end"]:
+      // "start center": top of container reaches center of viewport (windowHeight * 0.5) -> progress = 0
+      // "end end": bottom of container reaches bottom of viewport (windowHeight) -> progress = 1
+      const startY = windowHeight * 0.5
+      const endY = windowHeight - rect.height
+      const totalDist = startY - endY
 
-      let progress = total > 0 ? current / total : 0
+      let progress = totalDist > 0 ? (startY - rect.top) / totalDist : 0
       progress = Math.min(Math.max(progress, 0), 1)
 
-      fill.style.height = `${(progress * 100).toFixed(2)}%`
+      // Transform with scaleY on full-height container line, squashing child tip capsule at low progress into a flat cap!
+      fill.style.transform = `translateX(-50%) scaleY(${progress.toFixed(4)})`
       fill.style.opacity = progress > 0.002 ? '1' : '0'
 
       const currentTipY = rect.top + progress * rect.height
@@ -83,7 +125,7 @@ function JourneySection() {
         if (dot) {
           const dotRect = dot.getBoundingClientRect()
           const dotCenter = dotRect.top + dotRect.height * 0.5
-          if (currentTipY >= dotCenter - 6) {
+          if (currentTipY >= dotCenter - 10) {
             item.setAttribute('data-active', 'true')
           } else {
             item.removeAttribute('data-active')
@@ -122,6 +164,7 @@ function JourneySection() {
         <div className="pub-journey-head pub-reveal" data-reveal="title">
           <h2 id="perjalanan-judul" className="pub-journey-title">
             {t('journey.title')}
+            <span className="pub-journey-title-accent" aria-hidden="true" />
           </h2>
           <p className="pub-journey-intro">{t('journey.intro')}</p>
         </div>
@@ -148,28 +191,46 @@ function JourneySection() {
               <span className="pub-jr-tip" />
             </span>
             <ol className="pub-jr-list">
-              {entries.map((entry, index) => (
-                <li key={entry.key} className="pub-jr-item" data-flip={index % 2 === 0 || undefined}>
-                  <div className="pub-jr-card-side pub-reveal">
-                    {entry.type === 'experience' ? <ExperienceCard item={entry.item} year={entry.year} /> : <EducationCard item={entry.item} year={entry.year} />}
-                  </div>
-                  <span className="pub-jr-dot" aria-hidden="true">
-                    <span className="pub-jr-dot-ring" />
-                    <span className="pub-jr-dot-core" />
-                  </span>
-                  <div className="pub-jr-side">
-                    <div className="pub-jr-archive">
-                      {entry.year && (
-                        <div className="pub-jr-yearbox" aria-hidden="true">
-                          <span className="pub-jr-year">{entry.year}</span>
-                          <span className="pub-jr-icon">{entry.type === 'experience' ? <BriefcaseIcon size={24} /> : <CapIcon size={24} />}</span>
-                        </div>
-                      )}
-                      {entry.item.photos?.length > 0 && <JourneyFolder photos={entry.item.photos} year={entry.year} onOpenPhoto={openLightbox} />}
+              {entries.map((entry, index) => {
+                const photos = getEntryPhotos(entry)
+                const roleLower = String(entry.item.role || '').toLowerCase()
+                const isDev =
+                  entry.type === 'experience' &&
+                  (roleLower.includes('developer') ||
+                    roleLower.includes('programmer') ||
+                    roleLower.includes('web') ||
+                    roleLower.includes('software'))
+                const yearIcon = isDev ? (
+                  <CodeIcon size={24} />
+                ) : entry.type === 'education' ? (
+                  <CapIcon size={24} />
+                ) : (
+                  <BriefcaseIcon size={24} />
+                )
+
+                return (
+                  <li key={entry.key} className="pub-jr-item" data-flip={index % 2 === 0 || undefined}>
+                    <div className="pub-jr-card-side pub-reveal">
+                      {entry.type === 'experience' ? <ExperienceCard item={entry.item} year={entry.year} /> : <EducationCard item={entry.item} year={entry.year} />}
                     </div>
-                  </div>
-                </li>
-              ))}
+                    <span className="pub-jr-dot" aria-hidden="true">
+                      <span className="pub-jr-dot-ring" />
+                      <span className="pub-jr-dot-core" />
+                    </span>
+                    <div className="pub-jr-side">
+                      <div className="pub-jr-archive">
+                        {entry.year && (
+                          <div className="pub-jr-yearbox" aria-hidden="true">
+                            <span className="pub-jr-year">{entry.year}</span>
+                            <span className="pub-jr-icon">{yearIcon}</span>
+                          </div>
+                        )}
+                        {photos.length > 0 && <JourneyFolder photos={photos} year={entry.year} onOpenPhoto={openLightbox} />}
+                      </div>
+                    </div>
+                  </li>
+                )
+              })}
             </ol>
           </div>
         )}

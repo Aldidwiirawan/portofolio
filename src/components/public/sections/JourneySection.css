@@ -1,6 +1,7 @@
-/* "Perjalanan saya" — garis waktu situs acuan Fase 8 (diukur di 1440: kolom 1120 px, judul 96 px di
-   tengah, garis 2 px di tengah, kartu 496 px bergaris 2 px dengan bayangan kotak 4 px, tahun 100 px
-   bergaris tepi dan folder abu 90 × 72). */
+/* "Perjalanan saya" — garis waktu situs acuan Styfen Sagala
+   (Garis 2 px dengan tirai scroll scaleY dan tip kapsul 6×24 px yang memipih di awal,
+   kartu border-2 dengan bayangan kotak 4 px, tahun 100 px outline dengan badge ikon di tengah,
+   folder hitam pekat #000000 dengan 3 lembar foto dan teks ARSIP PROYEK). */
 
 .pub-journey {
   position: relative;
@@ -33,14 +34,30 @@
 }
 
 .pub-journey-title {
+  position: relative;
   display: inline-block;
   margin-bottom: 1rem;
   color: var(--fg);
   font-size: 2.25rem;
   font-weight: 900;
-  line-height: 2.5rem;
+  line-height: 1;
   letter-spacing: -0.05em;
   text-transform: uppercase;
+}
+
+.pub-journey-title-accent {
+  position: absolute;
+  bottom: 0.35rem;
+  left: 0;
+  width: 100%;
+  height: 0.75rem;
+  background-color: rgb(0 0 0 / 0.1);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.pub[data-theme='dark'] .pub-journey-title-accent {
+  background-color: rgb(255 255 255 / 0.1);
 }
 
 .pub-journey-intro {
@@ -56,11 +73,10 @@
   color: var(--n400);
 }
 
-/* --- Garis waktu ------------------------------------------------------------------------------------- */
+/* --- Garis waktu Tirai (Scroll curtain) ---------------------------------------------------------------- */
 
 .pub-jr {
   position: relative;
-  view-timeline: --pub-jr block;
 }
 
 .pub-jr-track {
@@ -78,40 +94,47 @@
   background-color: var(--n800);
 }
 
+/* Garis tirai aktif: merentang dari top: 0 ke bottom: 0, diskalakan dengan scaleY(progress)
+   dengan titik asal di atas (origin-top). Saat progress kecil, tip kapsul di bawahnya ikut
+   tertekan secara vertikal membentuk bilah datar (Image 2). Saat progress mendekati 1,
+   tip meregang penuh menjadi kapsul elips vertikal (Image 3). */
 .pub-jr-fill {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 27px;
-  z-index: 2;
+  z-index: 10;
   width: 2px;
-  height: 0%;
   border-radius: 999px;
-  background-color: var(--fg);
+  background-color: #000000;
   box-shadow: 0 0 8px rgb(0 0 0 / 0.15);
-  transform: translateX(-50%);
+  transform-origin: 50% 0;
+  transform: translateX(-50%) scaleY(0);
   pointer-events: none;
   opacity: 0;
   transition: opacity 150ms ease;
 }
 
 .pub[data-theme='dark'] .pub-jr-fill {
+  background-color: #ffffff;
   box-shadow: 0 0 8px rgb(255 255 255 / 0.15);
 }
 
 .pub-jr-tip {
   position: absolute;
-  top: 100%;
+  bottom: 0;
   left: 50%;
   width: 6px;
   height: 24px;
   border-radius: 999px;
-  background-color: var(--fg);
+  background-color: #000000;
   box-shadow: 0 4px 10px rgb(0 0 0 / 0.35);
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   pointer-events: none;
 }
 
 .pub[data-theme='dark'] .pub-jr-tip {
+  background-color: #ffffff;
   box-shadow: 0 4px 10px rgb(255 255 255 / 0.35);
 }
 
@@ -128,7 +151,6 @@
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  view-timeline: --pub-jr-row block;
 }
 
 .pub-jr-card-side {
@@ -139,7 +161,7 @@
   perspective: 1500px;
 }
 
-/* --- Kartu ----------------------------------------------------------------------------------------- */
+/* --- Kartu Riwayat --------------------------------------------------------------------------------- */
 
 .pub-jr-card {
   position: relative;
@@ -153,8 +175,7 @@
   transition:
     box-shadow 300ms ease-out,
     border-color 300ms ease-out,
-    transform 300ms ease-out,
-    opacity 600ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform 300ms ease-out;
 }
 
 .pub-jr-card:hover {
@@ -365,13 +386,13 @@
   text-decoration-color: currentColor;
 }
 
-/* --- Titik di garis ------------------------------------------------------------------------------------ */
+/* --- Titik di garis (Center Node) -------------------------------------------------------------------- */
 
 .pub-jr-dot {
   position: absolute;
   top: 2rem;
   left: 27px;
-  z-index: 3;
+  z-index: 30;
   display: grid;
   place-items: center;
   width: 1.5rem;
@@ -384,21 +405,58 @@
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  background-color: var(--n300);
+  background-color: #d4d4d4;
   opacity: 0.5;
+  animation: pub-jr-pulse 1.8s ease-in-out infinite;
+  transition: opacity 300ms ease;
+}
+
+@keyframes pub-jr-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 .pub[data-theme='dark'] .pub-jr-dot-ring {
-  background-color: var(--n700);
+  background-color: #525252;
 }
 
 .pub-jr-dot-core {
   position: relative;
+  z-index: 2;
   width: 0.75rem;
   height: 0.75rem;
-  border: 2px solid #dbdbdb;
+  border: 2px solid #000000;
   border-radius: 999px;
-  background-color: var(--bg);
+  background-color: #ffffff;
+  transition: transform 400ms ease, background-color 400ms ease, border-color 400ms ease;
+}
+
+.pub[data-theme='dark'] .pub-jr-dot-core {
+  border-color: #ffffff;
+  background-color: #000000;
+}
+
+/* Titik aktif saat ujung garis tirai melewatinya */
+.pub-jr-item[data-active="true"] .pub-jr-dot-ring {
+  animation: none;
+  opacity: 0;
+}
+
+.pub-jr-item[data-active="true"] .pub-jr-dot-core {
+  transform: scale(1.2);
+  border-color: #000000;
+  background-color: #000000;
+}
+
+.pub[data-theme='dark'] .pub-jr-item[data-active="true"] .pub-jr-dot-core {
+  border-color: #ffffff;
+  background-color: #ffffff;
 }
 
 /* --- Sisi tahun dan folder --------------------------------------------------------------------------- */
@@ -426,12 +484,12 @@
 .pub-jr-yearbox {
   position: relative;
   margin-bottom: 1rem;
+  cursor: default;
   transform: translateY(20px);
   transition: margin-bottom 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Folder terbuka: tahun memberi ruang setinggi kertas yang mekar, jadi foto tidak menutupi angkanya
-   (keputusan pemilik Fase 6; acuan membiarkan kertas menutupi tahun) */
+/* Folder terbuka: tahun memberi ruang setinggi kertas yang mekar */
 .pub-jr-archive:has(.pub-jr-folder[data-open]) .pub-jr-yearbox {
   margin-bottom: 6.5rem;
 }
@@ -439,14 +497,20 @@
 .pub-jr-year {
   display: inline-block;
   color: transparent;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
   font-size: 3.75rem;
   font-weight: 900;
   line-height: 1;
   letter-spacing: normal;
   opacity: 0.2;
-  -webkit-text-stroke: 1px var(--fg);
+  -webkit-text-stroke: 1px rgb(0 0 0 / 0.25);
   -webkit-user-select: none;
   user-select: none;
+  transition: opacity 500ms ease, -webkit-text-stroke 500ms ease, letter-spacing 500ms ease, transform 500ms ease;
+}
+
+.pub[data-theme='dark'] .pub-jr-year {
+  -webkit-text-stroke: 1px rgb(255 255 255 / 0.25);
 }
 
 .pub-jr-icon {
@@ -460,8 +524,10 @@
   background-color: #000000;
   box-shadow: 4px 4px 0 rgb(200 200 200 / 0.4);
   color: #ffffff;
-  opacity: 0.35;
-  transform: translate(-50%, calc(-50% + 9px));
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.85);
+  pointer-events: none;
+  transition: opacity 500ms ease, transform 500ms ease;
 }
 
 .pub-jr-icon svg {
@@ -475,7 +541,25 @@
   color: #000000;
 }
 
-/* Folder abu dengan tiga lembar kertas (100 × 80, diperkecil 0,9 → 90 × 72) */
+/* Tahun aktif */
+.pub-jr-item[data-active="true"] .pub-jr-year {
+  opacity: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px #000000;
+  letter-spacing: 0.05em;
+}
+
+.pub[data-theme='dark'] .pub-jr-item[data-active="true"] .pub-jr-year {
+  -webkit-text-stroke: 2px #ffffff;
+}
+
+.pub-jr-item[data-active="true"] .pub-jr-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* --- Folder Arsip Proyek (Hitam Pekat #000000 saat aktif seperti Styfen Sagala) ----------------------- */
+
 .pub-jr-folder-wrap {
   position: relative;
   z-index: 2;
@@ -508,12 +592,29 @@
   transition: transform 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.pub[data-theme='dark'] .pub-jr-folder {
+  --folder-color: #737373;
+  --folder-back-color: #525252;
+}
+
+/* Folder aktif: JET BLACK (#000000) di light mode, PUTIH (#ffffff) di dark mode */
+.pub-jr-item[data-active="true"] .pub-jr-folder {
+  --folder-color: #000000;
+  --folder-back-color: #1a1a1a;
+}
+
+.pub[data-theme='dark'] .pub-jr-item[data-active="true"] .pub-jr-folder {
+  --folder-color: #ffffff;
+  --folder-back-color: #d4d4d4;
+}
+
 .pub-jr-folder-back {
   position: relative;
   width: 100px;
   height: 80px;
   border-radius: 0 8px 8px;
   background-color: var(--folder-back-color);
+  transition: background-color 400ms ease-in-out;
 }
 
 .pub-jr-folder-back::after {
@@ -525,6 +626,7 @@
   height: 10px;
   border-radius: 5px 5px 0 0;
   background-color: var(--folder-back-color);
+  transition: background-color 400ms ease-in-out;
 }
 
 .pub-jr-paper {
@@ -586,7 +688,8 @@
   transform-origin: 0 100%;
   transition:
     transform 400ms ease-in-out,
-    opacity 400ms ease-in-out;
+    opacity 400ms ease-in-out,
+    background-color 400ms ease-in-out;
 }
 
 .pub-jr-folder-front--right {
@@ -635,7 +738,6 @@
   transform: skew(-15deg) scaleY(0.3);
 }
 
-/* Tombol selebar folder (termasuk tab di atasnya); saat terbuka kertas di atasnya bisa diklik */
 .pub-jr-folder-button {
   position: absolute;
   inset: -12px -4px -4px;
@@ -653,6 +755,12 @@
   align-items: center;
   gap: 0.25rem;
   margin-top: 1rem;
+  opacity: 0.5;
+  transition: opacity 500ms ease;
+}
+
+.pub-jr-item[data-active="true"] .pub-jr-folder-text {
+  opacity: 1;
 }
 
 .pub-jr-folder-text b {
@@ -674,10 +782,9 @@
   background-color: rgb(255 255 255 / 0.2);
 }
 
-/* Petunjuk: abu acuan (#a3a3a3, 50%) terlalu pucat; di sini #737373 penuh */
 .pub-jr-folder-hint {
   display: none;
-  color: var(--n500);
+  color: var(--n400);
   font-size: 9px;
   font-weight: 700;
   line-height: 13.5px;
@@ -703,8 +810,13 @@
   }
 
   .pub-journey-title {
-    font-size: 6rem;
+    font-size: 5.5rem;
     line-height: 1;
+  }
+
+  .pub-journey-title-accent {
+    bottom: 0.75rem;
+    height: 1.25rem;
   }
 
   .pub-journey-intro {
@@ -809,46 +921,6 @@
   }
 }
 
-/* --- Interaksi garis dan titik: tahun, ikon, dan titik menyala saat ujung garis tirai melewatinya --- */
-
-.pub-jr-item .pub-jr-year {
-  transition: opacity 300ms ease, color 300ms ease;
-}
-
-.pub-jr-item[data-active="true"] .pub-jr-year {
-  opacity: 1;
-  color: var(--fg);
-}
-
-.pub-jr-item .pub-jr-icon {
-  transition: opacity 300ms ease, transform 300ms ease;
-}
-
-.pub-jr-item[data-active="true"] .pub-jr-icon {
-  opacity: 1;
-  transform: translate(-50%, -50%);
-}
-
-.pub-jr-item .pub-jr-dot-core {
-  transition: border-color 300ms ease, background-color 300ms ease, transform 300ms ease;
-}
-
-.pub-jr-item[data-active="true"] .pub-jr-dot-core {
-  border-color: var(--fg);
-  background-color: var(--fg);
-  transform: scale(1.2);
-}
-
-.pub-jr-item .pub-jr-dot-ring {
-  transition: opacity 300ms ease, transform 300ms ease, background-color 300ms ease;
-}
-
-.pub-jr-item[data-active="true"] .pub-jr-dot-ring {
-  background-color: var(--fg);
-  opacity: 0.25;
-  transform: scale(1.35);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pub-jr-card,
   .pub-jr-yearbox,
@@ -856,8 +928,13 @@
   .pub-jr-folder-wrap,
   .pub-jr-paper,
   .pub-jr-folder-front,
-  .pub-jr-paper-photo img {
+  .pub-jr-paper-photo img,
+  .pub-jr-dot-ring,
+  .pub-jr-dot-core,
+  .pub-jr-year,
+  .pub-jr-icon {
     transition: none;
+    animation: none;
   }
 
   .pub-jr-card:hover,

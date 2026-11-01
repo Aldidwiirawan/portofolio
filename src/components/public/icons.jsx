@@ -60,6 +60,7 @@ export const SoundOnIcon = (p) => (
   </Icon>
 )
 
+
 export const SoundOffIcon = (p) => (
   <Icon {...p}>
     <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z" />

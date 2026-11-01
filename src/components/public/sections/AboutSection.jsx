@@ -121,7 +121,7 @@ function getSkillIcon(skill) {
  */
 function AboutSection() {
   const data = usePublicData()
-  const { t, formatGpa, skillCategory, lang } = useI18n()
+  const { t, formatGpa, lang } = useI18n()
   const { status, data: profile } = data.profile
   if (status === 'loading') return <AboutSkeleton />
   if (!profile) return null
