@@ -323,9 +323,9 @@ export const PROJECT_OVERRIDES = {
       {
         url: '/projects/raw/madura_erd.webp',
         caption:
-          'Entity Relationship Diagram (ERD): Skema basis data relasional 10 tabel mencakup users, produk, kategori, transaksi, detail_transaksi, stokmasuk, stokkeluar, stokopname, stokhistori, dan biaya_operasional.',
+          'Entity Relationship Diagram (ERD): Skema basis data relasional 11 tabel mencakup users, produk, kategori, transaksi, detail_transaksi, stokmasuk, stokkeluar, stokopname, stokhistori, stokhistoriopname, dan biaya_operasional.',
         caption_en:
-          'Entity Relationship Diagram (ERD): 10-table relational database schema covering users, products, categories, transactions, transaction details, stock in/out/take, history, and operational costs.',
+          'Entity Relationship Diagram (ERD): 11-table relational database schema covering users, products, categories, transactions, transaction details, stock in/out/take, history, stock take history, and operational costs.',
         kind: 'diagram',
         label: 'ERD Basis Data',
         label_en: 'Database ERD',
