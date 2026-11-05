@@ -64,6 +64,18 @@ export const PROJECT_HIGHLIGHTS = {
       { value: '10 ERD Tables', label: 'Diskominfo Kediri' },
     ],
   },
+  'sim-absensi-mts-suguja': {
+    id: [
+      { value: 'Web & Desktop', label: 'Platform (Flutter)' },
+      { value: 'OneSignal + WA', label: 'Notifikasi Wali Murid' },
+      { value: '77 Siswa', label: '8 Rombel Kelas' },
+    ],
+    en: [
+      { value: 'Web & Desktop', label: 'Platform (Flutter)' },
+      { value: 'OneSignal + WA', label: 'Parent Notifications' },
+      { value: '77 Students', label: '8 Class Groups' },
+    ],
+  },
   'website-portofolio-pribadi': {
     id: [
       { value: 'Bilingual', label: 'Dukungan ID & EN' },

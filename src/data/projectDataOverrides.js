@@ -344,6 +344,96 @@ export const PROJECT_OVERRIDES = {
       },
     ],
   },
+  'sim-absensi-mts-suguja': {
+    title: 'SIM Absensi MTs Suguja: Dasbor Admin Sekolah',
+    title_en: 'MTs Suguja Attendance System: School Admin Dashboard',
+    thumbnail_url: '/projects/sim-absensi-mts-cover.webp',
+    description:
+      'Dasbor admin berbasis Flutter (web dan desktop) untuk MTs Sunan Gunung Jati: pengelolaan data guru, kelas, dan siswa, rekap presensi harian dan bulanan, verifikasi surat izin dan sakit dari wali murid, kartu QR presensi siswa, serta pengumuman ke HP wali murid lewat OneSignal Push dan WhatsApp. Terhubung dengan aplikasi mobile guru dan orang tua melalui satu basis data Supabase.',
+    description_en:
+      'A Flutter admin dashboard (web and desktop) for MTs Sunan Gunung Jati: teacher, class, and student records, daily and monthly attendance recaps, review of sick and leave letters sent by parents, student QR attendance cards, and announcements to parents\' phones via OneSignal Push and WhatsApp. It shares one Supabase database with the teacher and parent mobile app.',
+    my_role:
+      'Anggota Tim Pengembang (tim 5 mahasiswa): membangun halaman Data Guru (tabel guru dengan avatar, form tambah dan edit, serta dialog hapus) dan halaman Data Absensi (daftar presensi, form koreksi status kehadiran, tanggal, waktu masuk dan pulang, serta keterangan) yang membaca dan menulis langsung ke Supabase, lengkap dengan pesan berhasil atau gagal dan tampilan saat data kosong.',
+    my_role_en:
+      'Development Team Member (5-student team): built the Teacher Data page (teacher table with avatars, add and edit forms, delete dialog) and the Attendance Data page (attendance list, correction form for attendance status, date, check-in and check-out time, and notes) that read and write directly to Supabase, with success and error messages and an empty state.',
+    background:
+      'MTs Sunan Gunung Jati (Suguja) membutuhkan presensi digital yang menghubungkan sekolah, guru, dan wali murid. Proyek ini dikerjakan tim 5 mahasiswa mulai Oktober 2025 sebagai bagian dari dua aplikasi yang saling terhubung: aplikasi mobile untuk guru (memindai QR presensi siswa) dan orang tua (mengajukan surat izin), serta dasbor admin ini sebagai pusat pengelolaan data sekolah. Keduanya memakai satu basis data Supabase.',
+    background_en:
+      'MTs Sunan Gunung Jati (Suguja) needed digital attendance that connects the school, its teachers, and parents. A team of 5 students built it starting in October 2025 as two connected apps: a mobile app for teachers (scanning student QR codes) and parents (submitting leave letters), and this admin dashboard as the school\'s data hub. Both share one Supabase database.',
+    problem:
+      'Presensi siswa dicatat di lembar kertas per kelas, sehingga rekap harian dan bulanan harus dihitung manual dan sulit dipantau lintas kelas. Surat izin dan sakit datang dalam bentuk kertas yang mudah tercecer dan tidak langsung masuk ke rekap kehadiran. Wali murid juga tidak segera tahu bila anaknya terlambat atau tidak hadir, dan pengumuman sekolah masih disebar satu per satu lewat grup chat.',
+    problem_en:
+      'Attendance was recorded on paper sheets per class, so daily and monthly recaps were counted by hand and hard to follow across classes. Sick and leave letters arrived on paper, got lost easily, and never reached the attendance recap directly. Parents did not find out quickly when their child was late or absent, and school announcements were still passed around one chat group at a time.',
+    solution:
+      'Dasbor admin Flutter yang berjalan di browser dan desktop Windows, terhubung ke Supabase (PostgreSQL, Auth, Storage, Realtime). Admin mengelola data guru, kelas (wali kelas, jam masuk dan pulang), dan siswa (aktif, lulus, pindah) dengan impor Excel dan kenaikan kelas massal. Presensi yang dikirim guru dari aplikasi mobile langsung muncul di dasbor, bisa dikoreksi admin, dan direkap per hari, per bulan, dan per semester. Surat izin dan sakit dari wali murid diperiksa di satu halaman dan bisa dicadangkan ke ZIP. Halaman Notifikasi mengirim pengumuman ke semua wali murid, per kelas, atau per siswa lewat OneSignal Push, WhatsApp, atau keduanya.',
+    solution_en:
+      'A Flutter admin dashboard that runs in the browser and on Windows desktop, backed by Supabase (PostgreSQL, Auth, Storage, Realtime). Admins manage teachers, classes (homeroom teacher, check-in and check-out times), and students (active, graduated, transferred), with Excel import and bulk class promotion. Attendance sent by teachers from the mobile app shows up on the dashboard right away, can be corrected by the admin, and is recapped per day, month, and semester. Sick and leave letters from parents are reviewed on one page and can be backed up to a ZIP file. The Notifications page sends announcements to all parents, one class, or one student via OneSignal Push, WhatsApp, or both.',
+    features: [
+      'Dasbor ringkasan yang diperbarui otomatis: kehadiran hari ini, terlambat, absen (sakit, izin, alfa), total siswa aktif, rekap semester, grafik kehadiran, dan distribusi per kelas',
+      'Data guru, kelas, dan siswa: wali kelas, jam masuk dan pulang per kelas, status siswa (aktif, lulus, pindah), impor Excel, dan kenaikan kelas massal',
+      'Presensi harian dan rekap bulanan dengan filter tanggal dan kelas, koreksi status oleh admin (waktu masuk, waktu pulang, keterangan, pencatat perubahan), serta ekspor Excel, CSV, dan PDF',
+      'Kartu QR presensi per siswa yang dicetak per kelas ke PDF, untuk dipindai guru lewat aplikasi mobile',
+      'Pemeriksaan surat izin dan sakit dari wali murid dengan pratinjau lampiran, filter jenis dan tanggal, serta cadangan ZIP',
+      'Pusat notifikasi: pengumuman ke semua wali murid, per kelas, atau per siswa lewat OneSignal Push, WhatsApp, atau keduanya, dengan template pesan, riwayat kiriman, dan uji koneksi gateway',
+    ],
+    features_en: [
+      'Self-updating summary dashboard: today\'s attendance, late arrivals, absences (sick, leave, unexcused), active students, semester recap, attendance chart, and per-class distribution',
+      'Teacher, class, and student records: homeroom teachers, check-in and check-out times per class, student status (active, graduated, transferred), Excel import, and bulk class promotion',
+      'Daily attendance and monthly recap with date and class filters, admin corrections (check-in, check-out, notes, who changed it), and Excel, CSV, and PDF export',
+      'QR attendance card for every student, printed per class to PDF, for teachers to scan with the mobile app',
+      'Review of sick and leave letters from parents with attachment preview, type and date filters, and ZIP backup',
+      'Notification center: announcements to all parents, one class, or one student via OneSignal Push, WhatsApp, or both, with message templates, send history, and a gateway connection test',
+    ],
+    outcome:
+      'Dasbor berjalan di browser dan desktop Windows dengan data 77 siswa aktif di 8 rombel kelas (7A sampai 9C) beserta guru dan wali kelasnya. Presensi dari aplikasi guru langsung terekap tanpa hitung manual, surat izin dan sakit tercatat bersama data kehadiran, dan sekolah punya jalur pengumuman langsung ke HP wali murid. Kodenya disusun berlapis (core, data, logic, presentation) dengan cache stale-while-revalidate untuk data master, serta dilengkapi unit test dan widget test.',
+    outcome_en:
+      'The dashboard runs in the browser and on Windows desktop with 77 active students in 8 class groups (7A to 9C), along with their teachers and homeroom teachers. Attendance from the teacher app is recapped without manual counting, sick and leave letters sit next to the attendance data, and the school has a direct announcement channel to parents\' phones. The code is layered (core, data, logic, presentation) with a stale-while-revalidate cache for master data, plus unit and widget tests.',
+    gallery: [
+      {
+        url: '/projects/raw/simabsensi_dashboard.webp',
+        caption:
+          'Dashboard Admin: Ringkasan kehadiran hari ini, rekap semester, grafik statistik kehadiran, dan distribusi siswa per kelas.',
+        caption_en:
+          'Admin Dashboard: Today\'s attendance summary, semester recap, attendance chart, and student distribution per class.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/simabsensi_data_siswa.webp',
+        caption:
+          'Data Siswa: Filter kelas, nama, dan status, dengan tombol impor Excel, kenaikan kelas massal, dan cetak QR Code per kelas.',
+        caption_en:
+          'Student Data: Class, name, and status filters, with Excel import, bulk class promotion, and per-class QR code printing.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/simabsensi_notifikasi.webp',
+        caption:
+          'Pusat Notifikasi: Kirim pengumuman ke semua wali murid, per kelas, atau per siswa lewat OneSignal Push, WhatsApp, atau keduanya.',
+        caption_en:
+          'Notification Center: Send announcements to all parents, one class, or one student via OneSignal Push, WhatsApp, or both.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/simabsensi_surat.webp',
+        caption:
+          'Data Surat Siswa: Arsip surat izin dan sakit dari wali murid dengan filter jenis dan tanggal, pratinjau lampiran, dan cadangan ZIP.',
+        caption_en:
+          'Student Letters: Archive of sick and leave letters from parents with type and date filters, attachment preview, and ZIP backup.',
+        kind: 'gallery',
+        device: 'web',
+      },
+      {
+        url: '/projects/raw/simabsensi_data_kelas.webp',
+        caption: 'Data Kelas: Daftar rombel dengan wali kelas serta jam masuk dan jam pulang masing-masing kelas.',
+        caption_en: 'Class Data: Class groups with their homeroom teacher and check-in and check-out times.',
+        kind: 'gallery',
+        device: 'web',
+      },
+    ],
+  },
 }
 
 /**
