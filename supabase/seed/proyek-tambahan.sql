@@ -37,7 +37,8 @@ BEGIN;
 -- ==============================================================================
 -- 1. PROYEK: AyamBebek → Jeejak (konsol web)
 -- ==============================================================================
--- Dicari lewat slug lama/baru atau judul lama/baru; slug baru didahulukan saat dijalankan ulang.UPDATE public.projects
+-- Dicari lewat slug lama/baru atau judul lama/baru; slug baru didahulukan saat dijalankan ulang.
+UPDATE public.projects
 SET
   slug = 'jeejak-console',
   title = 'Jeejak: Konsol Web Bukti Packing',
