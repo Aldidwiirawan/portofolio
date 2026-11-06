@@ -14,6 +14,9 @@
 --
 -- Teksnya sama dengan PROJECT_OVERRIDES['mobile-absensi-mts-suguja'] di src/data/projectDataOverrides.js.
 --
+-- 3. Teks "Bagian saya" (ID dan EN) diperbarui ke versi terbaru (sama seperti proyek SIM Absensi).
+--    Langkah ini juga berlaku bila seed ini sudah pernah dijalankan.
+--
 -- Aman dijalankan ulang: bila slug, judul yang mirip, atau tautan repo yang sama sudah ada, urutan
 -- tidak digeser dan tidak ada baris baru. Satu transaksi: bila satu perintah gagal, tidak ada yang
 -- berubah. Query setelah COMMIT menampilkan semua proyek menurut urutan tampil.
@@ -57,8 +60,8 @@ SELECT
   'completed', 2025, 'mobile',
   'MTs Sunan Gunung Jati (Suguja)',
   'MTs Sunan Gunung Jati (Suguja)',
-  'Anggota Tim Proyek SIM Absensi (tim 5 mahasiswa): kode aplikasi mobile ini ditulis rekan satu tim. Saya mengerjakan dasbor admin web yang memakai basis data Supabase yang sama (halaman Data Guru dan Data Absensi), serta ikut menyusun kebutuhan dan menguji alur aplikasi mobile.',
-  'SIM Absensi Project Team Member (5-student team): the code of this mobile app was written by my teammates. I built parts of the web admin dashboard that uses the same Supabase database (the Teacher Data and Attendance Data pages), and helped define the requirements and test the mobile app''s flows.',
+  'Anggota Tim Pengembang (tim 5 mahasiswa), satu proyek dengan dasbor admin SIM Absensi: membangun halaman Data Guru (tabel guru dengan avatar, form tambah dan edit, serta dialog hapus) dan halaman Data Absensi (daftar presensi, form koreksi status kehadiran, tanggal, waktu masuk dan pulang, serta keterangan) di dasbor admin, yang membaca dan menulis langsung ke basis data Supabase yang juga dipakai aplikasi mobile ini.',
+  'Development Team Member (5-student team), one project with the SIM Absensi admin dashboard: built the Teacher Data page (teacher table with avatars, add and edit forms, delete dialog) and the Attendance Data page (attendance list, correction form for attendance status, date, check-in and check-out time, and notes) in the admin dashboard, which read and write directly to the Supabase database this mobile app also uses.',
   'Sistem presensi MTs Sunan Gunung Jati (Suguja) terdiri dari dua aplikasi yang memakai satu basis data Supabase: dasbor admin untuk mengelola data sekolah, dan aplikasi mobile ini untuk orang-orang yang setiap hari terlibat langsung dengan kehadiran siswa, yaitu petugas di gerbang, guru dan wali kelas, serta orang tua. Pengembangannya dimulai Oktober 2025 oleh tim 5 mahasiswa.',
   'The attendance system of MTs Sunan Gunung Jati (Suguja) is made of two apps sharing one Supabase database: an admin dashboard to manage school data, and this mobile app for the people who deal with student attendance every day: gate staff, teachers and homeroom teachers, and parents. A team of 5 students started building it in October 2025.',
   'Presensi dicatat manual di lembar kertas per kelas, sehingga guru baru tahu siapa yang terlambat atau tidak hadir setelah lembar itu dihitung. Orang tua tidak segera tahu apakah anaknya sudah sampai di sekolah. Surat izin dan sakit dititipkan dalam bentuk kertas, mudah tercecer, dan status kehadirannya harus diubah satu per satu. Guru juga tidak selalu berada di depan komputer untuk membuka dasbor sekolah.',
@@ -157,6 +160,12 @@ WHERE NOT EXISTS (
       WHERE lower(rtrim(btrim(l.item ->> 'url'), '/')) = 'https://github.com/aldidwiirawan/mobile-absensi-siswa-mts-suguja'
     )
 );
+
+-- 3. Teks peran (my_role) disamakan dengan versi terbaru, juga bila proyek sudah ada sebelumnya
+UPDATE public.projects
+SET my_role = 'Anggota Tim Pengembang (tim 5 mahasiswa), satu proyek dengan dasbor admin SIM Absensi: membangun halaman Data Guru (tabel guru dengan avatar, form tambah dan edit, serta dialog hapus) dan halaman Data Absensi (daftar presensi, form koreksi status kehadiran, tanggal, waktu masuk dan pulang, serta keterangan) di dasbor admin, yang membaca dan menulis langsung ke basis data Supabase yang juga dipakai aplikasi mobile ini.',
+  my_role_en = 'Development Team Member (5-student team), one project with the SIM Absensi admin dashboard: built the Teacher Data page (teacher table with avatars, add and edit forms, delete dialog) and the Attendance Data page (attendance list, correction form for attendance status, date, check-in and check-out time, and notes) in the admin dashboard, which read and write directly to the Supabase database this mobile app also uses.'
+WHERE slug = 'mobile-absensi-mts-suguja';
 
 COMMIT;
 
