@@ -76,6 +76,18 @@ export const PROJECT_HIGHLIGHTS = {
       { value: '77 Students', label: '8 Class Groups' },
     ],
   },
+  'mobile-absensi-mts-suguja': {
+    id: [
+      { value: 'Android & iOS', label: 'Platform (Flutter)' },
+      { value: '3 Peran', label: 'Petugas, Guru, Wali Murid' },
+      { value: 'QR Kontinu', label: 'Presensi di Gerbang' },
+    ],
+    en: [
+      { value: 'Android & iOS', label: 'Platform (Flutter)' },
+      { value: '3 Roles', label: 'Staff, Teacher, Parent' },
+      { value: 'Continuous QR', label: 'Gate Attendance' },
+    ],
+  },
   'website-portofolio-pribadi': {
     id: [
       { value: 'Bilingual', label: 'Dukungan ID & EN' },
