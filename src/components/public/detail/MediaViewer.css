@@ -111,7 +111,10 @@
   background-color: var(--soft);
 }
 
+/* absolut ke seluruh bidang: height 100% di sel grid ikut tinggi gambar, gambar potret jadi terpotong */
 .pub-viewer-stage img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
